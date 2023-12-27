@@ -1,0 +1,16 @@
+version: "3"
+
+tasks:
+  default:
+    desc: Setup everything
+    cmds:
+      - task: bun
+      - task: secret
+  bun:
+    desc: Setups
+    cmds:
+      - bun i
+  secret:
+    desc: Start development
+    cmds:
+      - ./scripts/local/secrets.sh

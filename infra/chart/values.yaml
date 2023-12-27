@@ -1,0 +1,144 @@
+landscape: &landscape lapras
+
+zinc:
+  serviceTree:
+    landscape: *landscape
+  api:
+    enabled: true
+    serviceTree:
+      landscape: *landscape
+    replicaCount: 1
+
+    appSettings:
+      Database:
+        MAIN:
+          AutoMigrate: true
+
+    configMountPath: /app/App/Config
+
+    service:
+      type: ClusterIP
+      port: 80
+      containerPort: 9001
+
+    ingress:
+      enabled: true
+      className: traefik
+      hosts:
+        - host: api.zinc.nitroso.lapras.lvh.me
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls: []
+
+  migration:
+    enabled: false
+    nameOverride: "zinc-migration"
+
+  maindb:
+    enable: true
+    nameOverride: "zinc-maindb"
+
+  maincache:
+    enable: true
+    nameOverride: "zinc-maincache"
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "250m"
+  mainstorage:
+    enable: true
+    nameOverride: "zinc-mainstorage"
+
+helium:
+  enable: true
+  appSettings:
+    cache:
+      live:
+        endpoints:
+          0: tin-livecache-master:6379
+
+tin:
+  serviceTree:
+    landscape: *landscape
+
+  bromine:
+    enable: true
+
+  buyer:
+    serviceTree:
+      landscape: *landscape
+
+    imagePullSecrets: []
+
+    nameOverride: "tin-buyer"
+
+    replicaCount: 1
+
+    configMountPath: /app/config
+
+  cdc:
+    serviceTree:
+      landscape: *landscape
+
+    imagePullSecrets: []
+
+    nameOverride: "tin-cdc"
+
+    replicaCount: 1
+
+    configMountPath: /app/config
+
+  poller:
+    serviceTree:
+      landscape: *landscape
+
+    imagePullSecrets: []
+
+    nameOverride: "tin-poller"
+
+    replicaCount: 1
+
+    configMountPath: /app/config
+
+  enricher:
+    serviceTree:
+      landscape: *landscape
+
+    imagePullSecrets: []
+
+    nameOverride: "tin-enricher"
+
+    replicaCount: 1
+
+    configMountPath: /app/config
+
+  reserver:
+    serviceTree:
+      landscape: *landscape
+
+    imagePullSecrets: []
+
+    nameOverride: "tin-reserver"
+
+    replicaCount: 1
+
+    configMountPath: /app/config
+
+  zinc:
+    enable: false
+
+  helium:
+    enable: false
+
+  livecache:
+    nameOverride: "tin-livecache"
+    commonAnnotations:
+      atomi.cloud/landscape: *landscape
+    commonLabels:
+      atomi.cloud/landscape: *landscape
+    podAnnotations:
+      atomi.cloud/landscape: *landscape

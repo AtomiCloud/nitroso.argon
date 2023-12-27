@@ -1,0 +1,143 @@
+{
+  "AggregatedError": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "definitions": {
+      "Problem": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "description": "The specific message when this error type occured",
+            "type": "string"
+          }
+        },
+        "required": ["detail"],
+        "type": "object"
+      }
+    },
+    "description": "The users is not logged in, and is required to logged in to perform this action",
+    "properties": {
+      "detail": {
+        "description": "The specific message when this error type occured",
+        "type": "string"
+      },
+      "innerErrors": {
+        "description": "the actual errors",
+        "items": {
+          "$ref": "#/definitions/Problem"
+        },
+        "type": "array"
+      }
+    },
+    "required": ["detail", "innerErrors"],
+    "type": "object"
+  },
+  "LocalExceptionError": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "detail": {
+        "description": "The specific message when this error type occured",
+        "type": "string"
+      },
+      "message": {
+        "description": "the message of the error caught",
+        "type": "string"
+      },
+      "stacktrace": {
+        "description": "the stacktrace of the error caught, if exist",
+        "type": "string"
+      },
+      "type": {
+        "description": "the name of the error caught",
+        "type": "string"
+      }
+    },
+    "required": ["detail", "message", "type"],
+    "type": "object"
+  },
+  "LocalStringError": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "detail": {
+        "description": "The specific message when this error type occured",
+        "type": "string"
+      },
+      "error": {
+        "description": "the local error is catch with a try-catch block",
+        "type": "string"
+      }
+    },
+    "required": ["detail", "error"],
+    "type": "object"
+  },
+  "LocalUnknownError": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "detail": {
+        "description": "The specific message when this error type occured",
+        "type": "string"
+      },
+      "error": {
+        "description": "the local error is catch with a try-catch block serialized as string",
+        "type": "string"
+      }
+    },
+    "required": ["detail", "error"],
+    "type": "object"
+  },
+  "Problem": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "detail": {
+        "description": "The specific message when this error type occured",
+        "type": "string"
+      }
+    },
+    "required": ["detail"],
+    "type": "object"
+  },
+  "Unauthenticated": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "description": "The users is not logged in, and is required to logged in to perform this action",
+    "properties": {
+      "detail": {
+        "description": "The specific message when this error type occured",
+        "type": "string"
+      }
+    },
+    "required": ["detail"],
+    "type": "object"
+  },
+  "Unauthorized": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "description": "The users is not logged in, and is required to logged in to perform this action",
+    "properties": {
+      "detail": {
+        "description": "The specific message when this error type occured",
+        "type": "string"
+      },
+      "scopeGranted": {
+        "description": "scope granted to the user attempting to perform this action",
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "scopeRequired": {
+        "description": "scope required to perform this action",
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      }
+    },
+    "required": ["detail", "scopeGranted", "scopeRequired"],
+    "type": "object"
+  }
+}

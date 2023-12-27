@@ -1,0 +1,108 @@
+landscape: &landscape lapras
+
+zinc:
+  serviceTree:
+    landscape: *landscape
+  bromine:
+    enable: true
+
+  api:
+    image:
+      repository: ghcr.io/atomicloud/nitroso.zinc/api-arm
+    enabled: true
+    serviceTree:
+      landscape: *landscape
+
+    fullnameOverride: "zinc-api"
+
+    configMountPath: /app/Config
+
+    ingress:
+      enabled: true
+      className: traefik
+      hosts:
+        - host: api.zinc.nitroso.lapras.lvh.me
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls: []
+
+  maindb:
+    enable: true
+    fullnameOverride: "zinc-maindb"
+
+  maincache:
+    enable: true
+    fullnameOverride: "zinc-maincache"
+
+  mainstorage:
+    enable: true
+    fullnameOverride: "zinc-mainstorage"
+
+helium:
+  enable: true
+  appSettings:
+    cache:
+      live:
+        endpoints:
+          0: tin-livecache-master:6379
+
+tin:
+  serviceTree:
+    landscape: *landscape
+
+  bromine:
+    enable: true
+
+  buyer:
+    serviceTree:
+      landscape: *landscape
+
+    image:
+      repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin-arm
+
+    fullnameOverride: "tin-buyer"
+
+  cdc:
+    serviceTree:
+      landscape: *landscape
+    fullnameOverride: "tin-cdc"
+    image:
+      repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin-arm
+
+  poller:
+    serviceTree:
+      landscape: *landscape
+
+    fullnameOverride: "tin-poller"
+    image:
+      repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin-arm
+
+  enricher:
+    serviceTree:
+      landscape: *landscape
+    fullnameOverride: "tin-enricher"
+    image:
+      repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin-arm
+
+  reserver:
+    serviceTree:
+      landscape: *landscape
+    fullnameOverride: "tin-reserver"
+    image:
+      repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin-arm
+
+  zinc:
+    enable: false
+
+  helium:
+    enable: false
+
+  livecache:
+    fullnameOverride: "tin-livecache"
+    commonAnnotations:
+      atomi.cloud/landscape: *landscape
+    commonLabels:
+      atomi.cloud/landscape: *landscape
+    podAnnotations:
+      atomi.cloud/landscape: *landscape

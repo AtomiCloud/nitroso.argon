@@ -1,0 +1,15 @@
+name: CI-CD
+
+on:
+  push:
+
+jobs:
+  precommit:
+    name: Pre-commit Check
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: Run pre-commit
+        run: nix develop .#ci -c ./scripts/ci/pre-commit.sh

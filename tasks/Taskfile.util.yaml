@@ -1,0 +1,10 @@
+version: "3"
+
+tasks:
+  latest-oci:
+    internal: true
+    silent: true
+    desc: Get the latest version of a Helm Chart in OCI version
+    cmds:
+      - >-
+        echo "{{.NAME}}: $(skopeo list-tags docker://{{.OCI}} | jq -r '.Tags[]' | grep -v v0.0.0 | sort -V | tail -n 1)"

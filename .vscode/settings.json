@@ -1,0 +1,8 @@
+{
+  "yaml.schemas": {
+    "https://taskfile.dev/schema.json": [
+      "file:///Users/ernest/Workspace/atomi/nitroso/argon/tasks/Taskfile.setup.yaml",
+      "file:///Users/ernest/Workspace/atomi/nitroso/argon/tasks/Taskfile.util.yaml"
+    ]
+  }
+}

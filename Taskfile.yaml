@@ -1,0 +1,60 @@
+version: "3"
+
+includes:
+  setup: tasks/Taskfile.setup.yaml
+  stop: tasks/Taskfile.stop.yaml
+  tear: tasks/Taskfile.tear.yaml
+  helm: Taskfile.helm.yaml
+  util: tasks/Taskfile.util.yaml
+
+vars:
+  API: http://api.zinc.nitroso.lapras.lvh.me:20010
+
+tasks:
+  dev:
+    desc: Start development
+    cmds:
+      - ./scripts/local/dev.sh ./config/dev.yaml bun run dev
+  build:
+    desc: Build project
+    cmds:
+      - bun run build
+  add:
+    desc: Add Component
+    cmds:
+      - bun x shadcn-svelte@latest add {{.CLI_ARGS}}
+  preview:
+    desc: Preview production build
+    cmds:
+      - bun run preview
+
+  test:
+    desc: Run tests
+    cmds:
+      - bun run test
+  error-schema:v1:
+    desc: Generate error schema
+    cmds:
+      - ./scripts/local/error_schema.sh v1
+
+  sdk-gen:
+    desc: Generate SDK from Swagger
+    env:
+      API_URL: "{{.API}}"
+    cmds:
+      - ./scripts/local/sdk_gen.sh v1
+  latest:
+    desc: Get the latest versions of dependencies
+    cmds:
+      - task: util:latest-oci
+        vars:
+          NAME: zinc
+          OCI: ghcr.io/atomicloud/nitroso.zinc/root-chart
+      - task: util:latest-oci
+        vars:
+          NAME: helium
+          OCI: ghcr.io/atomicloud/nitroso.helium/root-chart
+      - task: util:latest-oci
+        vars:
+          NAME: tin
+          OCI: ghcr.io/atomicloud/nitroso.tin/root-chart
