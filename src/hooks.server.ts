@@ -27,6 +27,7 @@ export const handle = SvelteKitAuth({
     },
   ],
   callbacks: {
+    // @ts-ignore
     session: async ({ session, token }) => {
       const t = token as JWT;
       const s = session as Session;
