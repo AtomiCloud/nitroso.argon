@@ -8,10 +8,10 @@
     import Page from "$lib/components/complex/page.svelte";
     import type {ProblemDetails} from "../../errors/problem_details";
     import {Check, Loader, X} from "lucide-svelte";
-    import * as Card from "$lib/components/ui/card";
-    import * as Tooltip from "$lib/components/ui/tooltip";
     import {goto} from "$app/navigation";
 
+    import * as Card from "$lib/components/ui/card";
+    import * as Tooltip from "$lib/components/ui/tooltip";
     let name = "";
 
     let typed = false;
@@ -57,6 +57,7 @@
     }
 
     let uExist = false;
+
     function update(u: boolean): string {
         uExist = u;
         return ""
@@ -74,9 +75,11 @@
         queue={0}
 >
     <div class="flex justify-center">
-        <Card.Root class="w-full m-8 lg:w-[640px] p-8">
+        <Card.Root
+                class="w-full p-0 border-none shadow-none md:border-solid md:border md:shadow-sm m-0 md:m-8 lg:w-[640px] md:p-8">
             <Card.Header>
-                <Card.Description>Choose your username for CyanPrint.
+                <Card.Description>
+                    Choose your username for BunnyBooker.
                     This cannot be changed and needs to be unique.
                 </Card.Description>
             </Card.Header>
@@ -89,7 +92,7 @@
                                 <Input id="name" placeholder="Your username" on:input={() => typed=true}
                                        bind:value={name}/>
                                 {#await exist(name)}
-                                    <div class="animate-rotate">
+                                    <div class="animate-spin">
                                         <Loader class="w-6 h-6 text-muted-foreground"/>
                                     </div>
                                 {:then bool}
@@ -125,14 +128,10 @@
                 </form>
             </Card.Content>
             <Card.Footer class="flex justify-end">
-                <Button on:click={() => createUser(name)} {disabled} >Confirm</Button>
+                <Button on:click={() => createUser(name)} {disabled}>Confirm</Button>
             </Card.Footer>
         </Card.Root>
 
+
     </div>
 </Page>
-
-<style>
-
-
-</style>
