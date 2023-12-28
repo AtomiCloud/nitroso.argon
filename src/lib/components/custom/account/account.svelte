@@ -16,8 +16,8 @@
             >
                 <Avatar.Root class="h-8 w-8">
                     <Avatar.Image src="{$page.data.session.user?.image}"
-                                  alt="@{$page.data.session.user?.name}"/>
-                    <Avatar.Fallback>{$page.data.session.user?.name?.slice(0, 2)?.toUpperCase()}</Avatar.Fallback>
+                                  alt="@{$page.data.session.user?.email}"/>
+                    <Avatar.Fallback>{$page.data.session.user?.email?.slice(0, 2)?.toUpperCase()}</Avatar.Fallback>
                 </Avatar.Root>
             </Button>
         </DropdownMenu.Trigger>

@@ -11,7 +11,6 @@
 
     onMount(() => {
         if ($page.data.auth.signIn) signIn("descope");
-
     });
 </script>
 <svelte:head>
