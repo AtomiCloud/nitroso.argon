@@ -7,10 +7,10 @@
     import {MainNav} from "../lib/components/custom/main-nav";
     import {setInitialClassState} from "$lib/components/ui/light-switch/light-switch";
     import {Account} from "../lib/components/custom/account";
+    import logo from "$lib/assets/nitroso-logo-fs8.png"
 
     onMount(() => {
         if ($page.data.auth.signIn) signIn("descope");
-
     });
 </script>
 <svelte:head>
@@ -21,7 +21,7 @@
     <div class="border-b border-b-muted">
         <div class="flex h-16 items-center justify-between px-4 w-11/12 max-w-[1200px] mx-auto">
             <a href="/" class="flex items-center space-x-2">
-<!--                <img src="{cyanprint}" alt="CyanPrint" class="h-12 w-12">-->
+                <img src="{logo}" alt="CyanPrint" class="h-12 w-12">
                 <span class="hidden text-foreground sm:inline-block font-bold">BunnyBooker</span>
             </a>
             <MainNav></MainNav>
