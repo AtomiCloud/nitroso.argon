@@ -20,6 +20,7 @@
     import BsFacebook from "svelte-icons-pack/bs/BsFacebook";
     import * as Accordion from "$lib/components/ui/accordion";
     import * as Table from "$lib/components/ui/table";
+    import {Footer} from "$lib/components/custom/footer";
 
     console.log("Configuration", config.app);
 
@@ -370,13 +371,13 @@
                         </ol>
                         <p class="my-2">
                             The above personal data handling is for BunnyBooker only. Click
-                            <a class="underline text-blue-600 hover:text-blue-800 visited:text-purple-600">
+                            <a href="/privacy" class="underline hover:text-amber-300">
                                 here </a> to
                             read more about BunnyBooker's personal data handling.
                         </p>
                         <p class="my-2">
                             If you would like to find out how your personal data is handled on the KTMB website, you may visit
-                            <a class="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                            <a class="underline hover:text-amber-300"
                                     href="https://www.ktmb.com.my/assets/pdf/2022/customer_privacy_policy.pdf">here</a>
                         </p>
                     </Accordion.Content>
@@ -487,28 +488,8 @@
         </div>
     </div>
 
-
-
-    <div class="w-full bg-[#FCCA3A] text-black pb-24">
-        <div class="flex align-center justify-center gap-8 p-8 text-black">
-            <a href="https://wa.me/6588178504" class="cursor-pointer hover:text-green-500">
-                <Icon src={BsWhatsapp} size="24" color="currentColor"/>
-            </a>
-            <a href="https://www.facebook.com/profile.php?id=61554414882276&mibextid=ZbWKwL" class="cursor-pointer hover:text-blue-500">
-                <Icon src={BsFacebook} size="24" color="currentColor"/>
-            </a>
-            <a href="https://www.instagram.com/bunnybooker.sg?utm_source=qr&igsh=MWxrMDFkN2diczlnZg==" class="cursor-pointer hover:text-pink-500">
-                <Icon src={BsInstagram} size="24" color="currentColor"/>
-            </a>
-            <a href="https://t.me/bunnybooker" class="cursor-pointer hover:text-sky-500">
-                <Icon src={BsTelegram} size="24" color="currentColor"/>
-            </a>
-            <a href="mailto:support@bunnybooker.com" class="cursor-pointer hover:text-rose-500">
-                <Icon src={AiOutlineMail} size="24" color="currentColor"/>
-            </a>
-            <a href="tel:+6588178504" class="cursor-pointer hover:text-red-500">
-                <Icon src={BsTelephone} size="24" color="currentColor"/>
-            </a>
-        </div>
+    <hr>
+    <div class="w-full bg-slate-800 text-white pb-12 pt-8">
+        <Footer/>
     </div>
 </Page>
