@@ -491,24 +491,24 @@
 
     <div class="w-full bg-[#FCCA3A] text-black pb-24">
         <div class="flex align-center justify-center gap-8 p-8 text-black">
-            <div class="cursor-pointer hover:text-green-500">
+            <a href="https://wa.me/6588178504" class="cursor-pointer hover:text-green-500">
                 <Icon src={BsWhatsapp} size="24" color="currentColor"/>
-            </div>
-            <div class="cursor-pointer hover:text-blue-500">
+            </a>
+            <a href="https://www.facebook.com/profile.php?id=61554414882276&mibextid=ZbWKwL" class="cursor-pointer hover:text-blue-500">
                 <Icon src={BsFacebook} size="24" color="currentColor"/>
-            </div>
-            <div class="cursor-pointer hover:text-pink-500">
+            </a>
+            <a href="https://www.instagram.com/bunnybooker.sg?utm_source=qr&igsh=MWxrMDFkN2diczlnZg==" class="cursor-pointer hover:text-pink-500">
                 <Icon src={BsInstagram} size="24" color="currentColor"/>
-            </div>
-            <div class="cursor-pointer hover:text-sky-500">
+            </a>
+            <a href="https://t.me/bunnybooker" class="cursor-pointer hover:text-sky-500">
                 <Icon src={BsTelegram} size="24" color="currentColor"/>
-            </div>
-            <div class="cursor-pointer hover:text-rose-500">
+            </a>
+            <a href="mailto:support@bunnybooker.com" class="cursor-pointer hover:text-rose-500">
                 <Icon src={AiOutlineMail} size="24" color="currentColor"/>
-            </div>
-            <div class="cursor-pointer hover:text-red-500">
+            </a>
+            <a href="tel:+6588178504" class="cursor-pointer hover:text-red-500">
                 <Icon src={BsTelephone} size="24" color="currentColor"/>
-            </div>
+            </a>
         </div>
     </div>
 </Page>
