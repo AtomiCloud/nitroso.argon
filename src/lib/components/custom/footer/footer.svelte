@@ -31,7 +31,7 @@ import BsTelephone from "svelte-icons-pack/bs/BsTelephone.js";
     </a>
 </div>
 <div class="flex flex-col justify-center align-center text-center">
-    <a href="/policy" class="underline hover:text-amber-300">Delivery, Cancellation & Refund Policy </a>
+    <a href="/policy" class="underline hover:text-amber-300">Delivery, Cancellation & Refund Policy</a>
     <a href="/privacy" class="underline hover:text-amber-300">Privacy Policy</a>
     <a href="/terms" class="underline hover:text-amber-300">Terms of Use</a>
 </div>
