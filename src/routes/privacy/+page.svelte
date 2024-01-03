@@ -198,7 +198,7 @@
                     business purposes.
                 </li>
 
-                <h2 class="py-2 text-xl font-semibold">RTRANSFERS OF PERSONAL DATA OUTSIDE OF SINGAPORE</h2>
+                <h2 class="py-2 text-xl font-semibold">TRANSFERS OF PERSONAL DATA OUTSIDE OF SINGAPORE</h2>
                 <li>
                     We generally do not transfer your personal data to countries outside of Singapore. However,
                     if we do so, we will obtain your consent for the transfer to be made and we will take steps to

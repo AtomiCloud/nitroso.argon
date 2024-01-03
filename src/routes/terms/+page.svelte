@@ -13,9 +13,9 @@
             <h1 class="text-6xl">Terms and Condition</h1>
             <p class="py-2">
                 All access to any area on our websites at BunnyBooker is governed by
-                the terms and conditions below ("Terms"). If you are not comfortable
-                with any of these Terms, we would advise you to exit.
-                Please continue only if you can accept these Terms.
+                the terms and conditions below ("Terms"). If you are not comfortable with
+                any of these Terms, we would advise you to exit. Please continue only if
+                you can accept these Terms.
             </p>
             <p class="py-2">
                 In these Terms, the words "we," "our," and "us" refer to BunnyBooker.
@@ -24,8 +24,8 @@
             <h2 class="py-2 text-3xl">Access to BunnyBooker</h2>
             <p class="py-2">
                 The accessibility and operation of our website rely on technologies
-                outside our control. We cannot guarantee continuous
-                accessibility or uninterrupted operation of our website.
+                outside our control. We cannot guarantee continuous accessibility or
+                uninterrupted operation of our website.
             </p>
             <h2 class="py-2 text-3xl">Relying on Information</h2>
             <p class="py-2">
@@ -134,8 +134,8 @@
             <p class="py-2">
                 We strive to fulfill all orders. However, in the scenario where we are unable to meet orders
                 due to the KTMB site being down, under maintenance or inaccessible for an extended period of
-                time, full refunds will be provided. However, we do not accept liabilities outside of providing
-                a full refund for affected tickets.
+                time, full refunds will be provided and credited to your BunnyBooker account. However,
+                we do not accept liabilities outside of providing a full refund for affected tickets.
             </p>
 
             <h2 class="py-2 text-3xl">Your Responsibilities</h2>
@@ -156,17 +156,17 @@
 
             <h2 class="py-2 text-3xl">Covid-19 Regulations</h2>
             <p class="py-2">
-                During the COVID-19 pandemic, without prejudice to any other rights of the Provider and SISTIC, and
-                notwithstanding anything to the contrary, the Provider and SISTIC reserve the right not to
-                grant refunds for any Tickets purchased for an event <b class="font-semibold">("Event")</b> in any or all of the
-                following circumstances (which are non-exhaustive):
+                During the COVID-19 pandemic, without prejudice to any other rights of the KTMB and BunnyBooker,
+                and notwithstanding anything to the contrary,  KTMB and BunnyBooker reserve the right not to
+                grant refunds for any Tickets purchased for a Train ("Train") in any or all of
+                the following circumstances (which are non-exhaustive):
             </p>
             <ul class="my-6 ml-6 list-disc [&>li]:mt-2">
-                <li>where the Ticket Holder is well, but does not wish to attend the Event for fears of exposure to COVID-19;</li>
-                <li>where the Ticket Holder is unwell but tests negative for COVID-19 and/or does not have any COVID-19 related symptoms, and does not attend the Event;</li>
+                <li>where the Ticket Holder is well, but does not wish to board the Train for fears of exposure to COVID-19;</li>
+                <li>where the Ticket Holder is unwell but tests negative for COVID-19 and/or does not have any COVID-19 related symptoms, and does not board the Train;</li>
                 <li>where the Ticket Holder is denied entry or asked to leave the train pursuant to health advisories in clause 1.</li>
-                <li>where the Ticket Holder is denied entry to the train for reasons disclosed to the Ticket Holder in these Terms and Conditions of Sale; and/or</li>
-                <li>where the Ticket Holder boards the trains, and subsequently leaves the train before the train departs to the destination due to the Ticket Holder feeling unwell.</li>
+                <li>where the Ticket Holder is denied entry to the Train for reasons disclosed to the Ticket Holder in these Terms and Conditions of Sale; and/or</li>
+                <li>where the Ticket Holder boards the Train, and subsequently leaves the Train before the Train departs to the destination due to the Ticket Holder feeling unwell.</li>
             </ul>
             <h3 class="py-2 text-2xl">Clause 1.</h3>
             <p class="py-2">
@@ -177,40 +177,22 @@
                 These include but are not limited to: the
                 wearing of masks, using Trace Together/Safe-Entry, vaccination and testing
                 protocols, and safe distancing measures. Any Ticket Holder found not adhering
-                to any Health Advisory shall also be denied entry to the Event or asked to
-                leave the Venue.
+                to any Health Advisory shall also be denied entry to the Train or asked to leave the Venue.
             </p>
             <h2 class="py-2 text-3xl">Vaccination and Testing Protocols</h2>
             <p class="py-2">
                 Where required by KTMB:
             </p>
             <ul class="my-6 ml-6 list-disc [&>li]:mt-2">
-                <li>
-                    You must at the point of purchase of Tickets, provide true
-                    declarations of the COVID-19 vaccination status of every Ticket Holder
-                    <span class="font-semibold">("Declaration")</span>;
-                </li>
-                <li>
-                    Ticket Holders who have been fully vaccinated against COVID-19 must
-                    at the Venue, display official proof of their COVID-19 vaccination status
-                    <span class="font-semibold">("Vaccinated Ticket Holders")</span>; and
-                </li>
-                <li>
-                    Ticket Holders who have no official proof of full vaccination against COVID-19
-                    <span class="font-semibold">("Unvaccinated Ticket Holders")</span> will:
-                </li>
-                <li>If Unvaccinated Ticket Holders are not permitted into the Event, be denied entry;</li>
-                <li>
-                    If Unvaccinated Ticket Holders are permitted into the Event, be required to
-                    obtain pre-Event or pre-Service testing for COVID-19 <span class="font-semibold">("PET")
-                    </span> either at the
-                    Venue prior to entry, or at a time and location to be notified to you, and
-                    display a negative result report for COVID-19 prior to entry.
-                </li>
+                <li>You must, at the point of purchase of Tickets, provide true declarations of the COVID-19 vaccination status of every Ticket Holder ("Declaration");</li>
+                <li>Ticket Holders who have been fully vaccinated against COVID-19 must at the Venue, display official proof of their COVID-19 vaccination status ("Vaccinated Ticket Holders"); and</li>
+                <li>Ticket Holders who have no official proof of full vaccination against COVID-19 ("Unvaccinated Ticket Holders") will:</li>
+                <li>If Unvaccinated Ticket Holders are not permitted on the Train, be denied entry;</li>
+                <li>If Unvaccinated Ticket Holders are permitted on the Train, they are required to obtain pre-Train or pre-Service testing for COVID-19 ("PET") either at the Venue prior to entry, or at a time and location to be notified to you, and display a negative result report for COVID-19 prior to entry.</li>
 
             </ul>
             <p class="py-2">
-                Any non-compliance with the above requirements will result in denial of entry into the Venue.
+                Any non-compliance with the above requirements will result in denial of entry on the Train.
             </p>
             <p class="py-2">
                 You warrant and undertake that all Declarations submitted by you are the complete and true
@@ -262,12 +244,16 @@
             </p>
             <ul class="my-6 ml-6 list-disc [&>li]:mt-2">
                 <li>
-                    Full refunds will be provided for tickets that have not been successfully booked by the BunnyBooker system.</li>
+                    Full refunds will be provided for tickets that have not been successfully secured by the BunnyBooker system on the KTMB website.
+                </li>
 
                 <li>
-                Tickets that have been booked are not eligible for refunds or exchanges.</li>
-                <li>Cancellations can be initiated once a ticket is booked.</li>
-                <li>However, please note that no refunds will be provided for cancelled tickets.</li>
+                    Tickets that have been secured on KTMB's website successfully are not eligible for refunds or exchanges.
+                </li>
+                <li>
+                    Cancellations can be initiated once a ticket is booked. However, please note that no refunds will be provided for cancelled tickets
+                    <span class="underline">after</span> the BunnyBooker system successfully secures the ticket on the KTMB website.
+                </li>
                 <li>
                 Once a ticket is ordered and our booking service is engaged, our bunnies will actively attempt to secure your ticket.
             </li>
@@ -275,6 +261,7 @@
                 Booking efforts will continue up until 30 minutes before the scheduled departure time in the chosen train direction.
             </li>
                 <li>If successful, you will be promptly notified of your confirmed booking details.</li>
+                <li>If unsuccessful, you will be refunded in full as credit in your BunnyBooker wallet, which can be withdrawn.</li>
             </ul>
         </div>
         <div class="w-full bg-slate-800 text-white pb-12 pt-8">

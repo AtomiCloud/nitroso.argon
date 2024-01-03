@@ -10,14 +10,8 @@
     import {Button} from "$lib/components/ui/button";
     import {BookOpenCheck, ChevronDownCircle} from "lucide-svelte";
 
-    //@ts-ignore
-    import Icon from 'svelte-icons-pack/Icon.svelte';
-    import BsWhatsapp from "svelte-icons-pack/bs/BsWhatsapp";
-    import BsTelephone from "svelte-icons-pack/bs/BsTelephone";
-    import AiOutlineMail from "svelte-icons-pack/ai/AiOutlineMail";
-    import BsTelegram from "svelte-icons-pack/bs/BsTelegram";
-    import BsInstagram from "svelte-icons-pack/bs/BsInstagram";
-    import BsFacebook from "svelte-icons-pack/bs/BsFacebook";
+
+
     import * as Accordion from "$lib/components/ui/accordion";
     import * as Table from "$lib/components/ui/table";
     import {Footer} from "$lib/components/custom/footer";
