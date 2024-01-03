@@ -255,7 +255,10 @@
                     </Accordion.Trigger>
                     <Accordion.Content>
                         <p class="py-2">
-                            Once you have made an order, our system will check the KTMB site for any refunds 24/7. A booking will only be made once a timeslot that matches your order has been refunded and made available on the KTMB site.
+                            Once you have made an order, we will use our AI systems to predict when tickets will
+                            refunded or re-released on the KTMB site.
+                            Once a timeslot that matches your order has been refunded
+                            and made available on the KTMB site, we will book the ticket on your behalf.
                         </p>
                         <p class="py-2">
                             We do not keep stock of any train tickets in our system and only make bookings based on pending orders.
@@ -323,19 +326,33 @@
                         Can I change my order after order confirmation?
                     </Accordion.Trigger>
                     <Accordion.Content>
-                        You can cancel tickets at any time. However, if the
-                        tickets have been secured by our system, you will not be
-                        refunded for the cancelled ticket.
+                        <p class="my-2">
+                            You can cancel tickets at any time. However, if the
+                            tickets have been secured by our system, you will not be
+                            refunded for the cancelled ticket.
+                        </p>
+                        <p class="my-2">
+                            For more information on delivery, cancellation and refund policies,
+                            see <a href="/policy" class="underline hover:text-amber-300">here</a>
+                        </p>
+
                     </Accordion.Content>
                 </Accordion.Item>
 
                 <Accordion.Item value="item-5">
                     <Accordion.Trigger class="text-left">
-                        What refunds are allowed?
+                        Are refunds allowed?
                     </Accordion.Trigger>
                     <Accordion.Content>
-                        Full refunds are provided for tickets that have not been booked by our system.
-                        Tickets booked can be cancelled, but will not be eligible for refunds.
+                        <p class="my-2">
+                            Full refunds are provided for tickets that have not been secured by our system.
+                            However, tickets secured by our system can be cancelled, but will not be eligible
+                            for refunds.
+                        </p>
+                        <p class="my-2">
+                            For more information on delivery, cancellation and refund policies,
+                            see <a href="/policy" class="underline hover:text-amber-300">here</a>
+                        </p>
                     </Accordion.Content>
                 </Accordion.Item>
 
@@ -344,9 +361,12 @@
                         Does BunnyBooker allow preorders?
                     </Accordion.Trigger>
                     <Accordion.Content>
-                        Preorders for unreleased tickets are allowed. There are
-                        no limitations on how far in the future you may
-                        place the order for.
+                        <p>
+                            Preorders for unreleased tickets are allowed. There are
+                            no limitations on how far in the future you may
+                            place the order for.
+                        </p>
+
                     </Accordion.Content>
                 </Accordion.Item>
 

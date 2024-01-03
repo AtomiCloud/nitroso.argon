@@ -30,7 +30,8 @@ import BsTelephone from "svelte-icons-pack/bs/BsTelephone.js";
         <Icon src={BsTelephone} size="24" color="currentColor"/>
     </a>
 </div>
-<div class="flex justify-center align-center">
-    <a href="/privacy" class="underline hover:text-amber-300 p-4">Privacy Policy</a>
-    <a href="/terms" class="underline hover:text-amber-300 p-4">Terms of Use</a>
+<div class="flex flex-col justify-center align-center text-center">
+    <a href="/policy" class="underline hover:text-amber-300">Delivery, Cancellation & Refund Policy </a>
+    <a href="/privacy" class="underline hover:text-amber-300">Privacy Policy</a>
+    <a href="/terms" class="underline hover:text-amber-300">Terms of Use</a>
 </div>
