@@ -12,6 +12,8 @@
 
     import * as Card from "$lib/components/ui/card";
     import * as Tooltip from "$lib/components/ui/tooltip";
+    import {Checkbox} from "$lib/components/ui/checkbox";
+
     let name = "";
 
     let typed = false;
@@ -57,14 +59,15 @@
     }
 
     let uExist = false;
+    let acceptTerms = false;
+    let acceptPrivacy = false;
 
     function update(u: boolean): string {
         uExist = u;
         return ""
     }
 
-
-    $: disabled = errors(name).length > 0 || uExist;
+    $: disabled = errors(name).length > 0 || uExist || !acceptTerms || !acceptPrivacy;
 
 </script>
 
@@ -123,6 +126,19 @@
                                     {errors(name)[0]}
                                 </p>
                             {/if}
+                        </div>
+                        <div class="flex align-center gap-2">
+                            <Checkbox id="terms" bind:checked={acceptTerms}  aria-labelledby="terms-label" />
+                            <Label for="terms"
+                                   id="terms-label">
+                                I accept the <a href="/terms" target="_blank" class="underline hover:text-amber-500">terms and conditions</a>
+                            </Label>
+                        </div>
+                        <div class="flex align-center gap-2">
+                            <Checkbox id="privacy" bind:checked={acceptPrivacy}  />
+                            <Label for="privacy">
+                                I accept the <a href="/privacy" target="_blank" class="underline hover:text-amber-500">privacy policy</a>
+                            </Label>
                         </div>
                     </div>
                 </form>

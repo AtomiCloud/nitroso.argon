@@ -34,13 +34,20 @@ zinc:
   maincache:
     enable: true
     fullnameOverride: "zinc-maincache"
-
+  streamcache:
+    enable: true
+    fullnameOverride: "zinc-streamcache"
   mainstorage:
     enable: true
     fullnameOverride: "zinc-mainstorage"
 
 helium:
   enable: true
+  zinc:
+    enable: false
+  scheduler:
+    image:
+      repository: ghcr.io/atomicloud/nitroso.helium/nitroso-helium-arm
   appSettings:
     cache:
       live:

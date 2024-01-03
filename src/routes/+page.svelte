@@ -19,9 +19,33 @@
     import BsInstagram from "svelte-icons-pack/bs/BsInstagram";
     import BsFacebook from "svelte-icons-pack/bs/BsFacebook";
     import * as Accordion from "$lib/components/ui/accordion";
+    import * as Table from "$lib/components/ui/table";
+    import {Footer} from "$lib/components/custom/footer";
 
     console.log("Configuration", config.app);
 
+
+    const timings: {j2w: string, w2j: string}[] = [
+        {w2j: "8:30 AM", j2w: "5:00 AM"},
+        {w2j: "9:25 AM", j2w: "5:30 AM"},
+        {w2j: "11:00 AM", j2w: "6:00 AM"},
+        {w2j: "12:30 AM", j2w: "6:30 AM"},
+        {w2j: "1:45 PM", j2w: "7:00 AM"},
+        {w2j: "3:00 PM", j2w: "7:30 AM"},
+        {w2j: "4:15 PM", j2w: "8:45 AM"},
+        {w2j: "5:30 PM", j2w: "10:00 AM"},
+        {w2j: "6:45 PM", j2w: "11:30 AM"},
+        {w2j: "8:00 PM", j2w: "12:45 PM"},
+        {w2j: "9:15 PM", j2w: "2:00 PM"},
+        {w2j: "10:30 PM", j2w: "3:15 PM"},
+        {w2j: "11:45 PM", j2w: "4:30 PM"},
+        {w2j: "", j2w: "5:45 PM"},
+        {w2j: "", j2w: "7:00 PM"},
+        {w2j: "", j2w: "8:15 PM"},
+        {w2j: "", j2w: "9:30 PM"},
+        {w2j: "", j2w: "10:45 PM"},
+
+    ]
 
 </script>
 
@@ -30,6 +54,13 @@
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'%3E%3Cdefs%3E%3ClinearGradient id='a' x1='0' x2='0' y1='1' y2='0' gradientTransform='rotate(0,0.5,0.5)'%3E%3Cstop offset='0' stop-color='%230FF'/%3E%3Cstop offset='1' stop-color='%23CF6'/%3E%3C/linearGradient%3E%3ClinearGradient id='b' x1='0' x2='0' y1='0' y2='1' gradientTransform='rotate(0,0.5,0.5)'%3E%3Cstop offset='0' stop-color='%23F00'/%3E%3Cstop offset='1' stop-color='%23FC0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg fill='%23FFF' fill-opacity='0' stroke-miterlimit='10'%3E%3Cg stroke='url(%23a)' stroke-width='7.26'%3E%3Cpath transform='translate(-66.85 13.600000000000001) rotate(8.05 1409 581) scale(1.0276669999999999)' d='M1409 581 1450.35 511 1490 581z'/%3E%3Ccircle stroke-width='2.4200000000000004' transform='translate(-44.5 40) rotate(10.5 800 450) scale(1.0179809999999998)' cx='500' cy='100' r='40'/%3E%3Cpath transform='translate(31.199999999999996 -106.5) rotate(103.5 401 736) scale(1.0179809999999998)' d='M400.86 735.5h-83.73c0-23.12 18.74-41.87 41.87-41.87S400.86 712.38 400.86 735.5z'/%3E%3C/g%3E%3Cg stroke='url(%23b)' stroke-width='2.2'%3E%3Cpath transform='translate(240 -13) rotate(3.25 150 345) scale(0.9658889999999999)' d='M149.8 345.2 118.4 389.8 149.8 434.4 181.2 389.8z'/%3E%3Crect stroke-width='4.840000000000001' transform='translate(-143.5 -101.5) rotate(122.39999999999999 1089 759)' x='1039' y='709' width='100' height='100'/%3E%3Cpath transform='translate(-223.2 72.8) rotate(20.4 1400 132) scale(0.985)' d='M1426.8 132.4 1405.7 168.8 1363.7 168.8 1342.7 132.4 1363.7 96 1405.7 96z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         background-attachment: fixed;
         background-size: cover;
+    }
+
+    h1 {
+        font-family: 'Cabin', 'sans-serif';
+    }
+    h2 {
+        font-family: 'Raleway', 'sans-serif';
     }
 </style>
 <Page notFoundMessage="Main page cannot be found">
@@ -67,9 +98,13 @@
         <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
             <div class="flex flex-wrap align-center justify-center panel-1 gap-4">
                 <div class="flex flex-col align-center justify-center w-80">
-                    <div class="text-6xl semibold text-center md:text-right">STEP 1</div>
-                    <div class="text-lg text-justify md:text-right">Choose the date and time of your ticket and send it
-                        to our bunny headquarters!
+                    <h1 class="text-6xl font-extrabold text-center md:text-right">STEP 1</h1>
+                    <h2 class="text-2xl text-center md:text-right">
+                        Select Your Date and Time
+                    </h2>
+                    <div class="text-lg my-4 text-slate-700 text-justify md:text-right">
+                        Choose when and where you want to travel, then place an order to
+                        send the details to BunnyBooker headquarters for our bunnies to work their magic.
                     </div>
                 </div>
                 <div class="w-full md:w-1/2">
@@ -94,9 +129,13 @@
             <div class="flex flex-wrap md:flex-row-reverse  align-center justify-center panel-1 gap-12">
 
                 <div class="flex flex-col align-center justify-center w-80">
-                    <div class="text-6xl semibold text-center md:text-left">STEP 2</div>
-                    <div class="text-lg text-justify md:text-left">Our bunnies in the headquarter will collecting and
-                        organize your ticket orders!
+                    <h1 class="text-6xl font-extrabold text-center md:text-left">STEP 2</h1>
+                    <h2 class="text-2xl text-center md:text-left">
+                        Sit Back & Relax
+                    </h2>
+                    <div class="text-lg my-4 dark:text-slate-300 text-slate-700 text-justify md:text-left">
+                        Our bunny team will collect and organize your ticket preferences,
+                        giving you the freedom to relax while they handle the details.
                     </div>
                 </div>
                 <div class="w-full md:w-1/2">
@@ -111,9 +150,13 @@
             <div class="flex flex-wrap  align-center justify-center panel-1 gap-12">
 
                 <div class="flex flex-col align-center justify-center w-80">
-                    <div class="text-6xl semibold text-center md:text-right">STEP 3</div>
-                    <div class="text-lg text-justify md:text-right">Our bunnies will watch to see if anyone refunded
-                        your ticket 24/7
+                    <h1 class="text-6xl font-extrabold text-center md:text-right">STEP 3</h1>
+                    <h2 class="text-2xl text-center md:text-right">
+                        Let Our Bunnies Hunt
+                    </h2>
+                    <div class="text-lg my-4 dark:text-slate-300 text-slate-700 text-justify md:text-right">
+                        24/7, our bunnies keep an eye out for refunded tickets in your
+                        chosen timeslot, ensuring you don't miss a travel opportunity.
                     </div>
                 </div>
                 <div class="w-full md:w-1/2">
@@ -138,10 +181,13 @@
             <div class="flex flex-wrap md:flex-row-reverse  align-center justify-center panel-1 gap-12">
 
                 <div class="flex flex-col align-center justify-center w-80">
-                    <div class="text-6xl semibold text-center md:text-left">STEP 4</div>
-                    <div class="text-lg text-justify md:text-left">
-                        The moment our bunny see a ticket that you want and someone refunded, we will
-                        immediately book it on your behalf!
+                    <h1 class="text-6xl font-extrabold text-center md:text-left">STEP 4</h1>
+                    <h2 class="text-2xl text-center md:text-left">
+                        Instant Booking
+                    </h2>
+                    <div class="text-lg my-4 text-slate-700 text-justify md:text-left">
+                        The moment a matching ticket becomes available,
+                        our bunnies spring into action, booking it for you without delay.
                     </div>
                 </div>
                 <div class="w-full md:w-1/2">
@@ -155,11 +201,14 @@
             <div class="flex flex-wrap  align-center justify-center panel-1 gap-12">
 
                 <div class="flex flex-col align-center justify-center w-80">
-                    <div class="text-6xl semibold text-center md:text-right">STEP 5</div>
-                    <div class="text-lg text-justify md:text-right">
-                        Our bunnies will send you a notification and ticket details
-                        when we successfully booked your ticket, which you can check
-                        on verify on this portal!
+                    <h1 class="text-6xl font-extrabold text-center md:text-right">STEP 5</h1>
+                    <h2 class="text-3xl text-center md:text-right">
+                        Get notified and Verify Booking Details
+                    </h2>
+                    <div class="text-lg my-4 font-light dark:text-slate-300 text-slate-700 text-justify md:text-right">
+                        Receive a prompt notification with all the ticket details as soon
+                        as it's booked. Check and verify the information on our user-friendly
+                        portal for a stress-free travel experience!
                     </div>
                 </div>
                 <div class="w-full md:w-1/2">
@@ -198,53 +247,269 @@
     <div class="w-full bg-[#FCCA3A] text-black">
         <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
             <h1 class="text-center text-4xl md:text-6xl">FAQ</h1>
+            <h2 class="underline text-center text-xl md:text-2xl">BunnyBooker</h2>
             <Accordion.Root class="w-full max-w-[600px] w-full mx-auto">
                 <Accordion.Item value="item-1">
-                    <Accordion.Trigger>If BunnyBooker did not manage to buy my ticket, will I get a refund?
+                    <Accordion.Trigger class="text-left">
+                        How does BunnyBooker work?
                     </Accordion.Trigger>
                     <Accordion.Content>
-                        Yes, if BunnyBooker failed to buy your ticket, you will get a full refund. However,
-                        once BunnyBooker bought your ticket, you cannot make a refund.
+                        <p class="py-2">
+                            Once you have made an order, we will use our AI systems to predict when tickets will
+                            refunded or re-released on the KTMB site.
+                            Once a timeslot that matches your order has been refunded
+                            and made available on the KTMB site, we will book the ticket on your behalf.
+                        </p>
+                        <p class="py-2">
+                            We do not keep stock of any train tickets in our system and only make bookings based on pending orders.
+                        </p>
                     </Accordion.Content>
                 </Accordion.Item>
+
                 <Accordion.Item value="item-2">
-                    <Accordion.Trigger>Can BunnyBooker do "all or nothing" bookings?</Accordion.Trigger>
+                    <Accordion.Trigger  class="text-left">
+                        Why should I buy tickets via BunnyBooker?
+                    </Accordion.Trigger>
                     <Accordion.Content>
-                        No. BunnyBooker will try to buy as many tickets as possible. However,
-                        in the event where your tickets are partially booked (you wanted 4 tickets, but
-                        BunnyBooker only manage to by 3), you can only get a refund for 1 ticket.
+                        <h3 class="font-semibold">Convenience</h3>
+                        <p class="my-2">
+                            Buying tickets on BunnyBooker saves you the time and hassle
+                            from constantly going to the KTMB site to check on ticket availability
+                            as our systems checks and books any available tickets as soon
+                            as they are available.
+                        </p>
+
+                        <h3 class="font-semibold mt-6">Check order status anytime, anywhere </h3>
+                        <p class="my-2">
+                            BunnyBooker allows you to check the status of your
+                            order whenever you like, allowing you to decide on the next steps of your travel.
+                        </p>
+                        <p class="my-2">
+                            You will be able to check the status of each ticket per order,
+                            and it will be either "Purchased" or "Pending".
+                        </p>
+                        <h3 class="font-semibold mt-6">Check ticket queue to plan for travels</h3>
+                        <p class="my-2">
+                            BunnyBooker allows you to see the number of tickets
+                            pending before you in all the timeslots for the day
+                            and train direction you have selected.
+                        </p>
+                        <p class="my-2">
+                            e.g. Customer 1 placed an order for 3 people for CIQ -> JB SENTRAL at 8.30AM on 31/12/2023,
+                            and customer 2 is looking to place an order for 5 people for the same direction, date and time.
+                            BunnyBooker queue will display "3 pending tickets" for Customer 2 to make an
+                            informed choice of whether or not she wants to make the order for the
+                            same timeslot or choose an alternative timeslot.
+                        </p>
+                        <h3 class="font-semibold mt-6">Safe</h3>
+                        <p class="my-2">
+                            BunnyBooker complies with PDPA and only retains
+                            information consensually provided by you for fulfilling
+                            booking orders, as well as marketing information
+                            only if consent is given by you.
+                        </p>
                     </Accordion.Content>
                 </Accordion.Item>
+
+
                 <Accordion.Item value="item-3">
-                    <Accordion.Trigger class="text-center">Can I cancel bookings I made on BunnyBooker?</Accordion.Trigger>
+                    <Accordion.Trigger class="text-left">
+                        How can I check the purchase status of my order?
+                    </Accordion.Trigger>
                     <Accordion.Content>
-                        Yes, however, you can only cancel a booking before BunnyBooker manage to buy your ticket. In
-                        the event BunnyBooker booked your ticket, you may cancel it, but you will not get a refund.
+                        You can login to <a class="underline text-blue-600 hover:text-blue-800 visited:text-purple-600" href="https://bunnybooker.com">bunnybooker.com</a> and check the status of your order.
+                    </Accordion.Content>
+                </Accordion.Item>
+
+                <Accordion.Item value="item-4">
+                    <Accordion.Trigger class="text-left">
+                        Can I change my order after order confirmation?
+                    </Accordion.Trigger>
+                    <Accordion.Content>
+                        <p class="my-2">
+                            You can cancel tickets at any time. However, if the
+                            tickets have been secured by our system, you will not be
+                            refunded for the cancelled ticket.
+                        </p>
+                        <p class="my-2">
+                            For more information on delivery, cancellation and refund policies,
+                            see <a href="/policy" class="underline hover:text-amber-300">here</a>
+                        </p>
+
+                    </Accordion.Content>
+                </Accordion.Item>
+
+                <Accordion.Item value="item-5">
+                    <Accordion.Trigger class="text-left">
+                        Are refunds allowed?
+                    </Accordion.Trigger>
+                    <Accordion.Content>
+                        <p class="my-2">
+                            Full refunds are provided for tickets that have not been secured by our system.
+                            However, tickets secured by our system can be cancelled, but will not be eligible
+                            for refunds.
+                        </p>
+                        <p class="my-2">
+                            For more information on delivery, cancellation and refund policies,
+                            see <a href="/policy" class="underline hover:text-amber-300">here</a>
+                        </p>
+                    </Accordion.Content>
+                </Accordion.Item>
+
+                <Accordion.Item value="item-6">
+                    <Accordion.Trigger class="text-left">
+                        Does BunnyBooker allow preorders?
+                    </Accordion.Trigger>
+                    <Accordion.Content>
+                        <p>
+                            Preorders for unreleased tickets are allowed. There are
+                            no limitations on how far in the future you may
+                            place the order for.
+                        </p>
+
+                    </Accordion.Content>
+                </Accordion.Item>
+
+                <Accordion.Item value="item-7">
+                    <Accordion.Trigger class="text-left">
+                        How is my personal data handled?
+                    </Accordion.Trigger>
+                    <Accordion.Content>
+                        <ol class="my-6 ml-6 list-decimal [&>li]:mt-2">
+                           <li>All personal data are encrypted at rest in the database</li>
+                            <li>No data is shared with external parties</li>
+                            <li>No personal identifiable information is allowed to be accessed by internal staff</li>
+                            <li>
+                                Upon rejection of marketing permissions, no personal data will be collected
+                                for marketing purposes and only essential information for booking tickets
+                                will be collected
+                            </li>
+                            <li>
+                                Upon deletion of account, all information related to the user will
+                                instantly be deleted from our database
+                            </li>
+                        </ol>
+                        <p class="my-2">
+                            The above personal data handling is for BunnyBooker only. Click
+                            <a href="/privacy" class="underline hover:text-amber-300">
+                                here </a> to
+                            read more about BunnyBooker's personal data handling.
+                        </p>
+                        <p class="my-2">
+                            If you would like to find out how your personal data is handled on the KTMB website, you may visit
+                            <a class="underline hover:text-amber-300"
+                                    href="https://www.ktmb.com.my/assets/pdf/2022/customer_privacy_policy.pdf">here</a>
+                        </p>
+                    </Accordion.Content>
+                </Accordion.Item>
+
+                <Accordion.Item value="item-8">
+                    <Accordion.Trigger class="text-left">
+                        What is the success rate of BunnyBooker booking service?
+                    </Accordion.Trigger>
+                    <Accordion.Content>
+                        To date, the success rate is <b class="font-semibold">100%</b>.
+                    </Accordion.Content>
+                </Accordion.Item>
+
+            </Accordion.Root>
+            <h2 class="underline text-center text-xl md:text-2xl">KTMB</h2>
+            <Accordion.Root class="w-full max-w-[600px] w-full mx-auto">
+                <Accordion.Item value="item-1">
+                    <Accordion.Trigger class="text-left">
+                        How does taking train between Singapore and JB work?
+                    </Accordion.Trigger>
+                    <Accordion.Content>
+                        <p class="py-2">
+                            Take for example, you have a 9.45am train ride from SG -> JB.
+                        </p>
+                        <p class="py-2">
+                            Gates close strictly 20 minutes before train departure.
+                            Therefore, it is best to be in the queue at least 30 minutes before train departure (at 9.15am).
+                        </p>
+                        <p class="py-2">
+                            From 9.25am - 9.45am (the 20 minutes before departure),
+                            All passengers will go through both Singapore & Malaysia customs
+                            before the train ride (yes, you read it right, 2 customs settled before the train ride!)
+                        </p>
+                        <p class="py-2">
+                            From 9.45am - 9.50am,
+                            The train departs at 9.45am and you will arrive in JB sentral at 9.50am!
+                        </p>
+                        <p class="py-2">
+                            At 9.50am,
+                            Destination reached, you are free to roam!
+                        </p>
+                        <p>
+                            NOTE: Train from JB-> SG closes <span class="underline">10 minutes</span>
+                            before departure, train from SG -> JB (in above example) closes
+                            <span class="underline">20 minutes</span> before departure.
+                        </p>
+                    </Accordion.Content>
+                </Accordion.Item>
+
+                <Accordion.Item value="item-2">
+                    <Accordion.Trigger class="text-left">
+                        What are the timeslots available for booking?
+                    </Accordion.Trigger>
+                    <Accordion.Content>
+
+                        <Table.Root>
+                            <Table.Caption>Timeslots available for booking</Table.Caption>
+                            <Table.Header>
+                                <Table.Row>
+                                    <Table.Head class="text-center font-bold">SG -> JB</Table.Head>
+                                    <Table.Head class="text-center font-bold">JB -> SG</Table.Head>
+                                </Table.Row>
+                            </Table.Header>
+                            <Table.Body>
+                                {#each timings as timing, i (i)}
+                                    <Table.Row>
+                                        <Table.Cell class="text-center">{timing.w2j}</Table.Cell>
+                                        <Table.Cell class="text-center">{timing.j2w}</Table.Cell>
+                                    </Table.Row>
+                                {/each}
+                            </Table.Body>
+                        </Table.Root>
+
+                    </Accordion.Content>
+                </Accordion.Item>
+
+                <Accordion.Item value="item-3">
+                    <Accordion.Trigger class="text-left">
+                        When do the gates close before departure?
+                    </Accordion.Trigger>
+                    <Accordion.Content>
+
+                       <p class="my-2">
+                           <span class="font-semibold">Singapore to Johor: </span>
+                           <span class="underline">20 minutes</span> before departure
+                       </p>
+                        <p class="my-2">
+                            <span class="font-semibold">Johor to Singapore: </span>
+                            <span class="underline">10 minutes</span> before departure
+                        </p>
+
+                    </Accordion.Content>
+                </Accordion.Item>
+                <Accordion.Item value="item-4">
+                    <Accordion.Trigger class="text-left">
+                        Why should I take the train to JB/SG instead of other modes of transport?
+                    </Accordion.Trigger>
+                    <Accordion.Content>
+                        Booking a train is a reliable choice, avoiding unpredictable traffic and
+                        potential 4-hour customs delays with other modes of transport. Limited
+                        train seats and a dedicated customs check (only for train passengers) expedite
+                        your journey, ensuring a swift 30-minute journey to your destination.
+
                     </Accordion.Content>
                 </Accordion.Item>
             </Accordion.Root>
         </div>
     </div>
-    <div class="w-full bg-[#FCCA3A] text-black pb-24">
-        <div class="flex align-center justify-center gap-8 p-8 text-black">
-            <div class="cursor-pointer hover:text-green-500">
-                <Icon src={BsWhatsapp} size="24" color="currentColor"/>
-            </div>
-            <div class="cursor-pointer hover:text-blue-500">
-                <Icon src={BsFacebook} size="24" color="currentColor"/>
-            </div>
-            <div class="cursor-pointer hover:text-pink-500">
-                <Icon src={BsInstagram} size="24" color="currentColor"/>
-            </div>
-            <div class="cursor-pointer hover:text-sky-500">
-                <Icon src={BsTelegram} size="24" color="currentColor"/>
-            </div>
-            <div class="cursor-pointer hover:text-rose-500">
-                <Icon src={AiOutlineMail} size="24" color="currentColor"/>
-            </div>
-            <div class="cursor-pointer hover:text-red-500">
-                <Icon src={BsTelephone} size="24" color="currentColor"/>
-            </div>
-        </div>
+
+    <hr>
+    <div class="w-full bg-slate-800 text-white pb-12 pt-8">
+        <Footer/>
     </div>
 </Page>

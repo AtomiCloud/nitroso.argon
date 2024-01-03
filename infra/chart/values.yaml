@@ -39,6 +39,10 @@ zinc:
     enable: true
     nameOverride: "zinc-maindb"
 
+  streamcache:
+    enable: true
+    nameOverride: "zinc-streamcache"
+
   maincache:
     enable: true
     nameOverride: "zinc-maincache"
