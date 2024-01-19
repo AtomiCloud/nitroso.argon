@@ -7,8 +7,6 @@ import type { Result } from "$lib/core/result";
 import { Err, Ok, Res } from "$lib/core/result";
 import type { ProblemDetails } from "../errors/problem_details";
 import { toDetail } from "../errors/error_utility";
-import { Unauthenticated } from "../errors/v1/unauthenticated";
-import { Unauthorized } from "../errors/v1/unauthorized";
 import { jwtDecode } from "jwt-decode";
 
 const isResponse = <T>(value: unknown): value is HttpResponse<T> => {
@@ -22,14 +20,18 @@ const isResponse = <T>(value: unknown): value is HttpResponse<T> => {
 };
 
 const isProblem = (value: unknown): value is Problem => {
-  return typeof value === "object" && value !== null && "detail" in value;
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "title" in value &&
+    "status" in value
+  );
 };
 
 const isProblemDetail = (value: unknown): value is ProblemDetails => {
   return (
     typeof value === "object" &&
     value !== null &&
-    "detail" in value &&
     "status" in value &&
     "title" in value &&
     "type" in value
@@ -53,7 +55,6 @@ function toResult<T>(
   return Res.async(async () => {
     try {
       const r = await f();
-
       if (r.ok) return Ok(r.data);
       const problem = await parseErrorResponse(r);
       return Err(problem);
@@ -72,21 +73,11 @@ async function parseErrorResponse<T>(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   r: HttpResponse<T, any>,
 ): Promise<ProblemDetails> {
-  if (!isProblemDetail(r.error) && (r.status === 401 || r.status === 403)) {
-    return toDetail(
-      r.status === 401
-        ? new Unauthenticated("You need to be logged in to view this page.")
-        : new Unauthorized(
-            "You do not have permission to view this page.",
-            [],
-            [],
-          ),
-    );
-  }
   if (r.error == null) {
     const t = (await r.text()) ?? "No body found";
     return toDetail(new LocalStringError("Unknown client error", t));
   }
+
   return parseErrorToDetail("Unknown client error", r.error);
 }
 
@@ -96,7 +87,7 @@ function parseErrorToDetail(detail: string, error: unknown): ProblemDetails {
 }
 
 function parseError(detail: string, error: unknown): Problem {
-  console.error(error);
+  console.error("err", error);
   if (error instanceof Error) {
     return new LocalExceptionError(detail, error);
   } else if (typeof error === "string") {

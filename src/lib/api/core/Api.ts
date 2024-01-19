@@ -13,30 +13,109 @@ import type {
   BookingCountRes,
   BookingPrincipalRes,
   BookingRes,
+  CancelWithdrawalReq,
   CreateBookingReq,
   CreatePassengerReq,
   CreateUserReq,
+  CreateWithdrawalReq,
   ErrorInfo,
   LatestScheduleRes,
   PassengerPrincipalRes,
   PassengerRes,
+  RejectWithdrawalReq,
   ScheduleBulkUpdateReq,
   SchedulePrincipalRes,
   ScheduleRecordReq,
   TimingPrincipalRes,
   TimingReq,
   TimingRes,
+  TransactionPrincipalRes,
+  TransactionRes,
+  TransferReq,
   UpdatePassengerReq,
   UpdateUserReq,
   UserExistRes,
   UserPrincipalRes,
   UserRes,
+  WalletPrincipalRes,
+  WalletRes,
+  WithdrawalPrincipalRes,
+  WithdrawalRes,
 } from "./data-contracts";
 import { ContentType, HttpClient, type RequestParams } from "./http-client";
 
 export class Api<
   SecurityDataType = unknown,
 > extends HttpClient<SecurityDataType> {
+  /**
+   * No description
+   *
+   * @tags Admin
+   * @name VAdminInflowCreate
+   * @request POST:/api/v{version}/Admin/inflow/{userId}
+   * @secure
+   */
+  vAdminInflowCreate = (
+    userId: string,
+    version: string,
+    data: TransferReq,
+    params: RequestParams = {},
+  ) =>
+    this.request<WalletPrincipalRes, any>({
+      path: `/api/v${version}/Admin/inflow/${userId}`,
+      method: "POST",
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Admin
+   * @name VAdminOutflowCreate
+   * @request POST:/api/v{version}/Admin/outflow/{userId}
+   * @secure
+   */
+  vAdminOutflowCreate = (
+    userId: string,
+    version: string,
+    data: TransferReq,
+    params: RequestParams = {},
+  ) =>
+    this.request<WalletPrincipalRes, any>({
+      path: `/api/v${version}/Admin/outflow/${userId}`,
+      method: "POST",
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Admin
+   * @name VAdminPromoCreate
+   * @request POST:/api/v{version}/Admin/promo/{userId}
+   * @secure
+   */
+  vAdminPromoCreate = (
+    userId: string,
+    version: string,
+    data: TransferReq,
+    params: RequestParams = {},
+  ) =>
+    this.request<WalletPrincipalRes, any>({
+      path: `/api/v${version}/Admin/promo/${userId}`,
+      method: "POST",
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: "json",
+      ...params,
+    });
   /**
    * No description
    *
@@ -50,6 +129,7 @@ export class Api<
     query?: {
       Date?: string;
       Direction?: string;
+      Status?: string;
       Time?: string;
       UserId?: string;
       /** @format int32 */
@@ -94,20 +174,23 @@ export class Api<
    *
    * @tags Booking
    * @name VBookingDetail2
-   * @request GET:/api/v{version}/Booking/{userId}/{id}
+   * @request GET:/api/v{version}/Booking/{id}
    * @originalName vBookingDetail
    * @duplicate
    * @secure
    */
   vBookingDetail2 = (
-    userId: string,
     id: string,
     version: string,
+    query?: {
+      userId?: string;
+    },
     params: RequestParams = {},
   ) =>
     this.request<BookingRes, any>({
-      path: `/api/v${version}/Booking/${userId}/${id}`,
+      path: `/api/v${version}/Booking/${id}`,
       method: "GET",
+      query: query,
       secure: true,
       format: "json",
       ...params,
@@ -178,18 +261,38 @@ export class Api<
    * No description
    *
    * @tags Booking
-   * @name VBookingBypassCreate
-   * @request POST:/api/v{version}/Booking/bypass/{userId}
+   * @name VBookingRefundCreate
+   * @request POST:/api/v{version}/Booking/refund/{id}
    * @secure
    */
-  vBookingBypassCreate = (
+  vBookingRefundCreate = (
+    id: string,
+    version: string,
+    params: RequestParams = {},
+  ) =>
+    this.request<BookingPrincipalRes, any>({
+      path: `/api/v${version}/Booking/refund/${id}`,
+      method: "POST",
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
+   * @name VBookingPurchaseCreate
+   * @request POST:/api/v{version}/Booking/{userId}/purchase
+   * @secure
+   */
+  vBookingPurchaseCreate = (
     userId: string,
     version: string,
     data: CreateBookingReq,
     params: RequestParams = {},
   ) =>
     this.request<BookingPrincipalRes, any>({
-      path: `/api/v${version}/Booking/bypass/${userId}`,
+      path: `/api/v${version}/Booking/${userId}/purchase`,
       method: "POST",
       body: data,
       secure: true,
@@ -201,18 +304,46 @@ export class Api<
    * No description
    *
    * @tags Booking
-   * @name VBookingCancelBypassCreate
-   * @request POST:/api/v{version}/Booking/cancel/bypass/{id}
+   * @name VBookingCancelCreate
+   * @request POST:/api/v{version}/Booking/cancel/{id}
    * @secure
    */
-  vBookingCancelBypassCreate = (
+  vBookingCancelCreate = (
     id: string,
     version: string,
+    query?: {
+      userId?: string;
+    },
     params: RequestParams = {},
   ) =>
     this.request<BookingPrincipalRes, any>({
-      path: `/api/v${version}/Booking/cancel/bypass/${id}`,
+      path: `/api/v${version}/Booking/cancel/${id}`,
       method: "POST",
+      query: query,
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
+   * @name VBookingTerminateCreate
+   * @request POST:/api/v{version}/Booking/terminate/{id}
+   * @secure
+   */
+  vBookingTerminateCreate = (
+    id: string,
+    version: string,
+    query?: {
+      userId?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<BookingPrincipalRes, any>({
+      path: `/api/v${version}/Booking/terminate/${id}`,
+      method: "POST",
+      query: query,
       secure: true,
       format: "json",
       ...params,
@@ -501,6 +632,87 @@ export class Api<
   /**
    * No description
    *
+   * @tags Transaction
+   * @name VTransactionDetail
+   * @request GET:/api/v{version}/Transaction
+   * @secure
+   */
+  vTransactionDetail = (
+    version: string,
+    query?: {
+      Search?: string;
+      TransactionType?: string;
+      /** @format uuid */
+      Id?: string;
+      /** @format uuid */
+      WalletId?: string;
+      userId?: string;
+      Before?: string;
+      After?: string;
+      /** @format int32 */
+      Limit?: number;
+      /** @format int32 */
+      Skip?: number;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<TransactionPrincipalRes[], any>({
+      path: `/api/v${version}/Transaction`,
+      method: "GET",
+      query: query,
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Transaction
+   * @name VTransactionDetail2
+   * @request GET:/api/v{version}/Transaction/{id}
+   * @originalName vTransactionDetail
+   * @duplicate
+   * @secure
+   */
+  vTransactionDetail2 = (
+    id: string,
+    version: string,
+    query?: {
+      userId?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<TransactionRes, any>({
+      path: `/api/v${version}/Transaction/${id}`,
+      method: "GET",
+      query: query,
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Transaction
+   * @name VTransactionDelete
+   * @request DELETE:/api/v{version}/Transaction/{id}
+   * @secure
+   */
+  vTransactionDelete = (
+    id: string,
+    version: string,
+    params: RequestParams = {},
+  ) =>
+    this.request<TransactionRes, any>({
+      path: `/api/v${version}/Transaction/${id}`,
+      method: "DELETE",
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
    * @tags User
    * @name VUserDetail
    * @request GET:/api/v{version}/User
@@ -559,6 +771,22 @@ export class Api<
   vUserMeDetail = (version: string, params: RequestParams = {}) =>
     this.request<string, any>({
       path: `/api/v${version}/User/Me`,
+      method: "GET",
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags User
+   * @name VUserMeAllDetail
+   * @request GET:/api/v{version}/User/Me/All
+   * @secure
+   */
+  vUserMeAllDetail = (version: string, params: RequestParams = {}) =>
+    this.request<UserRes, any>({
+      path: `/api/v${version}/User/Me/All`,
       method: "GET",
       secure: true,
       format: "json",
@@ -695,6 +923,260 @@ export class Api<
       path: `/api/v${version}/error-info/${id}`,
       method: "GET",
       secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Wallet
+   * @name VWalletDetail
+   * @request GET:/api/v{version}/Wallet
+   * @secure
+   */
+  vWalletDetail = (
+    version: string,
+    query?: {
+      UserId?: string;
+      /** @format uuid */
+      Id?: string;
+      /** @format int32 */
+      Limit?: number;
+      /** @format int32 */
+      Skip?: number;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<WalletPrincipalRes[], any>({
+      path: `/api/v${version}/Wallet`,
+      method: "GET",
+      query: query,
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Wallet
+   * @name VWalletDetail2
+   * @request GET:/api/v{version}/Wallet/{id}
+   * @originalName vWalletDetail
+   * @duplicate
+   * @secure
+   */
+  vWalletDetail2 = (
+    id: string,
+    version: string,
+    query?: {
+      userId?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<WalletRes, any>({
+      path: `/api/v${version}/Wallet/${id}`,
+      method: "GET",
+      query: query,
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Wallet
+   * @name VWalletUserDetail
+   * @request GET:/api/v{version}/Wallet/user/{userId}
+   * @secure
+   */
+  vWalletUserDetail = (
+    userId: string,
+    version: string,
+    params: RequestParams = {},
+  ) =>
+    this.request<WalletRes, any>({
+      path: `/api/v${version}/Wallet/user/${userId}`,
+      method: "GET",
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Withdrawal
+   * @name VWithdrawalDetail
+   * @request GET:/api/v{version}/Withdrawal
+   * @secure
+   */
+  vWithdrawalDetail = (
+    version: string,
+    query?: {
+      /** @format uuid */
+      Id?: string;
+      UserId?: string;
+      CompleterId?: string;
+      /** @format double */
+      Min?: number;
+      /** @format double */
+      Max?: number;
+      Status?: string;
+      Before?: string;
+      After?: string;
+      /** @format int32 */
+      Limit?: number;
+      /** @format int32 */
+      Skip?: number;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<WithdrawalPrincipalRes[], any>({
+      path: `/api/v${version}/Withdrawal`,
+      method: "GET",
+      query: query,
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Withdrawal
+   * @name VWithdrawalDetail2
+   * @request GET:/api/v{version}/Withdrawal/{id}
+   * @originalName vWithdrawalDetail
+   * @duplicate
+   * @secure
+   */
+  vWithdrawalDetail2 = (
+    id: string,
+    version: string,
+    query?: {
+      userId?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<WithdrawalRes, any>({
+      path: `/api/v${version}/Withdrawal/${id}`,
+      method: "GET",
+      query: query,
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Withdrawal
+   * @name VWithdrawalDelete
+   * @request DELETE:/api/v{version}/Withdrawal/{id}
+   * @secure
+   */
+  vWithdrawalDelete = (
+    id: string,
+    version: string,
+    params: RequestParams = {},
+  ) =>
+    this.request<WithdrawalPrincipalRes, any>({
+      path: `/api/v${version}/Withdrawal/${id}`,
+      method: "DELETE",
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Withdrawal
+   * @name VWithdrawalCreate
+   * @request POST:/api/v{version}/Withdrawal/{userId}
+   * @secure
+   */
+  vWithdrawalCreate = (
+    userId: string,
+    version: string,
+    data: CreateWithdrawalReq,
+    params: RequestParams = {},
+  ) =>
+    this.request<WithdrawalPrincipalRes, any>({
+      path: `/api/v${version}/Withdrawal/${userId}`,
+      method: "POST",
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Withdrawal
+   * @name VWithdrawalCancelCreate
+   * @request POST:/api/v{version}/Withdrawal/{userId}/{id}/cancel
+   * @secure
+   */
+  vWithdrawalCancelCreate = (
+    id: string,
+    userId: string,
+    version: string,
+    data: CancelWithdrawalReq,
+    params: RequestParams = {},
+  ) =>
+    this.request<WithdrawalPrincipalRes, any>({
+      path: `/api/v${version}/Withdrawal/${userId}/${id}/cancel`,
+      method: "POST",
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Withdrawal
+   * @name VWithdrawalRejectCreate
+   * @request POST:/api/v{version}/Withdrawal/{id}/reject
+   * @secure
+   */
+  vWithdrawalRejectCreate = (
+    id: string,
+    version: string,
+    data: RejectWithdrawalReq,
+    params: RequestParams = {},
+  ) =>
+    this.request<WithdrawalPrincipalRes, any>({
+      path: `/api/v${version}/Withdrawal/${id}/reject`,
+      method: "POST",
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Withdrawal
+   * @name VWithdrawalCompleteCreate
+   * @request POST:/api/v{version}/Withdrawal/{id}/complete
+   * @secure
+   */
+  vWithdrawalCompleteCreate = (
+    id: string,
+    version: string,
+    data: {
+      /** @format binary */
+      file?: File;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<WithdrawalPrincipalRes, any>({
+      path: `/api/v${version}/Withdrawal/${id}/complete`,
+      method: "POST",
+      body: data,
+      secure: true,
+      type: ContentType.FormData,
       format: "json",
       ...params,
     });

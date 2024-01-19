@@ -15,6 +15,14 @@ tasks:
     desc: Start development
     cmds:
       - ./scripts/local/dev.sh ./config/dev.yaml bun run dev
+  run:
+    desc: Start development without background services
+    cmds:
+      - ./scripts/local/run.sh ./config/dev.yaml bun run dev
+  stop:
+    desc: Stop development
+    cmds:
+      - ./scripts/local/stop.sh
   build:
     desc: Build project
     cmds:

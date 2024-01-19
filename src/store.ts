@@ -1,7 +1,7 @@
 import type { ApiConfig } from "$lib/api/core/http-client";
 import { Api } from "$lib/api/core/Api";
 import type { Writable } from "svelte/store";
-import { get, writable } from "svelte/store";
+import { derived, get, writable } from "svelte/store";
 import { config } from "./config/shared";
 import { page } from "$app/stores";
 import type { Session } from "@auth/core/types";
@@ -12,6 +12,17 @@ import type { ProblemDetails } from "./errors/problem_details";
 export const problem: Writable<ProblemDetails | null> = writable(null);
 
 export const loading: Writable<boolean> = writable(false);
+
+export const showProblem = derived(problem, ($problem) => $problem != null);
+export const showLoading = derived(
+  [loading, showProblem],
+  ([$loading, $showProblem]) => $loading && !$showProblem,
+);
+
+export const showContent = derived(
+  [showProblem, showLoading],
+  ([$showProblem, $showLoading]) => !$showProblem && !$showLoading,
+);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function NewApi({ data, fetch }: { data?: any; fetch?: any }): Api {

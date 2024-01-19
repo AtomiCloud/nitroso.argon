@@ -2,8 +2,14 @@
     import {Button} from "$lib/components/ui/button";
     import {signIn, signOut} from "@auth/sveltekit/client";
     import {page} from "$app/stores";
+
+    //@ts-ignore
     import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
+
+    //@ts-ignore
     import * as Avatar from "$lib/components/ui/avatar";
+
+
 </script>
 
 {#if $page.data.session}
@@ -15,9 +21,9 @@
                     class="relative h-8 w-8 rounded-full"
             >
                 <Avatar.Root class="h-8 w-8">
-                    <Avatar.Image src="{$page.data.session.user?.image}"
-                                  alt="@{$page.data.session.user?.email}"/>
-                    <Avatar.Fallback>{$page.data.session.user?.email?.slice(0, 2)?.toUpperCase()}</Avatar.Fallback>
+                    <Avatar.Image src="{$page.data.session?.user?.image}"
+                                  alt="@{$page.data.session?.user?.email}"/>
+                    <Avatar.Fallback>{$page.data.session?.user?.email?.slice(0, 2)?.toUpperCase()}</Avatar.Fallback>
                 </Avatar.Root>
             </Button>
         </DropdownMenu.Trigger>
@@ -28,11 +34,40 @@
                         @{$page.data.user?.principal?.username}
                     </p>
                     <p class="text-xs leading-none text-muted-foreground">
-                        {$page.data.session.user?.email}
+                        {$page.data.session?.user?.email}
                     </p>
                 </div>
             </DropdownMenu.Label>
+            {#if $page.data.session?.roles?.includes("admin")}
             <DropdownMenu.Separator/>
+            <a href="/wallets">
+                <DropdownMenu.Item>
+                    Wallets
+                </DropdownMenu.Item>
+            </a>
+            <a href="/users">
+                <DropdownMenu.Item>
+                    Users
+                </DropdownMenu.Item>
+            </a>
+            {/if}
+            <DropdownMenu.Separator/>
+            <a href="/wallets/{$page.data.user.wallet.id}">
+                <DropdownMenu.Item>
+                    BALANCE: SGD {$page.data.user?.wallet?.usable?.toFixed(2) ?? "0.00" }
+                </DropdownMenu.Item>
+            </a>
+            <DropdownMenu.Separator/>
+            <a href="{$page.data.session?.roles?.includes('admin') ? '/withdrawals' : `/withdrawals?userId=${$page.data.user.principal.id}`}">
+                <DropdownMenu.Item>
+                    Withdrawals
+                </DropdownMenu.Item>
+            </a>
+            <a href="{$page.data.session?.roles?.includes('admin') ? '/transactions' : `/transactions?userId=${$page.data.user.principal.id}`}">
+                <DropdownMenu.Item>
+                    Transactions
+                </DropdownMenu.Item>
+            </a>
             <a href="/profile">
                 <DropdownMenu.Item>
                     Profile

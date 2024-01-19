@@ -1,12 +1,12 @@
 dependencies:
 - name: root-chart
   repository: oci://ghcr.io/atomicloud/nitroso.zinc
-  version: 1.8.8
+  version: 1.14.3
 - name: root-chart
   repository: oci://ghcr.io/atomicloud/nitroso.helium
   version: 1.5.4
 - name: root-chart
   repository: oci://ghcr.io/atomicloud/nitroso.tin
-  version: 1.4.9
-digest: sha256:71949abb888ce728c0a9691208129a792d787c9b66996d86cbaf6628f505740b
-generated: "2024-01-03T10:51:29.580464+08:00"
+  version: 1.4.12
+digest: sha256:b770f8b95f136fc7d16ccb15c4905e5999a297ed6a099b9f1d862814fdf1bb65
+generated: "2024-01-18T10:54:21.166452+08:00"

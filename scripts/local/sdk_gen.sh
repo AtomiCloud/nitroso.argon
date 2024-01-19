@@ -14,7 +14,10 @@ echo "✅ Generated SDK for Core API '$version'"
 
 # patch the generated code
 echo "🔧 Patching generated code..."
+echo "⌛ Patch 1"
 sed -i 's/import {/import type {/g' ./src/lib/api/core/Api.ts
+echo "⌛ Patch 2"
 sed -i 's/import type { ContentType, HttpClient, RequestParams/import { ContentType, HttpClient, type RequestParams/g' ./src/lib/api/core/Api.ts
+echo "⌛ Patch 3"
 sed -i '/credentials: "same-origin",/d; /headers: {},/d; /redirect: "follow",/d; /referrerPolicy: "no-referrer",/d' ./src/lib/api/core/http-client.ts
 echo "✅ Patched generated code"

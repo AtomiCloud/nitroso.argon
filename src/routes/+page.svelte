@@ -9,17 +9,17 @@
     import panel5 from "$lib/assets/panel-5-fs8.png";
     import {Button} from "$lib/components/ui/button";
     import {BookOpenCheck, ChevronDownCircle} from "lucide-svelte";
-
-
-
+    //@ts-ignore
     import * as Accordion from "$lib/components/ui/accordion";
+    //@ts-ignore
     import * as Table from "$lib/components/ui/table";
+    //@ts-ignore
     import {Footer} from "$lib/components/custom/footer";
 
     console.log("Configuration", config.app);
 
 
-    const timings: {j2w: string, w2j: string}[] = [
+    const timings: { j2w: string, w2j: string }[] = [
         {w2j: "8:30 AM", j2w: "5:00 AM"},
         {w2j: "9:25 AM", j2w: "5:30 AM"},
         {w2j: "11:00 AM", j2w: "6:00 AM"},
@@ -53,6 +53,7 @@
     h1 {
         font-family: 'Cabin', 'sans-serif';
     }
+
     h2 {
         font-family: 'Raleway', 'sans-serif';
     }
@@ -80,7 +81,7 @@
                     </div>
                 </div>
             </div>
-            <div class="text-3xl text-center w-full flex flex-col items-center py-6">
+            <div class="text-3xl text-center w-full flex flex-col items-center py-12 lg:py-6">
 
                 <div class="py-3">See how it works</div>
                 <ChevronDownCircle class="animate-bounce h-8 w-8"/>
@@ -255,13 +256,14 @@
                             and made available on the KTMB site, we will book the ticket on your behalf.
                         </p>
                         <p class="py-2">
-                            We do not keep stock of any train tickets in our system and only make bookings based on pending orders.
+                            We do not keep stock of any train tickets in our system and only make bookings based on
+                            pending orders.
                         </p>
                     </Accordion.Content>
                 </Accordion.Item>
 
                 <Accordion.Item value="item-2">
-                    <Accordion.Trigger  class="text-left">
+                    <Accordion.Trigger class="text-left">
                         Why should I buy tickets via BunnyBooker?
                     </Accordion.Trigger>
                     <Accordion.Content>
@@ -290,7 +292,8 @@
                         </p>
                         <p class="my-2">
                             e.g. Customer 1 placed an order for 3 people for CIQ -> JB SENTRAL at 8.30AM on 31/12/2023,
-                            and customer 2 is looking to place an order for 5 people for the same direction, date and time.
+                            and customer 2 is looking to place an order for 5 people for the same direction, date and
+                            time.
                             BunnyBooker queue will display "3 pending tickets" for Customer 2 to make an
                             informed choice of whether or not she wants to make the order for the
                             same timeslot or choose an alternative timeslot.
@@ -311,7 +314,9 @@
                         How can I check the purchase status of my order?
                     </Accordion.Trigger>
                     <Accordion.Content>
-                        You can login to <a class="underline text-blue-600 hover:text-blue-800 visited:text-purple-600" href="https://bunnybooker.com">bunnybooker.com</a> and check the status of your order.
+                        You can login to <a class="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                                            href="https://bunnybooker.com">bunnybooker.com</a> and check the status of
+                        your order.
                     </Accordion.Content>
                 </Accordion.Item>
 
@@ -370,7 +375,7 @@
                     </Accordion.Trigger>
                     <Accordion.Content>
                         <ol class="my-6 ml-6 list-decimal [&>li]:mt-2">
-                           <li>All personal data are encrypted at rest in the database</li>
+                            <li>All personal data are encrypted at rest in the database</li>
                             <li>No data is shared with external parties</li>
                             <li>No personal identifiable information is allowed to be accessed by internal staff</li>
                             <li>
@@ -390,9 +395,10 @@
                             read more about BunnyBooker's personal data handling.
                         </p>
                         <p class="my-2">
-                            If you would like to find out how your personal data is handled on the KTMB website, you may visit
+                            If you would like to find out how your personal data is handled on the KTMB website, you may
+                            visit
                             <a class="underline hover:text-amber-300"
-                                    href="https://www.ktmb.com.my/assets/pdf/2022/customer_privacy_policy.pdf">here</a>
+                               href="https://www.ktmb.com.my/assets/pdf/2022/customer_privacy_policy.pdf">here</a>
                         </p>
                     </Accordion.Content>
                 </Accordion.Item>
@@ -419,7 +425,8 @@
                         </p>
                         <p class="py-2">
                             Gates close strictly 20 minutes before train departure.
-                            Therefore, it is best to be in the queue at least 30 minutes before train departure (at 9.15am).
+                            Therefore, it is best to be in the queue at least 30 minutes before train departure (at
+                            9.15am).
                         </p>
                         <p class="py-2">
                             From 9.25am - 9.45am (the 20 minutes before departure),
@@ -475,10 +482,10 @@
                     </Accordion.Trigger>
                     <Accordion.Content>
 
-                       <p class="my-2">
-                           <span class="font-semibold">Singapore to Johor: </span>
-                           <span class="underline">20 minutes</span> before departure
-                       </p>
+                        <p class="my-2">
+                            <span class="font-semibold">Singapore to Johor: </span>
+                            <span class="underline">20 minutes</span> before departure
+                        </p>
                         <p class="my-2">
                             <span class="font-semibold">Johor to Singapore: </span>
                             <span class="underline">10 minutes</span> before departure
@@ -503,7 +510,5 @@
     </div>
 
     <hr>
-    <div class="w-full bg-slate-800 text-white pb-12 pt-8">
-        <Footer/>
-    </div>
+
 </Page>

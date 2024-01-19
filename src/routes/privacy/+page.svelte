@@ -17,7 +17,7 @@
     }
 </style>
 <Page notFoundMessage="Main page cannot be found">
-    <div class="flex flex-col h-[calc(100dvh-4rem)] geo-bg">
+    <div class="flex flex-col">
         <div class="w-11/12 max-w-[800px] mx-auto py-8">
             <h1 class="text-6xl">Privacy Policy</h1>
 
@@ -237,9 +237,6 @@
                 Effective date: 31/12/2023<br>
                 Last updated:  31/12/2023
             </p>
-        </div>
-        <div class="w-full bg-slate-800 text-white pb-12 pt-8">
-            <Footer/>
         </div>
     </div>
 </Page>
