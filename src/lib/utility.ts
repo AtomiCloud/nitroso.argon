@@ -56,11 +56,11 @@ function toResult<T>(
     try {
       const r = await f();
       if (r.ok) return Ok(r.data);
-      const problem = await parseErrorResponse(r);
+      const problem = await parseErrorResponse(r, "HTTP Client Error");
       return Err(problem);
     } catch (e) {
       if (isResponse(e)) {
-        const problem = await parseErrorResponse(e);
+        const problem = await parseErrorResponse(e, "HTTP Client Error");
         return Err(problem);
       }
       const p = parseError(localErrorDetail, e);
@@ -72,10 +72,17 @@ function toResult<T>(
 async function parseErrorResponse<T>(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   r: HttpResponse<T, any>,
+  error?: string,
 ): Promise<ProblemDetails> {
   if (r.error == null) {
-    const t = (await r.text()) ?? "No body found";
-    return toDetail(new LocalStringError("Unknown client error", t));
+    try {
+      const t = (await r.text()) ?? "No body found";
+      return toDetail(new LocalStringError(error ?? "Unknown client error", t));
+    } catch (e) {
+      return toDetail(
+        new LocalStringError(error ?? "Unknown client error", r.statusText),
+      );
+    }
   }
 
   return parseErrorToDetail("Unknown client error", r.error);
@@ -87,7 +94,6 @@ function parseErrorToDetail(detail: string, error: unknown): ProblemDetails {
 }
 
 function parseError(detail: string, error: unknown): Problem {
-  console.error("err", error);
   if (error instanceof Error) {
     return new LocalExceptionError(detail, error);
   } else if (typeof error === "string") {

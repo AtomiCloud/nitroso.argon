@@ -14,7 +14,7 @@
     //@ts-ignore
     import * as Select from "$lib/components/ui/select";
     import type {Selected} from "bits-ui";
-    import {ArrowLeftRight, FilePieChart, LucideTicket, Puzzle} from "lucide-svelte";
+    import {FilePieChart, LucideTicket, Puzzle} from "lucide-svelte";
     import type {PageData} from "./$types";
     import {DISCOUNT_MATCH_MODE, DISCOUNT_STATUS, DISCOUNT_TYPE} from "./status";
     import {Input} from "$lib/components/ui/input";

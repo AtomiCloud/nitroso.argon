@@ -74,7 +74,7 @@
                         <div class="text-lg md:text-xl text-center md:text-left ">
                             <span>Your stress-free ticket booking assistant</span>
                         </div>
-                        <Button>
+                        <Button href="/schedules">
                             <BookOpenCheck class="mr-2 h-4 w-4"/>
                             Start Booking
                         </Button>
