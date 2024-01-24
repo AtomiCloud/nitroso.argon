@@ -14,12 +14,17 @@ import type {
   BookingPrincipalRes,
   BookingRes,
   CancelWithdrawalReq,
+  CostPrincipalRes,
   CreateBookingReq,
+  CreateCostReq,
+  CreateDiscountReq,
   CreatePassengerReq,
   CreateUserReq,
   CreateWithdrawalReq,
+  DiscountPrincipalRes,
   ErrorInfo,
   LatestScheduleRes,
+  MaterializedCostRes,
   PassengerPrincipalRes,
   PassengerRes,
   RejectWithdrawalReq,
@@ -32,6 +37,7 @@ import type {
   TransactionPrincipalRes,
   TransactionRes,
   TransferReq,
+  UpdateDiscountReq,
   UpdatePassengerReq,
   UpdateUserReq,
   UserExistRes,
@@ -241,6 +247,29 @@ export class Api<
    * No description
    *
    * @tags Booking
+   * @name VBookingCountsDetail2
+   * @request GET:/api/v{version}/Booking/counts/{Direction}/{Date}
+   * @originalName vBookingCountsDetail
+   * @duplicate
+   * @secure
+   */
+  vBookingCountsDetail2 = (
+    date: string,
+    direction: string,
+    version: string,
+    params: RequestParams = {},
+  ) =>
+    this.request<BookingCountRes[], any>({
+      path: `/api/v${version}/Booking/counts/${direction}/${date}`,
+      method: "GET",
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
    * @name VBookingBuyingCreate
    * @request POST:/api/v{version}/Booking/buying/{id}
    * @secure
@@ -346,6 +375,185 @@ export class Api<
       query: query,
       secure: true,
       format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Cost
+   * @name VCostDetail
+   * @request GET:/api/v{version}/Cost
+   * @secure
+   */
+  vCostDetail = (version: string, params: RequestParams = {}) =>
+    this.request<CostPrincipalRes[], any>({
+      path: `/api/v${version}/Cost`,
+      method: "GET",
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Cost
+   * @name VCostCreate
+   * @request POST:/api/v{version}/Cost
+   * @secure
+   */
+  vCostCreate = (
+    version: string,
+    data: CreateCostReq,
+    params: RequestParams = {},
+  ) =>
+    this.request<CostPrincipalRes, any>({
+      path: `/api/v${version}/Cost`,
+      method: "POST",
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Cost
+   * @name VCostCurrentDetail
+   * @request GET:/api/v{version}/Cost/current
+   * @secure
+   */
+  vCostCurrentDetail = (version: string, params: RequestParams = {}) =>
+    this.request<CostPrincipalRes, any>({
+      path: `/api/v${version}/Cost/current`,
+      method: "GET",
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Cost
+   * @name VCostSelfDetail
+   * @request GET:/api/v{version}/Cost/self
+   * @secure
+   */
+  vCostSelfDetail = (version: string, params: RequestParams = {}) =>
+    this.request<MaterializedCostRes, any>({
+      path: `/api/v${version}/Cost/self`,
+      method: "GET",
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Discount
+   * @name VDiscountDetail
+   * @request GET:/api/v{version}/Discount
+   * @secure
+   */
+  vDiscountDetail = (
+    version: string,
+    query?: {
+      Search?: string;
+      DiscountType?: string;
+      MatchMode?: string;
+      MatchTarget?: string[];
+      Disabled?: boolean;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<DiscountPrincipalRes[], any>({
+      path: `/api/v${version}/Discount`,
+      method: "GET",
+      query: query,
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Discount
+   * @name VDiscountCreate
+   * @request POST:/api/v{version}/Discount
+   * @secure
+   */
+  vDiscountCreate = (
+    version: string,
+    data: CreateDiscountReq,
+    params: RequestParams = {},
+  ) =>
+    this.request<DiscountPrincipalRes, any>({
+      path: `/api/v${version}/Discount`,
+      method: "POST",
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Discount
+   * @name VDiscountDetail2
+   * @request GET:/api/v{version}/Discount/{id}
+   * @originalName vDiscountDetail
+   * @duplicate
+   * @secure
+   */
+  vDiscountDetail2 = (
+    id: string,
+    version: string,
+    params: RequestParams = {},
+  ) =>
+    this.request<DiscountPrincipalRes, any>({
+      path: `/api/v${version}/Discount/${id}`,
+      method: "GET",
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Discount
+   * @name VDiscountUpdate
+   * @request PUT:/api/v{version}/Discount/{id}
+   * @secure
+   */
+  vDiscountUpdate = (
+    id: string,
+    version: string,
+    data: UpdateDiscountReq,
+    params: RequestParams = {},
+  ) =>
+    this.request<DiscountPrincipalRes, any>({
+      path: `/api/v${version}/Discount/${id}`,
+      method: "PUT",
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Discount
+   * @name VDiscountDelete
+   * @request DELETE:/api/v{version}/Discount/{id}
+   * @secure
+   */
+  vDiscountDelete = (id: string, version: string, params: RequestParams = {}) =>
+    this.request<void, any>({
+      path: `/api/v${version}/Discount/${id}`,
+      method: "DELETE",
+      secure: true,
       ...params,
     });
   /**

@@ -13,6 +13,7 @@
     import {invalidateAll} from "$app/navigation";
     import type {WithdrawalPrincipalRes} from "$lib/api/core/data-contracts";
     import {Input} from "$lib/components/ui/input";
+    import {LucideLoader} from "lucide-svelte";
 
     export let withdrawal: WithdrawalPrincipalRes;
 
@@ -20,7 +21,10 @@
 
     let files: FileList;
 
+    let submitting = false;
+
     async function approveWithdrawal(file: File) {
+        submitting = true;
         await toResult(() => $api.vWithdrawalCompleteCreate(withdrawal.id, "1.0", {file}
         ), "Failed to approve withdrawal").match({
             ok: () => {
@@ -33,6 +37,7 @@
                 toast.error(e.detail);
             }
         })
+        submitting = false;
     }
 </script>
 <Dialog.Root bind:open={dialogOpen}>
@@ -51,7 +56,10 @@
                     <Button variant="outline">
                         <input  bind:files type="file"/>
                     </Button>
-                    <Button on:click={() => approveWithdrawal(files[0])}>
+                    <Button on:click={() => approveWithdrawal(files[0])} disabled={submitting === true}>
+                        {#if submitting}
+                            <LucideLoader class="mr-2 h-4 w-4 animate-spin" />
+                        {/if}
                         Complete
                     </Button>
                 </div>

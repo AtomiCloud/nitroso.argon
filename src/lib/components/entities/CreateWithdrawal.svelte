@@ -14,7 +14,7 @@
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
     import type {WalletPrincipalRes} from "$lib/api/core/data-contracts";
-    import {AlertTriangle} from "lucide-svelte";
+    import {AlertTriangle, LucideLoader} from "lucide-svelte";
 
     export let userId: string;
 
@@ -46,9 +46,10 @@
         },
     } satisfies  FormOptions<typeof createWithdrawalSchema> ;
 
-
+    let submitting = false;
 
     async function makeWithdrawal(amount: number, payNowNumber: string) {
+        submitting = true;
         await toResult(() => $api.vWithdrawalCreate(
             userId, "1.0", {
                 amount,
@@ -65,9 +66,10 @@
                 toast.error(e.detail);
             }
         })
+        submitting = false;
     }
-
 </script>
+
 <Dialog.Root bind:open={dialogOpen}>
     <Dialog.Trigger class="w-full max-w-80  {buttonVariants({ variant: 'default' })}">
         Make a Withdrawal
@@ -87,6 +89,16 @@
                         >Please ensure you PayNow number is correct before proceeding.
                             <span class="underline"> No compensations </span>
                             will be provided for wrong PayNow numbers.
+                        </Alert.Description
+                        >
+                    </Alert.Root>
+                    <Alert.Root>
+                        <AlertTriangle class="h-4 w-4" />
+                        <Alert.Title>Withdrawal Duration</Alert.Title>
+                        <Alert.Description
+                        >Withdrawal is not instant. It will take up to
+                            <span class="underline"> 2 working days </span>
+                            to be processed.
                         </Alert.Description
                         >
                     </Alert.Root>
@@ -112,7 +124,12 @@
                                 <Form.Validation class="text-sm"/>
                             </Form.Item>
                         </Form.Field>
-                        <Form.Button type="submit" class="my-4">Make Withdrawal Request</Form.Button>
+                        <Form.Button type="submit" class="my-4" disabled={submitting === true} >
+                            {#if submitting}
+                                <LucideLoader class="mr-2 h-4 w-4 animate-spin" />
+                            {/if}
+                            Make Withdrawal Request
+                        </Form.Button>
                     </Form.Root>
                 </div>
             </Dialog.Description>

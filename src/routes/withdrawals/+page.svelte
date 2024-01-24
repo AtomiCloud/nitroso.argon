@@ -98,48 +98,47 @@
 
 </script>
 
-<Page notFoundMessage="Withdrawals cannot be found">
-    <div class="flex flex-col">
-        <div class="flex flex-col gap-4 w-11/12 max-w-[1200px] mx-auto my-12">
-            {#if $page.data.session?.roles?.includes("admin")}
-                <Input placeholder="Filter by ID..." bind:value={withdrawalId} on:input={triggerSearch}/>
-                <Input placeholder="Filter by user ID..." bind:value={userId} on:input={triggerSearch}/>
-                <Input placeholder="Filter by completer ID..." bind:value={completerId} on:input={triggerSearch}/>
-            {/if}
-            <div class="flex flex-wrap gap-4 w-full">
-                <DateRangePicker
-                        onValueChange={dateFilterChange}
-                        bind:value={dateFilter}
-                        placeholder="Filter by date range"
-                        numberOfMonths={1}
-                />
-                <Select.Root bind:selected={withdrawStatus} onSelectedChange={statusChange}>
-                    <Select.Trigger class="w-full lg:max-w-60">
-                        <ArrowLeftRight class="mr-2 h-4 w-4"/>
-                        <Select.Value placeholder="Status"/>
-                    </Select.Trigger>
-                    <Select.Content>
-                        <Select.Item value="">None</Select.Item>
-                        {#each Object.entries(WITHDRAWAL_STATUS) as [label, val]}
-                            <Select.Item value={val.value}>{label}</Select.Item>
-                        {/each}
-                    </Select.Content>
-                </Select.Root>
+<div class="flex flex-col">
+    <div class="flex flex-col gap-4 w-11/12 max-w-[1200px] mx-auto my-12">
+        {#if $page.data.session?.roles?.includes("admin")}
+            <Input placeholder="Filter by ID..." bind:value={withdrawalId} on:input={triggerSearch}/>
+            <Input placeholder="Filter by user ID..." bind:value={userId} on:input={triggerSearch}/>
+            <Input placeholder="Filter by completer ID..." bind:value={completerId} on:input={triggerSearch}/>
+        {/if}
+        <div class="flex flex-wrap gap-4 w-full">
+            <DateRangePicker
+                    onValueChange={dateFilterChange}
+                    bind:value={dateFilter}
+                    placeholder="Filter by date range"
+                    numberOfMonths={1}
+            />
+            <Select.Root bind:selected={withdrawStatus} onSelectedChange={statusChange}>
+                <Select.Trigger class="w-full lg:max-w-60">
+                    <ArrowLeftRight class="mr-2 h-4 w-4"/>
+                    <Select.Value placeholder="Status"/>
+                </Select.Trigger>
+                <Select.Content>
+                    <Select.Item value="">None</Select.Item>
+                    {#each Object.entries(WITHDRAWAL_STATUS) as [label, val]}
+                        <Select.Item value={val.value}>{label}</Select.Item>
+                    {/each}
+                </Select.Content>
+            </Select.Root>
 
-                <CreateWithdrawal
-                        userId={$page.data.user.principal.id}
-                        wallet={$page.data.user.wallet}
-                />
-            </div>
+            <CreateWithdrawal
+                    userId={$page.data.user.principal.id}
+                    wallet={$page.data.user.wallet}
+            />
+        </div>
 
-            {#await withdrawals}
-                <Loader/>
-            {:then ws}
+        {#await withdrawals}
+            <Loader/>
+        {:then ws}
+            <Page notFoundMessage="Withdrawals not found" empty={ws.length === 0}>
                 <div class="flex flex-col gap-4 my-4">
                     {#each ws as w}
                         <Card.Root>
                             <Card.Header>
-                                <!--{JSON.stringify(w)}-->
                                 <Card.Title>S${w.record.amount.toFixed(2)} to
                                     PayNow {w.record.payNowNumber}</Card.Title>
                                 <div class="flex justify-between py-2">
@@ -174,7 +173,7 @@
                         </Card.Root>
                     {/each}
                 </div>
-            {/await}
-        </div>
+            </Page>
+        {/await}
     </div>
-</Page>
+</div>

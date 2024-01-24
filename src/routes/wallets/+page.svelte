@@ -43,20 +43,22 @@
 
 </script>
 
-<Page notFoundMessage="Main page cannot be found">
-    <div class="flex flex-col">
-        <div class="flex flex-col w-11/12 max-w-[1200px] mx-auto my-12">
-            <Input placeholder="Search for wallets..." bind:value={searchTerm} on:input={triggerSearch}/>
-            {#await wallets}
-                <Loader/>
-            {:then w}
+<div class="flex flex-col">
+    <div class="flex flex-col w-11/12 max-w-[1200px] mx-auto my-12">
+        <Input placeholder="Search for wallets..." bind:value={searchTerm} on:input={triggerSearch}/>
+        {#await wallets}
+            <Loader/>
+        {:then w}
+            <Page notFoundMessage="Wallets not found" empty={w.length === 0}>
                 <div class="flex flex-col gap-4 my-4">
                     {#each w as wallet}
                         <div>
                             <Card.Root>
                                 <Card.Header>
                                     <Card.Title>{wallet.id}</Card.Title>
-                                    <Card.Description><a class="hover:underline hover:text-amber-500" href="/users/{wallet.userId}"> {wallet.userId} </a></Card.Description>
+                                    <Card.Description><a class="hover:underline hover:text-amber-500"
+                                                         href="/users/{wallet.userId}"> {wallet.userId} </a>
+                                    </Card.Description>
                                 </Card.Header>
                                 <Card.Content>
                                     <div class="flex gap-8 justify-between items-center flex-wrap">
@@ -78,7 +80,7 @@
                         </div>
                     {/each}
                 </div>
-            {/await}
-        </div>
+            </Page>
+        {/await}
     </div>
-</Page>
+</div>

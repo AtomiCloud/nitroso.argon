@@ -42,13 +42,14 @@
 
 </script>
 
-<Page notFoundMessage="Main page cannot be found">
-    <div class="flex flex-col">
-        <div class="flex flex-col w-11/12 max-w-[1200px] mx-auto my-12">
-            <Input placeholder="Search for users..." bind:value={searchTerm} on:input={triggerSearch}/>
-            {#await users}
-                <Loader/>
-            {:then u}
+<div class="flex flex-col">
+    <div class="flex flex-col w-11/12 max-w-[1200px] mx-auto my-12">
+        <Input placeholder="Search for users..." bind:value={searchTerm} on:input={triggerSearch}/>
+        {#await users}
+            <Loader/>
+        {:then u}
+            <Page notFoundMessage="No users found" empty={u.length === 0}>
+
                 <div class="flex flex-col gap-4 my-4">
                     {#each u as user}
                         <div>
@@ -59,16 +60,16 @@
                                             <Card.Title>{user.username}</Card.Title>
                                             <Card.Description>{user.id}</Card.Description>
                                         </div>
-                                            <Button class="max-w-80 w-full lg:max-w-40" href="/users/{user.id}">
-                                                View Details
-                                            </Button>
+                                        <Button class="max-w-80 w-full lg:max-w-40" href="/users/{user.id}">
+                                            View Details
+                                        </Button>
                                     </div>
                                 </Card.Header>
                             </Card.Root>
                         </div>
                     {/each}
                 </div>
-            {/await}
-        </div>
+            </Page>
+        {/await}
     </div>
-</Page>
+</div>

@@ -40,6 +40,16 @@
             </DropdownMenu.Label>
             {#if $page.data.session?.roles?.includes("admin")}
             <DropdownMenu.Separator/>
+            <a href="/costs">
+                <DropdownMenu.Item>
+                    Costs
+                </DropdownMenu.Item>
+            </a>
+            <a href="/discounts">
+                <DropdownMenu.Item>
+                    Discounts
+                </DropdownMenu.Item>
+            </a>
             <a href="/wallets">
                 <DropdownMenu.Item>
                     Wallets
@@ -58,6 +68,7 @@
                 </DropdownMenu.Item>
             </a>
             <DropdownMenu.Separator/>
+
             <a href="{$page.data.session?.roles?.includes('admin') ? '/withdrawals' : `/withdrawals?userId=${$page.data.user.principal.id}`}">
                 <DropdownMenu.Item>
                     Withdrawals

@@ -55,11 +55,30 @@ export interface CancelWithdrawalReq {
   note?: string | null;
 }
 
+export interface CostPrincipalRes {
+  /** @format uuid */
+  id: string;
+  /** @format date-time */
+  createdAt: string;
+  /** @format double */
+  cost: number;
+}
+
 export interface CreateBookingReq {
   date?: string | null;
   time?: string | null;
   direction?: string | null;
   passenger: BookingPassengerReq;
+}
+
+export interface CreateCostReq {
+  /** @format double */
+  cost: number;
+}
+
+export interface CreateDiscountReq {
+  target: DiscountTargetReq;
+  record: DiscountRecordReq;
 }
 
 export interface CreatePassengerReq {
@@ -79,6 +98,58 @@ export interface CreateWithdrawalReq {
   payNowNumber?: string | null;
 }
 
+export interface DiscountMatchReq {
+  value?: string | null;
+  matchType?: string | null;
+}
+
+export interface DiscountMatchRes {
+  value?: string | null;
+  matchType?: string | null;
+}
+
+export interface DiscountPrincipalRes {
+  /** @format uuid */
+  id: string;
+  record: DiscountRecordRes;
+  status: DiscountStatusRes;
+  target: DiscountTargetRes;
+}
+
+export interface DiscountRecordReq {
+  name?: string | null;
+  description?: string | null;
+  /** @format double */
+  amount: number;
+  type?: string | null;
+}
+
+export interface DiscountRecordRes {
+  name?: string | null;
+  description?: string | null;
+  /** @format double */
+  amount: number;
+  type?: string | null;
+}
+
+export interface DiscountStatusReq {
+  disabled: boolean;
+}
+
+export interface DiscountStatusRes {
+  disabled: boolean;
+}
+
+export interface DiscountTargetReq {
+  matchMode?: string | null;
+  matches?: DiscountMatchReq[] | null;
+}
+
+export interface DiscountTargetRes {
+  matchMode?: string | null;
+  matches?: DiscountMatchRes[] | null;
+}
+
 export interface ErrorInfo {
   schema?: any;
   id?: string | null;
@@ -88,6 +159,14 @@ export interface ErrorInfo {
 
 export interface LatestScheduleRes {
   date?: string | null;
+}
+
+export interface MaterializedCostRes {
+  /** @format double */
+  cost: number;
+  /** @format double */
+  final: number;
+  discounts?: DiscountRecordRes[] | null;
 }
 
 export interface PassengerPrincipalRes {
@@ -166,6 +245,12 @@ export interface TransferReq {
   /** @format double */
   amount: number;
   desc?: string | null;
+}
+
+export interface UpdateDiscountReq {
+  target: DiscountTargetReq;
+  record: DiscountRecordReq;
+  status: DiscountStatusReq;
 }
 
 export interface UpdatePassengerReq {

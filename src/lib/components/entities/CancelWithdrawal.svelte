@@ -14,6 +14,7 @@
     import type {WithdrawalPrincipalRes} from "$lib/api/core/data-contracts";
     import {z} from "zod";
     import type {FormOptions} from "formsnap";
+    import {LucideLoader} from "lucide-svelte";
 
     export let withdrawal: WithdrawalPrincipalRes;
     export let userId: string;
@@ -39,8 +40,10 @@
         },
     } satisfies FormOptions<typeof cancelWithdrawalSchema>;
 
+    let submitting = false;
 
     async function cancelWithdrawal(note: string) {
+        submitting = true;
         await toResult(() => $api.vWithdrawalCancelCreate(withdrawal.id, userId, "1.0", {note}
         ), "Failed to cancel withdrawal").match({
             ok: () => {
@@ -53,6 +56,7 @@
                 toast.error(e.detail ?? e.type);
             }
         })
+        submitting = false;
     }
 </script>
 <Dialog.Root bind:open={dialogOpen}>
@@ -78,7 +82,12 @@
                                 <Form.Validation class="text-sm"/>
                             </Form.Item>
                         </Form.Field>
-                        <Form.Button type="submit" class="my-4">Cancel</Form.Button>
+                        <Form.Button type="submit" class="my-4" disabled={submitting === true} >
+                            {#if submitting}
+                                <LucideLoader class="mr-2 h-4 w-4 animate-spin" />
+                            {/if}
+                            Cancel
+                        </Form.Button>
                     </Form.Root>
                 </div>
             </Dialog.Description>
