@@ -14,7 +14,7 @@
     import * as ToggleGroup from "$lib/components/ui/toggle-group";
     import {CalendarDate, DateFormatter, type DateValue, getLocalTimeZone, today} from "@internationalized/date";
     import type {PageData} from "./$types";
-    import type {MaterializedCostRes} from "$lib/api/core/data-contracts";
+    import type {DiscountRecordRes, MaterializedCostRes} from "$lib/api/core/data-contracts";
     import {tick} from "svelte";
     import {Button} from "$lib/components/ui/button";
     import {page} from "$app/stores";
@@ -98,6 +98,11 @@
         return "bg-red-500";
     }
 
+    function calculateDiscount(cost: number, d: DiscountRecordRes): string {
+        if(d.type === "Flat") return d.amount.toFixed(2);
+        return (cost * d.amount).toFixed(2);
+    }
+
     const minDate = today(getLocalTimeZone());
 
 </script>
@@ -119,7 +124,7 @@
                     <Calendar minValue={minDate} bind:value={bindDate} onValueChange={dateChange}/>
                 </Popover.Content>
             </Popover.Root>
-            <ToggleGroup.Root type="single" bind:value={bindDirection} class="w-full max-w-sm lg:max-w-[240px]" onValueChange={directionChange}>
+            <ToggleGroup.Root type="single" bind:value={bindDirection} class="w-full max-w-80 justify-center" onValueChange={directionChange}>
                 <ToggleGroup.Item value="WToJ" aria-label="Woodlands to JB Sentral">
                     Woodlands to JB
                 </ToggleGroup.Item>
@@ -164,9 +169,8 @@
                                                                     <div class="flex text-left flex-col justify-between">
                                                                         <div class="font-semibold">{dd.name}</div>
                                                                         <div class="text-muted-foreground">{dd.description}</div>
-
                                                                     </div>
-                                                                    <div>{dd.type === "Flat" ? 'S$' : ''}{dd.amount.toFixed(2)}{dd.type === "Percentage" ? '%' : ''}</div>
+                                                                    <div>S${calculateDiscount(cost.cost, dd)}</div>
                                                                 </div>
                                                             {/each}
                                                         </Popover.Content>

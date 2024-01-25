@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {Button, buttonVariants} from "$lib/components/ui/button/index.js";
+    import {Button, buttonVariants} from "$lib/components/ui/button";
 
     //@ts-ignore
     import * as Dialog from "$lib/components/ui/dialog";
@@ -8,7 +8,7 @@
     //@ts-ignore
     import * as Alert from "$lib/components/ui/alert";
     import {toResult} from "$lib/utility";
-    import {api} from "../../../store";
+    import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
     import type {WithdrawalPrincipalRes} from "$lib/api/core/data-contracts";

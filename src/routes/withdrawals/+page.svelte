@@ -25,11 +25,11 @@
     import {ArrowLeftRight} from "lucide-svelte";
     import {WITHDRAWAL_STATUS, WITHDRAWAL_STATUS_BADGE} from "./withdrawal_status";
     import {Button} from "$lib/components/ui/button";
-    import CreateWithdrawal from "$lib/components/entities/CreateWithdrawal.svelte";
+    import CreateWithdrawal from "$lib/components/entities/Withdrawal/CreateWithdrawal.svelte";
     import {Badge} from "$lib/components/ui/badge";
-    import ApproveWithdrawal from "$lib/components/entities/ApproveWithdrawal.svelte";
-    import RejectWithdrawal from "$lib/components/entities/RejectWithdrawal.svelte";
-    import CancelWithdrawal from "$lib/components/entities/CancelWithdrawal.svelte";
+    import ApproveWithdrawal from "$lib/components/entities/Withdrawal/ApproveWithdrawal.svelte";
+    import RejectWithdrawal from "$lib/components/entities/Withdrawal/RejectWithdrawal.svelte";
+    import CancelWithdrawal from "$lib/components/entities/Withdrawal/CancelWithdrawal.svelte";
     import type {PageData} from "./$types";
 
     export let data: PageData;

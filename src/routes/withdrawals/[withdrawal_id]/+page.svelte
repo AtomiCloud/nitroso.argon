@@ -7,7 +7,7 @@
     import type {ProblemDetails} from "../../../errors/problem_details";
     import {problem} from "../../../store";
     import Loader from "$lib/components/complex/loader.svelte";
-    import Withdrawal from "$lib/components/entities/Withdrawal.svelte";
+    import Withdrawal from "$lib/components/entities/Withdrawal/Withdrawal.svelte";
     import {page} from "$app/stores";
     import type {PageData} from "./$types";
 

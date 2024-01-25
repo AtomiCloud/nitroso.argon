@@ -19,12 +19,12 @@
     import {DISCOUNT_MATCH_MODE, DISCOUNT_STATUS, DISCOUNT_TYPE} from "./status";
     import {Input} from "$lib/components/ui/input";
     import {Badge} from "$lib/components/ui/badge";
-    import CreateDiscounts from "$lib/components/entities/CreateDiscounts.svelte";
+    import CreateDiscounts from "$lib/components/entities/Discount/CreateDiscounts.svelte";
     import {Switch} from "$lib/components/ui/switch";
     import {toResult} from "$lib/utility";
     import {toast} from "svelte-sonner";
-    import UpdateDiscounts from "$lib/components/entities/UpdateDiscounts.svelte";
-    import DeleteDiscounts from "$lib/components/entities/DeleteDiscounts.svelte";
+    import UpdateDiscounts from "$lib/components/entities/Discount/UpdateDiscounts.svelte";
+    import DeleteDiscounts from "$lib/components/entities/Discount/DeleteDiscounts.svelte";
 
     export let data: PageData;
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 
-    import {Button, buttonVariants} from "$lib/components/ui/button/index.js";
+    import {Button, buttonVariants} from "$lib/components/ui/button";
     import {AlertTriangle, LucideEdit, LucideLoader, LucidePlusCircle, LucideTrash2} from "lucide-svelte";
 
     // @ts-ignore
@@ -10,14 +10,14 @@
     import {type SafeParseError, z, type ZodIssue} from "zod";
     import type {CreateDiscountReq, DiscountPrincipalRes, UpdateDiscountReq} from "$lib/api/core/data-contracts";
     import {toResult} from "$lib/utility";
-    import {api} from "../../../store";
+    import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
     // @ts-ignore
     import * as ToggleGroup from "$lib/components/ui/toggle-group";
     import {Input} from "$lib/components/ui/input";
     import Validation from "$lib/components/core/Validation.svelte";
-    import {DISCOUNT_MATCH_MODE, DISCOUNT_MATCH_TYPE, DISCOUNT_TYPE} from "../../../routes/discounts/status";
+    import {DISCOUNT_MATCH_MODE, DISCOUNT_MATCH_TYPE, DISCOUNT_TYPE} from "../../../../routes/discounts/status";
     import {tick} from "svelte";
 
     let dialogOpen = false;

@@ -611,50 +611,6 @@ export class Api<
    * No description
    *
    * @tags Passenger
-   * @name VPassengerUpdate
-   * @request PUT:/api/v{version}/Passenger/{userId}/{id}
-   * @secure
-   */
-  vPassengerUpdate = (
-    userId: string,
-    id: string,
-    version: string,
-    data: UpdatePassengerReq,
-    params: RequestParams = {},
-  ) =>
-    this.request<PassengerPrincipalRes, any>({
-      path: `/api/v${version}/Passenger/${userId}/${id}`,
-      method: "PUT",
-      body: data,
-      secure: true,
-      type: ContentType.Json,
-      format: "json",
-      ...params,
-    });
-  /**
-   * No description
-   *
-   * @tags Passenger
-   * @name VPassengerDelete
-   * @request DELETE:/api/v{version}/Passenger/{userId}/{id}
-   * @secure
-   */
-  vPassengerDelete = (
-    userId: string,
-    id: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
-    this.request<void, any>({
-      path: `/api/v${version}/Passenger/${userId}/${id}`,
-      method: "DELETE",
-      secure: true,
-      ...params,
-    });
-  /**
-   * No description
-   *
-   * @tags Passenger
    * @name VPassengerCreate
    * @request POST:/api/v{version}/Passenger/{userId}
    * @secure
@@ -672,6 +628,56 @@ export class Api<
       secure: true,
       type: ContentType.Json,
       format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Passenger
+   * @name VPassengerUpdate
+   * @request PUT:/api/v{version}/Passenger/{id}
+   * @secure
+   */
+  vPassengerUpdate = (
+    id: string,
+    version: string,
+    data: UpdatePassengerReq,
+    query?: {
+      userId?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<PassengerPrincipalRes, any>({
+      path: `/api/v${version}/Passenger/${id}`,
+      method: "PUT",
+      query: query,
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Passenger
+   * @name VPassengerDelete
+   * @request DELETE:/api/v{version}/Passenger/{id}
+   * @secure
+   */
+  vPassengerDelete = (
+    id: string,
+    version: string,
+    query?: {
+      userId?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<void, any>({
+      path: `/api/v${version}/Passenger/${id}`,
+      method: "DELETE",
+      query: query,
+      secure: true,
       ...params,
     });
   /**

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {buttonVariants} from "$lib/components/ui/button/index.js";
+    import {buttonVariants} from "$lib/components/ui/button";
 
     //@ts-ignore
     import * as Dialog from "$lib/components/ui/dialog";
@@ -10,7 +10,7 @@
     import {z} from "zod";
     import type {FormOptions} from "formsnap";
     import {toResult} from "$lib/utility";
-    import {api} from "../../../store";
+    import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
     import type {WalletPrincipalRes} from "$lib/api/core/data-contracts";

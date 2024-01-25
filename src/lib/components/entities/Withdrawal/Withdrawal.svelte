@@ -6,11 +6,11 @@
     import * as HoverCard from "$lib/components/ui/hover-card";
     import type {WithdrawalRes} from "$lib/api/core/data-contracts";
     import {Badge} from "$lib/components/ui/badge";
-    import {WITHDRAWAL_STATUS_BADGE} from "../../../routes/withdrawals/withdrawal_status.js";
+    import {WITHDRAWAL_STATUS_BADGE} from "../../../../routes/withdrawals/withdrawal_status.js";
     import {page} from "$app/stores";
-    import CancelWithdrawal from "$lib/components/entities/CancelWithdrawal.svelte";
-    import RejectWithdrawal from "$lib/components/entities/RejectWithdrawal.svelte";
-    import ApproveWithdrawal from "$lib/components/entities/ApproveWithdrawal.svelte";
+    import CancelWithdrawal from "$lib/components/entities/Withdrawal/CancelWithdrawal.svelte";
+    import RejectWithdrawal from "$lib/components/entities/Withdrawal/RejectWithdrawal.svelte";
+    import ApproveWithdrawal from "$lib/components/entities/Withdrawal/ApproveWithdrawal.svelte";
 
     export let withdrawal: WithdrawalRes;
     export let admin: boolean;
