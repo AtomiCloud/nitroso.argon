@@ -17,7 +17,7 @@
     }
 </style>
 <Page notFoundMessage="Main page cannot be found">
-    <div class="flex flex-col h-[calc(100dvh-4rem)] geo-bg">
+    <div class="flex flex-col">
         <div class="w-11/12 max-w-[800px] mx-auto py-8">
             <h1 class="text-6xl">Delivery, Cancellation & Refund Policy</h1>
 
@@ -71,9 +71,6 @@
                 </li>
             </ol>
 
-        </div>
-        <div class="w-full bg-slate-800 text-white pb-12 pt-8">
-            <Footer/>
         </div>
     </div>
 </Page>

@@ -6,7 +6,9 @@
     import {Badge} from "$lib/components/ui/badge";
     import {config} from "../../config/shared";
     import type {Session} from "@auth/core/types";
+    //@ts-ignore
     import * as Avatar from "$lib/components/ui/avatar";
+    //@ts-ignore
     import * as Card from "$lib/components/ui/card";
 
     const landscape = config.app.landscape;
@@ -110,33 +112,33 @@
                     </Card.Header>
                     <Card.Content>
                         <Card.Description>The roles you are assigned</Card.Description>
-                        <div>
+                        <div class="flex gap-4 py-2">
                             {#each session?.roles as role}
                                 <Badge>{role}</Badge>
                             {/each}
                         </div>
                     </Card.Content>
                     <Card.Footer class="bg-muted rounded-b-lg p-4">
-                        <Card.Description>This is managed by CyanPrint registry administrators.</Card.Description>
+                        <Card.Description>This is managed by BunnyBooker administrators.</Card.Description>
                     </Card.Footer>
                 </Card.Root>
             {/if}
 
-            {#if session?.roles?.length > 0}
+            {#if session?.permissions?.length > 0}
                 <Card.Root class="shadow-xl dark:border-muted-foreground dark:bg-background">
                     <Card.Header>
                         <Card.Title>Permissions</Card.Title>
                     </Card.Header>
                     <Card.Content>
                         <Card.Description>The permissions associated with your account</Card.Description>
-                        <div>
+                        <div class="flex gap-4 py-2">
                             {#each session?.permissions as p}
                                 <Badge>{p}</Badge>
                             {/each}
                         </div>
                     </Card.Content>
                     <Card.Footer class="bg-muted rounded-b-lg p-4">
-                        <Card.Description>This is managed by CyanPrint registry administrators.</Card.Description>
+                        <Card.Description>This is managed by BunnyBooker administrators.</Card.Description>
                     </Card.Footer>
                 </Card.Root>
             {/if}
@@ -148,7 +150,7 @@
                     <Card.Content>
                         <Card.Description>Access Token for development
                         </Card.Description>
-                        <p style="text-wrap: wrap" class="max-w-[480px]">
+                        <p class="max-w-[480px] break-all">
                             {session?.access_token}
                         </p>
                     </Card.Content>
