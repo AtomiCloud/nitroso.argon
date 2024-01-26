@@ -75,8 +75,8 @@
     })()
 
 </script>
-<div class="w-full h-full flex justify-center items-center">
-    <div class="max-w-[480px] max-h-full w-11/12 flex-col justify-center items-center text-center bg-background p-8 rounded-lg">
+<div class="w-full flex justify-center items-center">
+    <div class="max-w-[480px] w-11/12 flex-col justify-center items-center text-center bg-background p-8 rounded-lg">
 
         <h1 class="text-4xl text-primary py-6">{errorMessage}</h1>
         <div class="loading-container">
@@ -87,16 +87,14 @@
         <div class="mx-auto mt-8 w-[90%] max-w-[640px] variant-filled-error">
             <Accordion.Root>
                 <Accordion.Item value="item-1">
-                    <Accordion.Trigger class="text-muted-foreground">
-                        <AlertOctagon class="h-4 w-4 text-muted-foreground"/>
+                    <Accordion.Trigger class="px-6 py-2 bg-red-400">
+                        <AlertOctagon class="h-4 w-4"/>
                         Error Details
                     </Accordion.Trigger>
                     <Accordion.Content>
-                        <div class="m-4">
-                            <code class="text-start text-foreground relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
-                        <pre>
-                            {JSON.stringify(prob, null, 2)}
-                        </pre>
+                        <div class="p-4 bg-muted overflow-auto">
+                            <code class="text-start text-foreground relative px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
+                                <pre>{JSON.stringify(prob, null, 2)}</pre>
                             </code>
                         </div>
                     </Accordion.Content>

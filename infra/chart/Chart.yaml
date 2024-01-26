@@ -8,7 +8,7 @@ appVersion: "1.16.0"
 
 dependencies:
   - name: root-chart
-    version: 1.8.8
+    version: 1.16.0
     condition: zinc.enable
     alias: zinc
     repository: oci://ghcr.io/atomicloud/nitroso.zinc
@@ -18,7 +18,7 @@ dependencies:
     alias: helium
     repository: oci://ghcr.io/atomicloud/nitroso.helium
   - name: root-chart
-    version: 1.4.9
+    version: 1.4.12
     condition: tin.enable
     alias: tin
     repository: oci://ghcr.io/atomicloud/nitroso.tin
