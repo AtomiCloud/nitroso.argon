@@ -16,7 +16,7 @@
 </script>
 
 <div class="flex flex-wrap w-full gap-4">
-    <Card.Root class="flex-1">
+    <Card.Root class="flex-1 min-w-fit">
         <Card.Header>
             <div class="flex flex-wrap justify-between items-center gap-4">
                 <div>

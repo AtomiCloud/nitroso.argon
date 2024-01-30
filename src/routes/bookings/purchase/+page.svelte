@@ -134,6 +134,16 @@
 
     }
 
+    async function reset() {
+        passenger = {
+            fullName: "",
+            gender: "",
+            passportNumber: "",
+            passportExpiry: new Date(),
+        };
+        taints = {};
+    }
+
     async function buy() {
         submitting = true;
 
@@ -154,6 +164,7 @@
                     ok: ok => {
                         toast.info(`Successfully purchased booking`);
                         invalidateAll();
+                        reset();
                     },
                     err: (e) => {
                         console.error(e);
@@ -171,6 +182,7 @@
                     ok: ok => {
                         toast.info(`Successfully purchased booking`);
                         invalidateAll();
+                        reset();
                     },
                     err: (e) => {
                         console.error(e);
