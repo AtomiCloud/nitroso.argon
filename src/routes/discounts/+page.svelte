@@ -19,12 +19,12 @@
     import {DISCOUNT_MATCH_MODE, DISCOUNT_STATUS, DISCOUNT_TYPE} from "./status";
     import {Input} from "$lib/components/ui/input";
     import {Badge} from "$lib/components/ui/badge";
-    import CreateDiscounts from "$lib/components/entities/Discount/CreateDiscounts.svelte";
+    import CreateDiscounts from "$lib/components/entities/Discounts/CreateDiscounts.svelte";
     import {Switch} from "$lib/components/ui/switch";
     import {toResult} from "$lib/utility";
     import {toast} from "svelte-sonner";
-    import UpdateDiscounts from "$lib/components/entities/Discount/UpdateDiscounts.svelte";
-    import DeleteDiscounts from "$lib/components/entities/Discount/DeleteDiscounts.svelte";
+    import UpdateDiscounts from "$lib/components/entities/Discounts/UpdateDiscounts.svelte";
+    import DeleteDiscounts from "$lib/components/entities/Discounts/DeleteDiscounts.svelte";
 
     export let data: PageData;
 
@@ -82,7 +82,7 @@
         if (record.type === "Percentage") {
             return `${(record.amount * 100).toFixed(1)}%`
         }
-        return `S$ ${record.amount.toFixed(2)}`
+        return `S$${record.amount.toFixed(2)}`
     }
 
     const loadingTracker: Record<string, boolean> = {}
@@ -179,7 +179,7 @@
                                 </div>
                             </Card.Header>
                             <Card.Content>
-                                <div class="flex gap-8 justify-between">
+                                <div class="flex gap-8 justify-between mt-4">
                                     <div>
                                         <div class="text-lg my-4">
                                             Provides {displayDiscount(d.record)} discount for

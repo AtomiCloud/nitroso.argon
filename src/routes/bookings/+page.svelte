@@ -15,16 +15,19 @@
     import * as Popover from "$lib/components/ui/popover";
     //@ts-ignore
     import * as ToggleGroup from "$lib/components/ui/toggle-group";
+    //@ts-ignore
+    import * as Card from "$lib/components/ui/card";
     import type {Selected} from "bits-ui";
     import {CalendarDate, DateFormatter, type DateValue, getLocalTimeZone} from "@internationalized/date";
-    import {BOOKING_STATUS} from "./transaction_type.js";
-    import {ArrowLeftRight, CalendarIcon, FilePieChart} from "lucide-svelte";
+
+    import {CalendarIcon, FilePieChart} from "lucide-svelte";
     import type {PageData} from "./$types";
     import {tick} from "svelte";
     import {cn} from "$lib/utils";
     import {Calendar} from "$lib/components/ui/calendar";
     import {Button} from "$lib/components/ui/button";
-    import {DISCOUNT_STATUS} from "../discounts/status";
+    import {BOOKING_STATUS} from "./book_status";
+    import BookingRow from "$lib/components/entities/Bookings/BookingRow.svelte";
 
     export let data: PageData;
 
@@ -90,7 +93,8 @@
     function triggerSearch() {
         const status = bookingStatus?.value ?? "";
         const d = toZincDate(bindDate);
-        goto(`?userId=${userId}&time=${time}&status=${status}&date=${d}&direction=${bindDirection}`,
+        const dir = bindDirection ?? ""
+        goto(`?userId=${userId}&time=${time}&status=${status}&date=${d}&direction=${dir}`,
             {
                 keepFocus: true,
                 noScroll: true,
@@ -105,7 +109,7 @@
 
         {#if $page.data.session?.roles?.includes("admin")}
             <Input class="w-full"
-                    placeholder="Filter by user ID..." bind:value={userId} on:input={triggerSearch}/>
+                   placeholder="Filter by user ID..." bind:value={userId} on:input={triggerSearch}/>
         {/if}
         <div class="flex gap-4 flex-wrap justify-start">
             <Popover.Root>
@@ -118,7 +122,7 @@
                     </Button>
                 </Popover.Trigger>
                 <Popover.Content class="w-auto p-0" align="start">
-                    <Calendar  bind:value={bindDate} onValueChange={dateChange}/>
+                    <Calendar bind:value={bindDate} onValueChange={dateChange}/>
                 </Popover.Content>
             </Popover.Root>
             <Select.Root bind:selected={bookingStatus} onSelectedChange={bookingStatusChange}>
@@ -133,7 +137,8 @@
                     {/each}
                 </Select.Content>
             </Select.Root>
-            <ToggleGroup.Root type="single" bind:value={bindDirection} class="w-full lg:max-w-80" onValueChange={directionChange}>
+            <ToggleGroup.Root type="single" bind:value={bindDirection} class="w-full lg:max-w-80"
+                              onValueChange={directionChange}>
                 <ToggleGroup.Item value="WToJ" aria-label="Woodlands to JB Sentral">
                     Woodlands to JB
                 </ToggleGroup.Item>
@@ -147,13 +152,9 @@
             <Loader/>
         {:then bs}
             <Page notFoundMessage="Not bookings found" empty={bs.length === 0}>
-
-
-                            {#each bs as b}
-                                {JSON.stringify(b)}
-
-
-                            {/each}
+                {#each bs as b}
+                    <BookingRow {b}/>
+                {/each}
             </Page>
         {/await}
     </div>

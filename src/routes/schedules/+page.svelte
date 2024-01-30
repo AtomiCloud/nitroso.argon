@@ -105,6 +105,8 @@
 
     const minDate = today(getLocalTimeZone());
 
+    $: currDate = toZincDate(bindDate);
+
 </script>
 
 <div class="flex flex-col">
@@ -165,7 +167,7 @@
                                                         </Popover.Trigger>
                                                         <Popover.Content>
                                                             {#each cost.discounts as dd}
-                                                                <div class="flex justify-between items-center text-xs">
+                                                                <div class="flex justify-between items-center text-xs py-2">
                                                                     <div class="flex text-left flex-col justify-between">
                                                                         <div class="font-semibold">{dd.name}</div>
                                                                         <div class="text-muted-foreground">{dd.description}</div>
@@ -178,7 +180,7 @@
                                                 </div>
                                             {/if}
                                         </div>
-                                        <Button class="w-full max-w-24">Buy</Button>
+                                        <Button class="w-full max-w-24" href="/bookings/purchase?date={currDate}&direction={bindDirection}&time={time}&userId={$page.data.user.principal.id}">Buy</Button>
                                     </div>
 
                                 </div>

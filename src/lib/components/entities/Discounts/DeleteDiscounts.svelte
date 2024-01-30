@@ -42,7 +42,6 @@
 
     let confirm = "";
 
-
     $: valid = confirm === discount.record.name;
 
 </script>
@@ -85,7 +84,7 @@
                     </div>
 
 
-                    <Button class="my-2" on:click={submit} disabled={submitting}>
+                    <Button class="my-2" on:click={submit} disabled={submitting || !valid}>
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                         {/if}
