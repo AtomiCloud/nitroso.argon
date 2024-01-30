@@ -1,14 +1,14 @@
 <script lang="ts">
 
     import {Button, buttonVariants} from "$lib/components/ui/button";
-    import {AlertTriangle, LucideEdit, LucideLoader, LucidePlusCircle, LucideTrash2} from "lucide-svelte";
+    import {AlertTriangle, LucideLoader, LucidePlusCircle, LucideTrash2} from "lucide-svelte";
 
     // @ts-ignore
     import * as Dialog from "$lib/components/ui/dialog";
     // @ts-ignore
     import * as Alert from "$lib/components/ui/alert";
     import {type SafeParseError, z, type ZodIssue} from "zod";
-    import type {CreateDiscountReq, DiscountPrincipalRes, UpdateDiscountReq} from "$lib/api/core/data-contracts";
+    import type {CreateDiscountReq} from "$lib/api/core/data-contracts";
     import {toResult} from "$lib/utility";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
@@ -22,7 +22,7 @@
 
     let dialogOpen = false;
 
-    const updateDiscountSchema = z.object({
+    const createDiscountSchema = z.object({
         target: z.object({
             matchMode: z.enum(['All', 'Any', 'None']),
             matches: z.array(z.object({
@@ -42,16 +42,16 @@
         }).required(),
     }).required();
 
-    export let discount: DiscountPrincipalRes;
-    const val: UpdateDiscountReq = {
+    const val: CreateDiscountReq = {
         target: {
-            ...discount.target
+            matchMode: "All",
+            matches: [],
         },
         record: {
-            ...discount.record
-        },
-        status: {
-            ...discount.status
+            name: "",
+            description: "",
+            amount: 0,
+            type: "Percentage",
         }
     }
 
@@ -62,7 +62,7 @@
     const onChange = (path: string) => async () => {
         await tick();
         taints[path] = true;
-        const r = updateDiscountSchema.safeParse(val);
+        const r = createDiscountSchema.safeParse(val);
 
         if (!r.success) {
             const e = r as SafeParseError<CreateDiscountReq>;
@@ -86,17 +86,20 @@
 
     async function submit() {
         onChange("");
-        if (errors.length === 0) await updateDiscount(val);
+        if (errors.length === 0) {
+            if (val.record.type === "Percentage") val.record.amount = val.record.amount / 100;
+            await createDiscount(val);
+        }
     }
 
     let submitting = false;
 
-    async function updateDiscount(c: UpdateDiscountReq) {
+    async function createDiscount(c: CreateDiscountReq) {
         submitting = true;
-        await toResult(() => $api.vDiscountUpdate(discount.id, "1.0", c),
-            "Failed to update discount").match({
+        await toResult(() => $api.vDiscountCreate("1.0", c),
+            "Failed to create discount").match({
             ok: ok => {
-                toast.info(`Successfully updated discount '${ok.record.name}'`);
+                toast.info(`Successfully created discount '${ok.record.name}'`);
                 dialogOpen = false;
                 invalidateAll();
             },
@@ -112,22 +115,22 @@
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
-    <Dialog.Trigger class="{buttonVariants({ variant: 'ghost', size: 'icon' })}">
-        <LucideEdit class="h-4 w-4"/>
+    <Dialog.Trigger class="w-full max-w-80  {buttonVariants({ variant: 'default' })}">
+        Create Discount
     </Dialog.Trigger>
     <Dialog.Content>
         <Dialog.Header>
-            <Dialog.Title>Editing a new discount</Dialog.Title>
+            <Dialog.Title>Create a new discount</Dialog.Title>
             <Dialog.Description>
                 <div class="flex flex-col gap-4">
                     <p class="text-justify py-2">
-                        Edit an existing Discount that applies to members who meet a certain condition.
+                        Create a new Discount that applies to members who meet a certain condition.
                     </p>
                     <Alert.Root>
                         <AlertTriangle class="h-4 w-4"/>
                         <Alert.Title>Take Note!</Alert.Title>
                         <Alert.Description
-                        >Discounts are effective the moment they are updated. You can disable them at any time.
+                        >Discounts are effective the moment they are created. You can disable them at any time.
                         </Alert.Description>
                     </Alert.Root>
                     <Validation {errors} {taints} path="record.name">
@@ -222,9 +225,9 @@
                     <hr>
                     <Button class="my-2" on:click={submit} disabled={submitting}>
                         {#if submitting}
-                            <LucideLoader class="mr-2 h-4 w-4 animate-spin" />
+                            <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                         {/if}
-                        Update Discount
+                        Create Discount
                     </Button>
                 </div>
             </Dialog.Description>

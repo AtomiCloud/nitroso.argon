@@ -34,8 +34,7 @@
         passportNumber: z.string()
             .min(1, "Passport number must be at least 1 character long")
             .max(64, "Passport number must be at most 64 characters long"),
-        passportExpiry: z.date()
-            .min(addMonths(new Date(), 6), "Passport expiry must at least 6 months from now")
+        passportExpiry: z.date(),
     }).required();
 
     const val = {

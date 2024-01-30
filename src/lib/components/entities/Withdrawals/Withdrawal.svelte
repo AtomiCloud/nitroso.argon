@@ -8,9 +8,9 @@
     import {Badge} from "$lib/components/ui/badge";
     import {WITHDRAWAL_STATUS_BADGE} from "../../../../routes/withdrawals/withdrawal_status.js";
     import {page} from "$app/stores";
-    import CancelWithdrawal from "$lib/components/entities/Withdrawal/CancelWithdrawal.svelte";
-    import RejectWithdrawal from "$lib/components/entities/Withdrawal/RejectWithdrawal.svelte";
-    import ApproveWithdrawal from "$lib/components/entities/Withdrawal/ApproveWithdrawal.svelte";
+    import CancelWithdrawal from "$lib/components/entities/Withdrawals/CancelWithdrawal.svelte";
+    import RejectWithdrawal from "$lib/components/entities/Withdrawals/RejectWithdrawal.svelte";
+    import ApproveWithdrawal from "$lib/components/entities/Withdrawals/ApproveWithdrawal.svelte";
 
     export let withdrawal: WithdrawalRes;
     export let admin: boolean;

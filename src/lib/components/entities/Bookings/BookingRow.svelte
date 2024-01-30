@@ -1,0 +1,57 @@
+<script lang="ts">
+    import {format, parse} from "date-fns";
+    import {ArrowRight} from "lucide-svelte";
+    //@ts-ignore
+    import * as Card from "$lib/components/ui/card";
+    import type {BookingPrincipalRes} from "$lib/api/core/data-contracts";
+    import {BOOKING_STATUS} from "../../../../routes/bookings/book_status";
+    import {Badge} from "$lib/components/ui/badge";
+    import {Button} from "$lib/components/ui/button";
+    import TerminateBooking from "$lib/components/entities/Bookings/TerminateBooking.svelte";
+    import CancelBooking from "$lib/components/entities/Bookings/CancelBooking.svelte";
+
+    export let b: BookingPrincipalRes;
+
+
+
+</script>
+
+
+<Card.Root>
+    <Card.Header>
+        <div class="flex justify-between items-center">
+            <div>
+                <Card.Title>
+                    <div class="flex gap-1 items-center">
+                        <div>{b.direction == "WToJ" ? "Woodlands" : "JB Sentral"}</div>
+                        <ArrowRight class="h-4 w-4"/>
+                        <div>{b.direction == "WToJ" ? "JB Sentral" : "Woodlands"}</div>
+                    </div>
+                </Card.Title>
+                <Card.Description>
+                    <div class="flex flex-col gap-2 my-4">
+                        <Badge class="flex justify-center">{format(parse(b.date, "dd-MM-yyyy", new Date()), "dd MMM yyyy")} {format(parse(b.time, "HH:mm:ss", new Date()), "HH:mm a")}</Badge>
+                        <div>{b.passenger.fullName} ({b.passenger.passportNumber})</div>
+                    </div>
+                </Card.Description>
+            </div>
+            <div class="flex flex-col gap-1.5 text-center">
+                <Badge class="{BOOKING_STATUS[b.status].color}">{b.status}</Badge>
+            </div>
+        </div>
+    </Card.Header>
+    <Card.Content class="bg-muted">
+        <div class="flex justify-end gap-4 pt-4 w-full">
+
+            {#if b.status === "Pending"}
+                <CancelBooking booking={b}/>
+            {:else if b.status === "Completed"}
+                <Button href="{b.ticketLink}">View Ticket</Button>
+                <TerminateBooking booking={b}/>
+            {/if}
+            <Button href="/bookings/{b.id}">
+                View Details
+            </Button>
+        </div>
+    </Card.Content>
+</Card.Root>
