@@ -41,7 +41,7 @@
     "formsnap": "^0.4.2",
     "jwt-decode": "^4.0.0",
     "lottie-web": "^5.12.2",
-    "lucide-svelte": "^0.302.0",
+    "lucide-svelte": "^0.338.0",
     "mode-watcher": "^0.1.2",
     "svelte-icons-pack": "^2.1.0",
     "svelte-sonner": "^0.3.11",
