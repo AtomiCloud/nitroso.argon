@@ -63,6 +63,10 @@
         dateStyle: "long"
     });
 
+    const dfs = new DateFormatter("en-US", {
+        dateStyle: "medium"
+    });
+
     async function dateChange() {
         await tick();
         triggerSearch();
@@ -150,11 +154,14 @@
                                 <div class="flex justify-between items-center gap-8">
                                     <Card.Title>
                                         <div class="flex flex-wrap gap-2 justify-center items-center">
-                                            <div class="w-24 text-center">
-                                                {displayTime(time)}
+                                            <div class="flex flex-col gap-2">
+                                                <div class="w-24 text-center">{displayTime(time)}</div>
+                                                <div class="w-24 text-center text-slate-500 text-sm">{dfs.format(bindDate.toDate(getLocalTimeZone()))}</div>
                                             </div>
-                                            <Badge class="text-center {countColor(count)}">{count} tickets in queue
-                                            </Badge>
+                                            <div class="flex flex-col gap-2 items-center">
+                                                <Badge class="text-center {countColor(count)}">{count} tickets in queue</Badge>
+                                            </div>
+
 
                                         </div>
                                     </Card.Title>
@@ -184,6 +191,7 @@
                                                 </div>
                                             {/if}
                                         </div>
+                                        <hr>
                                         <Button class="w-full max-w-24"
                                                 href="/bookings/purchase?date={currDate}&direction={bindDirection}&time={time}&userId={$page.data.user.principal.id}">
                                             Buy

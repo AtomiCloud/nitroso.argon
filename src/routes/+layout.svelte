@@ -16,10 +16,7 @@
     import {Toaster} from "$lib/components/ui/sonner";
 
     beforeNavigate(({from, to}) => {
-        console.log(from.route.id, to.route.id, from.route.id !== to.route.id);
-        if (from.route.id !== to.route.id) {
-            loading.set(true);
-        }
+        if (from.route.id !== to.route.id) loading.set(true);
     });
 
     afterNavigate(() => {

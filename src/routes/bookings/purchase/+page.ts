@@ -1,14 +1,20 @@
-import type { PassengerPrincipalRes } from "$lib/api/core/data-contracts";
+import type {
+  MaterializedCostRes,
+  PassengerPrincipalRes,
+} from "$lib/api/core/data-contracts";
 import { toResult } from "$lib/utility";
 import type { PageLoad } from "./$types";
 import type { ProblemDetails } from "../../../errors/problem_details";
 import { NewApi } from "../../../store";
+import { Res } from "$lib/core/result";
 
 export const load = (async ({
   parent,
   url,
 }): Promise<{
-  result: ["err", ProblemDetails] | ["ok", PassengerPrincipalRes[]];
+  result:
+    | ["err", ProblemDetails[]]
+    | ["ok", [PassengerPrincipalRes[], MaterializedCostRes]];
 }> => {
   const { session, user } = await parent();
 
@@ -17,14 +23,19 @@ export const load = (async ({
     ? undefined
     : user?.principal.id ?? "";
 
-  const r = await toResult(
+  const passengers = await toResult(
     () =>
       api.vPassengerDetail("1", {
         UserId: userId,
       }),
     "Fail to get passengers",
-  ).serial();
+  );
+
+  const cost = toResult(() => api.vCostSelfDetail("1"), "Failed to get cost");
+
+  const result = await Res.all(passengers, cost).serial();
+
   return {
-    result: r,
+    result,
   };
 }) satisfies PageLoad;
