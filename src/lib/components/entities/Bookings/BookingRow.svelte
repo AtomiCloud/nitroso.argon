@@ -19,23 +19,23 @@
 
 <Card.Root>
     <Card.Header>
-        <div class="flex justify-between items-center">
+        <div class="flex gap-4 justify-center flex-wrap-reverse md:flex-nowrap sm:justify-between items-center">
             <div>
                 <Card.Title>
-                    <div class="flex gap-1 items-center">
+                    <div class="flex gap-1 items-center w-full">
                         <div>{b.direction == "WToJ" ? "Woodlands" : "JB Sentral"}</div>
                         <ArrowRight class="h-4 w-4"/>
                         <div>{b.direction == "WToJ" ? "JB Sentral" : "Woodlands"}</div>
                     </div>
                 </Card.Title>
                 <Card.Description>
-                    <div class="flex flex-col gap-2 my-4">
+                    <div class="flex flex-col gap-2 my-4 items-center md:items-start">
                         <Badge class="flex justify-center">{format(parse(b.date, "dd-MM-yyyy", new Date()), "dd MMM yyyy")} {format(parse(b.time, "HH:mm:ss", new Date()), "HH:mm a")}</Badge>
                         <div>{b.passenger.fullName} ({b.passenger.passportNumber})</div>
                     </div>
                 </Card.Description>
             </div>
-            <div class="flex flex-col gap-1.5 text-center">
+            <div class="flex gap-1.5 text-center">
                 <Badge class="{BOOKING_STATUS[b.status].color}">{b.status}</Badge>
             </div>
         </div>
