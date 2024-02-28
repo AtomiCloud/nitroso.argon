@@ -1,14 +1,7 @@
-{ pkgs, pkgs-2305, atomi, atomi_classic, pkgs-dec-26-23 }:
+{ pkgs, pkgs-2305, atomi, pkgs-feb-23-24 }:
 let
 
   all = {
-    atomipkgs_classic = (
-      with atomi_classic;
-      {
-        inherit
-          sg;
-      }
-    );
     atomipkgs = (
       with atomi;
       {
@@ -16,6 +9,7 @@ let
           mirrord
           swagger_typescript_api
           infisical
+          sg
           pls;
       }
     );
@@ -23,11 +17,9 @@ let
       with pkgs-2305;
       { }
     );
-    dec-26-23 = (
-      with pkgs-dec-26-23;
+    feb-23-24 = (
+      with pkgs-feb-23-24;
       {
-        nodejs = nodejs_20;
-        npm = nodePackages.npm;
         helm = kubernetes-helm;
         inherit
           coreutils
@@ -58,5 +50,4 @@ in
 with all;
 nix-2305 //
 atomipkgs //
-atomipkgs_classic //
-dec-26-23
+feb-23-24
