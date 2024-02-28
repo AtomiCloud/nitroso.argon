@@ -8,9 +8,8 @@
     # registry
     nixpkgs.url = "nixpkgs/808c0d8c53c7ae50f82aca8e7df263225cf235bf";
     nixpkgs-2305.url = "nixpkgs/nixos-23.05";
-    nixpkgs-dec-26-23.url = "nixpkgs/6df37dc6a77654682fe9f071c62b4242b5342e04";
-    atomipkgs.url = "github:kirinnee/test-nix-repo/v22.1.0";
-    atomipkgs_classic.url = "github:kirinnee/test-nix-repo/classic";
+    nixpkgs-feb-23-24.url = "nixpkgs/0e74ca98a74bc7270d28838369593635a5db3260";
+    atomipkgs.url = "github:kirinnee/test-nix-repo/v23.0.1";
 
   };
   outputs =
@@ -23,10 +22,9 @@
 
       # registries
     , atomipkgs
-    , atomipkgs_classic
     , nixpkgs
     , nixpkgs-2305
-    , nixpkgs-dec-26-23
+    , nixpkgs-feb-23-24
 
     } @inputs:
     (flake-utils.lib.eachDefaultSystem
@@ -35,9 +33,8 @@
         let
           pkgs = nixpkgs.legacyPackages.${system};
           pkgs-2305 = nixpkgs-2305.legacyPackages.${system};
-          pkgs-dec-26-23 = nixpkgs-dec-26-23.legacyPackages.${system};
+          pkgs-feb-23-24 = nixpkgs-feb-23-24.legacyPackages.${system};
           atomi = atomipkgs.packages.${system};
-          atomi_classic = atomipkgs_classic.packages.${system};
           pre-commit-lib = pre-commit-hooks.lib.${system};
         in
         with rec {
@@ -49,7 +46,7 @@
           };
           packages = import ./nix/packages.nix
             {
-              inherit pkgs pkgs-2305 atomi atomi_classic pkgs-dec-26-23;
+              inherit pkgs pkgs-2305 atomi pkgs-feb-23-24;
             };
           env = import ./nix/env.nix {
             inherit pkgs packages;
