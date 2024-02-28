@@ -76,6 +76,9 @@
 
     function triggerSearch() {
         const d = toZincDate(bindDate);
+
+        if (bindDirection == null) bindDirection = "WToJ"
+
         goto(`?date=${d}&direction=${bindDirection}`,
             {
                 keepFocus: true,
@@ -99,7 +102,7 @@
     }
 
     function calculateDiscount(cost: number, d: DiscountRecordRes): string {
-        if(d.type === "Flat") return d.amount.toFixed(2);
+        if (d.type === "Flat") return d.amount.toFixed(2);
         return (cost * d.amount).toFixed(2);
     }
 
@@ -112,7 +115,7 @@
 <div class="flex flex-col">
     <div class="flex flex-col gap-4 w-11/12 max-w-[1200px] mx-auto my-12">
 
-        <div class="flex flex-wrap justify-between w-full gap-4">
+        <div class="flex flex-wrap w-full gap-4 justify-center md:justify-between">
             <Popover.Root>
                 <Popover.Trigger asChild let:builder>
                     <Button variant="outline"
@@ -122,11 +125,12 @@
                         {bindDate ? df.format(bindDate.toDate(getLocalTimeZone())) : "Select a date"}
                     </Button>
                 </Popover.Trigger>
-                <Popover.Content class="w-auto p-0" align="start">
+                <Popover.Content class="w-auto p-0" align="center">
                     <Calendar minValue={minDate} bind:value={bindDate} onValueChange={dateChange}/>
                 </Popover.Content>
             </Popover.Root>
-            <ToggleGroup.Root type="single" bind:value={bindDirection} class="w-full max-w-80 justify-center" onValueChange={directionChange}>
+            <ToggleGroup.Root type="single" bind:value={bindDirection} class="w-full max-w-80 justify-center"
+                              onValueChange={directionChange}>
                 <ToggleGroup.Item value="WToJ" aria-label="Woodlands to JB Sentral">
                     Woodlands to JB
                 </ToggleGroup.Item>
@@ -180,7 +184,10 @@
                                                 </div>
                                             {/if}
                                         </div>
-                                        <Button class="w-full max-w-24" href="/bookings/purchase?date={currDate}&direction={bindDirection}&time={time}&userId={$page.data.user.principal.id}">Buy</Button>
+                                        <Button class="w-full max-w-24"
+                                                href="/bookings/purchase?date={currDate}&direction={bindDirection}&time={time}&userId={$page.data.user.principal.id}">
+                                            Buy
+                                        </Button>
                                     </div>
 
                                 </div>

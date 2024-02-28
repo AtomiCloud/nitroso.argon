@@ -11,9 +11,16 @@
     import {Footer} from "$lib/components/custom/footer";
     import Error from "$lib/components/complex/error.svelte";
     import {loading, problem, showContent, showLoading, showProblem} from "../store";
-    import {afterNavigate} from "$app/navigation";
+    import {afterNavigate, beforeNavigate} from "$app/navigation";
     import Loader from "$lib/components/complex/loader.svelte";
     import {Toaster} from "$lib/components/ui/sonner";
+
+    beforeNavigate(({from, to}) => {
+        console.log(from.route.id, to.route.id, from.route.id !== to.route.id);
+        if (from.route.id !== to.route.id) {
+            loading.set(true);
+        }
+    });
 
     afterNavigate(() => {
         problem.set(null);

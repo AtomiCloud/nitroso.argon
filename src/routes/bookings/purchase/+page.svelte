@@ -206,31 +206,34 @@
 
 <div class="flex flex-col">
     <div class="flex flex-col gap-4 w-11/12 max-w-[1200px] mx-auto my-12">
-        <div class="flex flex-col gap-4">
-            <h1 class="text-4xl">Buying Tickets</h1>
-            <div class="flex gap-4 items-center">
+        <div class="flex flex-col gap-4 mb-12">
+            <h1 class="text-4xl text-center md:text-start">Purchase Booking</h1>
+            <div class="flex gap-4 items-center flex-wrap justify-center md:justify-start">
                 <h2 class="text-md text-muted-foreground">{displayDate}</h2>
                 <h2 class="text-md text-muted-foreground">{displayTime}</h2>
                 <Badge>  {displayDirection}</Badge>
             </div>
         </div>
-        <div class="flex flex-col gap-1.5 my-4">
-            {#await passengers then ps}
-                <h1 class="my-4 text-lg">Select Existing Passenger</h1>
-                <Select.Root onSelectedChange={passengerChange}>
-                    <Select.Trigger class="w-full lg:max-w-60">
-                        <ArrowLeftRight class="mr-2 h-4 w-4"/>
-                        <Select.Value placeholder="Passenger"/>
-                    </Select.Trigger>
-                    <Select.Content>
-                        <Select.Item value={emptyPassenger}>None</Select.Item>
-                        {#each ps as p}
-                            <Select.Item value={p}>{p.fullName}</Select.Item>
-                        {/each}
-                    </Select.Content>
-                </Select.Root>
-            {/await}
-        </div>
+
+        {#await passengers then ps}
+            {#if ps.length > 0}
+                <div class="flex flex-col gap-1.5 my-4">
+                    <h1 class="my-4 text-lg">Select Existing Passenger</h1>
+                    <Select.Root onSelectedChange={passengerChange}>
+                        <Select.Trigger class="w-full lg:max-w-60">
+                            <ArrowLeftRight class="mr-2 h-4 w-4"/>
+                            <Select.Value placeholder="Passenger"/>
+                        </Select.Trigger>
+                        <Select.Content>
+                            <Select.Item value={emptyPassenger}>None</Select.Item>
+                            {#each ps as p}
+                                <Select.Item value={p}>{p.fullName}</Select.Item>
+                            {/each}
+                        </Select.Content>
+                    </Select.Root>
+                </div>
+            {/if}
+        {/await}
 
         <div class="flex flex-col gap-1.5">
             <h1 class="my-4 text-lg">Passenger Details</h1>
@@ -248,7 +251,7 @@
                         on:input={onChange("passportNumber")}
                 />
             </Validation>
-            <div class="flex gap-4 justify-between">
+            <div class="flex gap-4 justify-between flex-wrap">
                 <Validation classNames="flex-1" {errors} {taints} path="passportExpiry">
 
                     <Popover.Root>
