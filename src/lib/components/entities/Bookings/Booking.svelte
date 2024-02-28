@@ -83,7 +83,7 @@
                 <div class="text-md text-muted-foreground">
                     Passport expires on
                     <span class="underline">
-                        {format(booking.principal.passenger.passportExpiry, "dd MMM yyyy")}
+                        {format(parse(booking.principal.passenger.passportExpiry, "dd-MM-yyyy", new Date()), "dd MMM yyyy")}
                     </span>
                 </div>
             </div>
