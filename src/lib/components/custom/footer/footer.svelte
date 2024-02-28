@@ -10,7 +10,7 @@ import BsTelephone from "svelte-icons-pack/bs/BsTelephone.js";
 </script>
 
 <h2 class="text-lg text-center">Need help? Contact Us!</h2>
-<div class="flex align-center justify-center gap-8 p-8">
+<div class="flex flex-wrap align-center justify-center gap-8 p-8">
     <a href="https://wa.me/6588178504" class="cursor-pointer hover:text-green-500">
         <Icon src={BsWhatsapp} size="24" color="currentColor"/>
     </a>

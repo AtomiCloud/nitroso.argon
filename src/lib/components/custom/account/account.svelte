@@ -8,8 +8,15 @@
 
     //@ts-ignore
     import * as Avatar from "$lib/components/ui/avatar";
+    import {LucideLoader, User} from "lucide-svelte";
 
 
+    let loading = false;
+
+    function login() {
+        loading = true;
+        signIn('descope');
+    }
 </script>
 
 {#if $page.data.session}
@@ -105,5 +112,12 @@
         </DropdownMenu.Content>
     </DropdownMenu.Root>
 {:else}
-    <Button on:click={() => signIn('descope')}>Sign in</Button>
+    <Button on:click={login} disabled={loading}>
+        {#if loading}
+            <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
+        {:else}
+            <User class="mr-2 h-4 w-4"/>
+        {/if}
+        Sign in
+    </Button>
 {/if}

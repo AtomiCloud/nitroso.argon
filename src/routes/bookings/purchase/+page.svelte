@@ -7,11 +7,8 @@
     import * as Popover from "$lib/components/ui/popover";
     //@ts-ignore
     import * as ToggleGroup from "$lib/components/ui/toggle-group";
-    import {api, problem} from "../../../store";
-    import {toResult} from "$lib/utility";
-    import type {CreateDiscountReq, PassengerPrincipalRes} from "$lib/api/core/data-contracts";
-    import {toast} from "svelte-sonner";
-    import {invalidateAll} from "$app/navigation";
+    import {problem} from "../../../store";
+    import type {CreateDiscountReq, MaterializedCostRes, PassengerPrincipalRes} from "$lib/api/core/data-contracts";
     import {type SafeParseError, z, type ZodIssue} from "zod";
     import {tick} from "svelte";
     import {addMonths, format} from "date-fns";
@@ -29,6 +26,8 @@
     import type {Selected} from "bits-ui";
     import {Checkbox} from "$lib/components/ui/checkbox";
     import {Label} from "$lib/components/ui/label";
+    import {Separator} from "$lib/components/ui/separator";
+    import PurchaseBooking from "$lib/components/entities/Bookings/PurchaseBooking.svelte";
 
     export let data: PageData;
 
@@ -51,7 +50,7 @@
     }
 
     const df = new DateFormatter("en-US", {
-        dateStyle: "long"
+        dateStyle: "medium"
     });
 
     let date = $page.url.searchParams.get("date");
@@ -59,18 +58,18 @@
     let time = $page.url.searchParams.get("time");
     let userId = $page.url.searchParams.get("userId");
 
-    $: passengers = (Res.fromSerial<PassengerPrincipalRes[], ProblemDetails>(data.result)
+    $: passengerAndCost = (Res.fromSerial<[PassengerPrincipalRes[], MaterializedCostRes], ProblemDetails[]>(data.result)
         .match({
-            ok: (a: PassengerPrincipalRes[]): PassengerPrincipalRes[] => {
+            ok: (a: [PassengerPrincipalRes[], MaterializedCostRes]): [PassengerPrincipalRes[], MaterializedCostRes] => {
                 problem.set(null)
                 return a;
             },
             err: (e) => {
                 console.error(e);
-                problem.set(e);
+                problem.set(e[0]);
                 return null as never;
             }
-        }) satisfies Promise<PassengerPrincipalRes[]>)
+        }) satisfies Promise<[PassengerPrincipalRes[], MaterializedCostRes]>)
 
     let passenger = {
         fullName: "",
@@ -144,56 +143,6 @@
         taints = {};
     }
 
-    async function buy() {
-        submitting = true;
-
-        if (checked) {
-            await toResult(() => $api.vPassengerCreate(userId, "1.0", {
-                fullName: passenger.fullName,
-                passportExpiry: format(passenger.passportExpiry, "dd-MM-yyyy"),
-                gender: passenger.gender,
-                passportNumber: passenger.passportNumber,
-            }), "Failed to create passenger")
-                .andThen(() => toResult(() => $api.vBookingPurchaseCreate(userId, "1", {
-                    date, time, direction, passenger: {
-                        ...passenger,
-                        passportExpiry: format(passenger.passportExpiry, "dd-MM-yyyy"),
-                    }
-                }), "Failed to purchase booking"))
-                .match({
-                    ok: ok => {
-                        toast.info(`Successfully purchased booking`);
-                        invalidateAll();
-                        reset();
-                    },
-                    err: (e) => {
-                        console.error(e);
-                        toast.error(e.detail ?? e.type);
-                    }
-                });
-        } else {
-            await toResult(() => $api.vBookingPurchaseCreate(userId, "1", {
-                date, time, direction, passenger: {
-                    ...passenger,
-                    passportExpiry: format(passenger.passportExpiry, "dd-MM-yyyy"),
-                }
-            }), "Failed to purchase booking")
-                .match({
-                    ok: ok => {
-                        toast.info(`Successfully purchased booking`);
-                        invalidateAll();
-                        reset();
-                    },
-                    err: (e) => {
-                        console.error(e);
-                        toast.error(e.detail ?? e.type);
-                    }
-                });
-        }
-
-        submitting = false;
-    }
-
     let checked = false;
 
     $: displayDate = toDisplayDate(date);
@@ -206,31 +155,34 @@
 
 <div class="flex flex-col">
     <div class="flex flex-col gap-4 w-11/12 max-w-[1200px] mx-auto my-12">
-        <div class="flex flex-col gap-4">
-            <h1 class="text-4xl">Buying Tickets</h1>
-            <div class="flex gap-4 items-center">
+        <div class="flex flex-col gap-4 mb-12">
+            <h1 class="text-2xl text-center md:text-start">Purchase Booking</h1>
+            <div class="flex gap-4 items-center flex-wrap justify-center md:justify-start">
                 <h2 class="text-md text-muted-foreground">{displayDate}</h2>
                 <h2 class="text-md text-muted-foreground">{displayTime}</h2>
                 <Badge>  {displayDirection}</Badge>
             </div>
         </div>
-        <div class="flex flex-col gap-1.5 my-4">
-            {#await passengers then ps}
-                <h1 class="my-4 text-lg">Select Existing Passenger</h1>
-                <Select.Root onSelectedChange={passengerChange}>
-                    <Select.Trigger class="w-full lg:max-w-60">
-                        <ArrowLeftRight class="mr-2 h-4 w-4"/>
-                        <Select.Value placeholder="Passenger"/>
-                    </Select.Trigger>
-                    <Select.Content>
-                        <Select.Item value={emptyPassenger}>None</Select.Item>
-                        {#each ps as p}
-                            <Select.Item value={p}>{p.fullName}</Select.Item>
-                        {/each}
-                    </Select.Content>
-                </Select.Root>
-            {/await}
-        </div>
+
+        {#await passengerAndCost then [ps, cost]}
+            {#if ps.length > 0}
+                <div class="flex flex-col gap-1.5 my-4">
+                    <h1 class="my-4 text-lg">Select Existing Passenger</h1>
+                    <Select.Root onSelectedChange={passengerChange}>
+                        <Select.Trigger class="w-full lg:max-w-60">
+                            <ArrowLeftRight class="mr-2 h-4 w-4"/>
+                            <Select.Value placeholder="Passenger"/>
+                        </Select.Trigger>
+                        <Select.Content>
+                            <Select.Item value={emptyPassenger}>None</Select.Item>
+                            {#each ps as p}
+                                <Select.Item value={p}>{p.fullName}</Select.Item>
+                            {/each}
+                        </Select.Content>
+                    </Select.Root>
+                </div>
+            {/if}
+        {/await}
 
         <div class="flex flex-col gap-1.5">
             <h1 class="my-4 text-lg">Passenger Details</h1>
@@ -248,7 +200,7 @@
                         on:input={onChange("passportNumber")}
                 />
             </Validation>
-            <div class="flex gap-4 justify-between">
+            <div class="flex gap-2 justify-between">
                 <Validation classNames="flex-1" {errors} {taints} path="passportExpiry">
 
                     <Popover.Root>
@@ -260,7 +212,7 @@
                                     builders={[builder]}
                             >
                                 <CalendarIcon class="mr-2 h-4 w-4"/>
-                                {bindDate ? df.format(bindDate.toDate(getLocalTimeZone())) : "Passport Expiry Date"}
+                                {bindDate ? df.format(bindDate.toDate(getLocalTimeZone())) : "Passport Expiry"}
                             </Button>
                         </Popover.Trigger>
                         <Popover.Content class="w-auto p-0" align="start">
@@ -286,9 +238,57 @@
                     Save this passenger
                 </Label>
             </div>
-            <div class="my-6 w-full flex">
-                <Button on:click={buy}>Purchase Booking</Button>
-            </div>
+            {#await passengerAndCost then [ps, cost]}
+                <Separator class="my-8"/>
+                <div class="flex justify-between items-center">
+                    <div class="font-bold text-lg">Booking Cost</div>
+                    <div class="font-bold text-lg">
+                        S${cost.cost.toFixed(2)}
+                    </div>
+                </div>
+                <Separator class="my-2"/>
+                {#each cost.discounts as d}
+                    <div class="flex justify-between items-center my-2">
+                        <div class="flex flex-col">
+                            <div class="font-semibold">{d.name}</div>
+                            <div class="text-xs font-light">{d.description}</div>
+                        </div>
+                        <div class="font-light text-lg">
+                            {#if d.type === "Flat"}
+                                -S${d.amount.toFixed(2)}
+                            {:else}
+                                -{d.amount * 100}%
+                            {/if}
+                        </div>
+                    </div>
+                {/each}
+                <Separator class="my-4"/>
+                <div class="flex justify-end items-center">
+                    <div class="font-bold text-lg">
+                        S${cost.final.toFixed(2)}
+                    </div>
+                </div>
+                <div class="my-6 w-full flex justify-between ">
+                    <div class="flex flex-col gap-2">
+                        <PurchaseBooking
+                                {errors}
+                                {taints}
+                                {checked} {passenger} {direction} {userId} {date} {time}
+                                wallet={$page.data.user?.wallet?.usable ?? 0}
+                                cost={cost.final}
+                        />
+                        <div class="{($page.data.user?.wallet?.usable ?? 0) >= cost.final ? 'opacity-0': '' } text-sm text-red-500">
+                            Insufficient balance
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center">
+                        <div class="text-lg font-semibold"> S$ {$page.data.user?.wallet?.usable?.toFixed(2) ?? "0.00"}</div>
+                        <div class="text-sm font-light">Your Balance</div>
+                    </div>
+                </div>
+            {/await}
+
         </div>
     </div>
 </div>

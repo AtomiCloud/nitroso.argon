@@ -8,16 +8,25 @@
     import panel4 from "$lib/assets/panel-4-fs8.png";
     import panel5 from "$lib/assets/panel-5-fs8.png";
     import {Button} from "$lib/components/ui/button";
-    import {BookOpenCheck, ChevronDownCircle} from "lucide-svelte";
+    import {BookOpenCheck, ChevronDownCircle, LucideLoader} from "lucide-svelte";
     //@ts-ignore
     import * as Accordion from "$lib/components/ui/accordion";
     //@ts-ignore
     import * as Table from "$lib/components/ui/table";
     //@ts-ignore
     import {Footer} from "$lib/components/custom/footer";
+    import {page} from "$app/stores";
+    import {signIn} from "@auth/sveltekit/client";
 
     console.log("Configuration", config.app);
 
+
+    let loading = false;
+
+    function login() {
+        loading = true;
+        signIn('descope');
+    }
 
     const timings: { j2w: string, w2j: string }[] = [
         {w2j: "8:30 AM", j2w: "5:00 AM"},
@@ -74,10 +83,21 @@
                         <div class="text-lg md:text-xl text-center md:text-left ">
                             <span>Your stress-free ticket booking assistant</span>
                         </div>
-                        <Button href="/schedules">
-                            <BookOpenCheck class="mr-2 h-4 w-4"/>
-                            Start Booking
-                        </Button>
+                        {#if $page.data.session}
+                            <Button href="/schedules">
+                                <BookOpenCheck class="mr-2 h-4 w-4"/>
+                                Start Booking
+                            </Button>
+                        {:else}
+                            <Button on:click={login} disabled={loading}>
+                                {#if loading}
+                                    <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
+                                {:else}
+                                    <BookOpenCheck class="mr-2 h-4 w-4"/>
+                                {/if}
+                                Start Booking
+                            </Button>
+                        {/if}
                     </div>
                 </div>
             </div>

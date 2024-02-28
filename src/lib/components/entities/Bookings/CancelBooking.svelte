@@ -13,6 +13,7 @@
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
     import {Input} from "$lib/components/ui/input";
+    import {page} from "$app/stores";
 
     let dialogOpen = false;
     export let booking: BookingPrincipalRes;
@@ -25,7 +26,12 @@
 
     async function cancelBooking() {
         submitting = true;
-        await toResult(() => $api.vBookingCancelCreate(booking.id, "1.0"),
+
+        const user = $page.data.session?.roles?.includes("admin")
+            ? {}
+            : {userId: $page.data.user.principal.id}
+
+        await toResult(() => $api.vBookingCancelCreate(booking.id, "1.0", user),
             "Failed to cancel booking").match({
             ok: ok => {
                 toast.info(`Successfully cancelled booking`);
@@ -76,7 +82,7 @@
                     </code> to proceed.
                     </p>
 
-                    <div class="flex flex-col">
+                    <div class="flex flex-col gap-4">
                         <Input placeholder="Name"
                                bind:value={confirm}
                         />
