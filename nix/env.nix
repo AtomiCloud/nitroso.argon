@@ -39,8 +39,6 @@ with packages;
   ];
 
   releaser = [
-    nodejs
     sg
-    npm
   ];
 }
