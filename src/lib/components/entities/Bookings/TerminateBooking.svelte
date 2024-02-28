@@ -46,7 +46,7 @@
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
-    <Dialog.Trigger class="{buttonVariants({ variant: 'destructive', size: 'icon' })}">
+    <Dialog.Trigger class="{buttonVariants({ variant: 'destructive' })}">
         <LucideTrash2 class="mr-2 h-4 w-4"/>
         Terminate Booking
     </Dialog.Trigger>
