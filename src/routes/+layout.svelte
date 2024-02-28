@@ -3,9 +3,7 @@
     import {signIn} from "@auth/sveltekit/client";
     import {page} from "$app/stores";
     import {onMount} from "svelte";
-    import {LightSwitch} from "$lib/components/ui/light-switch";
     import {MainNav} from "../lib/components/custom/main-nav";
-    import {setInitialClassState} from "$lib/components/ui/light-switch/light-switch";
     import {Account} from "../lib/components/custom/account";
     import logo from "$lib/assets/nitroso-logo-fs8.png"
     import {Footer} from "$lib/components/custom/footer";
@@ -14,6 +12,8 @@
     import {afterNavigate, beforeNavigate} from "$app/navigation";
     import Loader from "$lib/components/complex/loader.svelte";
     import {Toaster} from "$lib/components/ui/sonner";
+    import { ModeWatcher } from "mode-watcher";
+    import LightSwitch from "$lib/components/complex/LightSwitch.svelte";
 
     beforeNavigate(({from, to}) => {
         if (from.route.id !== to.route.id) loading.set(true);
@@ -28,12 +28,8 @@
     });
 
 </script>
-<svelte:head>
-    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {@html `<\u{73}cript nonce="%sveltekit.nonce%">(${setInitialClassState.toString()})();</script>`}
-</svelte:head>
 
-
+<ModeWatcher defaultMode={"light"}/>
 <Toaster/>
 
 <div class="relative flex min-h-screen flex-col" id="page">
@@ -46,7 +42,7 @@
             <MainNav/>
 
             <div class="flex items-center space-x-4 lg:space-x-6">
-                <LightSwitch></LightSwitch>
+                <LightSwitch/>
                 <Account></Account>
             </div>
         </div>
