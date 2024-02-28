@@ -18,7 +18,7 @@
 <div class="flex flex-wrap w-full gap-4">
     <Card.Root class="flex-1 min-w-fit">
         <Card.Header>
-            <div class="flex flex-wrap justify-between items-center gap-4">
+            <div class="flex gap-4 justify-center flex-wrap-reverse md:flex-nowrap sm:justify-between items-center">
                 <div>
                     <Card.Title>
                         <div class="flex flex-wrap gap-1 items-center">
@@ -42,7 +42,7 @@
                     </Card.Description>
                 </div>
                 <div class="flex flex-col gap-1.5 text-center">
-                    <Badge class="{BOOKING_STATUS[b.status].color}">{b.status}</Badge>
+                    <Badge class="{BOOKING_STATUS[b.status].color} text-md">{b.status}</Badge>
                 </div>
             </div>
         </Card.Header>
@@ -70,17 +70,22 @@
 <div class="flex flex-wrap w-full gap-4">
     <Card.Root class="flex-1 min-w-fit">
         <Card.Header>
-            <Card.Title class="flex gap-4 items-center">
-                <div>{booking.principal.passenger.fullName}</div>
-                <Badge class="{booking.principal.passenger.gender === 'M' ? 'bg-blue-500' : 'bg-pink-500' }">{booking.principal.passenger.gender  }</Badge>
-            </Card.Title>
-            <Card.Description>
-                {booking.principal.passenger.passportNumber}
-            </Card.Description>
+            <div class="flex justify-between items-center">
+            <div>
+                <Card.Title class="flex gap-4 items-center">
+                    <div>{booking.principal.passenger.fullName}</div>
+                </Card.Title>
+                <Card.Description>
+                    {booking.principal.passenger.passportNumber}
+                </Card.Description>
+
+            </div>
+            <Badge class="{booking.principal.passenger.gender === 'M' ? 'bg-blue-500' : 'bg-pink-500' }">{booking.principal.passenger.gender  }</Badge>
+            </div>
         </Card.Header>
         <Card.Content class="bg-muted">
             <div class="flex flex-col justify-center gap-1.5 pt-4">
-                <div class="text-md text-muted-foreground">
+                <div class="text-md text-center sm:text-start text-muted-foreground">
                     Passport expires on
                     <span class="underline">
                         {format(parse(booking.principal.passenger.passportExpiry, "dd-MM-yyyy", new Date()), "dd MMM yyyy")}
@@ -106,7 +111,7 @@
             </Card.Content>
         </Card.Root>
     {:else if ["Cancelled", "Refunded", "Terminated"].includes(booking.principal.status)}
-        <Card.Root class="flex-1 flex justify-center items-center min-w-fit py-8">
+        <Card.Root class="flex-1 flex justify-center items-center min-w-fit p-8">
             <Card.Title class="text-center">
                 {booking.principal.status}
                 on {format(new Date(booking.principal.completedAt), "dd MMM yyyy, HH:mm a")}
