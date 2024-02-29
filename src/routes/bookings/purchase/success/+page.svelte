@@ -41,7 +41,7 @@
                     <ShoppingBasket class="mr-2 h-4 w-4"/>
                     Purchase Another Booking
                 </Button>
-                <Button class="w-full md:w-64"  href="/bookings">
+                <Button class="w-full md:w-64"  href="/bookings?userId={userId}">
                     <LucideTicket class="mr-2 h-4 w-4"/>
                     View Bookings
                 </Button>
