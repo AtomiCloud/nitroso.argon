@@ -24,7 +24,10 @@
         loading.set(false);
     });
     onMount(() => {
-        if ($page.data.auth.signIn) signIn("descope");
+        if ($page.data.auth.signIn) {
+            loading.set(true);
+            signIn("descope");
+        }
     });
 
 </script>
