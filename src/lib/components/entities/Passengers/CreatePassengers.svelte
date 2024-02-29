@@ -20,7 +20,7 @@
     import Validation from "$lib/components/core/Validation.svelte";
     import {tick} from "svelte";
     import {DateFormatter, type DateValue, getLocalTimeZone} from "@internationalized/date";
-    import {addMonths, format} from "date-fns";
+    import {format} from "date-fns";
     import {cn} from "$lib/utils";
     import AdvanceCalendar from "$lib/components/custom/calendar/AdvanceCalendar.svelte";
 
@@ -37,7 +37,10 @@
         passportExpiry: z.date(),
     }).required();
 
-    const val = {
+
+    type Passenger = z.infer<typeof createPassengerSchema>;
+
+    const val: Passenger = {
         fullName: "",
         gender: "M",
         passportNumber: "",
@@ -107,6 +110,8 @@
 
 
 
+    $: isValid = errors.length === 0 && Object.entries(taints).length > 0;
+
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
@@ -162,7 +167,8 @@
                                     </Button>
                                 </Popover.Trigger>
                                 <Popover.Content class="w-auto p-0" align="start">
-                                    <AdvanceCalendar years={50} after={true} bind:value={bindDate} onValueChange={onDateChange}/>
+                                    <AdvanceCalendar years={50} after={true} bind:value={bindDate}
+                                                     onValueChange={onDateChange}/>
                                 </Popover.Content>
                             </Popover.Root>
                         </Validation>
@@ -176,7 +182,7 @@
                         </Validation>
                     </div>
 
-                    <Button class="my-2" on:click={submit} disabled={submitting || errors.length > 0}>
+                    <Button class="my-2" on:click={submit} disabled={submitting || !isValid}>
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                         {/if}

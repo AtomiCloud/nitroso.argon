@@ -1,9 +1,9 @@
 <script lang="ts">
     import {page} from "$app/stores";
-    import {Button} from "$lib/components/ui/form";
     import Lottie from "$lib/components/complex/lottie.svelte";
     import {animations} from "$lib/design";
     import {ShoppingBasket, LucideTicket} from "lucide-svelte";
+    import {Button} from "$lib/components/ui/button";
 
 
     let date = $page.url.searchParams.get("date");

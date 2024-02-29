@@ -10,7 +10,7 @@
     import {problem} from "../../../store";
     import Loader from "$lib/components/complex/loader.svelte";
     import {page} from "$app/stores";
-    import Wallet from "$lib/components/entities/Wallet.svelte";
+    import Wallet from "$lib/components/entities/Wallets/Wallet.svelte";
     import type {PageData} from "./$types";
 
     export let data: PageData;
