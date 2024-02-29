@@ -41,7 +41,7 @@
         </div>
     </Card.Header>
     <Card.Content class="bg-muted">
-        <div class="flex justify-end gap-4 pt-4 w-full">
+        <div class="flex flex-wrap justify-end gap-4 pt-4 w-full">
 
             {#if b.status === "Pending"}
                 <CancelBooking booking={b}/>

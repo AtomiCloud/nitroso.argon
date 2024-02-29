@@ -4,8 +4,6 @@
     //@ts-ignore
     import * as Dialog from "$lib/components/ui/dialog";
     //@ts-ignore
-    import * as Form from "$lib/components/ui/form";
-    //@ts-ignore
     import * as Alert from "$lib/components/ui/alert";
     import {toResult} from "$lib/utility";
     import {api} from "../../../../store";

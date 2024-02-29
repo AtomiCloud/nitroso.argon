@@ -7,7 +7,7 @@
     import {problem} from "../../../store";
 
     import Loader from "$lib/components/complex/loader.svelte";
-    import Wallet from "$lib/components/entities/Wallet.svelte";
+    import Wallet from "$lib/components/entities/Wallets/Wallet.svelte";
     import type {PageData} from "./$types";
     import {page} from "$app/stores";
 

@@ -13,7 +13,7 @@ jobs:
       - nscloud-git-mirror-1gb
     steps:
       # Setup
-      - uses: AtomiCloud/actions.setup-nix@v1.1.0
+      - uses: AtomiCloud/actions.setup-nix@v1.2.1
       - uses: AtomiCloud/actions.cache-bun@v1.0.1
       # Action
       - name: Run pre-commit
