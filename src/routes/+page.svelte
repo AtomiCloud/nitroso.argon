@@ -101,7 +101,7 @@
                     </div>
                 </div>
             </div>
-            <div class="text-3xl text-center w-full flex flex-col items-center py-12 lg:py-6">
+            <div class="text-3xl text-center w-full flex flex-col items-center pt-12 pb-24 lg:pt-6 lg:pb-12">
 
                 <div class="py-3">See how it works</div>
                 <ChevronDownCircle class="animate-bounce h-8 w-8"/>

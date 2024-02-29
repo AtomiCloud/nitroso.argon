@@ -17,7 +17,6 @@
 
 </script>
 
-<div class="flex flex-col" style="height: calc(100dvh - 4rem)">
     <div class="flex flex-col h-full items-center justify-between w-11/12 h-full max-w-[1200px] mx-auto my-4">
         <div class="text-4xl mt-12 md:mt-48">Success!</div>
         <div class="w-full max-w-[400px]">
@@ -50,5 +49,4 @@
         </div>
 
 
-    </div>
 </div>
