@@ -55,7 +55,7 @@
                 </Card.Title>
             </Card.Header>
             <Card.Description>
-                <div class="flex justify-center gap-4 p-4 w-full">
+                <div class="flex flex-wrap justify-center gap-4 p-4 w-full">
                     {#if b.status === "Pending"}
                         <CancelBooking booking={b}/>
                     {:else if b.status === "Completed"}
