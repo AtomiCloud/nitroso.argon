@@ -52,7 +52,7 @@
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
-    <Dialog.Trigger class="{buttonVariants({ variant: 'destructive' })}">
+    <Dialog.Trigger class="{buttonVariants({ variant: 'destructive' })}  w-full sm:max-w-40 ">
         <LucideTrash2 class="mr-2 h-4 w-4"/>
         Cancel
     </Dialog.Trigger>

@@ -157,6 +157,22 @@ export class Api<
    * No description
    *
    * @tags Booking
+   * @name VBookingRefundDetail
+   * @request GET:/api/v{version}/Booking/refund
+   * @secure
+   */
+  vBookingRefundDetail = (version: string, params: RequestParams = {}) =>
+    this.request<BookingPrincipalRes[], any>({
+      path: `/api/v${version}/Booking/refund`,
+      method: "GET",
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
    * @name VBookingReserveDetail
    * @request GET:/api/v{version}/Booking/reserve/{Direction}/{Date}/{Time}
    * @secure
@@ -216,11 +232,16 @@ export class Api<
       /** @format binary */
       file?: File;
     },
+    query?: {
+      bookingNo?: string;
+      ticketNo?: string;
+    },
     params: RequestParams = {},
   ) =>
     this.request<BookingPrincipalRes, any>({
       path: `/api/v${version}/Booking/complete/${id}`,
       method: "POST",
+      query: query,
       body: data,
       secure: true,
       type: ContentType.FormData,

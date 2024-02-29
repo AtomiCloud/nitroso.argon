@@ -43,6 +43,8 @@ export interface BookingPrincipalRes {
   /** @format date-time */
   completedAt?: string | null;
   ticketLink?: string | null;
+  ticketNo?: string | null;
+  bookingNo?: string | null;
   status?: string | null;
 }
 
