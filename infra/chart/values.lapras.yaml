@@ -8,7 +8,7 @@ zinc:
 
   api:
     image:
-      repository: ghcr.io/atomicloud/nitroso.zinc/api-arm
+      repository: ghcr.io/atomicloud/nitroso.zinc/api
     enabled: true
     serviceTree:
       landscape: *landscape
@@ -47,7 +47,7 @@ helium:
     enable: false
   scheduler:
     image:
-      repository: ghcr.io/atomicloud/nitroso.helium/nitroso-helium-arm
+      repository: ghcr.io/atomicloud/nitroso.helium/nitroso-helium
   appSettings:
     cache:
       live:
@@ -66,7 +66,7 @@ tin:
       landscape: *landscape
 
     image:
-      repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin-arm
+      repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin
 
     fullnameOverride: "tin-buyer"
 
@@ -75,7 +75,7 @@ tin:
       landscape: *landscape
     fullnameOverride: "tin-cdc"
     image:
-      repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin-arm
+      repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin
 
   poller:
     serviceTree:
@@ -83,21 +83,21 @@ tin:
 
     fullnameOverride: "tin-poller"
     image:
-      repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin-arm
+      repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin
 
   enricher:
     serviceTree:
       landscape: *landscape
     fullnameOverride: "tin-enricher"
     image:
-      repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin-arm
+      repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin
 
   reserver:
     serviceTree:
       landscape: *landscape
     fullnameOverride: "tin-reserver"
     image:
-      repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin-arm
+      repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin
 
   zinc:
     enable: false

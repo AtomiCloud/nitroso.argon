@@ -46,10 +46,10 @@
             {#if b.status === "Pending"}
                 <CancelBooking booking={b}/>
             {:else if b.status === "Completed"}
-                <Button href="{b.ticketLink}">View Ticket</Button>
+                <Button class="w-full sm:max-w-40" href="{b.ticketLink}">View Ticket</Button>
                 <TerminateBooking booking={b}/>
             {/if}
-            <Button href="/bookings/{b.id}">
+            <Button class="w-full sm:max-w-40" href="/bookings/{b.id}">
                 View Details
             </Button>
         </div>

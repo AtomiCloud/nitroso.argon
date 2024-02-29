@@ -262,7 +262,9 @@
                         </div>
                     </div>
                 {/each}
-                <Separator class="my-4"/>
+                {#if cost.discounts.length > 0 }
+                    <Separator class="my-4"/>
+                {/if}
                 <div class="flex justify-end items-center">
                     <div class="font-bold text-lg">
                         S${cost.final.toFixed(2)}
@@ -283,7 +285,8 @@
                     </div>
 
                     <div class="flex flex-col items-center">
-                        <div class="text-lg font-semibold"> S$ {$page.data.user?.wallet?.usable?.toFixed(2) ?? "0.00"}</div>
+                        <div class="text-lg font-semibold">
+                            S$ {$page.data.user?.wallet?.usable?.toFixed(2) ?? "0.00"}</div>
                         <div class="text-sm font-light">Your Balance</div>
                     </div>
                 </div>

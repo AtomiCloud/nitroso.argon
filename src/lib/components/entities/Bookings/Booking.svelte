@@ -59,7 +59,7 @@
                     {#if b.status === "Pending"}
                         <CancelBooking booking={b}/>
                     {:else if b.status === "Completed"}
-                        <Button href="{b.ticketLink}">View Ticket</Button>
+                        <Button class="w-full sm:max-w-40" href="{b.ticketLink}">View Ticket</Button>
                         <TerminateBooking booking={b}/>
                     {/if}
                 </div>
@@ -101,13 +101,22 @@
                     Ticket Information
                 </Card.Title>
                 <Card.Description>
-                    Completed on {format(new Date(booking.principal.completedAt), "dd MMM yyyy, HH:mm a")}
+                    <div class="flex flex-col">
+                        <div>Ticket No: {booking.principal.ticketNo}</div>
+                        <div>Booking No: {booking.principal.bookingNo}</div>
+                    </div>
                 </Card.Description>
             </Card.Header>
             <Card.Content>
-                <Button href={booking.principal.ticketLink}>
-                    View Ticket
-                </Button>
+                <div class="flex flex-col">
+                    <Button class="w-full sm:max-w-40" href={booking.principal.ticketLink}>
+                        View Ticket
+                    </Button>
+                    <div class="text-muted-foreground text-sm">
+                        Completed on {format(new Date(booking.principal.completedAt), "dd MMM yyyy, HH:mm a")}
+                    </div>
+                </div>
+
             </Card.Content>
         </Card.Root>
     {:else if ["Cancelled", "Refunded", "Terminated"].includes(booking.principal.status)}
