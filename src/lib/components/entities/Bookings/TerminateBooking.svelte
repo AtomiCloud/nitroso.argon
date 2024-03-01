@@ -13,6 +13,7 @@
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
     import {Input} from "$lib/components/ui/input";
+    import {page} from "$app/stores";
 
     let dialogOpen = false;
     export let booking: BookingPrincipalRes;
@@ -25,7 +26,10 @@
 
     async function terminateBooking() {
         submitting = true;
-        await toResult(() => $api.vBookingTerminateCreate(booking.id, "1.0"),
+        const user = $page.data.session?.roles?.includes("admin")
+            ? {}
+            : {userId: $page.data.user.principal.id}
+        await toResult(() => $api.vBookingTerminateCreate(booking.id, "1.0", user),
             "Failed to terminate booking").match({
             ok: ok => {
                 toast.info(`Successfully terminated booking`);
