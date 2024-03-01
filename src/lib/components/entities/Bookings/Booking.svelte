@@ -9,14 +9,17 @@
     import CancelBooking from "$lib/components/entities/Bookings/CancelBooking.svelte";
     import {Button} from "$lib/components/ui/button";
     import TerminateBooking from "$lib/components/entities/Bookings/TerminateBooking.svelte";
-    import { zonedTimeToUtc } from 'date-fns-tz'
+
+    import moment from "moment-timezone";
 
 
     export let booking: BookingRes;
 
     function canTerminate(date: string, time: string): boolean {
+
         const rd = format(parse(date, "dd-MM-yyyy", new Date()), "yyyy-MM-dd");
-        const utcDate = zonedTimeToUtc(`${rd} ${time}`, "Asia/Singapore");
+        //@ts-ignore
+        const utcDate = moment.tz(`${rd} ${time}`, "Asia/Singapore").clone().tz("UTC");
         const d = sub(new Date(utcDate), {minutes: 30});
         const now = new Date();
         return !isAfter(now, d);
@@ -47,7 +50,7 @@
                                     {format(parse(b.time, "HH:mm:ss", new Date()), "HH:mm a")}
                                 </div>
                             </Badge>
-                            <div>Started {format(new Date(b.createdAt), "dd MMM yyyy, HH:mm a")}</div>
+                            <div>Started {format(new Date(b.createdAt), "dd MMM yyyy, hh:mm a")}</div>
                         </div>
                     </Card.Description>
                 </div>
