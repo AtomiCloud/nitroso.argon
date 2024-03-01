@@ -117,7 +117,23 @@
 </script>
 
 <div class="flex flex-col">
+    <div class="border-b bg-muted ">
+        <div class="flex justify-center sm:justify-between gap-4 flex-wrap py-8 items-center text-foreground max-w-[1200px] w-11/12 mx-auto">
+
+            <div class="text-3xl lg:text-4xl">
+                Purchase Tickets
+
+            </div>
+            <div class="flex flex-col justify-center items-center font-light">
+                <div class="text-2xl">S${$page.data.user?.wallet?.usable?.toFixed(2) ?? "0.00" }</div>
+                <div>Balance</div>
+            </div>
+        </div>
+
+    </div>
     <div class="flex flex-col gap-4 w-11/12 max-w-[1200px] mx-auto my-12">
+
+
 
         <div class="flex flex-wrap w-full gap-4 justify-center md:justify-between">
             <Popover.Root>

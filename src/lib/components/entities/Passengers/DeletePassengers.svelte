@@ -39,6 +39,7 @@
             }
         })
         submitting = false;
+        confirm = "";
     }
 
     let confirm = "";
