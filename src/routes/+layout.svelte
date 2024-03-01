@@ -3,7 +3,6 @@
     import {signIn} from "@auth/sveltekit/client";
     import {page} from "$app/stores";
     import {onMount} from "svelte";
-    import {MainNav} from "../lib/components/custom/main-nav";
     import {Account} from "../lib/components/custom/account";
     import logo from "$lib/assets/nitroso-logo-fs8.png"
     import {Footer} from "$lib/components/custom/footer";
@@ -12,8 +11,9 @@
     import {afterNavigate, beforeNavigate} from "$app/navigation";
     import Loader from "$lib/components/complex/loader.svelte";
     import {Toaster} from "$lib/components/ui/sonner";
-    import { ModeWatcher } from "mode-watcher";
+    import {ModeWatcher} from "mode-watcher";
     import LightSwitch from "$lib/components/complex/LightSwitch.svelte";
+    import {Button} from "$lib/components/ui/button";
 
     beforeNavigate(({from, to}) => {
         if (from.route.id !== to.route.id) loading.set(true);
@@ -42,9 +42,14 @@
                 <img src="{logo}" alt="CyanPrint" class="h-12 w-12">
                 <span class="hidden text-foreground sm:inline-block font-bold">BunnyBooker</span>
             </a>
-            <MainNav/>
+
 
             <div class="flex items-center space-x-4 lg:space-x-6">
+                {#if $page.data.session}
+                    <Button href="/schedules">
+                        Book Now
+                    </Button>
+                {/if}
                 <LightSwitch/>
                 <Account></Account>
             </div>
