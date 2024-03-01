@@ -79,7 +79,10 @@
     }
 
     function triggerSearch() {
-        const d = toZincDate(bindDate);
+        if(bindDate == null) bindDate = toCalDate(date);
+        console.log(bindDate);
+        let d = toZincDate(bindDate);
+        // if (d == null) d = toZincDate(toCalDate(date))
 
         if (bindDirection == null) bindDirection = "WToJ"
 
@@ -134,7 +137,6 @@
     <div class="flex flex-col gap-4 w-11/12 max-w-[1200px] mx-auto my-12">
 
 
-
         <div class="flex flex-wrap w-full gap-4 justify-center md:justify-between">
             <Popover.Root>
                 <Popover.Trigger asChild let:builder>
@@ -172,10 +174,12 @@
                                         <div class="flex flex-wrap gap-2 justify-center items-center">
                                             <div class="flex flex-col gap-2">
                                                 <div class="w-24 text-center">{displayTime(time)}</div>
-                                                <div class="w-24 text-center text-slate-500 text-sm">{dfs.format(bindDate.toDate(getLocalTimeZone()))}</div>
+                                                <div class="w-24 text-center text-slate-500 text-sm">{bindDate ? dfs.format(bindDate.toDate(getLocalTimeZone())) : ""}</div>
                                             </div>
                                             <div class="flex flex-col gap-2 items-center">
-                                                <Badge class="text-center {countColor(count)}">{count} tickets in queue</Badge>
+                                                <Badge class="text-center {countColor(count)}">{count} tickets in
+                                                    queue
+                                                </Badge>
                                             </div>
 
 
