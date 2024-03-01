@@ -145,6 +145,10 @@
 
     let checked = false;
 
+    function allowSavePassenger(ps: PassengerPrincipalRes[], p: { passportNumber: string }) {
+        return ps.every(x => x.passportNumber !== p.passportNumber);
+    }
+
     $: displayDate = toDisplayDate(date);
     $: displayTime = new Date(`1970-01-01T${time}`).toLocaleTimeString(undefined, {
         hourCycle: "h12",
@@ -182,63 +186,63 @@
                     </Select.Root>
                 </div>
             {/if}
-        {/await}
 
-        <div class="flex flex-col gap-1.5">
-            <h1 class="my-4 text-lg">Passenger Details</h1>
-            <Validation {errors} {taints} path="fullName">
-                <Input
-                        placeholder="Fullname as per Passport"
-                        bind:value={passenger.fullName}
-                        on:input={onChange("fullName")}
-                />
-            </Validation>
-            <Validation {errors} {taints} path="passportNumber">
-                <Input
-                        placeholder="Passport Number"
-                        bind:value={passenger.passportNumber}
-                        on:input={onChange("passportNumber")}
-                />
-            </Validation>
-            <div class="flex gap-2 justify-between">
-                <Validation classNames="flex-1" {errors} {taints} path="passportExpiry">
+            <div class="flex flex-col gap-1.5">
+                <h1 class="my-4 text-lg">Passenger Details</h1>
+                <Validation {errors} {taints} path="fullName">
+                    <Input
+                            placeholder="Fullname as per Passport"
+                            bind:value={passenger.fullName}
+                            on:input={onChange("fullName")}
+                    />
+                </Validation>
+                <Validation {errors} {taints} path="passportNumber">
+                    <Input
+                            placeholder="Passport Number"
+                            bind:value={passenger.passportNumber}
+                            on:input={onChange("passportNumber")}
+                    />
+                </Validation>
+                <div class="flex gap-2 justify-between">
+                    <Validation classNames="flex-1" {errors} {taints} path="passportExpiry">
 
-                    <Popover.Root>
-                        <Popover.Trigger asChild let:builder>
-                            <Button
-                                    variant="outline"
-                                    class={cn(
+                        <Popover.Root>
+                            <Popover.Trigger asChild let:builder>
+                                <Button
+                                        variant="outline"
+                                        class={cn(
         "w-full justify-start text-center font-normal",!bindDate && "text-muted-foreground")}
-                                    builders={[builder]}
-                            >
-                                <CalendarIcon class="mr-2 h-4 w-4"/>
-                                {bindDate ? df.format(bindDate.toDate(getLocalTimeZone())) : "Passport Expiry"}
-                            </Button>
-                        </Popover.Trigger>
-                        <Popover.Content class="w-auto p-0" align="start">
-                            <AdvanceCalendar years={50} after={true} bind:value={bindDate}
-                                             onValueChange={onDateChange}/>
-                        </Popover.Content>
-                    </Popover.Root>
-                </Validation>
-                <Validation {errors} {taints} path="gender">
-                    <ToggleGroup.Root type="single" bind:value={passenger.gender}
-                                      onValueChange={onChange("gender")}>
-                        <ToggleGroup.Item value='M' aria-label="Male">M</ToggleGroup.Item>
-                        <ToggleGroup.Item value='F' aria-label="Female">F</ToggleGroup.Item>
-                    </ToggleGroup.Root>
-                </Validation>
-            </div>
-            <div class="flex items-center space-x-2">
-                <Checkbox id="terms" bind:checked/>
-                <Label
-                        for="terms"
-                        class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                    Save this passenger
-                </Label>
-            </div>
-            {#await passengerAndCost then [ps, cost]}
+                                        builders={[builder]}
+                                >
+                                    <CalendarIcon class="mr-2 h-4 w-4"/>
+                                    {bindDate ? df.format(bindDate.toDate(getLocalTimeZone())) : "Passport Expiry"}
+                                </Button>
+                            </Popover.Trigger>
+                            <Popover.Content class="w-auto p-0" align="start">
+                                <AdvanceCalendar years={50} after={true} bind:value={bindDate}
+                                                 onValueChange={onDateChange}/>
+                            </Popover.Content>
+                        </Popover.Root>
+                    </Validation>
+                    <Validation {errors} {taints} path="gender">
+                        <ToggleGroup.Root type="single" bind:value={passenger.gender}
+                                          onValueChange={onChange("gender")}>
+                            <ToggleGroup.Item value='M' aria-label="Male">M</ToggleGroup.Item>
+                            <ToggleGroup.Item value='F' aria-label="Female">F</ToggleGroup.Item>
+                        </ToggleGroup.Root>
+                    </Validation>
+                </div>
+                {#if allowSavePassenger(ps, passenger)}
+                    <div class="flex items-center space-x-2">
+                        <Checkbox id="terms" bind:checked/>
+                        <Label
+                                for="terms"
+                                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                            Save this passenger
+                        </Label>
+                    </div>
+                {/if}
                 <Separator class="my-8"/>
                 <div class="flex justify-between items-center">
                     <div class="font-bold text-lg">Booking Cost</div>
@@ -289,12 +293,13 @@
                             S$ {$page.data.user?.wallet?.usable?.toFixed(2) ?? "0.00"}</div>
                         <div class="text-sm font-light">Your Balance</div>
                         <div class="text-sm font-light {($page.data.user?.wallet?.usable ?? 0) >= cost.final ? 'hidden': '' }">
-                            <a class="underline text-blue-500 hover:text-sky-500" href="/wallets/deposit">Deposit Now</a>
+                            <a class="underline text-blue-500 hover:text-sky-500" href="/wallets/deposit">Deposit
+                                Now</a>
                         </div>
                     </div>
                 </div>
-            {/await}
 
-        </div>
+            </div>
+        {/await}
     </div>
 </div>
