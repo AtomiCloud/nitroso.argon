@@ -10,6 +10,7 @@
  */
 
 import type {
+  AirwallexEvent,
   BookingCountRes,
   BookingPrincipalRes,
   BookingRes,
@@ -19,6 +20,8 @@ import type {
   CreateCostReq,
   CreateDiscountReq,
   CreatePassengerReq,
+  CreatePaymentReq,
+  CreatePaymentRes,
   CreateUserReq,
   CreateWithdrawalReq,
   DiscountPrincipalRes,
@@ -27,6 +30,8 @@ import type {
   MaterializedCostRes,
   PassengerPrincipalRes,
   PassengerRes,
+  PaymentPrincipalRes,
+  PaymentRes,
   RejectWithdrawalReq,
   ScheduleBulkUpdateReq,
   SchedulePrincipalRes,
@@ -699,6 +704,177 @@ export class Api<
       method: "DELETE",
       query: query,
       secure: true,
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Payment
+   * @name VPaymentDetail
+   * @request GET:/api/v{version}/Payment
+   * @secure
+   */
+  vPaymentDetail = (
+    version: string,
+    query?: {
+      /** @format uuid */
+      Id?: string;
+      /** @format uuid */
+      WalletId?: string;
+      /** @format uuid */
+      TransactionId?: string;
+      Reference?: string;
+      Gateway?: string;
+      /** @format double */
+      Min?: number;
+      /** @format double */
+      Max?: number;
+      CreatedBefore?: string;
+      CreatedAfter?: string;
+      LastUpdatedBefore?: string;
+      LastUpdatedAfter?: string;
+      Status?: string;
+      /** @format int32 */
+      Limit?: number;
+      /** @format int32 */
+      Skip?: number;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<PaymentPrincipalRes[], any>({
+      path: `/api/v${version}/Payment`,
+      method: "GET",
+      query: query,
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Payment
+   * @name VPaymentIdDetail
+   * @request GET:/api/v{version}/Payment/id/{id}
+   * @secure
+   */
+  vPaymentIdDetail = (
+    id: string,
+    version: string,
+    params: RequestParams = {},
+  ) =>
+    this.request<PaymentRes, any>({
+      path: `/api/v${version}/Payment/id/${id}`,
+      method: "GET",
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Payment
+   * @name VPaymentIdDelete
+   * @request DELETE:/api/v{version}/Payment/id/{id}
+   * @secure
+   */
+  vPaymentIdDelete = (
+    id: string,
+    version: string,
+    params: RequestParams = {},
+  ) =>
+    this.request<PaymentRes, any>({
+      path: `/api/v${version}/Payment/id/${id}`,
+      method: "DELETE",
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Payment
+   * @name VPaymentReferenceDetail
+   * @request GET:/api/v{version}/Payment/reference/{reference}
+   * @secure
+   */
+  vPaymentReferenceDetail = (
+    reference: string,
+    version: string,
+    params: RequestParams = {},
+  ) =>
+    this.request<PaymentRes, any>({
+      path: `/api/v${version}/Payment/reference/${reference}`,
+      method: "GET",
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Payment
+   * @name VPaymentReferenceDelete
+   * @request DELETE:/api/v{version}/Payment/reference/{reference}
+   * @secure
+   */
+  vPaymentReferenceDelete = (
+    reference: string,
+    version: string,
+    params: RequestParams = {},
+  ) =>
+    this.request<PaymentRes, any>({
+      path: `/api/v${version}/Payment/reference/${reference}`,
+      method: "DELETE",
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Payment
+   * @name VPaymentCreate
+   * @request POST:/api/v{version}/Payment/{walletId}
+   * @secure
+   */
+  vPaymentCreate = (
+    walletId: string,
+    version: string,
+    data: CreatePaymentReq,
+    query?: {
+      userId?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<CreatePaymentRes, any>({
+      path: `/api/v${version}/Payment/${walletId}`,
+      method: "POST",
+      query: query,
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Payment
+   * @name VPaymentWebhookCreate
+   * @request POST:/api/v{version}/Payment/webhook
+   * @secure
+   */
+  vPaymentWebhookCreate = (
+    version: string,
+    data: AirwallexEvent,
+    params: RequestParams = {},
+  ) =>
+    this.request<void, any>({
+      path: `/api/v${version}/Payment/webhook`,
+      method: "POST",
+      body: data,
+      secure: true,
+      type: ContentType.Json,
       ...params,
     });
   /**

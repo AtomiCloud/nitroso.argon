@@ -9,6 +9,41 @@
  * ---------------------------------------------------------------
  */
 
+export interface AirwallexEvent {
+  id?: string | null;
+  name?: string | null;
+  account_id?: string | null;
+  accountId?: string | null;
+  data: AirwallexEventData;
+  created_at?: string | null;
+  createdAt?: string | null;
+  sourceId?: string | null;
+}
+
+export interface AirwallexEventData {
+  object: AirwallexEventDataObject;
+}
+
+export interface AirwallexEventDataObject {
+  /** @format double */
+  amount: number;
+  /** @format double */
+  base_amount: number;
+  base_currency?: string | null;
+  /** @format double */
+  captured_amount: number;
+  created_at?: string | null;
+  currency?: string | null;
+  descriptor?: string | null;
+  id?: string | null;
+  /** @format uuid */
+  merchant_order_id: string;
+  /** @format uuid */
+  request_id: string;
+  status?: string | null;
+  updated_at?: string | null;
+}
+
 export interface BookingCountRes {
   date?: string | null;
   time?: string | null;
@@ -88,6 +123,30 @@ export interface CreatePassengerReq {
   gender?: string | null;
   passportExpiry?: string | null;
   passportNumber?: string | null;
+}
+
+export interface CreatePaymentReq {
+  /** @format double */
+  amount: number;
+  currency?: string | null;
+}
+
+export interface CreatePaymentRes {
+  /** @format uuid */
+  id: string;
+  externalReference?: string | null;
+  gateway?: string | null;
+  secret?: string | null;
+  /** @format date-time */
+  createdAt: string;
+  statuses?: Record<string, string>;
+  /** @format double */
+  amount: number;
+  currency?: string | null;
+  status?: string | null;
+  /** @format date-time */
+  lastUpdated: string;
+  additionalData?: any;
 }
 
 export interface CreateUserReq {
@@ -183,6 +242,31 @@ export interface PassengerPrincipalRes {
 export interface PassengerRes {
   principal: PassengerPrincipalRes;
   user: UserPrincipalRes;
+}
+
+export interface PaymentPrincipalRes {
+  /** @format uuid */
+  id: string;
+  externalReference?: string | null;
+  gateway?: string | null;
+  /** @format date-time */
+  createdAt: string;
+  statuses?: Record<string, string>;
+  /** @format double */
+  amount: number;
+  /** @format double */
+  capturedAmount: number;
+  currency?: string | null;
+  status?: string | null;
+  /** @format date-time */
+  lastUpdated: string;
+  additionalData?: any;
+}
+
+export interface PaymentRes {
+  principal: PaymentPrincipalRes;
+  wallet: WalletPrincipalRes;
+  transaction: TransactionPrincipalRes;
 }
 
 export interface RejectWithdrawalReq {

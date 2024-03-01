@@ -16,6 +16,7 @@ import puzzle from "./lottie/puzzle.json";
 import tissue from "./lottie/tissue.json";
 import search from "./lottie/searching.json";
 import success from "./lottie/success.json";
+import cancel from "./lottie/cancel.json";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const animations: Record<string, any> = {
@@ -37,4 +38,5 @@ export const animations: Record<string, any> = {
   puzzle,
   tissue,
   success,
+  cancel,
 };
