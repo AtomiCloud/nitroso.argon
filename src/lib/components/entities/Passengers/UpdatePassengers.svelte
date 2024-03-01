@@ -48,7 +48,7 @@
         return new Date(`${y}-${m}-${d}`);
     }
 
-    const val = {
+    let val = {
         fullName: passenger.fullName,
         gender: passenger.gender,
         passportNumber: passenger.passportNumber,
@@ -112,6 +112,10 @@
             }
         })
         submitting = false;
+        val.fullName = "";
+        val.gender = "M";
+        val.passportNumber = "";
+        val.passportExpiry = new Date();
     }
 
 

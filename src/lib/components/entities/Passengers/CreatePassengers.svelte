@@ -20,11 +20,13 @@
     import Validation from "$lib/components/core/Validation.svelte";
     import {tick} from "svelte";
     import {DateFormatter, type DateValue, getLocalTimeZone} from "@internationalized/date";
-    import {format} from "date-fns";
+    import {addMonths, format} from "date-fns";
     import {cn} from "$lib/utils";
     import AdvanceCalendar from "$lib/components/custom/calendar/AdvanceCalendar.svelte";
 
     let dialogOpen = false;
+    let errors: ZodIssue[] = [];
+    let taints: Record<string, boolean> = {}
 
     const createPassengerSchema = z.object({
         fullName: z.string()
@@ -34,22 +36,20 @@
         passportNumber: z.string()
             .min(1, "Passport number must be at least 1 character long")
             .max(64, "Passport number must be at most 64 characters long"),
-        passportExpiry: z.date(),
+        passportExpiry: z.date()
+            .min(addMonths(new Date(), 6), "Passport expiry must at least 6 months from now"),
     }).required();
 
 
     type Passenger = z.infer<typeof createPassengerSchema>;
 
-    const val: Passenger = {
+    let val = {
         fullName: "",
         gender: "M",
         passportNumber: "",
         passportExpiry: new Date(),
     }
 
-    let errors: ZodIssue[] = [];
-
-    let taints: Record<string, boolean> = {}
 
     const df = new DateFormatter("en-US", {
         dateStyle: "long"
@@ -101,13 +101,17 @@
                 invalidateAll();
             },
             err: (e) => {
+
                 console.error(e);
                 toast.error(e.detail ?? e.type);
             }
         })
         submitting = false;
+        val.fullName = "";
+        val.gender = "M";
+        val.passportNumber = "";
+        val.passportExpiry = new Date();
     }
-
 
 
     $: isValid = errors.length === 0 && Object.entries(taints).length > 0;
