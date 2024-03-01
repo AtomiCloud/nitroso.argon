@@ -279,8 +279,8 @@
                                 wallet={$page.data.user?.wallet?.usable ?? 0}
                                 cost={cost.final}
                         />
-                        <div class="{($page.data.user?.wallet?.usable ?? 0) >= cost.final ? 'opacity-0': '' } text-sm text-red-500">
-                            Insufficient balance
+                        <div class="{($page.data.user?.wallet?.usable ?? 0) >= cost.final ? 'opacity-0': '' } text-left">
+                            <div class="text-sm text-red-500">Insufficient balance</div>
                         </div>
                     </div>
 
@@ -288,6 +288,9 @@
                         <div class="text-lg font-semibold">
                             S$ {$page.data.user?.wallet?.usable?.toFixed(2) ?? "0.00"}</div>
                         <div class="text-sm font-light">Your Balance</div>
+                        <div class="text-sm font-light {($page.data.user?.wallet?.usable ?? 0) >= cost.final ? 'hidden': '' }">
+                            <a class="underline text-blue-500 hover:text-sky-500" href="/wallets/deposit">Deposit Now</a>
+                        </div>
                     </div>
                 </div>
             {/await}
