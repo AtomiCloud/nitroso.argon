@@ -33,7 +33,7 @@
   "type": "module",
   "dependencies": {
     "@auth/core": "^0.19.0",
-    "@auth/sveltekit": "^0.5.0",
+    "@auth/sveltekit": "^0.13.0",
     "@internationalized/date": "^3.5.1",
     "airwallex-payment-elements": "^1.25.0",
     "bits-ui": "^0.18.4",
