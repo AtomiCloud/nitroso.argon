@@ -3,14 +3,27 @@
     import * as Card from "$lib/components/ui/card";
     import type {BookingRes} from "$lib/api/core/data-contracts";
     import {ArrowRight} from "lucide-svelte";
-    import {format, parse} from "date-fns";
+    import {format, isAfter, parse, sub} from "date-fns";
     import {Badge} from "$lib/components/ui/badge";
     import {BOOKING_STATUS} from "../../../../routes/bookings/book_status";
     import CancelBooking from "$lib/components/entities/Bookings/CancelBooking.svelte";
     import {Button} from "$lib/components/ui/button";
     import TerminateBooking from "$lib/components/entities/Bookings/TerminateBooking.svelte";
 
+    import moment from "moment-timezone";
+
+
     export let booking: BookingRes;
+
+    function canTerminate(date: string, time: string): boolean {
+
+        const rd = format(parse(date, "dd-MM-yyyy", new Date()), "yyyy-MM-dd");
+        //@ts-ignore
+        const utcDate = moment.tz(`${rd} ${time}`, "Asia/Singapore").clone().tz("UTC");
+        const d = sub(new Date(utcDate), {minutes: 30});
+        const now = new Date();
+        return !isAfter(now, d);
+    }
 
     const b = booking.principal;
 </script>
@@ -37,7 +50,7 @@
                                     {format(parse(b.time, "HH:mm:ss", new Date()), "HH:mm a")}
                                 </div>
                             </Badge>
-                            <div>Started {format(new Date(b.createdAt), "dd MMM yyyy, HH:mm a")}</div>
+                            <div>Started {format(new Date(b.createdAt), "dd MMM yyyy, hh:mm a")}</div>
                         </div>
                     </Card.Description>
                 </div>
@@ -58,7 +71,7 @@
                 <div class="flex flex-wrap justify-center gap-4 p-4 w-full">
                     {#if b.status === "Pending"}
                         <CancelBooking booking={b}/>
-                    {:else if b.status === "Completed"}
+                    {:else if b.status === "Completed" && canTerminate(b.date, b.time)}
                         <Button class="w-full sm:max-w-40" href="{b.ticketLink}">View Ticket</Button>
                         <TerminateBooking booking={b}/>
                     {/if}
@@ -71,16 +84,16 @@
     <Card.Root class="flex-1 min-w-fit">
         <Card.Header>
             <div class="flex justify-between items-center">
-            <div>
-                <Card.Title class="flex gap-4 items-center">
-                    <div>{booking.principal.passenger.fullName}</div>
-                </Card.Title>
-                <Card.Description>
-                    {booking.principal.passenger.passportNumber}
-                </Card.Description>
+                <div>
+                    <Card.Title class="flex gap-4 items-center">
+                        <div>{booking.principal.passenger.fullName}</div>
+                    </Card.Title>
+                    <Card.Description>
+                        {booking.principal.passenger.passportNumber}
+                    </Card.Description>
 
-            </div>
-            <Badge class="{booking.principal.passenger.gender === 'M' ? 'bg-blue-500' : 'bg-pink-500' }">{booking.principal.passenger.gender  }</Badge>
+                </div>
+                <Badge class="{booking.principal.passenger.gender === 'M' ? 'bg-blue-500' : 'bg-pink-500' }">{booking.principal.passenger.gender  }</Badge>
             </div>
         </Card.Header>
         <Card.Content class="bg-muted">

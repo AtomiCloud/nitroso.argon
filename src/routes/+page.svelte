@@ -117,7 +117,7 @@
                     <h2 class="text-2xl text-center md:text-right">
                         Select Your Date and Time
                     </h2>
-                    <div class="text-lg my-4 text-slate-700 text-justify md:text-right">
+                    <div class="text-lg font-light my-4 text-slate-700 text-justify md:text-right">
                         Choose when and where you want to travel, then place an order to
                         send the details to BunnyBooker headquarters for our bunnies to work their magic.
                     </div>
@@ -148,7 +148,7 @@
                     <h2 class="text-2xl text-center md:text-left">
                         Sit Back & Relax
                     </h2>
-                    <div class="text-lg my-4 dark:text-slate-300 text-slate-700 text-justify md:text-left">
+                    <div class="text-lg font-light my-4 dark:text-slate-300 text-slate-700 text-justify md:text-left">
                         Our bunny team will collect and organize your ticket preferences,
                         giving you the freedom to relax while they handle the details.
                     </div>
@@ -169,7 +169,7 @@
                     <h2 class="text-2xl text-center md:text-right">
                         Let Our Bunnies Hunt
                     </h2>
-                    <div class="text-lg my-4 dark:text-slate-300 text-slate-700 text-justify md:text-right">
+                    <div class="text-lg font-light my-4 dark:text-slate-300 text-slate-700 text-justify md:text-right">
                         24/7, our bunnies keep an eye out for refunded tickets in your
                         chosen timeslot, ensuring you don't miss a travel opportunity.
                     </div>
@@ -200,7 +200,7 @@
                     <h2 class="text-2xl text-center md:text-left">
                         Instant Booking
                     </h2>
-                    <div class="text-lg my-4 text-slate-700 text-justify md:text-left">
+                    <div class="text-lg my-4 font-light text-slate-700 text-justify md:text-left">
                         The moment a matching ticket becomes available,
                         our bunnies spring into action, booking it for you without delay.
                     </div>

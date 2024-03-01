@@ -12,6 +12,7 @@
     import {api} from "../../../store";
     import {toast} from "svelte-sonner";
     import {config} from "../../../config/client";
+    import {LucideLoader} from "lucide-svelte";
 
 
     let errors: ZodIssue[] = [];
@@ -57,6 +58,7 @@
     async function submit() {
         onChange("");
         if (errors.length === 0) {
+            submitting = true;
             const v = topUpSchema.parse(value);
             const wId = $page.data.user?.wallet?.id;
             const uId = $page.data.user?.principal?.id;
@@ -83,6 +85,7 @@
                         })
                     }
                 });
+            submitting = false;
         }
     }
 
@@ -118,6 +121,9 @@
     </div>
 
     <Button class="text-2xl py-8 px-12 my-12 font-light" on:click={submit} disabled={submitting || !isValid}>
+        {#if submitting}
+            <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
+        {/if}
         Deposit
     </Button>
 

@@ -75,14 +75,9 @@
                 </DropdownMenu.Item>
             </a>
             <DropdownMenu.Separator/>
-            <a href="/schedules">
-                <DropdownMenu.Item class="font-semibold">
-                    Purchase Booking Now!
-                </DropdownMenu.Item>
-            </a>
             <a href="{$page.data.session?.roles?.includes('admin') ? '/bookings' : `/bookings?userId=${$page.data.user.principal.id}`}">
                 <DropdownMenu.Item>
-                    Bookings
+                    Manage Bookings
                 </DropdownMenu.Item>
             </a>
             <a href="{$page.data.session?.roles?.includes('admin') ? '/passengers' : `/passengers?userId=${$page.data.user.principal.id}`}">

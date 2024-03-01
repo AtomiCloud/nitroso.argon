@@ -214,7 +214,7 @@
                 <p class="py-4">
                     <span class="font-semibold">Data Protection Officer</span><br>
                     Name: Ho Ching Wee <br>
-                    Address: Blk 708 Hougang Ave 2, #05-75 <br>
+                    Address: 60 PAYA LEBAR ROAD, #07-54, PAYA LEBAR SQUARE, SINGAPORE 409051 <br>
                     Email: chingwee@bunnybooker.com <br>
                     Mobile: 88178504 <br>
                 </p>
