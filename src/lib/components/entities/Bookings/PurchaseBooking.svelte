@@ -11,7 +11,7 @@
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {goto} from "$app/navigation";
-    import {format} from "date-fns";
+    import {format, parse} from "date-fns";
     import type {ZodIssue} from "zod";
 
 
@@ -50,8 +50,7 @@
     $: isValid = errors.length === 0 && Object.entries(taints).length > 0 && wallet >= cost;
 
     function toNativeDate(date: string) {
-        const [d, m, y] = date.split("-").map(x => parseInt(x));
-        return new Date(`${y}-${m}-${d}`);
+        return parse(date, "dd-MM-yyyy", new Date());
     }
 
     function toDisplayDate(date: string) {
