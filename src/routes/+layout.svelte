@@ -25,7 +25,6 @@
     });
     onMount(() => {
         if ($page.data.auth.signIn) {
-            loading.set(true);
             signIn("descope");
         }
     });
@@ -56,7 +55,11 @@
         </div>
     </div>
 
-
+    {#if $page.data.auth.signIn}
+        <div class="flex items-center justify-center h-full">
+            <Loader loadingText="Re-authenticating..."/>
+        </div>
+    {:else}
     <div class="flex-1 {$showContent ? '' : 'hidden'}">
         <slot/>
     </div>
@@ -73,5 +76,5 @@
     <div class="w-full bg-slate-800 text-white pb-12 pt-8">
         <Footer/>
     </div>
-
+    {/if}
 </div>
