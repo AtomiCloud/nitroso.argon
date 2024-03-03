@@ -11,7 +11,7 @@
     import type {CreateDiscountReq, MaterializedCostRes, PassengerPrincipalRes} from "$lib/api/core/data-contracts";
     import {type SafeParseError, z, type ZodIssue} from "zod";
     import {tick} from "svelte";
-    import {addMonths, format} from "date-fns";
+    import {addMonths, format, parse} from "date-fns";
     import {Badge} from "$lib/components/ui/badge";
     import Validation from "$lib/components/core/Validation.svelte";
     import {cn} from "$lib/utils";
@@ -41,8 +41,7 @@
 
     // Util
     function toNativeDate(date: string) {
-        const [d, m, y] = date.split("-").map(x => parseInt(x));
-        return new Date(`${y}-${m}-${d}`);
+        return parse(date, "dd-MM-yyyy", new Date());
     }
 
     function toDisplayDate(date: string) {
