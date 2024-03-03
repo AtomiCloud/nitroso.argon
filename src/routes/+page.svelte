@@ -81,7 +81,7 @@
                             <span>Bunny</span><span>Booker</span>
                         </div>
                         <div class="text-lg md:text-xl text-center md:text-left ">
-                            <span>Your stress-free ticket booking assistant</span>
+                            <span>Your stress-free KTMB ticket booking assistant</span>
                         </div>
                         {#if $page.data.session}
                             <Button href="/schedules">
