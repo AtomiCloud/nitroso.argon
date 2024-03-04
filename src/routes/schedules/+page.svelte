@@ -23,6 +23,7 @@
     import {CalendarIcon, LucideInfo} from "lucide-svelte";
     import {cn} from "$lib/utils";
     import {Calendar} from "$lib/components/ui/calendar";
+    import {format, parse} from "date-fns";
 
     export let data: PageData;
 
@@ -35,8 +36,9 @@
 
     function toZincDate(s?: DateValue): string {
         if (s == null) return "";
-        const [y, m, d] = s.toString().split("-");
-        return `${d}-${m}-${y}`;
+        if (s == null) return "";
+        const t = parse(s.toString(), "yyyy-MM-dd", new Date())
+        return format(t, "dd-MM-yyyy");
     }
 
     $: schedules = (Res.fromSerial<[Timings, MaterializedCostRes], ProblemDetails[]>(data.result)

@@ -25,6 +25,7 @@
     import {TRANSACTION_TYPES} from "./transaction_type.js";
     import {ArrowLeftRight} from "lucide-svelte";
     import type {PageData} from "./$types";
+    import {format, parse} from "date-fns";
 
     export let data: PageData;
 
@@ -37,8 +38,8 @@
 
     function toZincDate(s?: DateValue): string {
         if (s == null) return "";
-        const [y, m, d] = s.toString().split("-");
-        return `${d}-${m}-${y}`;
+        const t = parse(s.toString(), "yyyy-MM-dd", new Date())
+        return format(t, "dd-MM-yyyy");
     }
 
     $: transactions = (Res.fromSerial<TransactionPrincipalRes[], ProblemDetails>(data.result)

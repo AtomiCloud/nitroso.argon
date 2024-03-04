@@ -31,6 +31,7 @@
     import RejectWithdrawal from "$lib/components/entities/Withdrawals/RejectWithdrawal.svelte";
     import CancelWithdrawal from "$lib/components/entities/Withdrawals/CancelWithdrawal.svelte";
     import type {PageData} from "./$types";
+    import {format, parse} from "date-fns";
 
     export let data: PageData;
 
@@ -43,8 +44,8 @@
 
     function toZincDate(s?: DateValue): string {
         if (s == null) return "";
-        const [y, m, d] = s.toString().split("-");
-        return `${d}-${m}-${y}`;
+        const t = parse(s.toString(), "yyyy-MM-dd", new Date())
+        return format(t, "dd-MM-yyyy");
     }
 
     $: withdrawals = (Res.fromSerial<WithdrawalPrincipalRes[], ProblemDetails>(data.result)

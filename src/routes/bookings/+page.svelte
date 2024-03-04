@@ -28,6 +28,7 @@
     import {Button} from "$lib/components/ui/button";
     import {BOOKING_STATUS} from "./book_status";
     import BookingRow from "$lib/components/entities/Bookings/BookingRow.svelte";
+    import {format, parse} from "date-fns";
 
     export let data: PageData;
 
@@ -40,8 +41,8 @@
 
     function toZincDate(s?: DateValue): string {
         if (s == null) return "";
-        const [y, m, d] = s.toString().split("-");
-        return `${d}-${m}-${y}`;
+        const t = parse(s.toString(), "yyyy-MM-dd", new Date())
+        return format(t, "dd-MM-yyyy");
     }
 
     $: bookings = (Res.fromSerial<BookingPrincipalRes[], ProblemDetails>(data.result)
