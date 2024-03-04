@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {format, parse} from "date-fns";
+    import {format, isAfter, parse, sub} from "date-fns";
     import {ArrowRight} from "lucide-svelte";
     //@ts-ignore
     import * as Card from "$lib/components/ui/card";
@@ -9,10 +9,19 @@
     import {Button} from "$lib/components/ui/button";
     import TerminateBooking from "$lib/components/entities/Bookings/TerminateBooking.svelte";
     import CancelBooking from "$lib/components/entities/Bookings/CancelBooking.svelte";
+    import moment from "moment-timezone";
 
     export let b: BookingPrincipalRes;
 
+    function canTerminate(date: string, time: string): boolean {
 
+        const rd = format(parse(date, "dd-MM-yyyy", new Date()), "yyyy-MM-dd");
+        //@ts-ignore
+        const utcDate = moment.tz(`${rd} ${time}`, "Asia/Singapore").clone().tz("UTC");
+        const d = sub(new Date(utcDate), {minutes: 30});
+        const now = new Date();
+        return !isAfter(now, d);
+    }
 
 </script>
 
@@ -30,7 +39,7 @@
                 </Card.Title>
                 <Card.Description>
                     <div class="flex flex-col gap-2 my-4 items-center md:items-start">
-                        <Badge class="flex justify-center">{format(parse(b.date, "dd-MM-yyyy", new Date()), "dd MMM yyyy")} {format(parse(b.time, "HH:mm:ss", new Date()), "HH:mm a")}</Badge>
+                        <Badge class="flex justify-center">{format(parse(b.date, "dd-MM-yyyy", new Date()), "dd MMM yyyy")} {format(parse(b.time, "HH:mm:ss", new Date()), "hh:mm a")}</Badge>
                         <div>{b.passenger.fullName} ({b.passenger.passportNumber})</div>
                     </div>
                 </Card.Description>
@@ -45,7 +54,7 @@
 
             {#if b.status === "Pending"}
                 <CancelBooking booking={b}/>
-            {:else if b.status === "Completed"}
+            {:else if b.status === "Completed" && canTerminate(b.date, b.time)}
                 <Button class="w-full sm:max-w-40" href="{b.ticketLink}">View Ticket</Button>
                 <TerminateBooking booking={b}/>
             {/if}
