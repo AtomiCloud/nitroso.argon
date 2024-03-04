@@ -23,17 +23,6 @@
     export let data: PageData;
 
     // Util
-    function toCalDate(s: string): DateValue | undefined {
-        if (s == "") return undefined;
-        const [d, m, y] = s.split("-");
-        return new CalendarDate(parseInt(y), parseInt(m), parseInt(d));
-    }
-
-    function toZincDate(s?: DateValue): string {
-        if (s == null) return "";
-        const [y, m, d] = s.toString().split("-");
-        return `${d}-${m}-${y}`;
-    }
 
     $: passengers = (Res.fromSerial<PassengerPrincipalRes[], ProblemDetails>(data.result)
         .match({
