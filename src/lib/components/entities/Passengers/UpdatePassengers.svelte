@@ -20,7 +20,7 @@
     import Validation from "$lib/components/core/Validation.svelte";
     import {tick} from "svelte";
     import {CalendarDate, DateFormatter, type DateValue, getLocalTimeZone, parseDate} from "@internationalized/date";
-    import {addMonths, format} from "date-fns";
+    import {addMonths, format, parse} from "date-fns";
     import {cn} from "$lib/utils";
     import AdvanceCalendar from "$lib/components/custom/calendar/AdvanceCalendar.svelte";
 
@@ -44,8 +44,7 @@
     export let passenger: PassengerPrincipalRes;
 
     function toDate(dd: string) {
-        const [d,m,y] = dd.split("-").map(x => parseInt(x));
-        return new Date(`${y}-${m}-${d}`);
+        return parse(dd, "dd-MM-yyyy", new Date());
     }
 
     let val = {
