@@ -1,7 +1,7 @@
 <script lang="ts">
 
     import {Button, buttonVariants} from "$lib/components/ui/button";
-    import {AlertTriangle, CalendarIcon, Edit2, LucideLoader, PlusCircle} from "lucide-svelte";
+    import {AlertTriangle, CalendarIcon, Edit2, LucideLoader} from "lucide-svelte";
     // @ts-ignore
     import * as Dialog from "$lib/components/ui/dialog";
     // @ts-ignore
@@ -19,7 +19,7 @@
     import {Input} from "$lib/components/ui/input";
     import Validation from "$lib/components/core/Validation.svelte";
     import {tick} from "svelte";
-    import {CalendarDate, DateFormatter, type DateValue, getLocalTimeZone, parseDate} from "@internationalized/date";
+    import {DateFormatter, type DateValue, getLocalTimeZone, parseDate} from "@internationalized/date";
     import {addMonths, format, parse} from "date-fns";
     import {cn} from "$lib/utils";
     import AdvanceCalendar from "$lib/components/custom/calendar/AdvanceCalendar.svelte";
@@ -29,7 +29,8 @@
     const updatePassengerSchema = z.object({
         fullName: z.string()
             .min(1, "Full name must be at least 1 character long")
-            .max(512, "Full name must be at most 512 characters long"),
+            .max(512, "Full name must be at most 512 characters long")
+            .regex(/[a-zA-Z @./',-`*]+/, "Full name must only contain letters and special characters @ . / ' , - ` *"),
         gender: z.enum(['M', 'F']),
         passportNumber: z.string()
             .min(1, "Passport number must be at least 1 character long")
@@ -98,7 +99,7 @@
 
     async function updatePassenger(c: UpdatePassengerReq) {
         submitting = true;
-        await toResult(() => $api.vPassengerUpdate(passenger.id , "1.0", c, {userId}),
+        await toResult(() => $api.vPassengerUpdate(passenger.id, "1.0", c, {userId}),
             "Failed to update passenger").match({
             ok: ok => {
                 toast.info(`Successfully updated passenger '${ok.fullName}'`);
