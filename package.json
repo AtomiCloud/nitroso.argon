@@ -36,7 +36,7 @@
     "@auth/sveltekit": "^0.5.0",
     "@internationalized/date": "^3.5.1",
     "airwallex-payment-elements": "^1.25.0",
-    "bits-ui": "^0.18.4",
+    "bits-ui": "^0.19.5",
     "clsx": "^2.0.0",
     "date-fns": "^3.3.1",
     "date-fns-tz": "^2.0.0",
