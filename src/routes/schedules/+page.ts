@@ -27,7 +27,7 @@ function getTiming(
   const t: string[] = timings.principal.timings ?? [];
   const f = t.filter((t) => !excluded.includes(t)) ?? [];
   if (after) {
-    const b = addMinutes(new Date(`2024-01-01T${after}`), 20);
+    const b = addMinutes(new Date(`2024-01-01T${after}`), 16 * 60);
     return f.filter((t) => isAfter(new Date(`2024-01-01T${t}`), b));
   }
   return f;
@@ -36,7 +36,7 @@ function getTiming(
 function stitchTiming(timings: string[], res: BookingCountRes[]): Timings {
   return Object.fromEntries(
     timings.map((x) => [x, res.find((c) => c.time === x)?.ticketsNeeded ?? 0]),
-  );
+  ) as { [s: string]: number };
 }
 
 export const load = (async ({
