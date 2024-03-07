@@ -20,7 +20,7 @@
         const rd = format(parse(date, "dd-MM-yyyy", new Date()), "yyyy-MM-dd");
         //@ts-ignore
         const utcDate = moment.tz(`${rd} ${time}`, "Asia/Singapore").clone().tz("UTC");
-        const d = sub(new Date(utcDate), {minutes: 30});
+        const d = sub(new Date(utcDate), {minutes: 120});
         const now = new Date();
         return !isAfter(now, d);
     }
