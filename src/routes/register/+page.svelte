@@ -7,10 +7,12 @@
     import {toResult} from "$lib/utility";
     import Page from "$lib/components/complex/page.svelte";
     import type {ProblemDetails} from "../../errors/problem_details";
-    import {Check, Loader, X} from "lucide-svelte";
+    import {Check, Loader, LucideLoader, X} from "lucide-svelte";
     import {goto} from "$app/navigation";
 
+    //@ts-ignore
     import * as Card from "$lib/components/ui/card";
+    //@ts-ignore
     import * as Tooltip from "$lib/components/ui/tooltip";
     import {Checkbox} from "$lib/components/ui/checkbox";
 
@@ -22,7 +24,7 @@
         const err = [];
         if (name.length < 1) err.push("Username must contain at least 1 character");
         if (name.length > 256) err.push("Username must be less than 256 characters");
-        if (!name.match(/^[0-9a-zA-Z-]+$/)) err.push("Username must only contain letters, numbers, and dashes");
+        if (!name.match(/^[0-9a-z-]+$/)) err.push("Username must only contain lowercase letters, numbers, and dashes");
         if (!name.match(/^[a-z](-?[a-z0-9]+)*$/)) err.push("Username must start with a letter and cannot end with dashes");
         return err;
     }
@@ -45,7 +47,7 @@
     }
 
     async function createUser(name: string): Promise<void> {
-
+        submitting = true;
         const r = toResult(() => a.vUserCreate("1", {username: name}), "Failed to create user");
         await r.match({
             ok: (o) => {
@@ -56,18 +58,21 @@
                 problem = e;
             }
         })
+        submitting = false;
     }
 
     let uExist = false;
     let acceptTerms = false;
     let acceptPrivacy = false;
+    let submitting = false;
 
     function update(u: boolean): string {
         uExist = u;
         return ""
     }
 
-    $: disabled = errors(name).length > 0 || uExist || !acceptTerms || !acceptPrivacy;
+
+    $: disabled = submitting || errors(name).length > 0 || uExist || !acceptTerms || !acceptPrivacy;
 
 </script>
 
@@ -144,7 +149,12 @@
                 </form>
             </Card.Content>
             <Card.Footer class="flex justify-end">
-                <Button on:click={() => createUser(name)} {disabled}>Confirm</Button>
+                <Button on:click={() => createUser(name)} {disabled}>
+                    {#if submitting}
+                        <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
+                    {/if}
+                    Confirm
+                </Button>
             </Card.Footer>
         </Card.Root>
 
