@@ -20,6 +20,7 @@ export const load = (async ({
     () =>
       api.vUserDetail("1", {
         Username: search,
+        Limit: 100,
       }),
     "Fail to get users",
   ).serial();
