@@ -29,6 +29,7 @@ export const load = (async ({
         Direction: direction,
         Status: status,
         Time: time,
+        Limit: 100,
       }),
     "Fail to get bookings",
   ).serial();
