@@ -10,6 +10,11 @@
     import TerminateBooking from "$lib/components/entities/Bookings/TerminateBooking.svelte";
     import CancelBooking from "$lib/components/entities/Bookings/CancelBooking.svelte";
     import moment from "moment-timezone";
+    import {page} from "$app/stores";
+    import {toResult} from "$lib/utility";
+    import {api} from "../../../../store";
+    import {toast} from "svelte-sonner";
+    import {invalidateAll} from "$app/navigation";
 
     export let b: BookingPrincipalRes;
 
@@ -23,6 +28,25 @@
         return !isAfter(now, d);
     }
 
+    let reverting = false;
+
+    async function revertBuying() {
+        reverting = true;
+        console.log("reverting...");
+        await toResult(() => $api.vBookingRevertCreate(b.id, "1.0"),
+            "Failed to revert buying state to pending").match({
+            ok: ok => {
+                toast.info(`Successfully reverted buying state to pending`);
+                invalidateAll();
+            },
+            err: (e) => {
+                console.error(e);
+                toast.error(e.detail ?? e.type);
+            }
+        })
+        reverting = false;
+    }
+
 </script>
 
 
@@ -32,9 +56,9 @@
             <div>
                 <Card.Title>
                     <div class="flex gap-1 items-center w-full">
-                        <div>{b.direction == "WToJ" ? "Woodlands" : "JB Sentral"}</div>
+                        <div>{b.direction === "WToJ" ? "Woodlands" : "JB Sentral"}</div>
                         <ArrowRight class="h-4 w-4"/>
-                        <div>{b.direction == "WToJ" ? "JB Sentral" : "Woodlands"}</div>
+                        <div>{b.direction === "WToJ" ? "JB Sentral" : "Woodlands"}</div>
                     </div>
                 </Card.Title>
                 <Card.Description>
@@ -45,7 +69,13 @@
                 </Card.Description>
             </div>
             <div class="flex gap-1.5 text-center">
-                <Badge class="{BOOKING_STATUS[b.status].color}">{b.status}</Badge>
+                {#if b.status === "Buying" && $page.data.session?.roles?.includes("admin")}
+                    <div on:click={revertBuying}>
+                        <Badge class="{BOOKING_STATUS[b.status].color}">{b.status} (Click to revert)</Badge>
+                    </div>
+                {:else}
+                    <Badge class="{BOOKING_STATUS[b.status].color}">{b.status}</Badge>
+                {/if}
             </div>
         </div>
     </Card.Header>
