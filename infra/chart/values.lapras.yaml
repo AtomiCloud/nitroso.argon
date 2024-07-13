@@ -1,6 +1,7 @@
 landscape: &landscape lapras
 
 zinc:
+  enable: true
   serviceTree:
     landscape: *landscape
   bromine:
@@ -36,13 +37,13 @@ zinc:
     fullnameOverride: "zinc-maincache"
   streamcache:
     enable: true
-    fullnameOverride: "zinc-streamcache"
+    fullnameOverride: "zinc-streamcache-master"
   mainstorage:
     enable: true
-    fullnameOverride: "zinc-mainstorage"
+    fullnameOverride: "zinc-mainstorage-master"
 
 helium:
-  enable: true
+  enable: false
   zinc:
     enable: false
   scheduler:
@@ -55,6 +56,7 @@ helium:
           0: tin-livecache-master:6379
 
 tin:
+  enable: true
   serviceTree:
     landscape: *landscape
 
@@ -82,6 +84,13 @@ tin:
       landscape: *landscape
 
     fullnameOverride: "tin-poller"
+    image:
+      repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin
+
+  terminator:
+    serviceTree:
+      landscape: *landscape
+    fullnameOverride: "tin-terminator"
     image:
       repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin
 
