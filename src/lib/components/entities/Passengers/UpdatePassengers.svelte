@@ -33,6 +33,7 @@
             .regex(/^[a-zA-Z @./',-`*]+$/, "Full name must only contain letters and special characters @ . / ' , - ` *"),
         gender: z.enum(['M', 'F']),
         passportNumber: z.string()
+            .regex(/^([a-zA-Z0-9]+)$/, "Passport number must only contain letters and numbers")
             .min(1, "Passport number must be at least 1 character long")
             .max(64, "Passport number must be at most 64 characters long"),
         passportExpiry: z.date()
