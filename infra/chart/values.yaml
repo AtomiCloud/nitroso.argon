@@ -84,6 +84,17 @@ tin:
 
     configMountPath: /app/config
 
+  terminator:
+    serviceTree:
+      landscape: *landscape
+    imagePullSecrets: []
+
+    nameOverride: "tin-terminator"
+
+    replicaCount: 1
+
+    configMountPath: /app/config
+
   cdc:
     serviceTree:
       landscape: *landscape

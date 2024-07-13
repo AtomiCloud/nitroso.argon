@@ -29,10 +29,10 @@ zinc:
 
   maincache:
     enable: true
-    fullnameOverride: "zinc-maincache"
+    fullnameOverride: "zinc-maincache-master"
   streamcache:
     enable: true
-    fullnameOverride: "zinc-streamcache"
+    fullnameOverride: "zinc-streamcache-master"
   mainstorage:
     enable: true
     nameOverride: "zinc-mainstorage"
@@ -93,6 +93,13 @@ tin:
 
     image:
       repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin-arm
+
+  terminator:
+    serviceTree:
+      landscape: *landscape
+    fullnameOverride: "tin-terminator"
+    image:
+      repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin
 
   zinc:
     enable: false
