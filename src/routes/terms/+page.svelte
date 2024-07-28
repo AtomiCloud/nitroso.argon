@@ -263,7 +263,74 @@
                 <li>If successful, you will be promptly notified of your confirmed booking details.</li>
                 <li>If unsuccessful, you will be refunded in full as credit in your BunnyBooker wallet, which can be withdrawn.</li>
             </ul>
+
+            <h2 class="py-2 text-3xl">Fair Use</h2>
+            <p class="py-2">
+                You agree that you will not use the services of BunnyBooker for any purpose other than booking train tickets, this includes but is not limited to:
+            </p>
+            <ul class="my-6 ml-6 list-disc [&>li]:mt-2">
+                <li>
+                    Using the services of BunnyBooker to make profit from the tickets you purchase.
+                </li>
+                <li>
+                    Using BunnyBooker wallet to purchase items that are not train tickets or as an mechanism transfer or move funds.
+                </li>
+                <li>
+                    Using the services of BunnyBooker to engage in any other illegal activities.
+                </li>
+                <li>
+                    Attempting to use the services of BunnyBooker to violate any applicable laws.
+                </li>
+            </ul>
+            <p class="py-2">
+                If you are found or suspected to be in violation of any of the above, you will be subject to
+                appropriate legal action, which may include but is not limited to:
+            </p>
+            <ul class="my-6 ml-6 list-disc [&>li]:mt-2">
+                <li>
+                    Suspension or termination of your account.
+                </li>
+                <li>
+                    Blacklist of all passengers associated with your account.
+                </li>
+                <li>
+                    Withholding of funds from your account until the violation is resolved.
+                </li>
+                <li>
+                    Escalation of the violation to the relevant authorities.
+                </li>
+            </ul>
+            <p class="py-2">
+                We reserve the right to take any action against you for any violation of this policy.
+            </p>
+            <h2 class="py-2 text-3xl">Protecting BunnyBooker's Interests</h2>
+            <p class="py-2">
+                BunnyBooker reserves the right to protect its interests in accordance with the laws of the jurisdiction in which it operates.
+                This includes but is not limited to:
+            </p>
+            <ul>
+                <li>
+                    Modify or discontinue the services of BunnyBooker at any time without notice.
+                </li>
+                <li>
+                    Change the terms and conditions of use of BunnyBooker at any time without notice.
+                </li>
+                <li>
+                    Change the privacy policy of BunnyBooker at any time without notice.
+                </li>
+                <li>
+                    Take any action against you for any violation of this policy.
+                </li>
+                <li>
+                    Terminate your account at any time without notice.
+                </li>
+                <li>
+                    Withhold funds within your account at any time, without notice, in the event that you breach any terms of use.
+                </li>
+                <li>
+                    Escalate any violation of this policy to the relevant authorities, without notice.
+                </li>
+            </ul>
         </div>
     </div>
-
 </Page>
