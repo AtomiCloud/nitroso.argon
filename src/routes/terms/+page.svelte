@@ -325,7 +325,7 @@
                     Terminate your account at any time without notice.
                 </li>
                 <li>
-                    Withhold funds within your account at any time, without notice, in the event that you breach any terms of use.
+                    Withhold funds within your account at any time, without notice.
                 </li>
                 <li>
                     Escalate any violation of this policy to the relevant authorities, without notice.
