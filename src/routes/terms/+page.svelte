@@ -308,7 +308,7 @@
                 BunnyBooker reserves the right to protect its interests in accordance with the laws of the jurisdiction in which it operates.
                 This includes but is not limited to:
             </p>
-            <ul>
+            <ul class="my-6 ml-6 list-disc [&>li]:mt-2">
                 <li>
                     Modify or discontinue the services of BunnyBooker at any time without notice.
                 </li>
@@ -325,7 +325,7 @@
                     Terminate your account at any time without notice.
                 </li>
                 <li>
-                    Withhold funds within your account at any time, without notice, in the event that you breach any terms of use.
+                    Withhold funds within your account at any time, without notice.
                 </li>
                 <li>
                     Escalate any violation of this policy to the relevant authorities, without notice.
