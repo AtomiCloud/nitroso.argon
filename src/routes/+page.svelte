@@ -17,6 +17,7 @@
     import {Footer} from "$lib/components/custom/footer";
     import {page} from "$app/stores";
     import {signIn} from "@auth/sveltekit/client";
+    import {Badge} from "$lib/components/ui/badge";
 
     console.log("Configuration", config.app);
 
@@ -59,11 +60,11 @@
         background-size: cover;
     }
 
-    h1 {
+    h3 {
         font-family: 'Cabin', 'sans-serif';
     }
 
-    h2 {
+    h4 {
         font-family: 'Raleway', 'sans-serif';
     }
 </style>
@@ -77,12 +78,16 @@
                              style="transform: translateX(-5%)"/>
                     </div>
                     <div class="flex flex-col gap-4 justify-evenly align-center">
-                        <div class="text-5xl md:text-7xl text-center md:text-left ">
-                            <span>Bunny</span><span>Booker</span>
+                        <div class="relative">
+                            <h1 class="text-5xl md:text-7xl text-center md:text-left ">
+                                <span>Bunny</span><span>Booker</span>
+                            </h1>
+                            <Badge class="bg-yellow-400 text-xs dark:text-slate-300 text-slate-700 absolute bottom-0 right-0 translate-x-1/4 translate-y-3">BETA</Badge>
                         </div>
-                        <div class="text-lg md:text-xl text-center md:text-left ">
+
+                        <h2 class="text-lg md:text-xl text-center md:text-left ">
                             <span>Your stress-free KTMB ticket booking assistant</span>
-                        </div>
+                        </h2>
                         {#if $page.data.session}
                             <Button href="/schedules">
                                 <BookOpenCheck class="mr-2 h-4 w-4"/>
@@ -113,10 +118,10 @@
         <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
             <div class="flex flex-wrap align-center justify-center panel-1 gap-4">
                 <div class="flex flex-col align-center justify-center w-80">
-                    <h1 class="text-6xl font-extrabold text-center md:text-right">STEP 1</h1>
-                    <h2 class="text-2xl text-center md:text-right">
+                    <h3 class="text-6xl font-extrabold text-center md:text-right">STEP 1</h3>
+                    <h4 class="text-2xl text-center md:text-right">
                         Select Your Date and Time
-                    </h2>
+                    </h4>
                     <div class="text-lg font-light my-4 text-slate-700 text-justify md:text-right">
                         Choose when and where you want to travel, then place an order to
                         send the details to BunnyBooker headquarters for our bunnies to work their magic.
@@ -144,10 +149,10 @@
             <div class="flex flex-wrap md:flex-row-reverse  align-center justify-center panel-1 gap-12">
 
                 <div class="flex flex-col align-center justify-center w-80">
-                    <h1 class="text-6xl font-extrabold text-center md:text-left">STEP 2</h1>
-                    <h2 class="text-2xl text-center md:text-left">
+                    <h3 class="text-6xl font-extrabold text-center md:text-left">STEP 2</h3>
+                    <h4 class="text-2xl text-center md:text-left">
                         Sit Back & Relax
-                    </h2>
+                    </h4>
                     <div class="text-lg font-light my-4 dark:text-slate-300 text-slate-700 text-justify md:text-left">
                         Our bunny team will collect and organize your ticket preferences,
                         giving you the freedom to relax while they handle the details.
@@ -165,10 +170,10 @@
             <div class="flex flex-wrap  align-center justify-center panel-1 gap-12">
 
                 <div class="flex flex-col align-center justify-center w-80">
-                    <h1 class="text-6xl font-extrabold text-center md:text-right">STEP 3</h1>
-                    <h2 class="text-2xl text-center md:text-right">
+                    <h3 class="text-6xl font-extrabold text-center md:text-right">STEP 3</h3>
+                    <h4 class="text-2xl text-center md:text-right">
                         Let Our Bunnies Hunt
-                    </h2>
+                    </h4>
                     <div class="text-lg font-light my-4 dark:text-slate-300 text-slate-700 text-justify md:text-right">
                         24/7, our bunnies keep an eye out for refunded tickets in your
                         chosen timeslot, ensuring you don't miss a travel opportunity.
@@ -196,10 +201,10 @@
             <div class="flex flex-wrap md:flex-row-reverse  align-center justify-center panel-1 gap-12">
 
                 <div class="flex flex-col align-center justify-center w-80">
-                    <h1 class="text-6xl font-extrabold text-center md:text-left">STEP 4</h1>
-                    <h2 class="text-2xl text-center md:text-left">
+                    <h3 class="text-6xl font-extrabold text-center md:text-left">STEP 4</h3>
+                    <h4 class="text-2xl text-center md:text-left">
                         Instant Booking
-                    </h2>
+                    </h4>
                     <div class="text-lg my-4 font-light text-slate-700 text-justify md:text-left">
                         The moment a matching ticket becomes available,
                         our bunnies spring into action, booking it for you without delay.
@@ -216,10 +221,10 @@
             <div class="flex flex-wrap  align-center justify-center panel-1 gap-12">
 
                 <div class="flex flex-col align-center justify-center w-80">
-                    <h1 class="text-6xl font-extrabold text-center md:text-right">STEP 5</h1>
-                    <h2 class="text-3xl text-center md:text-right">
+                    <h3 class="text-6xl font-extrabold text-center md:text-right">STEP 5</h3>
+                    <h4 class="text-3xl text-center md:text-right">
                         Get notified and Verify Booking Details
-                    </h2>
+                    </h4>
                     <div class="text-lg my-4 font-light dark:text-slate-300 text-slate-700 text-justify md:text-right">
                         Receive a prompt notification with all the ticket details as soon
                         as it's booked. Check and verify the information on our user-friendly
@@ -261,8 +266,8 @@
     </svg>
     <div class="w-full bg-[#FCCA3A] text-black">
         <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
-            <h1 class="text-center text-4xl md:text-6xl">FAQ</h1>
-            <h2 class="underline text-center text-xl md:text-2xl">BunnyBooker</h2>
+            <h3 class="text-center text-4xl md:text-6xl">FAQ</h3>
+            <h4 class="underline text-center text-xl md:text-2xl">BunnyBooker</h4>
             <Accordion.Root class="w-full max-w-[600px] w-full mx-auto">
                 <Accordion.Item value="item-1">
                     <Accordion.Trigger class="text-left">
@@ -433,7 +438,7 @@
                 </Accordion.Item>
 
             </Accordion.Root>
-            <h2 class="underline text-center text-xl md:text-2xl">KTMB</h2>
+            <h4 class="underline text-center text-xl md:text-2xl">KTMB</h4>
             <Accordion.Root class="w-full max-w-[600px] w-full mx-auto">
                 <Accordion.Item value="item-1">
                     <Accordion.Trigger class="text-left">
