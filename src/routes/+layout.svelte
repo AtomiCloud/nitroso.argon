@@ -14,7 +14,9 @@
     import {ModeWatcher} from "mode-watcher";
     import LightSwitch from "$lib/components/complex/LightSwitch.svelte";
     import {Button} from "$lib/components/ui/button";
-
+    import * as Avatar from "$lib/components/ui/avatar";
+    import { Badge } from "$lib/components/ui/badge/index.js";
+    import mascot from "$lib/assets/nitroso-mascot-fs8.png";
     beforeNavigate(({from, to}) => {
         if (from.route.id !== to.route.id) loading.set(true);
     });
@@ -38,7 +40,15 @@
     <div class="border-b border-b-muted">
         <div class="flex h-16 items-center justify-between px-4 w-11/12 max-w-[1200px] mx-auto">
             <a href="/" class="flex items-center space-x-2">
-                <img src="{logo}" alt="CyanPrint" class="h-12 w-12">
+                <div class="relative">
+                    <Avatar.Root class="h-12 w-12 border-2 border-primary border-double">
+                        <Avatar.Image src="{logo}" alt="BunnyBooker" class=""/>
+                        <Avatar.Fallback>BB</Avatar.Fallback>
+                    </Avatar.Root>
+                    <Badge class="text-[0.5rem] bg-yellow-400 dark:text-slate-300 text-slate-700 absolute bottom-0 right-0 translate-x-1/3 translate-y-1/3">BETA</Badge>
+                </div>
+
+<!--                <img src="{logo}" alt="CyanPrint" class="h-12 w-12">-->
                 <span class="hidden text-foreground sm:inline-block font-bold">BunnyBooker</span>
             </a>
 
