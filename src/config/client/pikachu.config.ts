@@ -1,7 +1,7 @@
-import type { IClientConfig } from "./config";
+import type { IClientConfig } from './config';
 
 const config: IClientConfig = {
-  baseUrl: "https://pikachu.nitroso-argon.pages.dev",
+  baseUrl: 'https://pikachu.nitroso-argon.pages.dev',
 };
 
 export default config;

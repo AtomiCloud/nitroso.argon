@@ -13,6 +13,8 @@
 
     export let data: PageData;
 
+    const session: any = $page.data.session;
+
     $: user = (Res.fromSerial<UserRes, ProblemDetails>(data.result)
         .match({
             ok: (a: UserRes): UserRes => {
@@ -43,7 +45,7 @@
                     <Wallet
                             user={u.principal}
                             wallet={u.wallet}
-                            admin={$page.data.session?.roles?.includes("admin")}
+                            admin={session?.roles?.includes("admin")}
                     />
                 </div>
             {/await}

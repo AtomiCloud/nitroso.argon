@@ -1,6 +1,6 @@
-import { UnwrapError } from "./error";
-import type { INone, ISome, Option } from "./option";
-import { KOption } from "./option";
+import { UnwrapError } from './error';
+import type { INone, ISome, Option } from './option';
+import { KOption } from './option';
 
 // Creates a new instance of `Result` as the `err` variant.
 /**
@@ -12,7 +12,7 @@ function Err<T, X>(error: X | Promise<X>): Result<T, X> {
   return new KResult<T, X>(
     (async () => {
       const err = await error;
-      return ["err", err];
+      return ['err', err];
     })(),
   );
 }
@@ -27,7 +27,7 @@ function Ok<T, X = never>(val: T | Promise<T>): Result<T, X> {
   return new KResult<T, X>(
     (async () => {
       const v = await val;
-      return ["ok", v];
+      return ['ok', v];
     })(),
   );
 }
@@ -37,18 +37,10 @@ interface Match<T, E, U> {
   err: ((val: E) => Promise<U>) | ((val: E) => U);
 }
 
-type ResultErr<T extends Result<unknown, unknown>[]> = T extends Array<
-  Result<unknown, infer E>
->
-  ? E[]
-  : never;
+type ResultErr<T extends Result<unknown, unknown>[]> = T extends Array<Result<unknown, infer E>> ? E[] : never;
 
 type ResultOk<T extends Result<unknown, unknown>[]> = {
-  [K in keyof T]: K extends number
-    ? T[K] extends Result<infer U, unknown>
-      ? U
-      : never
-    : never;
+  [K in keyof T]: K extends number ? (T[K] extends Result<infer U, unknown> ? U : never) : never;
 };
 
 class Res {
@@ -58,10 +50,8 @@ class Res {
    * @param a - serialized format of the result
    * @return {Result<T,E>} - new instance of `Result` by deserializing the serial format
    */
-  static fromSerial<T, E>(
-    a: (["ok", T] | ["err", E]) | Promise<["ok", T] | ["err", E]>,
-  ): Result<T, E> {
-    const p = Promise.resolve(a) satisfies Promise<["ok", T] | ["err", E]>;
+  static fromSerial<T, E>(a: (['ok', T] | ['err', E]) | Promise<['ok', T] | ['err', E]>): Result<T, E> {
+    const p = Promise.resolve(a) satisfies Promise<['ok', T] | ['err', E]>;
     return new KResult<T, E>(p);
   }
 
@@ -78,10 +68,10 @@ class Res {
         const isOk = await r.isOk();
         if (isOk) {
           const ok = await r.unwrap();
-          return Promise.resolve(["ok", ok]);
+          return Promise.resolve(['ok', ok]);
         } else {
           const err = await r.unwrapErr();
-          return Promise.resolve(["err", err]);
+          return Promise.resolve(['err', err]);
         }
       })(),
     );
@@ -102,25 +92,23 @@ class Res {
    * @template
    * @param i - list of results
    */
-  static all<T extends Result<unknown, unknown>[]>(
-    ...i: [...T]
-  ): Result<ResultOk<T>, ResultErr<T>> {
+  static all<T extends Result<unknown, unknown>[]>(...i: [...T]): Result<ResultOk<T>, ResultErr<T>> {
     const closure = async (): Promise<Result<ResultOk<T>, ResultErr<T>>> => {
       const ok: ResultOk<T> = [] as unknown as ResultOk<T>;
       const err: ResultErr<T> = [] as unknown as ResultErr<T>;
-      const r = i.map(async (e) => {
+      const r = i.map(async e => {
         const isOk = await e.isOk();
         if (isOk) {
           const okR = await e.unwrap();
-          return ["ok", okR] as ["ok", ResultOk<T>[number]];
+          return ['ok', okR] as ['ok', ResultOk<T>[number]];
         } else {
           const errR = await e.unwrapErr();
-          return ["err", errR] as ["err", ResultErr<T>[number]];
+          return ['err', errR] as ['err', ResultErr<T>[number]];
         }
       });
       const a = await Promise.all(r);
       for (const [t, v] of a) {
-        if (t === "ok") {
+        if (t === 'ok') {
           ok.push(v);
         } else {
           err.push(v);
@@ -162,9 +150,7 @@ interface Result<T, E> {
    * @param i - default value to be returned if the variant of the Result is "err". It can be the default value, promised value, or function that returns the default value or async function that returns the default value
    * @returns {Promise<T>} - promise of the unwrapped value
    */
-  unwrapOr(
-    i: T | Promise<T> | ((err: E) => Promise<T>) | ((err: E) => T),
-  ): Promise<T>;
+  unwrapOr(i: T | Promise<T> | ((err: E) => Promise<T>) | ((err: E) => T)): Promise<T>;
 
   // returns a Promise of the error value of the Result if its variant is "err". If its variant is "ok", it throws an error
   /**
@@ -202,7 +188,7 @@ interface Result<T, E> {
    * @template T, E
    * @returns {Promise<Promise<['err', E] | ['ok', T]>>} - promise of the native serializable format of the result type
    */
-  serial(): Promise<["err", E] | ["ok", T]>;
+  serial(): Promise<['err', E] | ['ok', T]>;
 
   // method that takes in a function fn with ok and err cases. It applies the corresponding case based on the variant of the Result and returns the result of that case as a Promise.
   /**
@@ -220,9 +206,7 @@ interface Result<T, E> {
    * @param fn - function that maps the ok value of the Result to a new Result. fn can be async.
    * @returns {Result<U,E>} - new Result that was mapped from the original Result
    */
-  andThen<U>(
-    fn: ((val: T) => Result<U, E>) | ((val: T) => Promise<Result<U, E>>),
-  ): Result<U, E>;
+  andThen<U>(fn: ((val: T) => Result<U, E>) | ((val: T) => Promise<Result<U, E>>)): Result<U, E>;
 
   // Runs the function passed in but does not capture the return value.
   // Accepts both sync and async functions.
@@ -264,36 +248,26 @@ interface Result<T, E> {
 }
 
 class KResult<T, X> implements Result<T, X> {
-  value:
-    | Promise<["ok", T]>
-    | Promise<["err", X]>
-    | Promise<["err", X] | ["ok", T]>;
+  value: Promise<['ok', T]> | Promise<['err', X]> | Promise<['err', X] | ['ok', T]>;
 
-  constructor(
-    value:
-      | Promise<["ok", T]>
-      | Promise<["err", X]>
-      | Promise<["err", X] | ["ok", T]>,
-  ) {
+  constructor(value: Promise<['ok', T]> | Promise<['err', X]> | Promise<['err', X] | ['ok', T]>) {
     this.value = value;
   }
 
-  andThen<U>(
-    fn: ((val: T) => Result<U, X>) | ((val: T) => Promise<Result<U, X>>),
-  ): Result<U, X> {
+  andThen<U>(fn: ((val: T) => Result<U, X>) | ((val: T) => Promise<Result<U, X>>)): Result<U, X> {
     const wrapped = async () => {
       const [type, val] = await this.value;
-      if (type === "err") {
-        return [type, val] as ["err", X];
+      if (type === 'err') {
+        return [type, val] as ['err', X];
       } else {
         const mapped = await fn(val);
         const mType = await mapped.isOk();
         if (mType) {
           const okVal = await Promise.resolve(mapped.unwrap());
-          return ["ok", okVal] as ["ok", U];
+          return ['ok', okVal] as ['ok', U];
         } else {
           const errVal = await Promise.resolve(mapped.unwrapErr());
-          return ["err", errVal] as ["err", X];
+          return ['err', errVal] as ['err', X];
         }
       }
     };
@@ -302,43 +276,39 @@ class KResult<T, X> implements Result<T, X> {
 
   async isOk(): Promise<boolean> {
     const [type] = await this.value;
-    return type === "ok";
+    return type === 'ok';
   }
 
   async isErr(): Promise<boolean> {
     const [type] = await this.value;
-    return type === "err";
+    return type === 'err';
   }
 
   async unwrap(): Promise<T> | never {
     const [type, val] = await this.value;
-    if (type === "ok") {
+    if (type === 'ok') {
       return val;
     }
-    throw new UnwrapError(
-      "Failed to unwrap",
-      "result",
-      "Expected Ok got Error",
-    );
+    throw new UnwrapError('Failed to unwrap', 'result', 'Expected Ok got Error');
   }
 
   async unwrapErr(): Promise<X> | never {
     const [type, val] = await this.value;
-    if (type === "err") {
+    if (type === 'err') {
       return val;
     }
-    throw new UnwrapError("Failed to unwrap", "result", "Expected Err got Ok");
+    throw new UnwrapError('Failed to unwrap', 'result', 'Expected Err got Ok');
   }
 
   map<Y>(mapper: ((a: T) => Promise<Y>) | ((a: T) => Y)): Result<Y, X> {
     return new KResult<Y, X>(
       (async () => {
         const [type, val] = await this.value;
-        if (type === "ok") {
+        if (type === 'ok') {
           const mapped: Y = await mapper(val);
-          return ["ok", mapped] as ["ok", Y];
+          return ['ok', mapped] as ['ok', Y];
         } else {
-          return ["err", val] as ["err", X];
+          return ['err', val] as ['err', X];
         }
       })(),
     );
@@ -348,11 +318,11 @@ class KResult<T, X> implements Result<T, X> {
     return new KResult<T, Y>(
       (async () => {
         const [type, val] = await this.value;
-        if (type === "err") {
+        if (type === 'err') {
           const err = await mapper(val);
-          return ["err", err] as ["err", Y];
+          return ['err', err] as ['err', Y];
         } else {
-          return [type, val] as ["ok", T];
+          return [type, val] as ['ok', T];
         }
       })(),
     );
@@ -365,21 +335,19 @@ class KResult<T, X> implements Result<T, X> {
 
   async match<U>(fn: Match<T, X, U>): Promise<U> {
     const [type, val] = await this.value;
-    if (type === "ok") {
+    if (type === 'ok') {
       return Promise.resolve(fn.ok(val));
     } else {
       return Promise.resolve(fn.err(val));
     }
   }
 
-  async unwrapOr(
-    i: Promise<T> | ((err: X) => Promise<T>) | ((err: X) => T) | T,
-  ): Promise<T> {
+  async unwrapOr(i: Promise<T> | ((err: X) => Promise<T>) | ((err: X) => T) | T): Promise<T> {
     const [type, val] = await this.value;
-    if (type === "ok") {
+    if (type === 'ok') {
       return val;
     } else {
-      if (typeof i === "function") {
+      if (typeof i === 'function') {
         const f = i as ((err: X) => Promise<T>) | ((err: X) => T);
         return f(val);
       } else {
@@ -391,10 +359,10 @@ class KResult<T, X> implements Result<T, X> {
   err(): Option<X> {
     const closure = async (): Promise<ISome<X> | INone> => {
       const [t, v] = await this.value;
-      if (t === "err") {
-        return ["some", v] as ["some", X];
+      if (t === 'err') {
+        return ['some', v] as ['some', X];
       } else {
-        return ["none", null] as ["none", null];
+        return ['none', null] as ['none', null];
       }
     };
     return new KOption<X>(closure());
@@ -412,22 +380,22 @@ class KResult<T, X> implements Result<T, X> {
   ): Result<T, Error> {
     const closure = async () => {
       const [t, v] = await this.value;
-      if (t === "err") {
+      if (t === 'err') {
         const err = await mapper(v);
-        return [t, err] as ["err", Error];
+        return [t, err] as ['err', Error];
       } else {
         try {
           await sideEffect(v);
         } catch (e) {
           if (e instanceof Error) {
-            return ["err", e] as ["err", Error];
-          } else if (typeof e === "string") {
-            return ["err", new Error(e)] as ["err", Error];
+            return ['err', e] as ['err', Error];
+          } else if (typeof e === 'string') {
+            return ['err', new Error(e)] as ['err', Error];
           } else {
-            return ["err", new Error(JSON.stringify(e))] as ["err", Error];
+            return ['err', new Error(JSON.stringify(e))] as ['err', Error];
           }
         }
-        return [t, v] as ["ok", T];
+        return [t, v] as ['ok', T];
       }
     };
     return new KResult<T, Error>(closure());
@@ -436,10 +404,10 @@ class KResult<T, X> implements Result<T, X> {
   ok(): Option<T> {
     const closure = async (): Promise<ISome<T> | INone> => {
       const [t, v] = await this.value;
-      if (t === "ok") {
-        return ["some", v] as ["some", T];
+      if (t === 'ok') {
+        return ['some', v] as ['some', T];
       } else {
-        return ["none", null] as ["none", null];
+        return ['none', null] as ['none', null];
       }
     };
     return new KOption<T>(closure());
@@ -449,7 +417,7 @@ class KResult<T, X> implements Result<T, X> {
     return new KResult<T, X>(
       (async () => {
         const [t, v] = await this.value;
-        if (t === "err") {
+        if (t === 'err') {
           return [t, v];
         } else {
           await sideEffect(v);
@@ -459,7 +427,7 @@ class KResult<T, X> implements Result<T, X> {
     );
   }
 
-  async serial(): Promise<["err", X] | ["ok", T]> {
+  async serial(): Promise<['err', X] | ['ok', T]> {
     const r = await this.value;
     return r;
   }

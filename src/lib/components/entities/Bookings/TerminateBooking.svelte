@@ -14,6 +14,7 @@
     import {invalidateAll} from "$app/navigation";
     import {Input} from "$lib/components/ui/input";
     import {page} from "$app/stores";
+    import type {Session} from "@auth/core/types";
 
     let dialogOpen = false;
     export let booking: BookingPrincipalRes;
@@ -26,7 +27,8 @@
 
     async function terminateBooking() {
         submitting = true;
-        const user = $page.data.session?.roles?.includes("admin")
+        const session: Session | any = $page.data.session;
+        const user = session?.roles?.includes("admin")
             ? {}
             : {userId: $page.data.user.principal.id}
         await toResult(() => $api.vBookingTerminateCreate(booking.id, "1.0", user),

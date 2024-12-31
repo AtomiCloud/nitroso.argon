@@ -8,7 +8,7 @@ interface ISharedConfig {
   };
   errorPortal: {
     enabled: boolean;
-    scheme: "http" | "https";
+    scheme: 'http' | 'https';
     host: string;
   };
   api: {

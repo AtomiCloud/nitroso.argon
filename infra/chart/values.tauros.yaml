@@ -11,7 +11,7 @@ zinc:
     serviceTree:
       landscape: *landscape
 
-    fullnameOverride: "zinc-api"
+    fullnameOverride: 'zinc-api'
 
     ingress:
       enabled: true
@@ -25,17 +25,17 @@ zinc:
 
   maindb:
     enable: true
-    fullnameOverride: "zinc-maindb"
+    fullnameOverride: 'zinc-maindb'
 
   maincache:
     enable: true
-    fullnameOverride: "zinc-maincache-master"
+    fullnameOverride: 'zinc-maincache-master'
   streamcache:
     enable: true
-    fullnameOverride: "zinc-streamcache-master"
+    fullnameOverride: 'zinc-streamcache-master'
   mainstorage:
     enable: true
-    nameOverride: "zinc-mainstorage"
+    nameOverride: 'zinc-mainstorage'
 
 helium:
   enable: true
@@ -56,7 +56,7 @@ tin:
     serviceTree:
       landscape: *landscape
 
-    fullnameOverride: "tin-buyer"
+    fullnameOverride: 'tin-buyer'
 
     image:
       repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin-arm
@@ -64,7 +64,7 @@ tin:
   cdc:
     serviceTree:
       landscape: *landscape
-    fullnameOverride: "tin-cdc"
+    fullnameOverride: 'tin-cdc'
 
     image:
       repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin-arm
@@ -73,7 +73,7 @@ tin:
     serviceTree:
       landscape: *landscape
 
-    fullnameOverride: "tin-poller"
+    fullnameOverride: 'tin-poller'
 
     image:
       repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin-arm
@@ -81,7 +81,7 @@ tin:
   enricher:
     serviceTree:
       landscape: *landscape
-    fullnameOverride: "tin-enricher"
+    fullnameOverride: 'tin-enricher'
 
     image:
       repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin-arm
@@ -89,7 +89,7 @@ tin:
   reserver:
     serviceTree:
       landscape: *landscape
-    fullnameOverride: "tin-reserver"
+    fullnameOverride: 'tin-reserver'
 
     image:
       repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin-arm
@@ -97,7 +97,7 @@ tin:
   terminator:
     serviceTree:
       landscape: *landscape
-    fullnameOverride: "tin-terminator"
+    fullnameOverride: 'tin-terminator'
     image:
       repository: ghcr.io/atomicloud/nitroso.tin/nitroso-tin
 
@@ -108,7 +108,7 @@ tin:
     enable: false
 
   livecache:
-    fullnameOverride: "tin-livecache"
+    fullnameOverride: 'tin-livecache'
     commonAnnotations:
       atomi.cloud/landscape: *landscape
     commonLabels:

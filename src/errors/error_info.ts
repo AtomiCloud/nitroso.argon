@@ -1,10 +1,10 @@
-import { Unauthenticated } from "./v1/unauthenticated";
-import type { Problem } from "./problem";
-import { LocalExceptionError } from "./v1/local_exception_error";
-import { LocalStringError } from "./v1/local_string_error";
-import { LocalUnknownError } from "./v1/local_unknown_error";
-import { Unauthorized } from "./v1/unauthorized";
-import { AggregatedError } from "./v1/aggregate_error";
+import { Unauthenticated } from './v1/unauthenticated';
+import type { Problem } from './problem';
+import { LocalExceptionError } from './v1/local_exception_error';
+import { LocalStringError } from './v1/local_string_error';
+import { LocalUnknownError } from './v1/local_unknown_error';
+import { Unauthorized } from './v1/unauthorized';
+import { AggregatedError } from './v1/aggregate_error';
 
 interface ErrorInfoResp {
   id: string;
@@ -27,16 +27,13 @@ interface ErrorRegistryEntry {
   type: ProblemConstructor;
 }
 
-const problems: Map<ProblemConstructor, ErrorRegistryEntry> = new Map<
-  ProblemConstructor,
-  ErrorRegistryEntry
->([
+const problems: Map<ProblemConstructor, ErrorRegistryEntry> = new Map<ProblemConstructor, ErrorRegistryEntry>([
   [
     AggregatedError,
     {
-      id: "email_not_verified",
-      title: "Email Not Verified",
-      version: "v1",
+      id: 'email_not_verified',
+      title: 'Email Not Verified',
+      version: 'v1',
       schema: {},
       status: 403,
       type: AggregatedError,
@@ -45,9 +42,9 @@ const problems: Map<ProblemConstructor, ErrorRegistryEntry> = new Map<
   [
     LocalExceptionError,
     {
-      id: "local_exception_error",
-      title: "Client Error",
-      version: "v1",
+      id: 'local_exception_error',
+      title: 'Client Error',
+      version: 'v1',
       schema: {},
       status: 400,
       type: LocalExceptionError,
@@ -56,9 +53,9 @@ const problems: Map<ProblemConstructor, ErrorRegistryEntry> = new Map<
   [
     LocalStringError,
     {
-      id: "local_string_error",
-      title: "Client Error",
-      version: "v1",
+      id: 'local_string_error',
+      title: 'Client Error',
+      version: 'v1',
       schema: {},
       status: 400,
       type: LocalStringError,
@@ -67,9 +64,9 @@ const problems: Map<ProblemConstructor, ErrorRegistryEntry> = new Map<
   [
     LocalUnknownError,
     {
-      id: "local_unknown_error",
-      title: "Unknown Error",
-      version: "v1",
+      id: 'local_unknown_error',
+      title: 'Unknown Error',
+      version: 'v1',
       schema: {},
       status: 400,
       type: LocalUnknownError,
@@ -78,9 +75,9 @@ const problems: Map<ProblemConstructor, ErrorRegistryEntry> = new Map<
   [
     Unauthenticated,
     {
-      id: "unauthenticated",
-      title: "Not Authenticated",
-      version: "v1",
+      id: 'unauthenticated',
+      title: 'Not Authenticated',
+      version: 'v1',
       schema: {},
       status: 401,
       type: Unauthenticated,
@@ -89,9 +86,9 @@ const problems: Map<ProblemConstructor, ErrorRegistryEntry> = new Map<
   [
     Unauthorized,
     {
-      id: "unauthorized",
-      title: "Unauthorized",
-      version: "v1",
+      id: 'unauthorized',
+      title: 'Unauthorized',
+      version: 'v1',
       schema: {},
       status: 403,
       type: Unauthorized,

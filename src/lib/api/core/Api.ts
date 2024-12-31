@@ -52,12 +52,10 @@ import type {
   WalletRes,
   WithdrawalPrincipalRes,
   WithdrawalRes,
-} from "./data-contracts";
-import { ContentType, HttpClient, type RequestParams } from "./http-client";
+} from './data-contracts';
+import { ContentType, HttpClient, type RequestParams } from './http-client';
 
-export class Api<
-  SecurityDataType = unknown,
-> extends HttpClient<SecurityDataType> {
+export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType> {
   /**
    * No description
    *
@@ -66,19 +64,14 @@ export class Api<
    * @request POST:/api/v{version}/Admin/inflow/{userId}
    * @secure
    */
-  vAdminInflowCreate = (
-    userId: string,
-    version: string,
-    data: TransferReq,
-    params: RequestParams = {},
-  ) =>
+  vAdminInflowCreate = (userId: string, version: string, data: TransferReq, params: RequestParams = {}) =>
     this.request<WalletPrincipalRes, any>({
       path: `/api/v${version}/Admin/inflow/${userId}`,
-      method: "POST",
+      method: 'POST',
       body: data,
       secure: true,
       type: ContentType.Json,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -89,19 +82,14 @@ export class Api<
    * @request POST:/api/v{version}/Admin/outflow/{userId}
    * @secure
    */
-  vAdminOutflowCreate = (
-    userId: string,
-    version: string,
-    data: TransferReq,
-    params: RequestParams = {},
-  ) =>
+  vAdminOutflowCreate = (userId: string, version: string, data: TransferReq, params: RequestParams = {}) =>
     this.request<WalletPrincipalRes, any>({
       path: `/api/v${version}/Admin/outflow/${userId}`,
-      method: "POST",
+      method: 'POST',
       body: data,
       secure: true,
       type: ContentType.Json,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -112,19 +100,14 @@ export class Api<
    * @request POST:/api/v{version}/Admin/promo/{userId}
    * @secure
    */
-  vAdminPromoCreate = (
-    userId: string,
-    version: string,
-    data: TransferReq,
-    params: RequestParams = {},
-  ) =>
+  vAdminPromoCreate = (userId: string, version: string, data: TransferReq, params: RequestParams = {}) =>
     this.request<WalletPrincipalRes, any>({
       path: `/api/v${version}/Admin/promo/${userId}`,
-      method: "POST",
+      method: 'POST',
       body: data,
       secure: true,
       type: ContentType.Json,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -152,10 +135,10 @@ export class Api<
   ) =>
     this.request<BookingPrincipalRes[], any>({
       path: `/api/v${version}/Booking`,
-      method: "GET",
+      method: 'GET',
       query: query,
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -169,9 +152,9 @@ export class Api<
   vBookingRefundDetail = (version: string, params: RequestParams = {}) =>
     this.request<BookingPrincipalRes[], any>({
       path: `/api/v${version}/Booking/refund`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -182,16 +165,12 @@ export class Api<
    * @request POST:/api/v{version}/Booking/revert/{id}
    * @secure
    */
-  vBookingRevertCreate = (
-    id: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vBookingRevertCreate = (id: string, version: string, params: RequestParams = {}) =>
     this.request<BookingPrincipalRes, any>({
       path: `/api/v${version}/Booking/revert/${id}`,
-      method: "POST",
+      method: 'POST',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -211,9 +190,9 @@ export class Api<
   ) =>
     this.request<BookingPrincipalRes, any>({
       path: `/api/v${version}/Booking/reserve/${direction}/${date}/${time}`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -236,10 +215,10 @@ export class Api<
   ) =>
     this.request<BookingRes, any>({
       path: `/api/v${version}/Booking/${id}`,
-      method: "GET",
+      method: 'GET',
       query: query,
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -265,12 +244,12 @@ export class Api<
   ) =>
     this.request<BookingPrincipalRes, any>({
       path: `/api/v${version}/Booking/complete/${id}`,
-      method: "POST",
+      method: 'POST',
       query: query,
       body: data,
       secure: true,
       type: ContentType.FormData,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -284,9 +263,9 @@ export class Api<
   vBookingCountsDetail = (version: string, params: RequestParams = {}) =>
     this.request<BookingCountRes[], any>({
       path: `/api/v${version}/Booking/counts`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -299,17 +278,12 @@ export class Api<
    * @duplicate
    * @secure
    */
-  vBookingCountsDetail2 = (
-    date: string,
-    direction: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vBookingCountsDetail2 = (date: string, direction: string, version: string, params: RequestParams = {}) =>
     this.request<BookingCountRes[], any>({
       path: `/api/v${version}/Booking/counts/${direction}/${date}`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -320,16 +294,12 @@ export class Api<
    * @request POST:/api/v{version}/Booking/buying/{id}
    * @secure
    */
-  vBookingBuyingCreate = (
-    id: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vBookingBuyingCreate = (id: string, version: string, params: RequestParams = {}) =>
     this.request<BookingPrincipalRes, any>({
       path: `/api/v${version}/Booking/buying/${id}`,
-      method: "POST",
+      method: 'POST',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -340,16 +310,12 @@ export class Api<
    * @request POST:/api/v{version}/Booking/refund/{id}
    * @secure
    */
-  vBookingRefundCreate = (
-    id: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vBookingRefundCreate = (id: string, version: string, params: RequestParams = {}) =>
     this.request<BookingPrincipalRes, any>({
       path: `/api/v${version}/Booking/refund/${id}`,
-      method: "POST",
+      method: 'POST',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -360,19 +326,14 @@ export class Api<
    * @request POST:/api/v{version}/Booking/{userId}/purchase
    * @secure
    */
-  vBookingPurchaseCreate = (
-    userId: string,
-    version: string,
-    data: CreateBookingReq,
-    params: RequestParams = {},
-  ) =>
+  vBookingPurchaseCreate = (userId: string, version: string, data: CreateBookingReq, params: RequestParams = {}) =>
     this.request<BookingPrincipalRes, any>({
       path: `/api/v${version}/Booking/${userId}/purchase`,
-      method: "POST",
+      method: 'POST',
       body: data,
       secure: true,
       type: ContentType.Json,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -393,10 +354,10 @@ export class Api<
   ) =>
     this.request<BookingPrincipalRes, any>({
       path: `/api/v${version}/Booking/cancel/${id}`,
-      method: "POST",
+      method: 'POST',
       query: query,
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -417,10 +378,10 @@ export class Api<
   ) =>
     this.request<BookingPrincipalRes, any>({
       path: `/api/v${version}/Booking/terminate/${id}`,
-      method: "POST",
+      method: 'POST',
       query: query,
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -434,9 +395,9 @@ export class Api<
   vCostDetail = (version: string, params: RequestParams = {}) =>
     this.request<CostPrincipalRes[], any>({
       path: `/api/v${version}/Cost`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -447,18 +408,14 @@ export class Api<
    * @request POST:/api/v{version}/Cost
    * @secure
    */
-  vCostCreate = (
-    version: string,
-    data: CreateCostReq,
-    params: RequestParams = {},
-  ) =>
+  vCostCreate = (version: string, data: CreateCostReq, params: RequestParams = {}) =>
     this.request<CostPrincipalRes, any>({
       path: `/api/v${version}/Cost`,
-      method: "POST",
+      method: 'POST',
       body: data,
       secure: true,
       type: ContentType.Json,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -472,9 +429,9 @@ export class Api<
   vCostCurrentDetail = (version: string, params: RequestParams = {}) =>
     this.request<CostPrincipalRes, any>({
       path: `/api/v${version}/Cost/current`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -488,9 +445,9 @@ export class Api<
   vCostSelfDetail = (version: string, params: RequestParams = {}) =>
     this.request<MaterializedCostRes, any>({
       path: `/api/v${version}/Cost/self`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -514,10 +471,10 @@ export class Api<
   ) =>
     this.request<DiscountPrincipalRes[], any>({
       path: `/api/v${version}/Discount`,
-      method: "GET",
+      method: 'GET',
       query: query,
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -528,18 +485,14 @@ export class Api<
    * @request POST:/api/v{version}/Discount
    * @secure
    */
-  vDiscountCreate = (
-    version: string,
-    data: CreateDiscountReq,
-    params: RequestParams = {},
-  ) =>
+  vDiscountCreate = (version: string, data: CreateDiscountReq, params: RequestParams = {}) =>
     this.request<DiscountPrincipalRes, any>({
       path: `/api/v${version}/Discount`,
-      method: "POST",
+      method: 'POST',
       body: data,
       secure: true,
       type: ContentType.Json,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -552,16 +505,12 @@ export class Api<
    * @duplicate
    * @secure
    */
-  vDiscountDetail2 = (
-    id: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vDiscountDetail2 = (id: string, version: string, params: RequestParams = {}) =>
     this.request<DiscountPrincipalRes, any>({
       path: `/api/v${version}/Discount/${id}`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -572,19 +521,14 @@ export class Api<
    * @request PUT:/api/v{version}/Discount/{id}
    * @secure
    */
-  vDiscountUpdate = (
-    id: string,
-    version: string,
-    data: UpdateDiscountReq,
-    params: RequestParams = {},
-  ) =>
+  vDiscountUpdate = (id: string, version: string, data: UpdateDiscountReq, params: RequestParams = {}) =>
     this.request<DiscountPrincipalRes, any>({
       path: `/api/v${version}/Discount/${id}`,
-      method: "PUT",
+      method: 'PUT',
       body: data,
       secure: true,
       type: ContentType.Json,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -598,7 +542,7 @@ export class Api<
   vDiscountDelete = (id: string, version: string, params: RequestParams = {}) =>
     this.request<void, any>({
       path: `/api/v${version}/Discount/${id}`,
-      method: "DELETE",
+      method: 'DELETE',
       secure: true,
       ...params,
     });
@@ -624,10 +568,10 @@ export class Api<
   ) =>
     this.request<PassengerPrincipalRes[], any>({
       path: `/api/v${version}/Passenger`,
-      method: "GET",
+      method: 'GET',
       query: query,
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -640,17 +584,12 @@ export class Api<
    * @duplicate
    * @secure
    */
-  vPassengerDetail2 = (
-    userId: string,
-    id: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vPassengerDetail2 = (userId: string, id: string, version: string, params: RequestParams = {}) =>
     this.request<PassengerRes, any>({
       path: `/api/v${version}/Passenger/${userId}/${id}`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -661,19 +600,14 @@ export class Api<
    * @request POST:/api/v{version}/Passenger/{userId}
    * @secure
    */
-  vPassengerCreate = (
-    userId: string,
-    version: string,
-    data: CreatePassengerReq,
-    params: RequestParams = {},
-  ) =>
+  vPassengerCreate = (userId: string, version: string, data: CreatePassengerReq, params: RequestParams = {}) =>
     this.request<PassengerPrincipalRes, any>({
       path: `/api/v${version}/Passenger/${userId}`,
-      method: "POST",
+      method: 'POST',
       body: data,
       secure: true,
       type: ContentType.Json,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -695,12 +629,12 @@ export class Api<
   ) =>
     this.request<PassengerPrincipalRes, any>({
       path: `/api/v${version}/Passenger/${id}`,
-      method: "PUT",
+      method: 'PUT',
       query: query,
       body: data,
       secure: true,
       type: ContentType.Json,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -721,7 +655,7 @@ export class Api<
   ) =>
     this.request<void, any>({
       path: `/api/v${version}/Passenger/${id}`,
-      method: "DELETE",
+      method: 'DELETE',
       query: query,
       secure: true,
       ...params,
@@ -763,10 +697,10 @@ export class Api<
   ) =>
     this.request<PaymentPrincipalRes[], any>({
       path: `/api/v${version}/Payment`,
-      method: "GET",
+      method: 'GET',
       query: query,
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -777,16 +711,12 @@ export class Api<
    * @request GET:/api/v{version}/Payment/id/{id}
    * @secure
    */
-  vPaymentIdDetail = (
-    id: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vPaymentIdDetail = (id: string, version: string, params: RequestParams = {}) =>
     this.request<PaymentRes, any>({
       path: `/api/v${version}/Payment/id/${id}`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -797,16 +727,12 @@ export class Api<
    * @request DELETE:/api/v{version}/Payment/id/{id}
    * @secure
    */
-  vPaymentIdDelete = (
-    id: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vPaymentIdDelete = (id: string, version: string, params: RequestParams = {}) =>
     this.request<PaymentRes, any>({
       path: `/api/v${version}/Payment/id/${id}`,
-      method: "DELETE",
+      method: 'DELETE',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -817,16 +743,12 @@ export class Api<
    * @request GET:/api/v{version}/Payment/reference/{reference}
    * @secure
    */
-  vPaymentReferenceDetail = (
-    reference: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vPaymentReferenceDetail = (reference: string, version: string, params: RequestParams = {}) =>
     this.request<PaymentRes, any>({
       path: `/api/v${version}/Payment/reference/${reference}`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -837,16 +759,12 @@ export class Api<
    * @request DELETE:/api/v{version}/Payment/reference/{reference}
    * @secure
    */
-  vPaymentReferenceDelete = (
-    reference: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vPaymentReferenceDelete = (reference: string, version: string, params: RequestParams = {}) =>
     this.request<PaymentRes, any>({
       path: `/api/v${version}/Payment/reference/${reference}`,
-      method: "DELETE",
+      method: 'DELETE',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -868,12 +786,12 @@ export class Api<
   ) =>
     this.request<CreatePaymentRes, any>({
       path: `/api/v${version}/Payment/${walletId}`,
-      method: "POST",
+      method: 'POST',
       query: query,
       body: data,
       secure: true,
       type: ContentType.Json,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -884,14 +802,10 @@ export class Api<
    * @request POST:/api/v{version}/Payment/webhook
    * @secure
    */
-  vPaymentWebhookCreate = (
-    version: string,
-    data: AirwallexEvent,
-    params: RequestParams = {},
-  ) =>
+  vPaymentWebhookCreate = (version: string, data: AirwallexEvent, params: RequestParams = {}) =>
     this.request<void, any>({
       path: `/api/v${version}/Payment/webhook`,
-      method: "POST",
+      method: 'POST',
       body: data,
       secure: true,
       type: ContentType.Json,
@@ -908,9 +822,9 @@ export class Api<
   vScheduleLatestDetail = (version: string, params: RequestParams = {}) =>
     this.request<LatestScheduleRes, any>({
       path: `/api/v${version}/Schedule/latest`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -921,17 +835,12 @@ export class Api<
    * @request GET:/api/v{version}/Schedule/range/{From}/{To}
    * @secure
    */
-  vScheduleRangeDetail = (
-    from: string,
-    to: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vScheduleRangeDetail = (from: string, to: string, version: string, params: RequestParams = {}) =>
     this.request<SchedulePrincipalRes[], any>({
       path: `/api/v${version}/Schedule/range/${from}/${to}`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -942,16 +851,12 @@ export class Api<
    * @request GET:/api/v{version}/Schedule/{Date}
    * @secure
    */
-  vScheduleDetail = (
-    date: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vScheduleDetail = (date: string, version: string, params: RequestParams = {}) =>
     this.request<SchedulePrincipalRes, any>({
       path: `/api/v${version}/Schedule/${date}`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -962,19 +867,14 @@ export class Api<
    * @request PUT:/api/v{version}/Schedule/{Date}
    * @secure
    */
-  vScheduleUpdate = (
-    date: string,
-    version: string,
-    data: ScheduleRecordReq,
-    params: RequestParams = {},
-  ) =>
+  vScheduleUpdate = (date: string, version: string, data: ScheduleRecordReq, params: RequestParams = {}) =>
     this.request<SchedulePrincipalRes, any>({
       path: `/api/v${version}/Schedule/${date}`,
-      method: "PUT",
+      method: 'PUT',
       body: data,
       secure: true,
       type: ContentType.Json,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -985,14 +885,10 @@ export class Api<
    * @request DELETE:/api/v{version}/Schedule/{Date}
    * @secure
    */
-  vScheduleDelete = (
-    date: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vScheduleDelete = (date: string, version: string, params: RequestParams = {}) =>
     this.request<void, any>({
       path: `/api/v${version}/Schedule/${date}`,
-      method: "DELETE",
+      method: 'DELETE',
       secure: true,
       ...params,
     });
@@ -1004,14 +900,10 @@ export class Api<
    * @request PUT:/api/v{version}/Schedule/bulk
    * @secure
    */
-  vScheduleBulkUpdate = (
-    version: string,
-    data: ScheduleBulkUpdateReq,
-    params: RequestParams = {},
-  ) =>
+  vScheduleBulkUpdate = (version: string, data: ScheduleBulkUpdateReq, params: RequestParams = {}) =>
     this.request<void, any>({
       path: `/api/v${version}/Schedule/bulk`,
-      method: "PUT",
+      method: 'PUT',
       body: data,
       secure: true,
       type: ContentType.Json,
@@ -1025,16 +917,12 @@ export class Api<
    * @request GET:/api/v{version}/Timing/{Direction}
    * @secure
    */
-  vTimingDetail = (
-    direction: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vTimingDetail = (direction: string, version: string, params: RequestParams = {}) =>
     this.request<TimingRes, any>({
       path: `/api/v${version}/Timing/${direction}`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1045,19 +933,14 @@ export class Api<
    * @request PUT:/api/v{version}/Timing/{Direction}
    * @secure
    */
-  vTimingUpdate = (
-    direction: string,
-    version: string,
-    data: TimingReq,
-    params: RequestParams = {},
-  ) =>
+  vTimingUpdate = (direction: string, version: string, data: TimingReq, params: RequestParams = {}) =>
     this.request<TimingPrincipalRes, any>({
       path: `/api/v${version}/Timing/${direction}`,
-      method: "PUT",
+      method: 'PUT',
       body: data,
       secure: true,
       type: ContentType.Json,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1089,10 +972,10 @@ export class Api<
   ) =>
     this.request<TransactionPrincipalRes[], any>({
       path: `/api/v${version}/Transaction`,
-      method: "GET",
+      method: 'GET',
       query: query,
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1115,10 +998,10 @@ export class Api<
   ) =>
     this.request<TransactionRes, any>({
       path: `/api/v${version}/Transaction/${id}`,
-      method: "GET",
+      method: 'GET',
       query: query,
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1129,16 +1012,12 @@ export class Api<
    * @request DELETE:/api/v{version}/Transaction/{id}
    * @secure
    */
-  vTransactionDelete = (
-    id: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vTransactionDelete = (id: string, version: string, params: RequestParams = {}) =>
     this.request<TransactionRes, any>({
       path: `/api/v${version}/Transaction/${id}`,
-      method: "DELETE",
+      method: 'DELETE',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1163,10 +1042,10 @@ export class Api<
   ) =>
     this.request<UserPrincipalRes[], any>({
       path: `/api/v${version}/User`,
-      method: "GET",
+      method: 'GET',
       query: query,
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1177,18 +1056,14 @@ export class Api<
    * @request POST:/api/v{version}/User
    * @secure
    */
-  vUserCreate = (
-    version: string,
-    data: CreateUserReq,
-    params: RequestParams = {},
-  ) =>
+  vUserCreate = (version: string, data: CreateUserReq, params: RequestParams = {}) =>
     this.request<UserPrincipalRes, any>({
       path: `/api/v${version}/User`,
-      method: "POST",
+      method: 'POST',
       body: data,
       secure: true,
       type: ContentType.Json,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1202,9 +1077,9 @@ export class Api<
   vUserMeDetail = (version: string, params: RequestParams = {}) =>
     this.request<string, any>({
       path: `/api/v${version}/User/Me`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1218,9 +1093,9 @@ export class Api<
   vUserMeAllDetail = (version: string, params: RequestParams = {}) =>
     this.request<UserRes, any>({
       path: `/api/v${version}/User/Me/All`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1236,9 +1111,9 @@ export class Api<
   vUserDetail2 = (id: string, version: string, params: RequestParams = {}) =>
     this.request<UserRes, any>({
       path: `/api/v${version}/User/${id}`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1249,19 +1124,14 @@ export class Api<
    * @request PUT:/api/v{version}/User/{id}
    * @secure
    */
-  vUserUpdate = (
-    id: string,
-    version: string,
-    data: UpdateUserReq,
-    params: RequestParams = {},
-  ) =>
+  vUserUpdate = (id: string, version: string, data: UpdateUserReq, params: RequestParams = {}) =>
     this.request<UserPrincipalRes, any>({
       path: `/api/v${version}/User/${id}`,
-      method: "PUT",
+      method: 'PUT',
       body: data,
       secure: true,
       type: ContentType.Json,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1275,7 +1145,7 @@ export class Api<
   vUserDelete = (id: string, version: string, params: RequestParams = {}) =>
     this.request<void, any>({
       path: `/api/v${version}/User/${id}`,
-      method: "DELETE",
+      method: 'DELETE',
       secure: true,
       ...params,
     });
@@ -1287,16 +1157,12 @@ export class Api<
    * @request GET:/api/v{version}/User/username/{username}
    * @secure
    */
-  vUserUsernameDetail = (
-    username: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vUserUsernameDetail = (username: string, version: string, params: RequestParams = {}) =>
     this.request<UserRes, any>({
       path: `/api/v${version}/User/username/${username}`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1307,16 +1173,12 @@ export class Api<
    * @request GET:/api/v{version}/User/exist/{username}
    * @secure
    */
-  vUserExistDetail = (
-    username: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vUserExistDetail = (username: string, version: string, params: RequestParams = {}) =>
     this.request<UserExistRes, any>({
       path: `/api/v${version}/User/exist/${username}`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1330,9 +1192,9 @@ export class Api<
   vErrorInfoDetail = (version: string, params: RequestParams = {}) =>
     this.request<string[], any>({
       path: `/api/v${version}/error-info`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1345,16 +1207,12 @@ export class Api<
    * @duplicate
    * @secure
    */
-  vErrorInfoDetail2 = (
-    id: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vErrorInfoDetail2 = (id: string, version: string, params: RequestParams = {}) =>
     this.request<ErrorInfo, any>({
       path: `/api/v${version}/error-info/${id}`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1380,10 +1238,10 @@ export class Api<
   ) =>
     this.request<WalletPrincipalRes[], any>({
       path: `/api/v${version}/Wallet`,
-      method: "GET",
+      method: 'GET',
       query: query,
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1406,10 +1264,10 @@ export class Api<
   ) =>
     this.request<WalletRes, any>({
       path: `/api/v${version}/Wallet/${id}`,
-      method: "GET",
+      method: 'GET',
       query: query,
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1420,16 +1278,12 @@ export class Api<
    * @request GET:/api/v{version}/Wallet/user/{userId}
    * @secure
    */
-  vWalletUserDetail = (
-    userId: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vWalletUserDetail = (userId: string, version: string, params: RequestParams = {}) =>
     this.request<WalletRes, any>({
       path: `/api/v${version}/Wallet/user/${userId}`,
-      method: "GET",
+      method: 'GET',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1463,10 +1317,10 @@ export class Api<
   ) =>
     this.request<WithdrawalPrincipalRes[], any>({
       path: `/api/v${version}/Withdrawal`,
-      method: "GET",
+      method: 'GET',
       query: query,
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1489,10 +1343,10 @@ export class Api<
   ) =>
     this.request<WithdrawalRes, any>({
       path: `/api/v${version}/Withdrawal/${id}`,
-      method: "GET",
+      method: 'GET',
       query: query,
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1503,16 +1357,12 @@ export class Api<
    * @request DELETE:/api/v{version}/Withdrawal/{id}
    * @secure
    */
-  vWithdrawalDelete = (
-    id: string,
-    version: string,
-    params: RequestParams = {},
-  ) =>
+  vWithdrawalDelete = (id: string, version: string, params: RequestParams = {}) =>
     this.request<WithdrawalPrincipalRes, any>({
       path: `/api/v${version}/Withdrawal/${id}`,
-      method: "DELETE",
+      method: 'DELETE',
       secure: true,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1523,19 +1373,14 @@ export class Api<
    * @request POST:/api/v{version}/Withdrawal/{userId}
    * @secure
    */
-  vWithdrawalCreate = (
-    userId: string,
-    version: string,
-    data: CreateWithdrawalReq,
-    params: RequestParams = {},
-  ) =>
+  vWithdrawalCreate = (userId: string, version: string, data: CreateWithdrawalReq, params: RequestParams = {}) =>
     this.request<WithdrawalPrincipalRes, any>({
       path: `/api/v${version}/Withdrawal/${userId}`,
-      method: "POST",
+      method: 'POST',
       body: data,
       secure: true,
       type: ContentType.Json,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1555,11 +1400,11 @@ export class Api<
   ) =>
     this.request<WithdrawalPrincipalRes, any>({
       path: `/api/v${version}/Withdrawal/${userId}/${id}/cancel`,
-      method: "POST",
+      method: 'POST',
       body: data,
       secure: true,
       type: ContentType.Json,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1570,19 +1415,14 @@ export class Api<
    * @request POST:/api/v{version}/Withdrawal/{id}/reject
    * @secure
    */
-  vWithdrawalRejectCreate = (
-    id: string,
-    version: string,
-    data: RejectWithdrawalReq,
-    params: RequestParams = {},
-  ) =>
+  vWithdrawalRejectCreate = (id: string, version: string, data: RejectWithdrawalReq, params: RequestParams = {}) =>
     this.request<WithdrawalPrincipalRes, any>({
       path: `/api/v${version}/Withdrawal/${id}/reject`,
-      method: "POST",
+      method: 'POST',
       body: data,
       secure: true,
       type: ContentType.Json,
-      format: "json",
+      format: 'json',
       ...params,
     });
   /**
@@ -1604,11 +1444,11 @@ export class Api<
   ) =>
     this.request<WithdrawalPrincipalRes, any>({
       path: `/api/v${version}/Withdrawal/${id}/complete`,
-      method: "POST",
+      method: 'POST',
       body: data,
       secure: true,
       type: ContentType.FormData,
-      format: "json",
+      format: 'json',
       ...params,
     });
 }

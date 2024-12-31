@@ -20,7 +20,8 @@
         const rd = format(parse(date, "dd-MM-yyyy", new Date()), "yyyy-MM-dd");
         //@ts-ignore
         const utcDate = moment.tz(`${rd} ${time}`, "Asia/Singapore").clone().tz("UTC");
-        const d = sub(new Date(utcDate), {minutes: 120});
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const d = sub(new Date(utcDate as any), {minutes: 120});
         const now = new Date();
         return !isAfter(now, d);
     }

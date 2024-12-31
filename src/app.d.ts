@@ -15,7 +15,7 @@ interface Tokens {
   id_token?: string;
 }
 
-declare module "@auth/core/types" {
+declare module '@auth/core/type' {
   interface Session {
     access_token?: string;
     scopes?: string[];
@@ -24,7 +24,7 @@ declare module "@auth/core/types" {
   }
 }
 
-declare module "@auth/core/jwt" {
+declare module '@auth/core/jwt' {
   interface JWT {
     scopes: string[];
     roles: string[];

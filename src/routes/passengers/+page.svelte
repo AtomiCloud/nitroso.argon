@@ -23,7 +23,6 @@
     export let data: PageData;
 
     // Util
-
     $: passengers = (Res.fromSerial<PassengerPrincipalRes[], ProblemDetails>(data.result)
         .match({
             ok: (a: PassengerPrincipalRes[]): PassengerPrincipalRes[] => {
@@ -49,6 +48,7 @@
         );
     }
 
+    const session: any = $page.data.session;
 </script>
 
 <div class="flex flex-col">
@@ -64,7 +64,7 @@
             <Input placeholder="Search passenger" bind:value={search} on:input={triggerSearch}/>
             <CreatePassengers userId={userId === "" ? $page.data.user.principal.id : userId}/>
         </div>
-        {#if $page.data.session?.roles?.includes("admin")}
+        {#if session?.roles?.includes("admin")}
             <Input class="flex-1" placeholder="Filter by user ID..." bind:value={userId} on:input={triggerSearch}/>
         {/if}
 

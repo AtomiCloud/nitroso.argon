@@ -28,6 +28,7 @@
     import {format, parse} from "date-fns";
 
     export let data: PageData;
+    const session: any = $page.data.session;
 
     // Util
     function toCalDate(s: string): DateValue | undefined {
@@ -105,7 +106,7 @@
     </div>
     <div class="flex flex-col gap-4 w-11/12 max-w-[1200px] mx-auto my-12">
         <Input placeholder="Search for transactions..." bind:value={searchTerm} on:input={triggerSearch}/>
-        {#if $page.data.session?.roles?.includes("admin")}
+        {#if session?.roles?.includes("admin")}
             <Input placeholder="Filter by user ID..." bind:value={userId} on:input={triggerSearch}/>
         {/if}
         <div class="flex flex-wrap gap-4 w-full">
