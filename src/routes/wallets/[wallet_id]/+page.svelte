@@ -27,6 +27,7 @@
                 return null as never;
             }
         }) satisfies Promise<WalletRes>)
+    const session: any = $page.data.session;
 </script>
 
 <Page notFoundMessage="Wallet cannot be found">
@@ -44,7 +45,7 @@
                     <Wallet
                             user={w.user}
                             wallet={w.principal}
-                            admin={$page.data.session?.roles?.includes("admin")}
+                            admin={session?.roles?.includes("admin")}
                     />
                 </div>
             {/await}

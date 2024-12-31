@@ -1,1 +1,1 @@
-export { default as Account } from "./account.svelte";
+export { default as Account } from './account.svelte';

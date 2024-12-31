@@ -1,8 +1,8 @@
-import { config } from "../config/shared";
-import type { ProblemDetails } from "./problem_details";
-import type { ProblemConstructor } from "./error_info";
-import { problems } from "./error_info";
-import type { Problem } from "./problem";
+import { config } from '../config/shared';
+import type { ProblemDetails } from './problem_details';
+import type { ProblemConstructor } from './error_info';
+import { problems } from './error_info';
+import type { Problem } from './problem';
 
 const ep = config.errorPortal;
 const ap = config.app;
@@ -11,11 +11,11 @@ function toDetail<T extends Problem>(problem: T): ProblemDetails {
   const errorInfo = problems.get(problem.constructor as ProblemConstructor);
   if (errorInfo == null) {
     return {
-      detail: "Error parsed not registered",
-      title: "Error occurred when parsing Error",
+      detail: 'Error parsed not registered',
+      title: 'Error occurred when parsing Error',
       status: 500,
-      traceId: "local",
-      type: "none",
+      traceId: 'local',
+      type: 'none',
       data: {
         original: problem,
       },
@@ -28,7 +28,7 @@ function toDetail<T extends Problem>(problem: T): ProblemDetails {
     detail: problem.detail,
     title: errorInfo.title,
     status: errorInfo.status,
-    traceId: "local",
+    traceId: 'local',
     type: `${ep.scheme}://${ep.host}/docs/${ap.landscape}/${ap.platform}/${ap.service}/${ap.module}/${errorInfo.version}/${errorInfo.id}`,
     data: p,
   };

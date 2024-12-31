@@ -1,53 +1,53 @@
-import type { Selected } from "bits-ui";
+import type { Selected } from 'bits-ui';
 
 export const TRANSACTION_TYPES: Record<string, Selected<string>> = {
   BookingRequest: {
-    value: "BookingRequest",
-    label: "Booking Request",
+    value: 'BookingRequest',
+    label: 'Booking Request',
   },
   BookingComplete: {
-    value: "BookingComplete",
-    label: "Booking Complete",
+    value: 'BookingComplete',
+    label: 'Booking Complete',
   },
   BookingCancel: {
-    value: "BookingCancel",
-    label: "Booking Cancel",
+    value: 'BookingCancel',
+    label: 'Booking Cancel',
   },
   BookingRefund: {
-    value: "BookingRefund",
-    label: "Booking Refund",
+    value: 'BookingRefund',
+    label: 'Booking Refund',
   },
   BookingTerminated: {
-    value: "BookingTerminated",
-    label: "Booking Terminated",
+    value: 'BookingTerminated',
+    label: 'Booking Terminated',
   },
   Deposit: {
-    value: "Deposit",
-    label: "Deposit",
+    value: 'Deposit',
+    label: 'Deposit',
   },
   WithdrawRequest: {
-    value: "WithdrawRequest",
-    label: "Withdraw Request",
+    value: 'WithdrawRequest',
+    label: 'Withdraw Request',
   },
   WithdrawComplete: {
-    value: "WithdrawComplete",
-    label: "Withdraw Complete",
+    value: 'WithdrawComplete',
+    label: 'Withdraw Complete',
   },
   WithdrawCancelled: {
-    value: "WithdrawCancelled",
-    label: "Withdraw Cancelled",
+    value: 'WithdrawCancelled',
+    label: 'Withdraw Cancelled',
   },
   WithdrawRejected: {
-    value: "WithdrawRejected",
-    label: "Withdraw Rejected",
+    value: 'WithdrawRejected',
+    label: 'Withdraw Rejected',
   },
 
   Promotional: {
-    value: "Promotional",
-    label: "Promotional",
+    value: 'Promotional',
+    label: 'Promotional',
   },
   Transfer: {
-    value: "Transfer",
-    label: "Transfer",
+    value: 'Transfer',
+    label: 'Transfer',
   },
 };

@@ -33,29 +33,29 @@ zinc:
 
   migration:
     enabled: false
-    nameOverride: "zinc-migration"
+    nameOverride: 'zinc-migration'
 
   maindb:
     enable: true
-    nameOverride: "zinc-maindb"
+    nameOverride: 'zinc-maindb'
 
   streamcache:
     enable: true
-    nameOverride: "zinc-streamcache"
+    nameOverride: 'zinc-streamcache'
 
   maincache:
     enable: true
-    nameOverride: "zinc-maincache"
+    nameOverride: 'zinc-maincache'
     resources:
       requests:
-        memory: "128Mi"
-        cpu: "100m"
+        memory: '128Mi'
+        cpu: '100m'
       limits:
-        memory: "512Mi"
-        cpu: "250m"
+        memory: '512Mi'
+        cpu: '250m'
   mainstorage:
     enable: true
-    nameOverride: "zinc-mainstorage"
+    nameOverride: 'zinc-mainstorage'
 
 helium:
   enable: true
@@ -78,7 +78,7 @@ tin:
 
     imagePullSecrets: []
 
-    nameOverride: "tin-buyer"
+    nameOverride: 'tin-buyer'
 
     replicaCount: 1
 
@@ -89,7 +89,7 @@ tin:
       landscape: *landscape
     imagePullSecrets: []
 
-    nameOverride: "tin-terminator"
+    nameOverride: 'tin-terminator'
 
     replicaCount: 1
 
@@ -101,7 +101,7 @@ tin:
 
     imagePullSecrets: []
 
-    nameOverride: "tin-cdc"
+    nameOverride: 'tin-cdc'
 
     replicaCount: 1
 
@@ -113,7 +113,7 @@ tin:
 
     imagePullSecrets: []
 
-    nameOverride: "tin-poller"
+    nameOverride: 'tin-poller'
 
     replicaCount: 1
 
@@ -125,7 +125,7 @@ tin:
 
     imagePullSecrets: []
 
-    nameOverride: "tin-enricher"
+    nameOverride: 'tin-enricher'
 
     replicaCount: 1
 
@@ -137,7 +137,7 @@ tin:
 
     imagePullSecrets: []
 
-    nameOverride: "tin-reserver"
+    nameOverride: 'tin-reserver'
 
     replicaCount: 1
 
@@ -150,7 +150,7 @@ tin:
     enable: false
 
   livecache:
-    nameOverride: "tin-livecache"
+    nameOverride: 'tin-livecache'
     commonAnnotations:
       atomi.cloud/landscape: *landscape
     commonLabels:

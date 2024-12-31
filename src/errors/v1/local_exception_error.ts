@@ -1,4 +1,4 @@
-import { Problem } from "../problem";
+import { Problem } from '../problem';
 
 class LocalExceptionError extends Problem {
   constructor(detail: string, error: Error) {

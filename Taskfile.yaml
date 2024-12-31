@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 
 includes:
   setup: tasks/Taskfile.setup.yaml
@@ -48,7 +48,7 @@ tasks:
   sdk-gen:
     desc: Generate SDK from Swagger
     env:
-      API_URL: "{{.API}}"
+      API_URL: '{{.API}}'
     cmds:
       - ./scripts/local/sdk_gen.sh v1
   latest:

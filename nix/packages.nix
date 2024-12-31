@@ -1,4 +1,4 @@
-{ pkgs, pkgs-2305, atomi, pkgs-feb-23-24 }:
+{ pkgs, pkgs-2411, atomi }:
 let
 
   all = {
@@ -8,21 +8,17 @@ let
         inherit
           mirrord
           swagger_typescript_api
-          infisical
           sg
           pls;
       }
     );
-    nix-2305 = (
-      with pkgs-2305;
-      { }
-    );
-    feb-23-24 = (
-      with pkgs-feb-23-24;
+    nix-2411 = (
+      with pkgs-2411;
       {
         helm = kubernetes-helm;
         inherit
           coreutils
+          infisical
           yq-go
           gnused
           gnugrep
@@ -48,6 +44,5 @@ let
   };
 in
 with all;
-nix-2305 //
-atomipkgs //
-feb-23-24
+nix-2411 //
+atomipkgs
