@@ -24,6 +24,7 @@
                 return null as never;
             }
         }) satisfies Promise<WithdrawalRes>)
+    const session: any = $page.data.session;
 </script>
 
 <Page notFoundMessage="Withdrawal cannot be found">
@@ -38,7 +39,7 @@
                 <Loader/>
             {:then w}
                 <div class="flex flex-col gap-4">
-                    <Withdrawal withdrawal={w} admin={$page.data.session?.roles?.includes("admin") ?? false}/>
+                    <Withdrawal withdrawal={w} admin={session?.roles?.includes("admin") ?? false}/>
                 </div>
             {/await}
         </div>

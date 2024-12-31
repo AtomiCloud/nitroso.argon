@@ -1,6 +1,6 @@
-import type { Result } from "./result.js";
-import { KResult } from "./result.js";
-import { UnwrapError } from "./error.js";
+import type { Result } from './result.js';
+import { KResult } from './result.js';
+import { UnwrapError } from './error.js';
 
 interface Match<T, U> {
   // Map the Some value to a standard type
@@ -11,19 +11,11 @@ interface Match<T, U> {
 
 interface ResultMatch<T, U, E> {
   some: ((val: T) => Result<U, E>) | ((val: T) => Promise<Result<U, E>>);
-  none:
-    | (() => Result<U, E>)
-    | (() => Promise<Result<U, E>>)
-    | Result<U, E>
-    | Promise<Result<U, E>>;
+  none: (() => Result<U, E>) | (() => Promise<Result<U, E>>) | Result<U, E> | Promise<Result<U, E>>;
 }
 
 type OptionSome<T extends Option<unknown>[]> = {
-  [K in keyof T]: K extends number
-    ? T[K] extends Option<infer U>
-      ? U
-      : never
-    : never;
+  [K in keyof T]: K extends number ? (T[K] extends Option<infer U> ? U : never) : never;
 };
 
 class Opt {
@@ -49,18 +41,18 @@ class Opt {
     const closure = async (): Promise<Option<OptionSome<T>>> => {
       const some: OptionSome<T> = [] as OptionSome<T>;
       let none = 0;
-      const r = i.map(async (e) => {
+      const r = i.map(async e => {
         const isSome = await e.isSome();
         if (isSome) {
           const ok = await e.unwrap();
-          return ["some", ok];
+          return ['some', ok];
         } else {
-          return ["none", null];
+          return ['none', null];
         }
       });
       const a = await Promise.all(r);
       for (const [t, v] of a) {
-        if (t === "some") {
+        if (t === 'some') {
           some.push(v);
         } else {
           none++;
@@ -88,9 +80,9 @@ class Opt {
         const isSome = await r.isSome();
         if (isSome) {
           const ok = await r.unwrap();
-          return Promise.resolve(["some", ok]);
+          return Promise.resolve(['some', ok]);
         }
-        return Promise.resolve(["none", null]);
+        return Promise.resolve(['none', null]);
       })(),
     );
   }
@@ -145,9 +137,7 @@ interface Option<T> {
    * @param fn - mapper function that returns on Option. Can be async or sync.
    * @returns {Option<U>} Mapped Option
    */
-  andThen<U>(
-    fn: ((v: T) => Option<U>) | ((v: T) => Promise<Option<U>>),
-  ): Option<U>;
+  andThen<U>(fn: ((v: T) => Option<U>) | ((v: T) => Promise<Option<U>>)): Option<U>;
 
   // Removes the Option type and return the underlying value.
   // Throws an error if None was inside.
@@ -214,15 +204,13 @@ interface Option<T> {
   native(): Promise<T | null>;
 }
 
-type ISome<T> = ["some", T];
-type INone = ["none", null];
+type ISome<T> = ['some', T];
+type INone = ['none', null];
 
 class KOption<T> implements Option<T> {
   value: Promise<ISome<T> | INone>;
 
-  constructor(
-    value: Promise<ISome<T>> | Promise<INone> | Promise<ISome<T> | INone>,
-  ) {
+  constructor(value: Promise<ISome<T>> | Promise<INone> | Promise<ISome<T> | INone>) {
     this.value = Promise.resolve(value);
   }
 
@@ -231,22 +219,20 @@ class KOption<T> implements Option<T> {
     return v;
   }
 
-  andThen<U>(
-    fn: ((v: T) => Option<U>) | ((v: T) => Promise<Option<U>>),
-  ): Option<U> {
+  andThen<U>(fn: ((v: T) => Option<U>) | ((v: T) => Promise<Option<U>>)): Option<U> {
     return new KOption<U>(
       (async () => {
         const [type, value] = await this.value;
-        if (type === "none") {
+        if (type === 'none') {
           return [type, value] as INone;
         } else {
           const mapped = await fn(value);
           const isSome = await mapped.isSome();
           if (isSome) {
             const v = await mapped.unwrap();
-            return ["some", v] as ISome<U>;
+            return ['some', v] as ISome<U>;
           } else {
-            return ["none", null] as INone;
+            return ['none', null] as INone;
           }
         }
       })(),
@@ -257,11 +243,11 @@ class KOption<T> implements Option<T> {
     return new KResult<O, T>(
       (async () => {
         const [t, v] = await this.value;
-        if (t === "none") {
+        if (t === 'none') {
           const s = await ok;
-          return ["ok", s];
+          return ['ok', s];
         } else {
-          return ["err", v];
+          return ['err', v];
         }
       })(),
     );
@@ -271,51 +257,49 @@ class KOption<T> implements Option<T> {
     return new KResult<T, E>(
       (async () => {
         const [t, v] = await this.value;
-        if (t === "none") {
+        if (t === 'none') {
           const s = await err;
-          return ["err", s];
+          return ['err', s];
         } else {
-          return ["ok", v];
+          return ['ok', v];
         }
       })(),
     );
   }
 
   asResult<O, E>(fn: ResultMatch<T, O, E>): Result<O, E> {
-    return new KResult<number, E>(Promise.resolve(["ok", 0])).andThen(
-      async (): Promise<Result<O, E>> => {
-        const [t, v] = await this.value;
-        return await (async () => {
-          if (t === "none") {
-            if (typeof fn.none === "function") {
-              const f = fn.none;
-              return Promise.resolve(f());
-            } else {
-              return Promise.resolve(fn.none);
-            }
+    return new KResult<number, E>(Promise.resolve(['ok', 0])).andThen(async (): Promise<Result<O, E>> => {
+      const [t, v] = await this.value;
+      return await (async () => {
+        if (t === 'none') {
+          if (typeof fn.none === 'function') {
+            const f = fn.none;
+            return Promise.resolve(f());
           } else {
-            return fn.some(v);
+            return Promise.resolve(fn.none);
           }
-        })();
-      },
-    );
+        } else {
+          return fn.some(v);
+        }
+      })();
+    });
   }
 
   async isNone(): Promise<boolean> {
     const [t] = await this.value;
-    return t === "none";
+    return t === 'none';
   }
 
   async isSome(): Promise<boolean> {
     const [t] = await this.value;
-    return t === "some";
+    return t === 'some';
   }
 
   map<U>(fn: ((val: T) => U) | ((val: T) => Promise<U>)): Option<U> {
     return new KOption<U>(
       (async () => {
         const [t, v] = await this.value;
-        if (t === "none") {
+        if (t === 'none') {
           return [t, v];
         } else {
           const fv = await fn(v);
@@ -327,10 +311,10 @@ class KOption<T> implements Option<T> {
 
   async match<U>(fn: Match<T, U>): Promise<U> {
     const [t, v] = await this.value;
-    if (t === "some") {
+    if (t === 'some') {
       return Promise.resolve(fn.some(v));
     } else {
-      if (typeof fn.none === "function") {
+      if (typeof fn.none === 'function') {
         const f = fn.none as (() => U) | (() => Promise<U>);
         return Promise.resolve(f());
       } else {
@@ -343,7 +327,7 @@ class KOption<T> implements Option<T> {
     return new KOption(
       (async () => {
         const [t, v] = await this.value;
-        if (t === "none") {
+        if (t === 'none') {
           return [t, v];
         } else {
           await sideEffect(v);
@@ -355,25 +339,19 @@ class KOption<T> implements Option<T> {
 
   async unwrap(): Promise<T> {
     const [t, v] = await this.value;
-    if (t === "some") {
+    if (t === 'some') {
       return v;
     } else {
-      throw new UnwrapError(
-        "Failed to unwrap",
-        "option",
-        "Expected Some got None",
-      );
+      throw new UnwrapError('Failed to unwrap', 'option', 'Expected Some got None');
     }
   }
 
-  async unwrapOr(
-    def: Promise<T> | (() => T) | (() => Promise<T>) | T,
-  ): Promise<T> {
+  async unwrapOr(def: Promise<T> | (() => T) | (() => Promise<T>) | T): Promise<T> {
     const [t, v] = await this.value;
-    if (t === "some") {
+    if (t === 'some') {
       return v;
     } else {
-      if (typeof def === "function") {
+      if (typeof def === 'function') {
         const f = def as (() => T) | (() => Promise<T>);
         return Promise.resolve(f());
       } else {
@@ -384,11 +362,11 @@ class KOption<T> implements Option<T> {
 }
 
 function Some<T>(v: T): Option<T> {
-  return new KOption(Promise.resolve(["some", v]));
+  return new KOption(Promise.resolve(['some', v]));
 }
 
 function None<T>(): Option<T> {
-  return new KOption<T>(Promise.resolve(["none", null]));
+  return new KOption<T>(Promise.resolve(['none', null]));
 }
 
 export { KOption, Some, None, Opt };

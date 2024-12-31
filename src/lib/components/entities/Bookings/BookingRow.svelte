@@ -23,7 +23,9 @@
         const rd = format(parse(date, "dd-MM-yyyy", new Date()), "yyyy-MM-dd");
         //@ts-ignore
         const utcDate = moment.tz(`${rd} ${time}`, "Asia/Singapore").clone().tz("UTC");
-        const d = sub(new Date(utcDate), {minutes: 120});
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const d = sub(new Date(utcDate as any), {minutes: 120});
         const now = new Date();
         return !isAfter(now, d);
     }
@@ -47,6 +49,8 @@
         reverting = false;
     }
 
+    const session: any = $page.data.session;
+
 </script>
 
 
@@ -69,10 +73,10 @@
                 </Card.Description>
             </div>
             <div class="flex gap-1.5 text-center">
-                {#if b.status === "Buying" && $page.data.session?.roles?.includes("admin")}
-                    <div on:click={revertBuying}>
+                {#if b.status === "Buying" && session?.roles?.includes("admin")}
+                    <button on:click={revertBuying}>
                         <Badge class="{BOOKING_STATUS[b.status].color}">{b.status} (Click to revert)</Badge>
-                    </div>
+                    </button>
                 {:else}
                     <Badge class="{BOOKING_STATUS[b.status].color}">{b.status}</Badge>
                 {/if}

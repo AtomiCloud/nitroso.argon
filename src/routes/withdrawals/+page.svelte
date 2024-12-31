@@ -97,6 +97,8 @@
             });
     }
 
+    const session: any = $page.data.session;
+
 </script>
 
 <div class="flex flex-col">
@@ -115,7 +117,7 @@
 
     </div>
     <div class="flex flex-col gap-4 w-11/12 max-w-[1200px] mx-auto my-12">
-        {#if $page.data.session?.roles?.includes("admin")}
+        {#if session?.roles?.includes("admin")}
             <Input placeholder="Filter by ID..." bind:value={withdrawalId} on:input={triggerSearch}/>
             <Input placeholder="Filter by user ID..." bind:value={userId} on:input={triggerSearch}/>
             <Input placeholder="Filter by completer ID..." bind:value={completerId} on:input={triggerSearch}/>
@@ -170,7 +172,7 @@
                                 <div class="flex flex-wrap justify-between gap-4">
                                     <div class="flex flex-1 flex-wrap gap-4">
                                         {#if w.status.status?.toLowerCase() == "pending"}
-                                            {#if $page.data.session?.roles?.includes("admin") ?? false}
+                                            {#if session?.roles?.includes("admin") ?? false}
                                                 <ApproveWithdrawal withdrawal={w}/>
                                                 <RejectWithdrawal withdrawal={w}/>
                                             {/if}

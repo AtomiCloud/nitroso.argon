@@ -1,28 +1,28 @@
-import type { ProblemDetails } from "../../errors/problem_details";
-import type { UserPrincipalRes } from "$lib/api/core/data-contracts";
-import { NewApi } from "../../store";
-import { toResult } from "$lib/utility";
-import type { PageLoad } from "./$types";
+import type { ProblemDetails } from '../../errors/problem_details';
+import type { UserPrincipalRes } from '$lib/api/core/data-contracts';
+import { NewApi } from '../../store';
+import { toResult } from '$lib/utility';
+import type { PageLoad } from './$types';
 
 export const load = (async ({
   parent,
   url,
 }): Promise<{
-  result: ["err", ProblemDetails] | ["ok", UserPrincipalRes[]];
+  result: ['err', ProblemDetails] | ['ok', UserPrincipalRes[]];
 }> => {
   const { session } = await parent();
 
   const api = NewApi({ data: { session } });
 
-  const search = url.searchParams.get("search") ?? "";
+  const search = url.searchParams.get('search') ?? '';
 
   const r = await toResult(
     () =>
-      api.vUserDetail("1", {
+      api.vUserDetail('1', {
         Username: search,
         Limit: 100,
       }),
-    "Fail to get users",
+    'Fail to get users',
   ).serial();
   return {
     result: r,

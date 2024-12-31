@@ -27,7 +27,10 @@
     async function cancelBooking() {
         submitting = true;
 
-        const user = $page.data.session?.roles?.includes("admin")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const session: any = $page.data.session;
+
+        const user = session?.roles?.includes("admin")
             ? {}
             : {userId: $page.data.user.principal.id}
 

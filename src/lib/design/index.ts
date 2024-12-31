@@ -1,1 +1,1 @@
-export { animations } from "./animations";
+export { animations } from './animations';

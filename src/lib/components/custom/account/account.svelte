@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import {Button} from "$lib/components/ui/button";
     import {signIn, signOut} from "@auth/sveltekit/client";
     import {page} from "$app/stores";
@@ -17,9 +17,11 @@
         loading = true;
         signIn('descope');
     }
+
+    const session: any = $page.data.session;
 </script>
 
-{#if $page.data.session}
+{#if session}
     <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild let:builder>
             <Button
@@ -28,9 +30,9 @@
                     class="relative h-8 w-8 rounded-full"
             >
                 <Avatar.Root class="h-8 w-8">
-                    <Avatar.Image src="{$page.data.session?.user?.image}"
-                                  alt="@{$page.data.session?.user?.email}"/>
-                    <Avatar.Fallback>{$page.data.session?.user?.email?.slice(0, 2)?.toUpperCase()}</Avatar.Fallback>
+                    <Avatar.Image src="{session?.user?.image}"
+                                  alt="@{session?.user?.email}"/>
+                    <Avatar.Fallback>{session?.user?.email?.slice(0, 2)?.toUpperCase()}</Avatar.Fallback>
                 </Avatar.Root>
             </Button>
         </DropdownMenu.Trigger>
@@ -41,11 +43,11 @@
                         @{$page.data.user?.principal?.username}
                     </p>
                     <p class="text-xs leading-none text-muted-foreground">
-                        {$page.data.session?.user?.email}
+                        {session?.user?.email}
                     </p>
                 </div>
             </DropdownMenu.Label>
-            {#if $page.data.session?.roles?.includes("admin")}
+            {#if session?.roles?.includes("admin")}
             <DropdownMenu.Separator/>
             <a href="/costs">
                 <DropdownMenu.Item>
@@ -75,22 +77,22 @@
                 </DropdownMenu.Item>
             </a>
             <DropdownMenu.Separator/>
-            <a href="{$page.data.session?.roles?.includes('admin') ? '/bookings' : `/bookings?userId=${$page.data.user.principal.id}`}">
+            <a href="{session?.roles?.includes('admin') ? '/bookings' : `/bookings?userId=${$page.data.user.principal.id}`}">
                 <DropdownMenu.Item>
                     Manage Bookings
                 </DropdownMenu.Item>
             </a>
-            <a href="{$page.data.session?.roles?.includes('admin') ? '/passengers' : `/passengers?userId=${$page.data.user.principal.id}`}">
+            <a href="{session?.roles?.includes('admin') ? '/passengers' : `/passengers?userId=${$page.data.user.principal.id}`}">
                 <DropdownMenu.Item>
                     Passengers
                 </DropdownMenu.Item>
             </a>
-            <a href="{$page.data.session?.roles?.includes('admin') ? '/withdrawals' : `/withdrawals?userId=${$page.data.user.principal.id}`}">
+            <a href="{session?.roles?.includes('admin') ? '/withdrawals' : `/withdrawals?userId=${$page.data.user.principal.id}`}">
                 <DropdownMenu.Item>
                     Withdrawals
                 </DropdownMenu.Item>
             </a>
-            <a href="{$page.data.session?.roles?.includes('admin') ? '/transactions' : `/transactions?userId=${$page.data.user.principal.id}`}">
+            <a href="{session?.roles?.includes('admin') ? '/transactions' : `/transactions?userId=${$page.data.user.principal.id}`}">
                 <DropdownMenu.Item>
                     Transactions
                 </DropdownMenu.Item>
