@@ -41,6 +41,13 @@ plugins:
 
 # Angular Conventional Commit Example: https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#-commit-message-guidelines
 types:
+  - type: dep
+    section: ⬆️ Dependencies ⬆️
+    desc: 'Update dependencies from upstream'
+    scopes:
+      default:
+        desc: Update dependencies
+        release: minor
   - type: build
     desc: 'Changes that affect the build system or external dependencies (example scopes: nix)'
     scopes:
