@@ -47,6 +47,7 @@
     }
 
     async function createUser(name: string): Promise<void> {
+        (window as any).fathom.trackEvent('Sign Up')
         submitting = true;
         const r = toResult(() => a.vUserCreate("1", {username: name}), "Failed to create user");
         await r.match({

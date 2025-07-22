@@ -29,6 +29,15 @@
         signIn('descope');
     }
 
+    function track() {
+        (window as any).fathom.trackEvent('Main Page CTA');
+    }
+
+    function cta() {
+        track();
+        login();
+    }
+
     const timings: { j2w: string, w2j: string }[] = [
         {w2j: "8:30 AM", j2w: "5:00 AM"},
         {w2j: "9:25 AM", j2w: "5:30 AM"},
@@ -89,12 +98,12 @@
                             <span>Your stress-free KTMB ticket booking assistant</span>
                         </h2>
                         {#if $page.data.session}
-                            <Button href="/schedules">
+                            <Button on:click={track} href="/schedules">
                                 <BookOpenCheck class="mr-2 h-4 w-4"/>
                                 Start Booking
                             </Button>
                         {:else}
-                            <Button on:click={login} disabled={loading}>
+                            <Button on:click={cta} disabled={loading}>
                                 {#if loading}
                                     <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                                 {:else}
