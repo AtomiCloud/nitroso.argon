@@ -117,6 +117,10 @@
 
     const minDate = today(getLocalTimeZone());
 
+    function track() {
+        (window as any).fathom.trackEvent('Select Date To Buy')
+    }
+
     $: currDate = toZincDate(bindDate);
 
 </script>
@@ -214,7 +218,7 @@
                                             {/if}
                                         </div>
                                         <hr>
-                                        <Button class="w-full max-w-24"
+                                        <Button on:click={track} class="w-full max-w-24"
                                                 href="/bookings/purchase?date={currDate}&direction={bindDirection}&time={time}&userId={$page.data.user.principal.id}">
                                             Buy
                                         </Button>

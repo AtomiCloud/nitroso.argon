@@ -65,9 +65,13 @@
 
     }
 
+    function track() {
+        (window as any).fathom.trackEvent('Trigger Buy');
+    }
+
     async function buy() {
         submitting = true;
-
+        (window as any).fathom.trackEvent('Buy')
         if (checked) {
             await toResult(() => $api.vPassengerCreate(userId, "1.0", {
                 fullName: passenger.fullName,
@@ -119,7 +123,7 @@
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
-    <Dialog.Trigger class="{buttonVariants({ variant: 'default' })}" disabled={!isValid}>
+    <Dialog.Trigger on:click={track} class="{buttonVariants({ variant: 'default' })}" disabled={!isValid}>
         <ShoppingBasket class="mr-2 h-4 w-4"/>
         Purchase
     </Dialog.Trigger>

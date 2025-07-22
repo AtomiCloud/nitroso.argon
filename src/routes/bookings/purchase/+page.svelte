@@ -294,7 +294,9 @@
                             S$ {$page.data.user?.wallet?.usable?.toFixed(2) ?? "0.00"}</div>
                         <div class="text-sm font-light">Your Balance</div>
                         <div class="text-sm font-light {($page.data.user?.wallet?.usable ?? 0) >= cost.final ? 'hidden': '' }">
-                            <a class="underline text-blue-500 hover:text-sky-500" href="/wallets/deposit">Deposit
+                            <a class="underline text-blue-500 hover:text-sky-500"
+                               href="/wallets/deposit"
+                               onclick="window.fathom.trackEvent('Deposit');">Deposit
                                 Now</a>
                         </div>
                     </div>
