@@ -30,7 +30,7 @@
     }
 
     function track() {
-        (window as any).fathom.trackEvent('Main Page CTA');
+        (window as any)?.fathom?.trackEvent('Main Page CTA');
     }
 
     function cta() {
