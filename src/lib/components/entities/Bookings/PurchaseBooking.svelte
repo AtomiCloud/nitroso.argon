@@ -66,12 +66,12 @@
     }
 
     function track() {
-        (window as any).fathom.trackEvent('Trigger Buy');
+        (window as any)?.fathom?.trackEvent('Trigger Buy');
     }
 
     async function buy() {
         submitting = true;
-        (window as any).fathom.trackEvent('Buy')
+        (window as any)?.fathom?.trackEvent('Buy')
         if (checked) {
             await toResult(() => $api.vPassengerCreate(userId, "1.0", {
                 fullName: passenger.fullName,
