@@ -2,13 +2,17 @@
     import {config} from "../config/shared";
     import Page from "$lib/components/complex/page.svelte";
     import mascot from "$lib/assets/nitroso-mascot-fs8.png";
+    import social from "$lib/assets/social-fs8.png";
+    
+    // Create absolute URL for social image
+    $: socialImageUrl = `${$page.url.origin}${social}`;
     import panel1 from "$lib/assets/panel-1-fs8.png";
     import panel2 from "$lib/assets/panel-2-fs8.png";
     import panel3 from "$lib/assets/panel-3-fs8.png";
     import panel4 from "$lib/assets/panel-4-fs8.png";
     import panel5 from "$lib/assets/panel-5-fs8.png";
     import {Button} from "$lib/components/ui/button";
-    import {BookOpenCheck, ChevronDownCircle, LucideLoader} from "lucide-svelte";
+    import {BookOpenCheck, ChevronDownCircle, LucideLoader, Star} from "lucide-svelte";
     //@ts-ignore
     import * as Accordion from "$lib/components/ui/accordion";
     //@ts-ignore
@@ -17,7 +21,7 @@
     import {Footer} from "$lib/components/custom/footer";
     import {page} from "$app/stores";
     import {signIn} from "@auth/sveltekit/client";
-    import {Badge} from "$lib/components/ui/badge";
+    import * as Card from "$lib/components/ui/card";
 
     console.log("Configuration", config.app);
 
@@ -60,7 +64,103 @@
 
     ]
 
+    const customerReviews = [
+        {
+            name: "csyhue",
+            location: "Singapore",
+            rating: 5,
+            review: "Amazing service and seamless booking. Used this platform for very long and always managed to get tickets! Highly recommend!",
+            date: "July 2025",
+            link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
+        },
+        {
+            name: "fhong",
+            location: "Singapore",
+            rating: 5,
+            review: "A friendly and reliable seller. You have to try it to believe. We got the tickets 1 day before the departure date. Highly recommended 👍🏼👍🏼",
+            date: "July 2025",
+            link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
+        },
+        {
+            name: "reappraisal",
+            location: "Singapore", 
+            rating: 5,
+            review: "Purchase 2 KTMB tickets went smoothly. There wasn’t any queue and saved us a lot of time. Definitely recommended and trusted. Thank you",
+            date: "July 2025",
+            link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
+        },
+        {
+            name: "cowwoowoo",
+            location: "Singapore",
+            rating: 5,
+            review: "Managed to secure the tickets for my trip. Speedy customer service as well 👍",
+            date: "January 2025",
+            link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
+        },
+        {
+            name: "snkrmint",
+            location: "Singapore",
+            rating: 5,
+            review: "Highly recommended. Reliable service.",
+            date: "December 2024",
+            link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
+        },
+    ]
+    
+    const averageRating = 4.8
+    const totalStars = 5
+    const filledStars = Math.floor(averageRating)
+    const hasHalfStar = averageRating % 1 !== 0
+
 </script>
+
+<svelte:head>
+    <title>BunnyBooker - Your Stress-Free KTMB Train Ticket Booking Assistant | Singapore to Johor Bahru</title>
+    <meta name="description" content="Book KTMB train tickets from Singapore to Johor Bahru effortlessly with BunnyBooker. 99% success rate, automated booking, 24/7 service. Skip the queue and let our AI handle your train reservations." />
+    <meta name="keywords" content="KTMB train tickets, Singapore to Johor Bahru, JB Sentral, automated booking, train reservation, Malaysia Singapore travel, cross-border transport" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="BunnyBooker - Automated KTMB Train Ticket Booking" />
+    <meta property="og:description" content="Skip the hassle of manual KTMB (Singapore-Johor Train) booking. Our AI bunnies secure your train tickets automatically with 99% success rate. Book Singapore-JB train tickets stress-free!" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://bunnybooker.com" />
+    <meta property="og:image" content={socialImageUrl} />
+    <meta property="og:site_name" content="BunnyBooker" />
+    <meta property="og:locale" content="en_SG" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="BunnyBooker - Automated KTMB Train Ticket Booking" />
+    <meta name="twitter:description" content="Skip the hassle of manual KTMB booking. Our AI bunnies secure your train tickets automatically with 99% success rate." />
+    <meta name="twitter:image" content={socialImageUrl} />
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="author" content="BunnyBooker" />
+    <meta name="theme-color" content="#FBBF24" />
+    <link rel="canonical" href="https://bunnybooker.com" />
+    
+    <!-- Structured Data for Local Business -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "BunnyBooker",
+        "description": "Automated KTMB train ticket booking service for Singapore to Johor Bahru travel",
+        "provider": {
+            "@type": "Organization",
+            "name": "BunnyBooker"
+        },
+        "serviceType": "Train Ticket Booking Service",
+        "areaServed": ["Singapore", "Johor Bahru", "Malaysia"],
+        "offers": {
+            "@type": "Offer",
+            "description": "Automated KTMB train ticket booking with 100% success rate"
+        }
+    }
+    </script>
+</svelte:head>
 
 <style lang="css">
     .geo-bg {
@@ -76,6 +176,23 @@
     h4 {
         font-family: 'Raleway', 'sans-serif';
     }
+
+    @keyframes marquee {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-50%);
+        }
+    }
+
+    .animate-marquee {
+        animation: marquee 30s linear infinite;
+    }
+
+    .hover\:pause-marquee:hover {
+        animation-play-state: paused;
+    }
 </style>
 <Page notFoundMessage="Main page cannot be found">
     <div class="flex h-[calc(100dvh-4rem)] geo-bg">
@@ -87,15 +204,14 @@
                              style="transform: translateX(-5%)"/>
                     </div>
                     <div class="flex flex-col gap-4 justify-evenly align-center">
-                        <div class="relative">
+                        <div>
                             <h1 class="text-5xl md:text-7xl text-center md:text-left ">
                                 <span>Bunny</span><span>Booker</span>
                             </h1>
-                            <Badge class="bg-yellow-400 text-xs dark:text-slate-300 text-slate-700 absolute bottom-0 right-0 translate-x-1/4 translate-y-3">BETA</Badge>
                         </div>
 
-                        <h2 class="text-lg md:text-xl text-center md:text-left ">
-                            <span>Your stress-free KTMB ticket booking assistant</span>
+                        <h2 class="text-lg md:text-xl text-center md:text-left max-w-[500px]">
+                            <span>Your stress-free KTMB ticket booking assistant for Singapore-Johor Bahru travel</span>
                         </h2>
                         {#if $page.data.session}
                             <Button on:click={track} href="/schedules">
@@ -540,6 +656,138 @@
                     </Accordion.Content>
                 </Accordion.Item>
             </Accordion.Root>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Customer Reviews Section -->
+    <div class="w-full bg-white text-black relative overflow-hidden"
+         style="background-image: radial-gradient(circle at 25% 25%, rgba(253, 224, 71, 0.08) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(255, 179, 11, 0.06) 0%, transparent 50%); background-size: 600px 600px, 400px 400px;">
+        <!-- Decorative elements -->
+        <div class="absolute top-10 left-10 w-20 h-20 bg-yellow-200 rounded-full opacity-30 animate-pulse"></div>
+        <div class="absolute top-32 right-16 w-12 h-12 bg-orange-200 rounded-full opacity-40"></div>
+        <div class="absolute bottom-20 left-20 w-16 h-16 bg-amber-200 rounded-full opacity-25"></div>
+        <div class="absolute bottom-40 right-10 w-8 h-8 bg-yellow-300 rounded-full opacity-50"></div>
+        <div class="flex flex-col gap-4 justify-center align-center w-11/12 max-w-[1200px] mx-auto py-24">
+            <div class="text-center">
+                <h3 class="text-3xl md:text-6xl font-extrabold mb-4 text-black" style="font-family: 'Cabin', 'sans-serif';">Customer Love</h3>
+                <div class="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-2 mb-6">
+                    <div class="flex items-center gap-2">
+                        <div class="flex">
+                            {#each Array(filledStars) as _, i}
+                                <Star class="h-6 w-6 sm:h-8 sm:w-8 fill-amber-600 text-amber-600" />
+                            {/each}
+                            {#if hasHalfStar}
+                                <div class="relative">
+                                    <Star class="h-6 w-6 sm:h-8 sm:w-8 text-amber-600" />
+                                    <Star class="h-6 w-6 sm:h-8 sm:w-8 fill-amber-600 text-amber-600 absolute top-0 left-0" style="clip-path: inset(0 50% 0 0);" />
+                                </div>
+                            {/if}
+                            {#each Array(totalStars - filledStars - (hasHalfStar ? 1 : 0)) as _, i}
+                                <Star class="h-6 w-6 sm:h-8 sm:w-8 text-amber-600" />
+                            {/each}
+                        </div>
+                        <span class="text-lg sm:text-xl font-semibold text-slate-800">{averageRating}/5</span>
+                    </div>
+                    <a href="https://www.carousell.sg/u/bunnybooker/?tab=reviews" class="text-sm sm:text-base text-blue-600 hover:text-blue-800 underline font-medium">View All Reviews</a>
+                </div>
+                <p class="text-base sm:text-lg text-slate-700 max-w-2xl mx-auto font-light px-4">Join thousands of happy travelers who trust BunnyBooker!</p>
+            </div>
+            
+            <!-- Mobile: Static 2-column grid -->
+            <div class="block sm:hidden px-4 mb-8">
+                <div class="grid grid-cols-1 gap-4">
+                    {#each customerReviews.slice(0, 2) as review}
+                        <a href={review.link} class="group block transform transition-all duration-300 hover:scale-105">
+                            <div class="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-yellow-300 group-hover:border-orange-400 group-hover:shadow-yellow-200/50 p-4 relative overflow-hidden">
+                                <!-- Decorative corner accent -->
+                                <div class="absolute top-0 right-0 w-12 h-12 bg-gradient-to-bl from-yellow-200 to-transparent opacity-50"></div>
+                                
+                                <div class="flex flex-col mb-3 relative z-10">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h4 class="text-base font-bold text-black group-hover:text-orange-700 transition-colors" style="font-family: 'Cabin', 'sans-serif';">{review.name}</h4>
+                                            <p class="text-xs text-slate-600" style="font-family: 'Raleway', 'sans-serif';">{review.location} • {review.date}</p>
+                                        </div>
+                                        <div class="flex">
+                                            {#each Array(review.rating) as _, i}
+                                                <Star class="h-3 w-3 fill-amber-500 text-amber-500" />
+                                            {/each}
+                                            {#each Array(5 - review.rating) as _, i}
+                                                <Star class="h-3 w-3 text-amber-300" />
+                                            {/each}
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-slate-700 leading-relaxed font-light relative z-10" style="font-family: 'Raleway', 'sans-serif';">"{review.review}"</p>
+                                
+                                <!-- Hover indicator -->
+                                <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-xs text-orange-600 font-medium">
+                                    Read more →
+                                </div>
+                            </div>
+                        </a>
+                    {/each}
+                </div>
+            </div>
+
+            <!-- Desktop: Marquee -->
+            <div class="hidden sm:block overflow-hidden relative py-4 mb-8">
+                <div class="flex gap-4 sm:gap-6 animate-marquee hover:pause-marquee px-4">
+                    {#each [...customerReviews, ...customerReviews] as review, i}
+                        <a href={review.link} class="group block flex-shrink-0 w-72 sm:w-80 transform transition-all duration-300 hover:scale-105">
+                            <div class="bg-gradient-to-br from-white to-gray-50 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-yellow-300 group-hover:border-orange-400 group-hover:shadow-yellow-200/50 p-4 sm:p-6 relative overflow-hidden">
+                                <!-- Decorative corner accent -->
+                                <div class="absolute top-0 right-0 w-12 h-12 bg-gradient-to-bl from-yellow-200 to-transparent opacity-50"></div>
+                                
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 sm:mb-4 relative z-10">
+                                    <div class="mb-2 sm:mb-0">
+                                        <h4 class="text-base sm:text-lg font-bold text-black group-hover:text-orange-700 transition-colors" style="font-family: 'Cabin', 'sans-serif';">{review.name}</h4>
+                                        <p class="text-xs sm:text-sm text-slate-600" style="font-family: 'Raleway', 'sans-serif';">{review.location} • {review.date}</p>
+                                    </div>
+                                    <div class="flex">
+                                        {#each Array(review.rating) as _, i}
+                                            <Star class="h-3 w-3 sm:h-4 sm:w-4 fill-amber-500 text-amber-500" />
+                                        {/each}
+                                        {#each Array(5 - review.rating) as _, i}
+                                            <Star class="h-3 w-3 sm:h-4 sm:w-4 text-amber-300" />
+                                        {/each}
+                                    </div>
+                                </div>
+                                <p class="text-sm sm:text-base text-slate-700 leading-relaxed font-light relative z-10" style="font-family: 'Raleway', 'sans-serif';">"{review.review}"</p>
+                                
+                                <!-- Hover indicator -->
+                                <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-xs text-orange-600 font-medium">
+                                    Read more →
+                                </div>
+                            </div>
+                        </a>
+                    {/each}
+                </div>
+            </div>
+            
+            <div class="text-center bg-gradient-to-br from-white via-yellow-50/30 to-orange-50/30 rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-xl border border-yellow-200/50 mx-4 sm:mx-0 relative overflow-hidden backdrop-blur-sm">
+                <!-- Decorative background elements -->
+                <div class="absolute top-0 left-0 w-24 h-24 bg-yellow-200 rounded-full opacity-20 -translate-x-12 -translate-y-12"></div>
+                <div class="absolute bottom-0 right-0 w-32 h-32 bg-orange-200 rounded-full opacity-15 translate-x-16 translate-y-16"></div>
+                
+                <h4 class="text-xl sm:text-3xl font-extrabold mb-6 text-black relative z-10" style="font-family: 'Cabin', 'sans-serif';">Trusted by 1,000+ Travelers</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 relative z-10">
+                    <div class="text-center">
+                        <div class="text-3xl sm:text-5xl font-extrabold text-amber-600 mb-2" style="font-family: 'Cabin', 'sans-serif';">99%</div>
+                        <div class="text-sm sm:text-base text-slate-700 font-medium" style="font-family: 'Raleway', 'sans-serif';">Success Rate</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl sm:text-5xl font-extrabold text-orange-600 mb-2" style="font-family: 'Cabin', 'sans-serif';">5,000+</div>
+                        <div class="text-sm sm:text-base text-slate-700 font-medium" style="font-family: 'Raleway', 'sans-serif';">Bookings Made</div>
+                    </div>
+                    <div class="text-center sm:col-span-2 lg:col-span-1">
+                        <div class="text-3xl sm:text-5xl font-extrabold text-amber-600 mb-2" style="font-family: 'Cabin', 'sans-serif';">24/7</div>
+                        <div class="text-sm sm:text-base text-slate-700 font-medium" style="font-family: 'Raleway', 'sans-serif';">Automated Service</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

@@ -17,4 +17,4 @@ export LANDSCAPE="$landscape"
 export PUBLIC_LANDSCAPE="$landscape"
 
 # shellcheck disable=SC2086
-doppler run -p "$platform-$service" -c "$landscape" -- $dev
+infisical run -env="$landscape" -- $dev
