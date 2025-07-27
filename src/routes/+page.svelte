@@ -5,7 +5,6 @@
     import social from "$lib/assets/social-fs8.png";
     
     // Create absolute URL for social image
-    $: socialImageUrl = `${$page.url.origin}${social}`;
     import panel1 from "$lib/assets/panel-1-fs8.png";
     import panel2 from "$lib/assets/panel-2-fs8.png";
     import panel3 from "$lib/assets/panel-3-fs8.png";
@@ -124,7 +123,7 @@
     <meta property="og:description" content="Skip the hassle of manual KTMB (Singapore-Johor Train) booking. Our AI bunnies secure your train tickets automatically with 99% success rate. Book Singapore-JB train tickets stress-free!" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://bunnybooker.com" />
-    <meta property="og:image" content={socialImageUrl} />
+    <meta property="og:image" content={social} />
     <meta property="og:site_name" content="BunnyBooker" />
     <meta property="og:locale" content="en_SG" />
     
@@ -132,7 +131,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="BunnyBooker - Automated KTMB Train Ticket Booking" />
     <meta name="twitter:description" content="Skip the hassle of manual KTMB booking. Our AI bunnies secure your train tickets automatically with 99% success rate." />
-    <meta name="twitter:image" content={socialImageUrl} />
+    <meta name="twitter:image" content={social} />
     
     <!-- Additional SEO Meta Tags -->
     <meta name="robots" content="index, follow" />
