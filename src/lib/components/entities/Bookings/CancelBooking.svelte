@@ -16,6 +16,7 @@
     import {invalidateAll} from "$app/navigation";
     import {Input} from "$lib/components/ui/input";
     import {page} from "$app/stores";
+    import {tick} from "svelte";
 
     let dialogOpen = false;
     let showCancellationStep = false;
@@ -37,13 +38,17 @@
         toast.info("Great choice! Your booking is still active. Most tickets become available 1-2 days before departure.");
     }
     
-    function openDialog() {
+    async function openDialog() {
         dialogOpen = true;
-        if (dialogElement) {
-            setTimeout(() => {
+        // Reset state when opening dialog
+        showCancellationStep = false;
+        // Wait for DOM to update, then scroll to top
+        await tick();
+        setTimeout(() => {
+            if (dialogElement) {
                 dialogElement.scrollTop = 0;
-            }, 100);
-        }
+            }
+        }, 50);
     }
 
     async function submit() {
@@ -80,6 +85,20 @@
 
     let confirm = "";
     $: valid = confirm === booking.passenger.fullName;
+    
+    // Only scroll to top when dialog first opens or when switching between steps
+    let lastDialogState = false;
+    let lastCancellationStep = false;
+    
+    $: if (dialogOpen !== lastDialogState || showCancellationStep !== lastCancellationStep) {
+        if (dialogElement && (dialogOpen || showCancellationStep !== lastCancellationStep)) {
+            setTimeout(() => {
+                dialogElement.scrollTop = 0;
+            }, 10);
+        }
+        lastDialogState = dialogOpen;
+        lastCancellationStep = showCancellationStep;
+    }
 
 </script>
 
@@ -97,8 +116,8 @@
                     <!-- Education Step -->
                     <div class="flex flex-col gap-4 sm:gap-6">
                         <div class="text-center">
-                            <h3 class="text-base sm:text-lg font-semibold mb-1 sm:mb-2 text-foreground">Did you know most tickets become available 1-2 days before departure?</h3>
-                            <p class="text-sm text-muted-foreground">Here's what our data shows about KTMB ticket patterns:</p>
+                            <h3 class="text-lg sm:text-lg font-semibold mb-1 sm:mb-2 text-foreground">Did you know most tickets become available 1-2 days before departure?</h3>
+                            <p class="text-base text-muted-foreground">Here's what our data shows about KTMB ticket patterns:</p>
                         </div>
                         
                         <div class="grid sm:grid-cols-3 gap-3">
@@ -107,8 +126,8 @@
                                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
                                         <Users class="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
                                     </div>
-                                    <h4 class="font-semibold text-xs sm:text-sm">Peak Cancellations</h4>
-                                    <p class="text-xs text-muted-foreground leading-tight">Most people cancel 1-2 days before departure due to last-minute plan changes</p>
+                                    <h4 class="font-semibold text-sm sm:text-sm">Peak Cancellations</h4>
+                                    <p class="text-sm text-muted-foreground leading-tight">Most people cancel 1-2 days before departure due to last-minute plan changes</p>
                                 </Card.Content>
                             </Card.Root>
                             
@@ -117,8 +136,8 @@
                                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
                                         <TrendingUp class="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
                                     </div>
-                                    <h4 class="font-semibold text-xs sm:text-sm">Best Success Window</h4>
-                                    <p class="text-xs text-muted-foreground leading-tight">1-2 days before departure is when most tickets get successfully booked</p>
+                                    <h4 class="font-semibold text-sm sm:text-sm">Best Success Window</h4>
+                                    <p class="text-sm text-muted-foreground leading-tight">1-2 days before departure is when most tickets get successfully booked</p>
                                 </Card.Content>
                             </Card.Root>
                             
@@ -127,16 +146,16 @@
                                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 dark:bg-amber-900 rounded-full flex items-center justify-center">
                                         <Clock class="h-5 w-5 sm:h-6 sm:w-6 text-amber-600 dark:text-amber-400" />
                                     </div>
-                                    <h4 class="font-semibold text-xs sm:text-sm">Patience Pays Off</h4>
-                                    <p class="text-xs text-muted-foreground leading-tight">Our 99% success rate comes from customers who wait for the optimal booking window</p>
+                                    <h4 class="font-semibold text-sm sm:text-sm">Patience Pays Off</h4>
+                                    <p class="text-sm text-muted-foreground leading-tight">Our 99% success rate comes from customers who wait for the optimal booking window</p>
                                 </Card.Content>
                             </Card.Root>
                         </div>
                         
                         <Alert.Root class="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950 p-3 sm:p-4">
                             <Clock class="h-4 w-4" />
-                            <Alert.Title class="text-sm sm:text-base">Pro Tip</Alert.Title>
-                            <Alert.Description class="text-xs sm:text-sm leading-relaxed">
+                            <Alert.Title class="text-base sm:text-base">Pro Tip</Alert.Title>
+                            <Alert.Description class="text-sm sm:text-sm leading-relaxed">
                                 Since you're closer to your departure date, you're actually in the sweet spot where tickets are most likely to become available. 
                                 <strong>Most of our successful bookings happen within 48 hours of departure!</strong>
                             </Alert.Description>
@@ -156,7 +175,7 @@
                 {:else}
                     <!-- Original Cancellation Step -->
                     <div class="flex flex-col gap-4">
-                        <p class="text-justify py-2">
+                        <p class="text-justify py-2 text-base">
                             Cancel this booking for {booking.passenger.fullName}. All money
                             paid will be refunded. This action cannot be undone.
                         </p>
@@ -170,7 +189,7 @@
                             </Alert.Description>
                         </Alert.Root>
 
-                        <p class="text-justify py-2">
+                        <p class="text-justify py-2 text-base">
                             Please type the name of the passenger, <code
                                 class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
                             {booking.passenger.fullName}
@@ -181,7 +200,7 @@
                             <Input placeholder="Name"
                                    bind:value={confirm}
                             />
-                            <div class="text-sm text-destructive {valid ? 'opacity-0' : 'opacity-1'}">
+                            <div class="text-base text-destructive {valid ? 'opacity-0' : 'opacity-1'}">
                                 Please type the name of the passenger of the booking to proceed.
                             </div>
                         </div>

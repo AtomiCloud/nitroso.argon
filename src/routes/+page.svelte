@@ -692,7 +692,7 @@
             <div class="absolute bottom-40 right-10 w-8 h-8 bg-yellow-300 rounded-full opacity-50"></div>
             <div class="flex flex-col gap-4 justify-center align-center w-11/12 max-w-[1200px] mx-auto py-24">
                 <div class="text-center">
-                    <h2 class="text-3xl md:text-6xl font-extrabold mb-4 text-black" style="font-family: 'Cabin', 'sans-serif';" id="customer-reviews">Customer Love</h2>
+                    <h2 class="text-4xl md:text-6xl font-extrabold mb-4 text-black" style="font-family: 'Cabin', 'sans-serif';" id="customer-reviews">Customer Love</h2>
                 <div class="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-2 mb-6">
                     <div class="flex items-center gap-2">
                         <div class="flex">
@@ -709,11 +709,11 @@
                                 <Star class="h-6 w-6 sm:h-8 sm:w-8 text-amber-600" />
                             {/each}
                         </div>
-                        <span class="text-lg sm:text-xl font-semibold text-slate-800">{averageRating}/5</span>
+                        <span class="text-xl sm:text-xl font-semibold text-slate-800">{averageRating}/5</span>
                     </div>
-                    <a href="https://www.carousell.sg/u/bunnybooker/?tab=reviews" class="text-sm sm:text-base text-blue-600 hover:text-blue-800 underline font-medium">View All Reviews</a>
+                    <a href="https://www.carousell.sg/u/bunnybooker/?tab=reviews" class="text-base sm:text-base text-blue-600 hover:text-blue-800 underline font-medium">View All Reviews</a>
                 </div>
-                <p class="text-base sm:text-lg text-slate-700 max-w-2xl mx-auto font-light px-4">Join thousands of happy travelers who trust BunnyBooker!</p>
+                <p class="text-lg sm:text-lg text-slate-700 max-w-2xl mx-auto font-light px-4">Join thousands of happy travelers who trust BunnyBooker!</p>
             </div>
             
             <!-- Mobile: Static 2-column grid -->
@@ -728,20 +728,20 @@
                                 <div class="flex flex-col mb-3 relative z-10">
                                     <div class="flex justify-between items-start mb-2">
                                         <div>
-                                            <h4 class="text-base font-bold text-black group-hover:text-orange-700 transition-colors" style="font-family: 'Cabin', 'sans-serif';">{review.name}</h4>
-                                            <p class="text-xs text-slate-600" style="font-family: 'Raleway', 'sans-serif';">{review.location} • {review.date}</p>
+                                            <h4 class="text-lg font-bold text-black group-hover:text-orange-700 transition-colors" style="font-family: 'Cabin', 'sans-serif';">{review.name}</h4>
+                                            <p class="text-sm text-slate-600" style="font-family: 'Raleway', 'sans-serif';">{review.location} • {review.date}</p>
                                         </div>
                                         <div class="flex">
                                             {#each Array(review.rating) as _, i}
-                                                <Star class="h-3 w-3 fill-amber-500 text-amber-500" />
+                                                <Star class="h-4 w-4 fill-amber-500 text-amber-500" />
                                             {/each}
                                             {#each Array(5 - review.rating) as _, i}
-                                                <Star class="h-3 w-3 text-amber-300" />
+                                                <Star class="h-4 w-4 text-amber-300" />
                                             {/each}
                                         </div>
                                     </div>
                                 </div>
-                                <p class="text-sm text-slate-700 leading-relaxed font-light relative z-10" style="font-family: 'Raleway', 'sans-serif';">"{review.review}"</p>
+                                <p class="text-base text-slate-700 leading-relaxed font-light relative z-10" style="font-family: 'Raleway', 'sans-serif';">"{review.review}"</p>
                                 
                                 <!-- Hover indicator -->
                                 <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-xs text-orange-600 font-medium">
@@ -793,19 +793,19 @@
                 <div class="absolute top-0 left-0 w-24 h-24 bg-yellow-200 rounded-full opacity-20 -translate-x-12 -translate-y-12"></div>
                 <div class="absolute bottom-0 right-0 w-32 h-32 bg-orange-200 rounded-full opacity-15 translate-x-16 translate-y-16"></div>
                 
-                <h4 class="text-xl sm:text-3xl font-extrabold mb-6 text-black relative z-10" style="font-family: 'Cabin', 'sans-serif';">Trusted by 1,000+ Travelers</h4>
+                <h4 class="text-2xl sm:text-3xl font-extrabold mb-6 text-black relative z-10" style="font-family: 'Cabin', 'sans-serif';">Trusted by 1,000+ Travelers</h4>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 relative z-10">
                     <div class="text-center">
                         <div class="text-3xl sm:text-5xl font-extrabold text-amber-600 mb-2" style="font-family: 'Cabin', 'sans-serif';">99%</div>
-                        <div class="text-sm sm:text-base text-slate-700 font-medium" style="font-family: 'Raleway', 'sans-serif';">Success Rate</div>
+                        <div class="text-base sm:text-base text-slate-700 font-medium" style="font-family: 'Raleway', 'sans-serif';">Success Rate</div>
                     </div>
                     <div class="text-center">
                         <div class="text-3xl sm:text-5xl font-extrabold text-orange-600 mb-2" style="font-family: 'Cabin', 'sans-serif';">5,000+</div>
-                        <div class="text-sm sm:text-base text-slate-700 font-medium" style="font-family: 'Raleway', 'sans-serif';">Bookings Made</div>
+                        <div class="text-base sm:text-base text-slate-700 font-medium" style="font-family: 'Raleway', 'sans-serif';">Bookings Made</div>
                     </div>
                     <div class="text-center sm:col-span-2 lg:col-span-1">
                         <div class="text-3xl sm:text-5xl font-extrabold text-amber-600 mb-2" style="font-family: 'Cabin', 'sans-serif';">24/7</div>
-                        <div class="text-sm sm:text-base text-slate-700 font-medium" style="font-family: 'Raleway', 'sans-serif';">Automated Service</div>
+                        <div class="text-base sm:text-base text-slate-700 font-medium" style="font-family: 'Raleway', 'sans-serif';">Automated Service</div>
                     </div>
                 </div>
             </div>
