@@ -14,16 +14,15 @@ export const load = (async ({
 
   const api = NewApi({ data: { session } });
 
-  const search = url.searchParams.get('search') ?? '';
+  const usernameSearch = url.searchParams.get('username') ?? '';
+  const userIdSearch = url.searchParams.get('userId') ?? '';
 
-  const r = await toResult(
-    () =>
-      api.vUserDetail('1', {
-        Username: search,
-        Limit: 100,
-      }),
-    'Fail to get users',
-  ).serial();
+  // Build query parameters based on what's provided
+  const queryParams: any = { Limit: 100 };
+  if (usernameSearch) queryParams.Username = usernameSearch;
+  if (userIdSearch) queryParams.Id = userIdSearch;
+
+  const r = await toResult(() => api.vUserDetail('1', queryParams), 'Fail to get users').serial();
   return {
     result: r,
   };
