@@ -145,19 +145,41 @@
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
-        "@type": "Service",
+        "@type": ["Service", "SoftwareApplication"],
         "name": "BunnyBooker",
         "description": "Automated KTMB train ticket booking service for Singapore to Johor Bahru travel",
+        "url": "https://bunnybooker.com",
         "provider": {
             "@type": "Organization",
-            "name": "BunnyBooker"
+            "name": "BunnyBooker",
+            "url": "https://bunnybooker.com"
         },
         "serviceType": "Train Ticket Booking Service",
-        "areaServed": ["Singapore", "Johor Bahru", "Malaysia"],
+        "category": "Travel",
+        "areaServed": [
+            {
+                "@type": "Place",
+                "name": "Singapore"
+            },
+            {
+                "@type": "Place", 
+                "name": "Johor Bahru, Malaysia"
+            }
+        ],
         "offers": {
             "@type": "Offer",
-            "description": "Automated KTMB train ticket booking with 100% success rate"
-        }
+            "description": "Automated KTMB train ticket booking with 99% success rate",
+            "availability": "https://schema.org/InStock"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "bestRating": "5",
+            "worstRating": "1",
+            "ratingCount": "1000"
+        },
+        "applicationCategory": "TravelApplication",
+        "operatingSystem": "Web Browser"
     }
     </script>
 </svelte:head>
@@ -195,69 +217,69 @@
     }
 </style>
 <Page notFoundMessage="Main page cannot be found">
-    <div class="flex h-[calc(100dvh-4rem)] geo-bg">
-        <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto">
-            <div class="flex flex-grow flex-col justify-center align-center">
-                <div class="flex flex-row-reverse flex-wrap justify-center align-center mt-4">
-                    <div>
-                        <img src={mascot} alt="BunnyBooker" class="h-[40vh] w-[40vh] md:h-80 md:w-80"
-                             style="transform: translateX(-5%)"/>
-                    </div>
-                    <div class="flex flex-col gap-4 justify-evenly align-center">
+    <main>
+        <section class="flex h-[calc(100dvh-4rem)] geo-bg" aria-label="Hero section">
+            <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto">
+                <div class="flex flex-grow flex-col justify-center align-center">
+                    <div class="flex flex-row-reverse flex-wrap justify-center align-center mt-4">
                         <div>
-                            <h1 class="text-5xl md:text-7xl text-center md:text-left ">
-                                <span>Bunny</span><span>Booker</span>
-                            </h1>
+                            <img src={mascot} alt="BunnyBooker mascot - friendly bunny character representing automated KTMB train ticket booking service" class="h-[40vh] w-[40vh] md:h-80 md:w-80"
+                                 style="transform: translateX(-5%)"/>
                         </div>
+                        <header class="flex flex-col gap-4 justify-evenly align-center">
+                            <div>
+                                <h1 class="text-5xl md:text-7xl text-center md:text-left ">
+                                    BunnyBooker
+                                </h1>
+                            </div>
 
-                        <h2 class="text-lg md:text-xl text-center md:text-left max-w-[500px]">
-                            <span>Your stress-free KTMB ticket booking assistant for Singapore-Johor Bahru travel</span>
-                        </h2>
-                        {#if $page.data.session}
-                            <Button on:click={track} href="/schedules">
-                                <BookOpenCheck class="mr-2 h-4 w-4"/>
-                                Start Booking
-                            </Button>
-                        {:else}
-                            <Button on:click={cta} disabled={loading}>
-                                {#if loading}
-                                    <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
-                                {:else}
+                            <p class="text-lg md:text-xl text-center md:text-left max-w-[500px]">
+                                <span>Your stress-free KTMB ticket booking assistant for Singapore-Johor Bahru travel</span>
+                            </p>
+                            {#if $page.data.session}
+                                <Button on:click={track} href="/schedules">
                                     <BookOpenCheck class="mr-2 h-4 w-4"/>
-                                {/if}
-                                Start Booking
-                            </Button>
-                        {/if}
+                                    Start Booking
+                                </Button>
+                            {:else}
+                                <Button on:click={cta} disabled={loading}>
+                                    {#if loading}
+                                        <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
+                                    {:else}
+                                        <BookOpenCheck class="mr-2 h-4 w-4"/>
+                                    {/if}
+                                    Start Booking
+                                </Button>
+                            {/if}
+                        </header>
+                    </div>
+                </div>
+                <div class="text-3xl text-center w-full flex flex-col items-center pt-12 pb-24 lg:pt-6 lg:pb-12">
+                    <div class="py-3">See how it works</div>
+                    <ChevronDownCircle class="animate-bounce h-8 w-8"/>
+                </div>
+            </div>
+        </section>
+
+        <section class="w-full bg-yellow-300 text-black" aria-labelledby="how-it-works">
+            <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
+                <div class="flex flex-wrap align-center justify-center panel-1 gap-4">
+                    <div class="flex flex-col align-center justify-center w-80">
+                        <h3 class="text-6xl font-extrabold text-center md:text-right">STEP 1</h3>
+                        <h4 class="text-2xl text-center md:text-right">
+                            Select Your Date and Time
+                        </h4>
+                        <div class="text-lg font-light my-4 text-slate-700 text-justify md:text-right">
+                            Choose when and where you want to travel, then place an order to
+                            send the details to BunnyBooker headquarters for our bunnies to work their magic.
+                        </div>
+                    </div>
+                    <div class="w-full md:w-1/2">
+                        <img src={panel1} alt="Step 1: Select your date and time interface showing calendar and time selection"/>
                     </div>
                 </div>
             </div>
-            <div class="text-3xl text-center w-full flex flex-col items-center pt-12 pb-24 lg:pt-6 lg:pb-12">
-
-                <div class="py-3">See how it works</div>
-                <ChevronDownCircle class="animate-bounce h-8 w-8"/>
-            </div>
-        </div>
-    </div>
-
-    <div class="w-full bg-yellow-300 text-black">
-        <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
-            <div class="flex flex-wrap align-center justify-center panel-1 gap-4">
-                <div class="flex flex-col align-center justify-center w-80">
-                    <h3 class="text-6xl font-extrabold text-center md:text-right">STEP 1</h3>
-                    <h4 class="text-2xl text-center md:text-right">
-                        Select Your Date and Time
-                    </h4>
-                    <div class="text-lg font-light my-4 text-slate-700 text-justify md:text-right">
-                        Choose when and where you want to travel, then place an order to
-                        send the details to BunnyBooker headquarters for our bunnies to work their magic.
-                    </div>
-                </div>
-                <div class="w-full md:w-1/2">
-                    <img src={panel1} alt="Step 1"/>
-                </div>
-            </div>
-        </div>
-    </div>
+        </section>
     <svg style="transform:rotate(180deg) translateY(1%); transition: 0.3s" viewBox="0 0 1440 290" version="1.1"
          xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -269,26 +291,25 @@
         <path style="transform:translate(0, 0px); opacity:1" fill="url(#sw-gradient-0)"
               d="M0,29L34.3,24.2C68.6,19,137,10,206,24.2C274.3,39,343,77,411,116C480,155,549,193,617,188.5C685.7,184,754,135,823,135.3C891.4,135,960,184,1029,203C1097.1,222,1166,213,1234,193.3C1302.9,174,1371,145,1440,130.5C1508.6,116,1577,116,1646,111.2C1714.3,106,1783,97,1851,82.2C1920,68,1989,48,2057,53.2C2125.7,58,2194,87,2263,106.3C2331.4,126,2400,135,2469,149.8C2537.1,164,2606,184,2674,198.2C2742.9,213,2811,222,2880,217.5C2948.6,213,3017,193,3086,188.5C3154.3,184,3223,193,3291,174C3360,155,3429,106,3497,77.3C3565.7,48,3634,39,3703,43.5C3771.4,48,3840,68,3909,67.7C3977.1,68,4046,48,4114,58C4182.9,68,4251,106,4320,116C4388.6,126,4457,106,4526,120.8C4594.3,135,4663,184,4731,183.7C4800,184,4869,135,4903,111.2L4937.1,87L4937.1,290L4902.9,290C4868.6,290,4800,290,4731,290C4662.9,290,4594,290,4526,290C4457.1,290,4389,290,4320,290C4251.4,290,4183,290,4114,290C4045.7,290,3977,290,3909,290C3840,290,3771,290,3703,290C3634.3,290,3566,290,3497,290C3428.6,290,3360,290,3291,290C3222.9,290,3154,290,3086,290C3017.1,290,2949,290,2880,290C2811.4,290,2743,290,2674,290C2605.7,290,2537,290,2469,290C2400,290,2331,290,2263,290C2194.3,290,2126,290,2057,290C1988.6,290,1920,290,1851,290C1782.9,290,1714,290,1646,290C1577.1,290,1509,290,1440,290C1371.4,290,1303,290,1234,290C1165.7,290,1097,290,1029,290C960,290,891,290,823,290C754.3,290,686,290,617,290C548.6,290,480,290,411,290C342.9,290,274,290,206,290C137.1,290,69,290,34,290L0,290Z"></path>
     </svg>
-    <div class="w-full">
-        <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
-            <div class="flex flex-wrap md:flex-row-reverse  align-center justify-center panel-1 gap-12">
-
-                <div class="flex flex-col align-center justify-center w-80">
-                    <h3 class="text-6xl font-extrabold text-center md:text-left">STEP 2</h3>
-                    <h4 class="text-2xl text-center md:text-left">
-                        Sit Back & Relax
-                    </h4>
-                    <div class="text-lg font-light my-4 dark:text-slate-300 text-slate-700 text-justify md:text-left">
-                        Our bunny team will collect and organize your ticket preferences,
-                        giving you the freedom to relax while they handle the details.
+        <section class="w-full" aria-labelledby="step-2">
+            <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
+                <div class="flex flex-wrap md:flex-row-reverse  align-center justify-center panel-1 gap-12">
+                    <div class="flex flex-col align-center justify-center w-80">
+                        <h3 class="text-6xl font-extrabold text-center md:text-left">STEP 2</h3>
+                        <h4 class="text-2xl text-center md:text-left">
+                            Sit Back & Relax
+                        </h4>
+                        <div class="text-lg font-light my-4 dark:text-slate-300 text-slate-700 text-justify md:text-left">
+                            Our bunny team will collect and organize your ticket preferences,
+                            giving you the freedom to relax while they handle the details.
+                        </div>
+                    </div>
+                    <div class="w-full md:w-1/2">
+                        <img src={panel2} alt="Step 2: Sit back and relax while our bunnies organize your booking"/>
                     </div>
                 </div>
-                <div class="w-full md:w-1/2">
-                    <img src={panel2} alt="Step 2"/>
-                </div>
             </div>
-        </div>
-    </div>
+        </section>
     <hr>
     <div class="w-full">
         <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
@@ -389,10 +410,10 @@
         <path style="transform:translate(0, 100px); opacity:0.8" fill="url(#sw-gradient-2)"
               d="M0,147L60,138.8C120,131,240,114,360,163.3C480,212,600,327,720,318.5C840,310,960,180,1080,114.3C1200,49,1320,49,1440,89.8C1560,131,1680,212,1800,220.5C1920,229,2040,163,2160,138.8C2280,114,2400,131,2520,171.5C2640,212,2760,278,2880,326.7C3000,376,3120,408,3240,351.2C3360,294,3480,147,3600,89.8C3720,33,3840,65,3960,122.5C4080,180,4200,261,4320,277.7C4440,294,4560,245,4680,196C4800,147,4920,98,5040,114.3C5160,131,5280,212,5400,277.7C5520,343,5640,392,5760,359.3C5880,327,6000,212,6120,204.2C6240,196,6360,294,6480,326.7C6600,359,6720,327,6840,310.3C6960,294,7080,294,7200,294C7320,294,7440,294,7560,310.3C7680,327,7800,359,7920,343C8040,327,8160,261,8280,220.5C8400,180,8520,163,8580,155.2L8640,147L8640,490L8580,490C8520,490,8400,490,8280,490C8160,490,8040,490,7920,490C7800,490,7680,490,7560,490C7440,490,7320,490,7200,490C7080,490,6960,490,6840,490C6720,490,6600,490,6480,490C6360,490,6240,490,6120,490C6000,490,5880,490,5760,490C5640,490,5520,490,5400,490C5280,490,5160,490,5040,490C4920,490,4800,490,4680,490C4560,490,4440,490,4320,490C4200,490,4080,490,3960,490C3840,490,3720,490,3600,490C3480,490,3360,490,3240,490C3120,490,3000,490,2880,490C2760,490,2640,490,2520,490C2400,490,2280,490,2160,490C2040,490,1920,490,1800,490C1680,490,1560,490,1440,490C1320,490,1200,490,1080,490C960,490,840,490,720,490C600,490,480,490,360,490C240,490,120,490,60,490L0,490Z"></path>
     </svg>
-    <div class="w-full bg-[#FCCA3A] text-black">
-        <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
-            <h3 class="text-center text-4xl md:text-6xl">FAQ</h3>
-            <h4 class="underline text-center text-xl md:text-2xl">BunnyBooker</h4>
+        <section class="w-full bg-[#FCCA3A] text-black" aria-labelledby="faq-section">
+            <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
+                <h2 class="text-center text-4xl md:text-6xl" id="faq-section">FAQ</h2>
+                <h3 class="underline text-center text-xl md:text-2xl">BunnyBooker</h3>
             <Accordion.Root class="w-full max-w-[600px] w-full mx-auto">
                 <Accordion.Item value="item-1">
                     <Accordion.Trigger class="text-left">
@@ -656,22 +677,22 @@
                     </Accordion.Content>
                 </Accordion.Item>
             </Accordion.Root>
-        </div>
-    </div>
+            </div>
+        </section>
 
-    <hr>
+        <hr>
 
-    <!-- Customer Reviews Section -->
-    <div class="w-full bg-white text-black relative overflow-hidden"
-         style="background-image: radial-gradient(circle at 25% 25%, rgba(253, 224, 71, 0.08) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(255, 179, 11, 0.06) 0%, transparent 50%); background-size: 600px 600px, 400px 400px;">
-        <!-- Decorative elements -->
-        <div class="absolute top-10 left-10 w-20 h-20 bg-yellow-200 rounded-full opacity-30 animate-pulse"></div>
-        <div class="absolute top-32 right-16 w-12 h-12 bg-orange-200 rounded-full opacity-40"></div>
-        <div class="absolute bottom-20 left-20 w-16 h-16 bg-amber-200 rounded-full opacity-25"></div>
-        <div class="absolute bottom-40 right-10 w-8 h-8 bg-yellow-300 rounded-full opacity-50"></div>
-        <div class="flex flex-col gap-4 justify-center align-center w-11/12 max-w-[1200px] mx-auto py-24">
-            <div class="text-center">
-                <h3 class="text-3xl md:text-6xl font-extrabold mb-4 text-black" style="font-family: 'Cabin', 'sans-serif';">Customer Love</h3>
+        <!-- Customer Reviews Section -->
+        <section class="w-full bg-white text-black relative overflow-hidden" aria-labelledby="customer-reviews"
+                 style="background-image: radial-gradient(circle at 25% 25%, rgba(253, 224, 71, 0.08) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(255, 179, 11, 0.06) 0%, transparent 50%); background-size: 600px 600px, 400px 400px;">
+            <!-- Decorative elements -->
+            <div class="absolute top-10 left-10 w-20 h-20 bg-yellow-200 rounded-full opacity-30 animate-pulse"></div>
+            <div class="absolute top-32 right-16 w-12 h-12 bg-orange-200 rounded-full opacity-40"></div>
+            <div class="absolute bottom-20 left-20 w-16 h-16 bg-amber-200 rounded-full opacity-25"></div>
+            <div class="absolute bottom-40 right-10 w-8 h-8 bg-yellow-300 rounded-full opacity-50"></div>
+            <div class="flex flex-col gap-4 justify-center align-center w-11/12 max-w-[1200px] mx-auto py-24">
+                <div class="text-center">
+                    <h2 class="text-3xl md:text-6xl font-extrabold mb-4 text-black" style="font-family: 'Cabin', 'sans-serif';" id="customer-reviews">Customer Love</h2>
                 <div class="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-2 mb-6">
                     <div class="flex items-center gap-2">
                         <div class="flex">
@@ -788,9 +809,9 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+            </div>
+        </section>
 
-    <hr>
+    </main>
 
 </Page>

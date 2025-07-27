@@ -1,12 +1,14 @@
 <script lang="ts">
 
     import {Button, buttonVariants} from "$lib/components/ui/button";
-    import {AlertTriangle, LucideLoader, LucideTrash2} from "lucide-svelte";
+    import {AlertTriangle, LucideLoader, LucideTrash2, Clock, TrendingUp, Users} from "lucide-svelte";
 
     // @ts-ignore
     import * as Dialog from "$lib/components/ui/dialog";
     // @ts-ignore
     import * as Alert from "$lib/components/ui/alert";
+    // @ts-ignore
+    import * as Card from "$lib/components/ui/card";
     import type {BookingPrincipalRes} from "$lib/api/core/data-contracts";
     import {toResult} from "$lib/utility";
     import {api} from "../../../../store";
@@ -16,7 +18,33 @@
     import {page} from "$app/stores";
 
     let dialogOpen = false;
+    let showCancellationStep = false;
+    let dialogElement: HTMLElement;
     export let booking: BookingPrincipalRes;
+    
+    function proceedToCancellation() {
+        showCancellationStep = true;
+        if (dialogElement) {
+            setTimeout(() => {
+                dialogElement.scrollTop = 0;
+            }, 0);
+        }
+    }
+    
+    function stayWithBooking() {
+        dialogOpen = false;
+        showCancellationStep = false;
+        toast.info("Great choice! Your booking is still active. Most tickets become available 1-2 days before departure.");
+    }
+    
+    function openDialog() {
+        dialogOpen = true;
+        if (dialogElement) {
+            setTimeout(() => {
+                dialogElement.scrollTop = 0;
+            }, 100);
+        }
+    }
 
     async function submit() {
         if (valid) await cancelBooking();
@@ -39,6 +67,7 @@
             ok: ok => {
                 toast.info(`Successfully cancelled booking`);
                 dialogOpen = false;
+                showCancellationStep = false;
                 invalidateAll();
             },
             err: (e) => {
@@ -55,54 +84,123 @@
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
-    <Dialog.Trigger class="{buttonVariants({ variant: 'destructive' })}  w-full sm:max-w-40 ">
+    <Dialog.Trigger class="{buttonVariants({ variant: 'destructive' })}  w-full sm:max-w-40" on:click={openDialog}>
         <LucideTrash2 class="mr-2 h-4 w-4"/>
         Cancel
     </Dialog.Trigger>
-    <Dialog.Content>
+    <Dialog.Content class="w-[95vw] max-w-2xl max-h-[90vh]">
+        <div class="overflow-y-auto max-h-[calc(90vh-8rem)]" bind:this={dialogElement}>
         <Dialog.Header>
-            <Dialog.Title>Cancel Booking</Dialog.Title>
+            <Dialog.Title>{showCancellationStep ? 'Cancel Booking' : 'Wait! Before You Cancel...'}</Dialog.Title>
             <Dialog.Description>
-                <div class="flex flex-col gap-4">
-                    <p class="text-justify py-2">
-                        Cancel this booking for {booking.passenger.fullName}. All money
-                        paid will be refunded. This action cannot be undone.
-                    </p>
-                    <Alert.Root>
-                        <AlertTriangle class="h-4 w-4"/>
-                        <Alert.Title>Take Note!</Alert.Title>
-                        <Alert.Description>
-                            Cancelling a booking will invalid all discounts applied to it.
-                            If you were to rebook, you will have to reapply the discounts,
-                            and you will be pushed to the back of the queue.
-                        </Alert.Description>
-                    </Alert.Root>
-
-                    <p class="text-justify py-2">
-                        Please type the name of the passenger, <code
-                            class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
-                        {booking.passenger.fullName}
-                    </code> to proceed.
-                    </p>
-
-                    <div class="flex flex-col gap-4">
-                        <Input placeholder="Name"
-                               bind:value={confirm}
-                        />
-                        <div class="text-sm text-destructive {valid ? 'opacity-0' : 'opacity-1'}">
-                            Please type the name of the passenger of the booking to proceed.
+                {#if !showCancellationStep}
+                    <!-- Education Step -->
+                    <div class="flex flex-col gap-4 sm:gap-6">
+                        <div class="text-center">
+                            <h3 class="text-base sm:text-lg font-semibold mb-1 sm:mb-2 text-foreground">Did you know most tickets become available 1-2 days before departure?</h3>
+                            <p class="text-sm text-muted-foreground">Here's what our data shows about KTMB ticket patterns:</p>
+                        </div>
+                        
+                        <div class="grid sm:grid-cols-3 gap-3">
+                            <Card.Root class="p-3 sm:p-4">
+                                <Card.Content class="flex flex-col items-center text-center space-y-1.5 sm:space-y-2 p-0">
+                                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                                        <Users class="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
+                                    </div>
+                                    <h4 class="font-semibold text-xs sm:text-sm">Peak Cancellations</h4>
+                                    <p class="text-xs text-muted-foreground leading-tight">Most people cancel 1-2 days before departure due to last-minute plan changes</p>
+                                </Card.Content>
+                            </Card.Root>
+                            
+                            <Card.Root class="p-3 sm:p-4">
+                                <Card.Content class="flex flex-col items-center text-center space-y-1.5 sm:space-y-2 p-0">
+                                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                                        <TrendingUp class="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
+                                    </div>
+                                    <h4 class="font-semibold text-xs sm:text-sm">Best Success Window</h4>
+                                    <p class="text-xs text-muted-foreground leading-tight">1-2 days before departure is when most tickets get successfully booked</p>
+                                </Card.Content>
+                            </Card.Root>
+                            
+                            <Card.Root class="p-3 sm:p-4">
+                                <Card.Content class="flex flex-col items-center text-center space-y-1.5 sm:space-y-2 p-0">
+                                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 dark:bg-amber-900 rounded-full flex items-center justify-center">
+                                        <Clock class="h-5 w-5 sm:h-6 sm:w-6 text-amber-600 dark:text-amber-400" />
+                                    </div>
+                                    <h4 class="font-semibold text-xs sm:text-sm">Patience Pays Off</h4>
+                                    <p class="text-xs text-muted-foreground leading-tight">Our 99% success rate comes from customers who wait for the optimal booking window</p>
+                                </Card.Content>
+                            </Card.Root>
+                        </div>
+                        
+                        <Alert.Root class="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950 p-3 sm:p-4">
+                            <Clock class="h-4 w-4" />
+                            <Alert.Title class="text-sm sm:text-base">Pro Tip</Alert.Title>
+                            <Alert.Description class="text-xs sm:text-sm leading-relaxed">
+                                Since you're closer to your departure date, you're actually in the sweet spot where tickets are most likely to become available. 
+                                <strong>Most of our successful bookings happen within 48 hours of departure!</strong>
+                            </Alert.Description>
+                        </Alert.Root>
+                        
+                        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                            <Button variant="default" on:click={stayWithBooking} class="flex-1 h-11 sm:h-10">
+                                <Clock class="mr-2 h-4 w-4" />
+                                Keep My Booking & Wait
+                            </Button>
+                            <Button variant="outline" on:click={proceedToCancellation} class="flex-1 h-11 sm:h-10">
+                                <LucideTrash2 class="mr-2 h-4 w-4" />
+                                Still Cancel
+                            </Button>
                         </div>
                     </div>
+                {:else}
+                    <!-- Original Cancellation Step -->
+                    <div class="flex flex-col gap-4">
+                        <p class="text-justify py-2">
+                            Cancel this booking for {booking.passenger.fullName}. All money
+                            paid will be refunded. This action cannot be undone.
+                        </p>
+                        <Alert.Root>
+                            <AlertTriangle class="h-4 w-4"/>
+                            <Alert.Title>Take Note!</Alert.Title>
+                            <Alert.Description>
+                                Cancelling a booking will invalid all discounts applied to it.
+                                If you were to rebook, you will have to reapply the discounts,
+                                and you will be pushed to the back of the queue.
+                            </Alert.Description>
+                        </Alert.Root>
 
+                        <p class="text-justify py-2">
+                            Please type the name of the passenger, <code
+                                class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
+                            {booking.passenger.fullName}
+                        </code> to proceed.
+                        </p>
 
-                    <Button class="my-2" on:click={submit} disabled={submitting || !valid}>
-                        {#if submitting}
-                            <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
-                        {/if}
-                        Cancel Booking
-                    </Button>
-                </div>
+                        <div class="flex flex-col gap-4">
+                            <Input placeholder="Name"
+                                   bind:value={confirm}
+                            />
+                            <div class="text-sm text-destructive {valid ? 'opacity-0' : 'opacity-1'}">
+                                Please type the name of the passenger of the booking to proceed.
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <Button variant="outline" on:click={() => showCancellationStep = false} class="flex-1">
+                                Go Back
+                            </Button>
+                            <Button variant="destructive" class="flex-1" on:click={submit} disabled={submitting || !valid}>
+                                {#if submitting}
+                                    <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
+                                {/if}
+                                Cancel Booking
+                            </Button>
+                        </div>
+                    </div>
+                {/if}
             </Dialog.Description>
         </Dialog.Header>
+        </div>
     </Dialog.Content>
 </Dialog.Root>

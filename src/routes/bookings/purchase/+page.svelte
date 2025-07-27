@@ -48,10 +48,6 @@
         return format(toNativeDate(date), "dd MMM yyyy");
     }
 
-    function track() {
-        (window as any)?.fathom?.trackEvent('Deposit');
-    }
-
     const df = new DateFormatter("en-US", {
         dateStyle: "medium"
     });
@@ -298,10 +294,16 @@
                             S$ {$page.data.user?.wallet?.usable?.toFixed(2) ?? "0.00"}</div>
                         <div class="text-sm font-light">Your Balance</div>
                         <div class="text-sm font-light {($page.data.user?.wallet?.usable ?? 0) >= cost.final ? 'hidden': '' }">
-                            <a class="underline text-blue-500 hover:text-sky-500"
-                               href="/wallets/deposit"
-                               onclick="track">Deposit
-                                Now</a>
+
+                            <a id="deposit-link" class="underline text-blue-500 hover:text-sky-500"
+                               href="/wallets/deposit">Deposit Now</a>
+                            <script>
+                                window.addEventListener('load', (event) => {
+                                    document.getElementById('deposit-link').addEventListener('click', () => {
+                                        window?.fathom?.trackEvent('Deposit');
+                                    });
+                                });
+                            </script>
                         </div>
                     </div>
                 </div>
