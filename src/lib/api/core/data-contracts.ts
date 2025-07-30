@@ -151,6 +151,7 @@ export interface CreatePaymentRes {
 
 export interface CreateUserReq {
   username?: string | null;
+  idToken?: string | null;
 }
 
 export interface CreateWithdrawalReq {
@@ -348,6 +349,7 @@ export interface UpdatePassengerReq {
 
 export interface UpdateUserReq {
   username?: string | null;
+  idToken?: string | null;
 }
 
 export interface UserExistRes {
@@ -357,6 +359,7 @@ export interface UserExistRes {
 export interface UserPrincipalRes {
   id?: string | null;
   username?: string | null;
+  email?: string | null;
 }
 
 export interface UserRes {

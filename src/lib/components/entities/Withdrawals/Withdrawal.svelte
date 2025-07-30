@@ -40,13 +40,18 @@
                     <HoverCard.Root>
                         <HoverCard.Trigger
                                 class="hover:underline underline-offset-4 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-black">
-                            @{withdrawal.user.username}
+                            <a href="/users/{withdrawal.user.id}" class="hover:text-primary transition-colors">
+                                @{withdrawal.user.username}
+                            </a>
                         </HoverCard.Trigger>
                         <HoverCard.Content class="w-80">
                             <div class="flex justify-between space-x-4">
                                 <div class="space-y-1">
                                     <h4 class="text-sm font-semibold">@{withdrawal.user.username}</h4>
                                     <p class="text-sm">{withdrawal.user.id}</p>
+                                    <a href="/users/{withdrawal.user.id}" class="text-xs text-primary hover:underline">
+                                        View user profile →
+                                    </a>
                                 </div>
                             </div>
                         </HoverCard.Content>
@@ -101,13 +106,18 @@
                         <HoverCard.Root>
                             <HoverCard.Trigger
                                     class="hover:underline underline-offset-4 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-black">
-                                @{withdrawal.completer.username}
+                                <a href="/users/{withdrawal.completer.id}" class="hover:text-primary transition-colors">
+                                    @{withdrawal.completer.username}
+                                </a>
                             </HoverCard.Trigger>
                             <HoverCard.Content class="w-80">
                                 <div class="flex justify-between space-x-4">
                                     <div class="space-y-1">
                                         <h4 class="text-sm font-semibold">@{withdrawal.completer.username}</h4>
                                         <p class="text-sm">{withdrawal.completer.id}</p>
+                                        <a href="/users/{withdrawal.completer.id}" class="text-xs text-primary hover:underline">
+                                            View user profile →
+                                        </a>
                                     </div>
                                 </div>
                             </HoverCard.Content>
