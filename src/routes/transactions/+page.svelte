@@ -8,6 +8,7 @@
     import {Input} from "$lib/components/ui/input";
     import {page} from "$app/stores";
     import {goto} from "$app/navigation";
+    import {formatRelativeDate} from "$lib/utility";
 
     //@ts-ignore
     import * as Card from "$lib/components/ui/card";
@@ -156,10 +157,7 @@
                                 <Table.Row on:click={() => goto(`/transactions/${tx.id}`)}>
                                     <Table.Cell>{tx.name}</Table.Cell>
                                     <Table.Cell>{tx.transactionType}</Table.Cell>
-                                    <Table.Cell>{new Date(tx.createdAt).toLocaleString('en-us', {
-                                        dateStyle: "medium",
-                                        timeStyle: "medium",
-                                    })}</Table.Cell>
+                                    <Table.Cell>{formatRelativeDate(tx.createdAt)}</Table.Cell>
                                     <Table.Cell>SGD {tx.amount.toFixed(2)}</Table.Cell>
                                     <Table.Cell>{tx.from}</Table.Cell>
                                     <Table.Cell>{tx.to}</Table.Cell>

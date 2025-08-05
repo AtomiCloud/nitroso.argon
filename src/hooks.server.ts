@@ -33,6 +33,8 @@ export const handle = SvelteKitAuth({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const s = session as Session | any;
       if (t.raw?.access_token) s.access_token = t.raw.access_token;
+      if (t.raw?.refresh_token) s.refresh_token = t.raw.refresh_token;
+      if (t.raw?.id_token) s.id_token = t.raw.id_token;
       if (t.scopes) s.scopes = t.scopes;
       if (t.roles) s.roles = t.roles ?? [];
       if (t.permissions) s.permissions = t.permissions ?? [];

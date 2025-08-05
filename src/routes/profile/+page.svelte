@@ -145,14 +145,24 @@
             {#if landscape === "lapras" }
                 <Card.Root class="shadow-xl dark:border-muted-foreground dark:bg-background">
                     <Card.Header>
-                        <Card.Title>JWT Token</Card.Title>
+                        <Card.Title>JWT Access Token</Card.Title>
                     </Card.Header>
                     <Card.Content>
                         <Card.Description>Access Token for development
                         </Card.Description>
-                        <p class="max-w-[480px] break-all">
-                            {session?.access_token}
-                        </p>
+                        <p class="max-w-[480px] break-all">{session?.access_token}</p>
+                    </Card.Content>
+                    <Card.Footer class="bg-muted rounded-b-lg p-4">
+                    </Card.Footer>
+                </Card.Root>
+                <Card.Root class="shadow-xl dark:border-muted-foreground dark:bg-background">
+                    <Card.Header>
+                        <Card.Title>JWT ID Token</Card.Title>
+                    </Card.Header>
+                    <Card.Content>
+                        <Card.Description>ID Token for development
+                        </Card.Description>
+                        <p class="max-w-[480px] break-all">{session?.id_token}</p>
                     </Card.Content>
                     <Card.Footer class="bg-muted rounded-b-lg p-4">
                     </Card.Footer>
