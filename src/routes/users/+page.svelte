@@ -62,23 +62,75 @@
         {:then u}
             <Page notFoundMessage="No users found" empty={u.length === 0}>
 
-                <div class="flex flex-col gap-4 my-4">
+                <div class="grid gap-6 my-6">
                     {#each u as user}
-                        <div>
-                            <Card.Root>
-                                <Card.Header>
-                                    <div class="flex flex-wrap gap-4 items-center justify-between">
-                                        <div>
-                                            <Card.Title>{user.username}</Card.Title>
-                                            <Card.Description>{user.id}</Card.Description>
+                        <Card.Root class="hover:shadow-md transition-shadow duration-200">
+                            <Card.Header class="pb-4">
+                                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                                    <div class="flex-1 space-y-3">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                                                <span class="text-primary font-semibold text-sm">
+                                                    {user.username?.charAt(0)?.toUpperCase() || 'U'}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <Card.Title class="text-lg">{user.username}</Card.Title>
+                                                <Card.Description class="text-xs font-mono">{user.id}</Card.Description>
+                                            </div>
                                         </div>
-                                        <Button class="max-w-80 w-full lg:max-w-40" href="/users/{user.id}">
+                                        
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                <div class="text-sm">
+                                                    <span class="text-muted-foreground">Email:</span>
+                                                    <span class="ml-1 font-medium">{user.email || 'N/A'}</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-2 h-2 {user.emailVerified ? 'bg-green-500' : 'bg-red-500'} rounded-full"></div>
+                                                <div class="text-sm">
+                                                    <span class="text-muted-foreground">Status:</span>
+                                                    <span class="ml-1 font-medium {user.emailVerified ? 'text-green-600' : 'text-red-600'}">
+                                                        {user.emailVerified ? 'Verified' : 'Unverified'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+                                                <div class="text-sm">
+                                                    <span class="text-muted-foreground">Roles:</span>
+                                                    <span class="ml-1 font-medium">
+                                                        {#if user.roles && user.roles.length > 0}
+                                                            {#each user.roles as role, i}
+                                                                <span class="inline-block bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full text-xs mr-1">
+                                                                    {role}
+                                                                </span>
+                                                            {/each}
+                                                        {:else}
+                                                            <span class="text-muted-foreground">None</span>
+                                                        {/if}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="lg:ml-4">
+                                        <Button 
+                                            class="w-full lg:w-auto min-w-[120px]" 
+                                            href="/users/{user.id}"
+                                            variant="outline"
+                                        >
                                             View Details
                                         </Button>
                                     </div>
-                                </Card.Header>
-                            </Card.Root>
-                        </div>
+                                </div>
+                            </Card.Header>
+                        </Card.Root>
                     {/each}
                 </div>
             </Page>

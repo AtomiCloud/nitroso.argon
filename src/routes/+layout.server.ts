@@ -70,8 +70,8 @@ export const load: LayoutServerLoad = async ({ locals, route }) => {
       };
 
       const rolesMatch = u.principal.roles
-        ? arraysEqual(u.principal.roles, accessToken.roles)
-        : accessToken.roles.length === 0;
+        ? arraysEqual(u.principal.roles, accessToken?.roles ?? [])
+        : accessToken?.roles?.length === 0;
       if (
         u.principal.id == null ||
         u.principal.id !== idToken.sub ||
