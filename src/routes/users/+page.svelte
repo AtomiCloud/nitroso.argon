@@ -31,11 +31,13 @@
         }) satisfies Promise<UserPrincipalRes[]>)
     let usernameSearch = $page.url.searchParams.get('username') || "";
     let userIdSearch = $page.url.searchParams.get('userId') || "";
+    let emailSearch = $page.url.searchParams.get('email') || "";
 
     function triggerSearch() {
         const params = new URLSearchParams();
         if (usernameSearch) params.set('username', usernameSearch);
         if (userIdSearch) params.set('userId', userIdSearch);
+        if (emailSearch) params.set('email', emailSearch);
         
         goto(`?${params.toString()}`, {
             keepFocus: true,
@@ -47,14 +49,18 @@
 
 <div class="flex flex-col">
     <div class="flex flex-col w-11/12 max-w-[1200px] mx-auto my-12">
-        <div class="flex flex-col sm:flex-row gap-4 mb-4">
-            <div class="flex-1">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div>
                 <label for="username-search" class="block text-sm font-medium mb-2">Search by Username</label>
                 <Input id="username-search" placeholder="Enter username..." bind:value={usernameSearch} on:input={triggerSearch}/>
             </div>
-            <div class="flex-1">
+            <div>
                 <label for="userid-search" class="block text-sm font-medium mb-2">Search by User ID</label>
                 <Input id="userid-search" placeholder="Enter user ID..." bind:value={userIdSearch} on:input={triggerSearch}/>
+            </div>
+            <div>
+                <label for="email-search" class="block text-sm font-medium mb-2">Search by Email</label>
+                <Input id="email-search" placeholder="Enter email..." bind:value={emailSearch} on:input={triggerSearch}/>
             </div>
         </div>
         {#await users}
