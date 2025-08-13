@@ -61,7 +61,11 @@ export class HttpClient<SecurityDataType = unknown> {
   private abortControllers = new Map<CancelToken, AbortController>();
   private customFetch = (...fetchParams: Parameters<typeof fetch>) => fetch(...fetchParams);
 
-  private baseApiParams: RequestParams = {};
+  private baseApiParams: RequestParams = {
+    credentials: 'same-origin',
+    redirect: 'follow',
+    referrerPolicy: 'no-referrer',
+  };
 
   constructor(apiConfig: ApiConfig<SecurityDataType> = {}) {
     Object.assign(this, apiConfig);

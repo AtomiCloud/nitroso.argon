@@ -45,7 +45,6 @@
                         <Avatar.Image src="{logo}" alt="BunnyBooker" class=""/>
                         <Avatar.Fallback>BB</Avatar.Fallback>
                     </Avatar.Root>
-                    <Badge class="text-[0.5rem] bg-yellow-400 dark:text-slate-300 text-slate-700 absolute bottom-0 right-0 translate-x-1/3 translate-y-1/3">BETA</Badge>
                 </div>
 
 <!--                <img src="{logo}" alt="CyanPrint" class="h-12 w-12">-->
