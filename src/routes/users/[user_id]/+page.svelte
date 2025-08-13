@@ -10,6 +10,10 @@
     import Wallet from "$lib/components/entities/Wallets/Wallet.svelte";
     import type {PageData} from "./$types";
     import {page} from "$app/stores";
+    import {Button} from "$lib/components/ui/button";
+    import {CreditCard, Ticket, Users, Wallet as WalletIcon} from "lucide-svelte";
+    //@ts-ignore
+    import * as Card from "$lib/components/ui/card";
 
     export let data: PageData;
 
@@ -42,6 +46,36 @@
                 <Loader/>
             {:then u}
                 <div class="flex flex-col gap-4">
+                    <!-- Quick Navigation Card -->
+                    {#if session?.roles?.includes("admin")}
+                        <Card.Root>
+                            <Card.Header>
+                                <Card.Title>User Data</Card.Title>
+                                <Card.Description>Quick access to {u.principal.username}'s related information</Card.Description>
+                            </Card.Header>
+                            <Card.Content>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                    <Button href="/transactions?userId={u.principal.id}" variant="outline" class="h-auto p-4 flex flex-col gap-2">
+                                        <CreditCard class="h-6 w-6" />
+                                        <span class="text-sm">Transactions</span>
+                                    </Button>
+                                    <Button href="/bookings?userId={u.principal.id}" variant="outline" class="h-auto p-4 flex flex-col gap-2">
+                                        <Ticket class="h-6 w-6" />
+                                        <span class="text-sm">Bookings</span>
+                                    </Button>
+                                    <Button href="/passengers?userId={u.principal.id}" variant="outline" class="h-auto p-4 flex flex-col gap-2">
+                                        <Users class="h-6 w-6" />
+                                        <span class="text-sm">Passengers</span>
+                                    </Button>
+                                    <Button href="/withdrawals?userId={u.principal.id}" variant="outline" class="h-auto p-4 flex flex-col gap-2">
+                                        <WalletIcon class="h-6 w-6" />
+                                        <span class="text-sm">Withdrawals</span>
+                                    </Button>
+                                </div>
+                            </Card.Content>
+                        </Card.Root>
+                    {/if}
+                    
                     <Wallet
                             user={u.principal}
                             wallet={u.wallet}
