@@ -11,7 +11,7 @@
     import CancelBooking from "$lib/components/entities/Bookings/CancelBooking.svelte";
     import moment from "moment-timezone";
     import {page} from "$app/stores";
-    import {toResult} from "$lib/utility";
+    import {toResult, formatDateTime} from "$lib/utility";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
@@ -67,7 +67,7 @@
                 </Card.Title>
                 <Card.Description>
                     <div class="flex flex-col gap-2 my-4 items-center md:items-start">
-                        <Badge class="flex justify-center">{format(parse(b.date, "dd-MM-yyyy", new Date()), "dd MMM yyyy")} {format(parse(b.time, "HH:mm:ss", new Date()), "hh:mm a")}</Badge>
+                        <Badge class="flex justify-center">{formatDateTime(`${format(parse(b.date, "dd-MM-yyyy", new Date()), "yyyy-MM-dd")}T${b.time}`)}</Badge>
                         <div>{b.passenger.fullName} ({b.passenger.passportNumber})</div>
                     </div>
                 </Card.Description>

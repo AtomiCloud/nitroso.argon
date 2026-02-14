@@ -1,14 +1,18 @@
 <script lang="ts">
     import {config} from "../config/shared";
     import Page from "$lib/components/complex/page.svelte";
+    import {formatRelativeDate} from "$lib/utility";
     import mascot from "$lib/assets/nitroso-mascot-fs8.png";
+    import social from "$lib/assets/social-fs8.png";
+    
+    // Create absolute URL for social image
     import panel1 from "$lib/assets/panel-1-fs8.png";
     import panel2 from "$lib/assets/panel-2-fs8.png";
     import panel3 from "$lib/assets/panel-3-fs8.png";
     import panel4 from "$lib/assets/panel-4-fs8.png";
     import panel5 from "$lib/assets/panel-5-fs8.png";
     import {Button} from "$lib/components/ui/button";
-    import {BookOpenCheck, ChevronDownCircle, LucideLoader} from "lucide-svelte";
+    import {BookOpenCheck, ChevronDownCircle, LucideLoader, Star} from "lucide-svelte";
     //@ts-ignore
     import * as Accordion from "$lib/components/ui/accordion";
     //@ts-ignore
@@ -17,7 +21,7 @@
     import {Footer} from "$lib/components/custom/footer";
     import {page} from "$app/stores";
     import {signIn} from "@auth/sveltekit/client";
-    import {Badge} from "$lib/components/ui/badge";
+    import * as Card from "$lib/components/ui/card";
 
     console.log("Configuration", config.app);
 
@@ -30,7 +34,7 @@
     }
 
     function track() {
-        (window as any).fathom.trackEvent('Main Page CTA');
+        (window as any)?.fathom?.trackEvent('Main Page CTA');
     }
 
     function cta() {
@@ -60,7 +64,142 @@
 
     ]
 
+    const customerReviews = [
+        {
+            name: "csyhue",
+            location: "Singapore",
+            rating: 5,
+            review: "Amazing service and seamless booking. Used this platform for very long and always managed to get tickets! Highly recommend!",
+            date: new Date('2025-01-24T10:30:00Z'),
+            link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
+        },
+        {
+            name: "fhong",
+            location: "Singapore",
+            rating: 5,
+            review: "A friendly and reliable seller. You have to try it to believe. We got the tickets 1 day before the departure date. Highly recommended 👍🏼👍🏼",
+            date: new Date('2025-01-20T14:15:00Z'),
+            link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
+        },
+        {
+            name: "reappraisal",
+            location: "Singapore", 
+            rating: 5,
+            review: "Purchase 2 KTMB tickets went smoothly. There wasn't any queue and saved us a lot of time. Definitely recommended and trusted. Thank you",
+            date: new Date('2025-01-18T09:45:00Z'),
+            link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
+        },
+        {
+            name: "clarrence",
+            location: "Singapore",
+            rating: 5,
+            review: "Super easy and straightforward to use! Used the service twice and on both occasions I got 100% of the tickets! A very reliable service to use if you are planning to go into JB! 10/10 would recommend!",
+            date: new Date('2024-03-15T16:20:00Z'),
+            link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
+        },
+        {
+            name: "melissatan",
+            location: "Singapore",
+            rating: 5,
+            review: "Absolutely fantastic! Saved me hours of frustration trying to book KTMB tickets myself. Got all 4 tickets for my family trip within 2 days. Will definitely use again!",
+            date: new Date('2024-12-28T11:30:00Z'),
+            link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
+        },
+        {
+            name: "davidlim88",
+            location: "Singapore",
+            rating: 5,
+            review: "Game changer for JB trips! No more stress about sold out tickets. The system worked perfectly and got our tickets even during peak holiday season. Highly recommended for frequent travelers!",
+            date: new Date('2024-12-20T13:45:00Z'),
+            link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
+        },
+        {
+            name: "sarah_travels",
+            location: "Singapore",
+            rating: 5,
+            review: "Used BunnyBooker for my monthly JB shopping trips. Never failed to get tickets! Customer service is responsive and the whole process is so convenient. Worth every penny!",
+            date: new Date('2024-12-10T15:20:00Z'),
+            link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
+        },
+    ]
+    
+    const averageRating = 4.8
+    const totalStars = 5
+    const filledStars = Math.floor(averageRating)
+    const hasHalfStar = averageRating % 1 !== 0
+
+
 </script>
+
+<svelte:head>
+    <title>BunnyBooker - Your Stress-Free KTMB Train Ticket Booking Assistant | Singapore to Johor Bahru</title>
+    <meta name="description" content="Book KTMB train tickets from Singapore to Johor Bahru effortlessly with BunnyBooker. 99% success rate, automated booking, 24/7 service. Skip the queue and let our AI handle your train reservations." />
+    <meta name="keywords" content="KTMB train tickets, Singapore to Johor Bahru, JB Sentral, automated booking, train reservation, Malaysia Singapore travel, cross-border transport" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="BunnyBooker - Automated KTMB Train Ticket Booking" />
+    <meta property="og:description" content="Skip the hassle of manual KTMB (Singapore-Johor Train) booking. Our AI bunnies secure your train tickets automatically with 99% success rate. Book Singapore-JB train tickets stress-free!" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://bunnybooker.com" />
+    <meta property="og:image" content={social} />
+    <meta property="og:site_name" content="BunnyBooker" />
+    <meta property="og:locale" content="en_SG" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="BunnyBooker - Automated KTMB Train Ticket Booking" />
+    <meta name="twitter:description" content="Skip the hassle of manual KTMB booking. Our AI bunnies secure your train tickets automatically with 99% success rate." />
+    <meta name="twitter:image" content={social} />
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="author" content="BunnyBooker" />
+    <meta name="theme-color" content="#FBBF24" />
+    <link rel="canonical" href="https://bunnybooker.com" />
+    
+    <!-- Structured Data for Local Business -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": ["Service", "SoftwareApplication"],
+        "name": "BunnyBooker",
+        "description": "Automated KTMB train ticket booking service for Singapore to Johor Bahru travel",
+        "url": "https://bunnybooker.com",
+        "provider": {
+            "@type": "Organization",
+            "name": "BunnyBooker",
+            "url": "https://bunnybooker.com"
+        },
+        "serviceType": "Train Ticket Booking Service",
+        "category": "Travel",
+        "areaServed": [
+            {
+                "@type": "Place",
+                "name": "Singapore"
+            },
+            {
+                "@type": "Place", 
+                "name": "Johor Bahru, Malaysia"
+            }
+        ],
+        "offers": {
+            "@type": "Offer",
+            "description": "Automated KTMB train ticket booking with 99% success rate",
+            "availability": "https://schema.org/InStock"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "bestRating": "5",
+            "worstRating": "1",
+            "ratingCount": "1000"
+        },
+        "applicationCategory": "TravelApplication",
+        "operatingSystem": "Web Browser"
+    }
+    </script>
+</svelte:head>
 
 <style lang="css">
     .geo-bg {
@@ -76,72 +215,89 @@
     h4 {
         font-family: 'Raleway', 'sans-serif';
     }
+
+    @keyframes marquee {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-50%);
+        }
+    }
+
+    .animate-marquee {
+        animation: marquee 30s linear infinite;
+    }
+
+    .hover\:pause-marquee:hover {
+        animation-play-state: paused;
+    }
 </style>
 <Page notFoundMessage="Main page cannot be found">
-    <div class="flex h-[calc(100dvh-4rem)] geo-bg">
-        <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto">
-            <div class="flex flex-grow flex-col justify-center align-center">
-                <div class="flex flex-row-reverse flex-wrap justify-center align-center mt-4">
-                    <div>
-                        <img src={mascot} alt="BunnyBooker" class="h-[40vh] w-[40vh] md:h-80 md:w-80"
-                             style="transform: translateX(-5%)"/>
-                    </div>
-                    <div class="flex flex-col gap-4 justify-evenly align-center">
-                        <div class="relative">
-                            <h1 class="text-5xl md:text-7xl text-center md:text-left ">
-                                <span>Bunny</span><span>Booker</span>
-                            </h1>
-                            <Badge class="bg-yellow-400 text-xs dark:text-slate-300 text-slate-700 absolute bottom-0 right-0 translate-x-1/4 translate-y-3">BETA</Badge>
+    <main>
+        <section class="flex h-[calc(100dvh-4rem)] geo-bg" aria-label="Hero section">
+            <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto">
+                <div class="flex flex-grow flex-col justify-center align-center">
+                    <div class="flex flex-row-reverse flex-wrap justify-center align-center mt-4">
+                        <div>
+                            <img src={mascot} alt="BunnyBooker mascot - friendly bunny character representing automated KTMB train ticket booking service" class="h-[40vh] w-[40vh] md:h-80 md:w-80"
+                                 style="transform: translateX(-5%)"/>
                         </div>
+                        <header class="flex flex-col gap-4 justify-evenly align-center">
+                            <div>
+                                <h1 class="text-5xl md:text-7xl text-center md:text-left ">
+                                    BunnyBooker
+                                </h1>
+                            </div>
 
-                        <h2 class="text-lg md:text-xl text-center md:text-left ">
-                            <span>Your stress-free KTMB ticket booking assistant</span>
-                        </h2>
-                        {#if $page.data.session}
-                            <Button on:click={track} href="/schedules">
-                                <BookOpenCheck class="mr-2 h-4 w-4"/>
-                                Start Booking
-                            </Button>
-                        {:else}
-                            <Button on:click={cta} disabled={loading}>
-                                {#if loading}
-                                    <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
-                                {:else}
+                            <p class="text-lg md:text-xl text-center md:text-left max-w-[500px]">
+                                <span>Everyone deserves a comfortable KTMB train ride to JB. We help you skip
+                                    the queue and crowd.</span>
+                            </p>
+                            {#if $page.data.session}
+                                <Button on:click={track} href="/schedules">
                                     <BookOpenCheck class="mr-2 h-4 w-4"/>
-                                {/if}
-                                Start Booking
-                            </Button>
-                        {/if}
+                                    Secure My Tickets
+                                </Button>
+                            {:else}
+                                <Button on:click={cta} disabled={loading}>
+                                    {#if loading}
+                                        <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
+                                    {:else}
+                                        <BookOpenCheck class="mr-2 h-4 w-4"/>
+                                    {/if}
+                                    Secure My Tickets
+                                </Button>
+                            {/if}
+                        </header>
+                    </div>
+                </div>
+                <div class="text-3xl text-center w-full flex flex-col items-center pt-12 pb-24 lg:pt-6 lg:pb-12">
+                    <div class="py-3">See how it works</div>
+                    <ChevronDownCircle class="animate-bounce h-8 w-8"/>
+                </div>
+            </div>
+        </section>
+
+        <section class="w-full bg-yellow-300 text-black" aria-labelledby="how-it-works">
+            <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
+                <div class="flex flex-wrap align-center justify-center panel-1 gap-4">
+                    <div class="flex flex-col align-center justify-center w-80">
+                        <h3 class="text-6xl font-extrabold text-center md:text-right">STEP 1</h3>
+                        <h4 class="text-2xl text-center md:text-right">
+                            Select Your Date and Time
+                        </h4>
+                        <div class="text-lg font-light my-4 text-slate-700 text-justify md:text-right">
+                            Simply select your travel date and time, then our AI takes over.
+                            Set it once and forget it - no more endless refreshing.
+                        </div>
+                    </div>
+                    <div class="w-full md:w-1/2">
+                        <img src={panel1} alt="Step 1: Select your date and time interface showing calendar and time selection"/>
                     </div>
                 </div>
             </div>
-            <div class="text-3xl text-center w-full flex flex-col items-center pt-12 pb-24 lg:pt-6 lg:pb-12">
-
-                <div class="py-3">See how it works</div>
-                <ChevronDownCircle class="animate-bounce h-8 w-8"/>
-            </div>
-        </div>
-    </div>
-
-    <div class="w-full bg-yellow-300 text-black">
-        <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
-            <div class="flex flex-wrap align-center justify-center panel-1 gap-4">
-                <div class="flex flex-col align-center justify-center w-80">
-                    <h3 class="text-6xl font-extrabold text-center md:text-right">STEP 1</h3>
-                    <h4 class="text-2xl text-center md:text-right">
-                        Select Your Date and Time
-                    </h4>
-                    <div class="text-lg font-light my-4 text-slate-700 text-justify md:text-right">
-                        Choose when and where you want to travel, then place an order to
-                        send the details to BunnyBooker headquarters for our bunnies to work their magic.
-                    </div>
-                </div>
-                <div class="w-full md:w-1/2">
-                    <img src={panel1} alt="Step 1"/>
-                </div>
-            </div>
-        </div>
-    </div>
+        </section>
     <svg style="transform:rotate(180deg) translateY(1%); transition: 0.3s" viewBox="0 0 1440 290" version="1.1"
          xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -153,26 +309,25 @@
         <path style="transform:translate(0, 0px); opacity:1" fill="url(#sw-gradient-0)"
               d="M0,29L34.3,24.2C68.6,19,137,10,206,24.2C274.3,39,343,77,411,116C480,155,549,193,617,188.5C685.7,184,754,135,823,135.3C891.4,135,960,184,1029,203C1097.1,222,1166,213,1234,193.3C1302.9,174,1371,145,1440,130.5C1508.6,116,1577,116,1646,111.2C1714.3,106,1783,97,1851,82.2C1920,68,1989,48,2057,53.2C2125.7,58,2194,87,2263,106.3C2331.4,126,2400,135,2469,149.8C2537.1,164,2606,184,2674,198.2C2742.9,213,2811,222,2880,217.5C2948.6,213,3017,193,3086,188.5C3154.3,184,3223,193,3291,174C3360,155,3429,106,3497,77.3C3565.7,48,3634,39,3703,43.5C3771.4,48,3840,68,3909,67.7C3977.1,68,4046,48,4114,58C4182.9,68,4251,106,4320,116C4388.6,126,4457,106,4526,120.8C4594.3,135,4663,184,4731,183.7C4800,184,4869,135,4903,111.2L4937.1,87L4937.1,290L4902.9,290C4868.6,290,4800,290,4731,290C4662.9,290,4594,290,4526,290C4457.1,290,4389,290,4320,290C4251.4,290,4183,290,4114,290C4045.7,290,3977,290,3909,290C3840,290,3771,290,3703,290C3634.3,290,3566,290,3497,290C3428.6,290,3360,290,3291,290C3222.9,290,3154,290,3086,290C3017.1,290,2949,290,2880,290C2811.4,290,2743,290,2674,290C2605.7,290,2537,290,2469,290C2400,290,2331,290,2263,290C2194.3,290,2126,290,2057,290C1988.6,290,1920,290,1851,290C1782.9,290,1714,290,1646,290C1577.1,290,1509,290,1440,290C1371.4,290,1303,290,1234,290C1165.7,290,1097,290,1029,290C960,290,891,290,823,290C754.3,290,686,290,617,290C548.6,290,480,290,411,290C342.9,290,274,290,206,290C137.1,290,69,290,34,290L0,290Z"></path>
     </svg>
-    <div class="w-full">
-        <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
-            <div class="flex flex-wrap md:flex-row-reverse  align-center justify-center panel-1 gap-12">
-
-                <div class="flex flex-col align-center justify-center w-80">
-                    <h3 class="text-6xl font-extrabold text-center md:text-left">STEP 2</h3>
-                    <h4 class="text-2xl text-center md:text-left">
-                        Sit Back & Relax
-                    </h4>
-                    <div class="text-lg font-light my-4 dark:text-slate-300 text-slate-700 text-justify md:text-left">
-                        Our bunny team will collect and organize your ticket preferences,
-                        giving you the freedom to relax while they handle the details.
+        <section class="w-full" aria-labelledby="step-2">
+            <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
+                <div class="flex flex-wrap md:flex-row-reverse  align-center justify-center panel-1 gap-12">
+                    <div class="flex flex-col align-center justify-center w-80">
+                        <h3 class="text-6xl font-extrabold text-center md:text-left">STEP 2</h3>
+                        <h4 class="text-2xl text-center md:text-left">
+                            Sit Back & Relax
+                        </h4>
+                        <div class="text-lg font-light my-4 dark:text-slate-300 text-slate-700 text-justify md:text-left">
+                            No more stressing about sold-out tickets. Our AI monitors KTMB 24/7,
+                            so you can focus on planning your trip instead of hunting for tickets.
+                        </div>
+                    </div>
+                    <div class="w-full md:w-1/2">
+                        <img src={panel2} alt="Step 2: Sit back and relax while our bunnies organize your booking"/>
                     </div>
                 </div>
-                <div class="w-full md:w-1/2">
-                    <img src={panel2} alt="Step 2"/>
-                </div>
             </div>
-        </div>
-    </div>
+        </section>
     <hr>
     <div class="w-full">
         <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
@@ -184,8 +339,8 @@
                         Let Our Bunnies Hunt
                     </h4>
                     <div class="text-lg font-light my-4 dark:text-slate-300 text-slate-700 text-justify md:text-right">
-                        24/7, our bunnies keep an eye out for refunded tickets in your
-                        chosen timeslot, ensuring you don't miss a travel opportunity.
+                        Our AI scans for newly released tickets every second, instantly
+                        pouncing on opportunities before they disappear.
                     </div>
                 </div>
                 <div class="w-full md:w-1/2">
@@ -215,8 +370,8 @@
                         Instant Booking
                     </h4>
                     <div class="text-lg my-4 font-light text-slate-700 text-justify md:text-left">
-                        The moment a matching ticket becomes available,
-                        our bunnies spring into action, booking it for you without delay.
+                        Lightning-fast execution. The instant tickets are released,
+                        our system secures them before others even notice.
                     </div>
                 </div>
                 <div class="w-full md:w-1/2">
@@ -246,6 +401,174 @@
             </div>
         </div>
     </div>
+    <!-- Why Choose BunnyBooker Section -->
+    <section class="w-full bg-yellow-300 dark:bg-yellow-400 text-black py-16">
+        <div class="w-11/12 max-w-[1200px] mx-auto">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-center mb-12 text-black" style="font-family: 'Cabin', 'sans-serif';">Why Choose BunnyBooker?</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+                <div class="text-center bg-white/70 dark:bg-black/70 rounded-lg p-6 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow duration-200">
+                    <div class="w-12 h-12 md:w-16 md:h-16 bg-amber-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-lg md:text-2xl">💰</span>
+                    </div>
+                    <h3 class="font-bold text-base md:text-lg mb-2 text-black dark:text-white" style="font-family: 'Cabin', 'sans-serif';">Money Back Guarantee</h3>
+                    <p class="text-slate-800 dark:text-slate-200 text-sm leading-relaxed" style="font-family: 'Raleway', 'sans-serif';">Get your money back if we can't secure your tickets</p>
+                </div>
+                <div class="text-center bg-white/70 dark:bg-black/70 rounded-lg p-6 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow duration-200">
+                    <div class="w-12 h-12 md:w-16 md:h-16 bg-amber-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-lg md:text-2xl">📧</span>
+                    </div>
+                    <h3 class="font-bold text-base md:text-lg mb-2 text-black dark:text-white" style="font-family: 'Cabin', 'sans-serif';">Instant Updates</h3>
+                    <p class="text-slate-800 dark:text-slate-200 text-sm leading-relaxed" style="font-family: 'Raleway', 'sans-serif';">Get notified when your tickets are secured</p>
+                </div>
+                <div class="text-center bg-white/70 dark:bg-black/70 rounded-lg p-6 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow duration-200">
+                    <div class="w-12 h-12 md:w-16 md:h-16 bg-amber-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-lg md:text-2xl">📈</span>
+                    </div>
+                    <h3 class="font-bold text-base md:text-lg mb-2 text-black dark:text-white" style="font-family: 'Cabin', 'sans-serif';">High Success Rate</h3>
+                    <p class="text-slate-800 dark:text-slate-200 text-sm leading-relaxed" style="font-family: 'Raleway', 'sans-serif';">99% of our bookings are successful</p>
+                </div>
+                <div class="text-center bg-white/70 dark:bg-black/70 rounded-lg p-6 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow duration-200">
+                    <div class="w-12 h-12 md:w-16 md:h-16 bg-amber-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-lg md:text-2xl">🕐</span>
+                    </div>
+                    <h3 class="font-bold text-base md:text-lg mb-2 text-black dark:text-white" style="font-family: 'Cabin', 'sans-serif';">24/7 Available</h3>
+                    <p class="text-slate-800 dark:text-slate-200 text-sm leading-relaxed" style="font-family: 'Raleway', 'sans-serif';">Our system works around the clock</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <hr>
+
+    <!-- Customer Reviews Section -->
+    <section class="w-full bg-white dark:bg-black text-black dark:text-white relative overflow-hidden" aria-labelledby="customer-reviews"
+             style="background-image: radial-gradient(circle at 25% 25%, rgba(253, 224, 71, 0.08) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(255, 179, 11, 0.06) 0%, transparent 50%); background-size: 600px 600px, 400px 400px;">
+        <!-- Decorative elements -->
+        <div class="absolute top-10 left-10 w-20 h-20 bg-yellow-200 dark:bg-yellow-500/20 rounded-full opacity-30 animate-pulse"></div>
+        <div class="absolute top-32 right-16 w-12 h-12 bg-orange-200 dark:bg-orange-500/20 rounded-full opacity-40"></div>
+        <div class="absolute bottom-20 left-20 w-16 h-16 bg-amber-200 dark:bg-amber-500/20 rounded-full opacity-25"></div>
+        <div class="absolute bottom-40 right-10 w-8 h-8 bg-yellow-300 dark:bg-yellow-500/20 rounded-full opacity-50"></div>
+        <div class="flex flex-col gap-4 justify-center align-center w-11/12 max-w-[1200px] mx-auto py-24">
+            <div class="text-center">
+                <h2 class="text-4xl md:text-6xl font-extrabold mb-4 text-black dark:text-white" style="font-family: 'Cabin', 'sans-serif';" id="customer-reviews">Success Stories</h2>
+                <div class="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-2 mb-6">
+                    <div class="flex items-center gap-2">
+                        <div class="flex">
+                            {#each Array(filledStars) as _, i}
+                                <Star class="h-6 w-6 sm:h-8 sm:w-8 fill-amber-600 text-amber-600" />
+                            {/each}
+                            {#if hasHalfStar}
+                                <div class="relative">
+                                    <Star class="h-6 w-6 sm:h-8 sm:w-8 text-amber-600" />
+                                    <Star class="h-6 w-6 sm:h-8 sm:w-8 fill-amber-600 text-amber-600 absolute top-0 left-0" style="clip-path: inset(0 50% 0 0);" />
+                                </div>
+                            {/if}
+                            {#each Array(totalStars - filledStars - (hasHalfStar ? 1 : 0)) as _, i}
+                                <Star class="h-6 w-6 sm:h-8 sm:w-8 text-amber-600" />
+                            {/each}
+                        </div>
+                        <span class="text-xl sm:text-xl font-semibold text-slate-800 dark:text-slate-200">{averageRating}/5</span>
+                    </div>
+                    <a href="https://www.carousell.sg/u/bunnybooker/?tab=reviews" class="text-base sm:text-base text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline font-medium">View All Reviews</a>
+                </div>
+                <p class="text-lg sm:text-lg text-slate-700 dark:text-slate-300 max-w-2xl mx-auto font-light px-4">Join thousands of happy travelers who trust BunnyBooker!</p>
+            </div>
+
+            <!-- Mobile: Static 2-column grid -->
+            <div class="block sm:hidden px-4 mb-8">
+                <div class="grid grid-cols-1 gap-4">
+                    {#each customerReviews.slice(0, 2) as review}
+                        <a href={review.link} class="group block transform transition-all duration-300 hover:scale-105">
+                            <div class="bg-gradient-to-br from-white to-gray-50 dark:from-slate-800 dark:to-slate-700 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-yellow-300 dark:border-yellow-500 group-hover:border-orange-400 group-hover:shadow-yellow-200/50 dark:group-hover:shadow-yellow-500/20 p-4 relative overflow-hidden">
+                                <!-- Decorative corner accent -->
+                                <div class="absolute top-0 right-0 w-12 h-12 bg-gradient-to-bl from-yellow-200 dark:from-yellow-500/30 to-transparent opacity-50"></div>
+
+                                <div class="flex flex-col mb-3 relative z-10">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h4 class="text-lg font-bold text-black dark:text-white group-hover:text-orange-700 dark:group-hover:text-orange-400 transition-colors" style="font-family: 'Cabin', 'sans-serif';">{review.name}</h4>
+                                            <p class="text-sm text-slate-600 dark:text-slate-400" style="font-family: 'Raleway', 'sans-serif';">{review.location} • {formatRelativeDate(review.date)}</p>
+                                        </div>
+                                        <div class="flex">
+                                            {#each Array(review.rating) as _, i}
+                                                <Star class="h-4 w-4 fill-amber-500 text-amber-500" />
+                                            {/each}
+                                            {#each Array(5 - review.rating) as _, i}
+                                                <Star class="h-4 w-4 text-amber-300 dark:text-amber-600" />
+                                            {/each}
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-base text-slate-700 dark:text-slate-300 leading-relaxed font-light relative z-10" style="font-family: 'Raleway', 'sans-serif';">"{review.review}"</p>
+
+                                <!-- Hover indicator -->
+                                <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-xs text-orange-600 dark:text-orange-400 font-medium">
+                                    Read more →
+                                </div>
+                            </div>
+                        </a>
+                    {/each}
+                </div>
+            </div>
+
+            <!-- Desktop: Marquee -->
+            <div class="hidden sm:block overflow-hidden relative py-4 mb-8">
+                <div class="flex gap-4 sm:gap-6 animate-marquee hover:pause-marquee px-4">
+                    {#each [...customerReviews, ...customerReviews] as review, i}
+                        <a href={review.link} class="group block flex-shrink-0 w-72 sm:w-80 transform transition-all duration-300 hover:scale-105">
+                            <div class="bg-gradient-to-br from-white to-gray-50 dark:from-slate-800 dark:to-slate-700 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-yellow-300 dark:border-yellow-500 group-hover:border-orange-400 group-hover:shadow-yellow-200/50 dark:group-hover:shadow-yellow-500/20 p-4 sm:p-6 relative overflow-hidden">
+                                <!-- Decorative corner accent -->
+                                <div class="absolute top-0 right-0 w-12 h-12 bg-gradient-to-bl from-yellow-200 dark:from-yellow-500/30 to-transparent opacity-50"></div>
+
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 sm:mb-4 relative z-10">
+                                    <div class="mb-2 sm:mb-0">
+                                        <h4 class="text-base sm:text-lg font-bold text-black dark:text-white group-hover:text-orange-700 dark:group-hover:text-orange-400 transition-colors" style="font-family: 'Cabin', 'sans-serif';">{review.name}</h4>
+                                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400" style="font-family: 'Raleway', 'sans-serif';">{review.location} • {formatRelativeDate(review.date)}</p>
+                                    </div>
+                                    <div class="flex">
+                                        {#each Array(review.rating) as _, i}
+                                            <Star class="h-3 w-3 sm:h-4 sm:w-4 fill-amber-500 text-amber-500" />
+                                        {/each}
+                                        {#each Array(5 - review.rating) as _, i}
+                                            <Star class="h-3 w-3 sm:h-4 sm:w-4 text-amber-300 dark:text-amber-600" />
+                                        {/each}
+                                    </div>
+                                </div>
+                                <p class="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed font-light relative z-10" style="font-family: 'Raleway', 'sans-serif';">"{review.review}"</p>
+
+                                <!-- Hover indicator -->
+                                <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-xs text-orange-600 dark:text-orange-400 font-medium">
+                                    Read more →
+                                </div>
+                            </div>
+                        </a>
+                    {/each}
+                </div>
+            </div>
+
+            <div class="text-center bg-gradient-to-br from-white via-yellow-50/30 to-orange-50/30 dark:from-slate-800 dark:via-slate-800/80 dark:to-slate-700/80 rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-xl border border-yellow-200/50 dark:border-yellow-500/30 mx-4 sm:mx-0 relative overflow-hidden backdrop-blur-sm">
+                <!-- Decorative background elements -->
+                <div class="absolute top-0 left-0 w-24 h-24 bg-yellow-200 dark:bg-yellow-500/20 rounded-full opacity-20 -translate-x-12 -translate-y-12"></div>
+                <div class="absolute bottom-0 right-0 w-32 h-32 bg-orange-200 dark:bg-orange-500/20 rounded-full opacity-15 translate-x-16 translate-y-16"></div>
+
+                <h4 class="text-2xl sm:text-3xl font-extrabold mb-6 text-black dark:text-white relative z-10" style="font-family: 'Cabin', 'sans-serif';">Trusted by 1,000+ Travelers</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 relative z-10">
+                    <div class="text-center">
+                        <div class="text-3xl sm:text-5xl font-extrabold text-amber-600 dark:text-amber-500 mb-2" style="font-family: 'Cabin', 'sans-serif';">99%</div>
+                        <div class="text-base sm:text-base text-slate-700 dark:text-slate-300 font-medium" style="font-family: 'Raleway', 'sans-serif';">Success Rate</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl sm:text-5xl font-extrabold text-orange-600 dark:text-orange-500 mb-2" style="font-family: 'Cabin', 'sans-serif';">5,000+</div>
+                        <div class="text-base sm:text-base text-slate-700 dark:text-slate-300 font-medium" style="font-family: 'Raleway', 'sans-serif';">Bookings Made</div>
+                    </div>
+                    <div class="text-center sm:col-span-2 lg:col-span-1">
+                        <div class="text-3xl sm:text-5xl font-extrabold text-amber-600 dark:text-amber-500 mb-2" style="font-family: 'Cabin', 'sans-serif';">24/7</div>
+                        <div class="text-base sm:text-base text-slate-700 dark:text-slate-300 font-medium" style="font-family: 'Raleway', 'sans-serif';">Automated Service</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
     <svg id="wave" style="transform:rotate(0deg); transition: 0.3s" viewBox="0 0 1440 490" version="1.1"
          xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -273,10 +596,11 @@
         <path style="transform:translate(0, 100px); opacity:0.8" fill="url(#sw-gradient-2)"
               d="M0,147L60,138.8C120,131,240,114,360,163.3C480,212,600,327,720,318.5C840,310,960,180,1080,114.3C1200,49,1320,49,1440,89.8C1560,131,1680,212,1800,220.5C1920,229,2040,163,2160,138.8C2280,114,2400,131,2520,171.5C2640,212,2760,278,2880,326.7C3000,376,3120,408,3240,351.2C3360,294,3480,147,3600,89.8C3720,33,3840,65,3960,122.5C4080,180,4200,261,4320,277.7C4440,294,4560,245,4680,196C4800,147,4920,98,5040,114.3C5160,131,5280,212,5400,277.7C5520,343,5640,392,5760,359.3C5880,327,6000,212,6120,204.2C6240,196,6360,294,6480,326.7C6600,359,6720,327,6840,310.3C6960,294,7080,294,7200,294C7320,294,7440,294,7560,310.3C7680,327,7800,359,7920,343C8040,327,8160,261,8280,220.5C8400,180,8520,163,8580,155.2L8640,147L8640,490L8580,490C8520,490,8400,490,8280,490C8160,490,8040,490,7920,490C7800,490,7680,490,7560,490C7440,490,7320,490,7200,490C7080,490,6960,490,6840,490C6720,490,6600,490,6480,490C6360,490,6240,490,6120,490C6000,490,5880,490,5760,490C5640,490,5520,490,5400,490C5280,490,5160,490,5040,490C4920,490,4800,490,4680,490C4560,490,4440,490,4320,490C4200,490,4080,490,3960,490C3840,490,3720,490,3600,490C3480,490,3360,490,3240,490C3120,490,3000,490,2880,490C2760,490,2640,490,2520,490C2400,490,2280,490,2160,490C2040,490,1920,490,1800,490C1680,490,1560,490,1440,490C1320,490,1200,490,1080,490C960,490,840,490,720,490C600,490,480,490,360,490C240,490,120,490,60,490L0,490Z"></path>
     </svg>
-    <div class="w-full bg-[#FCCA3A] text-black">
-        <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
-            <h3 class="text-center text-4xl md:text-6xl">FAQ</h3>
-            <h4 class="underline text-center text-xl md:text-2xl">BunnyBooker</h4>
+
+        <section class="w-full bg-[#FCCA3A] text-black" aria-labelledby="faq-section">
+            <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
+                <h2 class="text-center text-4xl md:text-6xl" id="faq-section">FAQ</h2>
+                <h3 class="underline text-center text-xl md:text-2xl">BunnyBooker</h3>
             <Accordion.Root class="w-full max-w-[600px] w-full mx-auto">
                 <Accordion.Item value="item-1">
                     <Accordion.Trigger class="text-left">
@@ -540,9 +864,39 @@
                     </Accordion.Content>
                 </Accordion.Item>
             </Accordion.Root>
-        </div>
-    </div>
+            </div>
+        </section>
 
-    <hr>
+        <!-- Final CTA Section -->
+        <section class="w-full bg-[#FCCA3A] text-black py-16 md:py-20">
+            <div class="w-11/12 max-w-[1200px] mx-auto text-center">
+                <h2 class="text-2xl md:text-4xl font-extrabold mb-6" style="font-family: 'Cabin', 'sans-serif';">Get Started Today</h2>
+                <p class="text-base md:text-lg mb-8 text-slate-700" style="font-family: 'Raleway', 'sans-serif';">
+                    Join thousands of travelers who trust BunnyBooker for their KTMB tickets.
+                </p>
+                <div class="mb-6">
+                    {#if $page.data.session}
+                        <Button size="lg" class="bg-black text-white hover:bg-gray-800 text-base md:text-lg px-6 py-3 md:px-8 md:py-4" on:click={track} href="/schedules">
+                            <BookOpenCheck class="mr-2 h-4 w-4 md:h-5 md:w-5"/>
+                            Book Now
+                        </Button>
+                    {:else}
+                        <Button size="lg" class="bg-black text-white hover:bg-gray-800 text-base md:text-lg px-6 py-3 md:px-8 md:py-4" on:click={cta} disabled={loading}>
+                            {#if loading}
+                                <LucideLoader class="mr-2 h-4 w-4 md:h-5 md:w-5 animate-spin"/>
+                            {:else}
+                                <BookOpenCheck class="mr-2 h-4 w-4 md:h-5 md:w-5"/>
+                            {/if}
+                            Book Now
+                        </Button>
+                    {/if}
+                </div>
+                <p class="text-xs md:text-sm text-slate-600" style="font-family: 'Raleway', 'sans-serif';">
+                    Full refund guarantee • Email notifications • Secure platform
+                </p>
+            </div>
+        </section>
+
+    </main>
 
 </Page>

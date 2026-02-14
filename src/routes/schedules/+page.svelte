@@ -118,7 +118,7 @@
     const minDate = today(getLocalTimeZone());
 
     function track() {
-        (window as any).fathom.trackEvent('Select Date To Buy')
+        (window as any)?.fathom?.trackEvent('Select Date To Buy')
     }
 
     $: currDate = toZincDate(bindDate);

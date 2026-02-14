@@ -11,7 +11,7 @@
     import TerminateBooking from "$lib/components/entities/Bookings/TerminateBooking.svelte";
 
     import moment from "moment-timezone";
-
+    import {page} from "$app/stores";
 
     export let booking: BookingRes;
 
@@ -27,6 +27,7 @@
     }
 
     const b = booking.principal;
+    const session: any = $page.data.session;
 </script>
 
 <div class="flex flex-wrap w-full gap-4">
@@ -90,7 +91,18 @@
                         <div>{booking.principal.passenger.fullName}</div>
                     </Card.Title>
                     <Card.Description>
-                        {booking.principal.passenger.passportNumber}
+                        <div>{booking.principal.passenger.passportNumber}</div>
+                        {#if session?.roles?.includes("admin") && booking.user}
+                            <div class="text-xs text-muted-foreground mt-2">
+                                <strong>Owner:</strong> 
+                                <a href="/users/{booking.user.id}" class="text-blue-600 hover:text-blue-800 underline">
+                                    {booking.user.username || booking.user.id}
+                                </a>
+                                {#if booking.user.email}
+                                    ({booking.user.email})
+                                {/if}
+                            </div>
+                        {/if}
                     </Card.Description>
 
                 </div>

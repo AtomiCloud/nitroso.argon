@@ -18,6 +18,14 @@
         signIn('descope');
     }
 
+    async function logout() {
+        await fetch("https://api.descope.com/oauth2/v1/logout", {
+            method: "POST",
+            body: new URLSearchParams({id_token_hint: session.id_token}),
+        });
+        await signOut({ callbackUrl: '/' });
+    }
+
     const session: any = $page.data.session;
 </script>
 
@@ -27,8 +35,7 @@
             <Button
                     variant="ghost"
                     builders={[builder]}
-                    class="relative h-8 w-8 rounded-full"
-            >
+                    class="relative h-8 w-8 rounded-full">
                 <Avatar.Root class="h-8 w-8">
                     <Avatar.Image src="{session?.user?.image}"
                                   alt="@{session?.user?.email}"/>
@@ -103,7 +110,7 @@
                     Profile
                 </DropdownMenu.Item>
             </a>
-            <DropdownMenu.Item on:click={() => signOut()}>
+            <DropdownMenu.Item on:click={logout}>
                 Log out
             </DropdownMenu.Item>
         </DropdownMenu.Content>

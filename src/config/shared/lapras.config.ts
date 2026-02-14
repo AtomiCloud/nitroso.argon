@@ -14,7 +14,8 @@ const config: ISharedConfig = {
     scheme: 'http',
   },
   api: {
-    domain: 'api.zinc.nitroso.lapras.lvh.me:20010',
+    // domain: 'api.zinc.nitroso.lapras.lvh.me:20010',
+    domain: 'localhost:9002',
     scheme: 'http',
   },
 };

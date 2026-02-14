@@ -10,8 +10,10 @@ export const load: LayoutServerLoad = async ({ locals, route }) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session: any | null = await locals.getSession();
 
-  const signIn = session?.user != null && (session.access_token == null || expired(session.access_token, new Date()));
-
+  const signIn =
+    session?.user != null &&
+    (session.access_token == null || expired(session.access_token, new Date())) &&
+    (session.id_token == null || expired(session.id_token, new Date()));
   // redirect to login if not logged in
   if (route.id === '/register' && session?.user == null) throw redirect(307, '/');
 
@@ -28,7 +30,21 @@ export const load: LayoutServerLoad = async ({ locals, route }) => {
   // if (config.app.landscape !== "lapras") c.fetch = fetch;
 
   const api = NewApi(c);
-  const s = (jwtDecode(session.access_token!) as JWT).sub ?? '';
+  const accessToken: JWT = jwtDecode(session.access_token) as JWT;
+  const idToken: {
+    aud: string[];
+    email: string;
+    email_verified: boolean;
+    exp: number;
+    iat: number;
+    iss: string;
+    name: string;
+    picture: string;
+    rexp: string;
+    scope: string;
+    sub: string;
+  } = jwtDecode(session.id_token);
+  const s = accessToken.sub ?? '';
 
   const user = toResult(() => api.vUserDetail2(s, '1'), `Failed to fetch user ${s}`);
 
@@ -42,9 +58,49 @@ export const load: LayoutServerLoad = async ({ locals, route }) => {
     }
   } else {
     if (ok) {
+      // update user if necessary
+      const u = await user.unwrap();
+
+      // Helper function to compare arrays regardless of order
+      const arraysEqual = (a: string[], b: string[]) => {
+        if (a.length !== b.length) return false;
+        const sortedA = [...a].sort();
+        const sortedB = [...b].sort();
+        return sortedA.every((val, index) => val === sortedB[index]);
+      };
+
+      const rolesMatch = u.principal.roles
+        ? arraysEqual(u.principal.roles, accessToken?.roles ?? [])
+        : accessToken?.roles?.length === 0;
+      if (
+        u.principal.id == null ||
+        u.principal.id !== idToken.sub ||
+        u.principal.email == null ||
+        u.principal.email !== idToken.email ||
+        u.principal.roles == null ||
+        !rolesMatch ||
+        u.principal.emailVerified == null ||
+        u.principal.emailVerified !== idToken.email_verified
+      ) {
+        await toResult(
+          () =>
+            api.vUserUpdate(idToken.sub, '1', {
+              accessToken: session.access_token,
+              idToken: session.id_token,
+              username: u.principal.username,
+            }),
+          'Failed to update user',
+        ).match({
+          ok: () => {},
+          err: e => {
+            console.debug(JSON.stringify(e));
+          },
+        });
+      }
+
       return {
         session,
-        user: await user.unwrap(),
+        user: u,
         auth: { signIn },
       };
     } else {

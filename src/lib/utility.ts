@@ -8,6 +8,7 @@ import { Err, Ok, Res } from '$lib/core/result';
 import type { ProblemDetails } from '../errors/problem_details';
 import { toDetail } from '../errors/error_utility';
 import { jwtDecode } from 'jwt-decode';
+import { formatDistanceToNow, format, parseISO, isValid } from 'date-fns';
 
 const isResponse = <T>(value: unknown): value is HttpResponse<T> => {
   return typeof value === 'object' && value !== null && 'error' in value && 'ok' in value && 'data' in value;
@@ -107,6 +108,36 @@ function compare(a?: string | null, b?: string | null): boolean {
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
 
+function formatRelativeDate(date: string | Date): string {
+  const dateObj = typeof date === 'string' ? parseISO(date) : date;
+
+  if (!isValid(dateObj)) {
+    return 'Invalid date';
+  }
+
+  return formatDistanceToNow(dateObj, { addSuffix: true });
+}
+
+function formatDateTime(date: string | Date, formatStr: string = 'dd MMM yyyy, hh:mm a'): string {
+  const dateObj = typeof date === 'string' ? parseISO(date) : date;
+
+  if (!isValid(dateObj)) {
+    return 'Invalid date';
+  }
+
+  return format(dateObj, formatStr);
+}
+
+function formatDate(date: string | Date, formatStr: string = 'dd MMM yyyy'): string {
+  const dateObj = typeof date === 'string' ? parseISO(date) : date;
+
+  if (!isValid(dateObj)) {
+    return 'Invalid date';
+  }
+
+  return format(dateObj, formatStr);
+}
+
 export {
   noop,
   compare,
@@ -121,4 +152,7 @@ export {
   isProblem,
   isResponse,
   parseError,
+  formatRelativeDate,
+  formatDateTime,
+  formatDate,
 };
