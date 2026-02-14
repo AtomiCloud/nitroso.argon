@@ -48,6 +48,10 @@
         return format(toNativeDate(date), "dd MMM yyyy");
     }
 
+    function trackDeposit() {
+        (window as any).fathom.trackEvent('Deposit');
+    }
+
     const df = new DateFormatter("en-US", {
         dateStyle: "medium"
     });
@@ -296,7 +300,7 @@
                         <div class="text-sm font-light {($page.data.user?.wallet?.usable ?? 0) >= cost.final ? 'hidden': '' }">
                             <a class="underline text-blue-500 hover:text-sky-500"
                                href="/wallets/deposit"
-                               onclick="window.fathom.trackEvent('Deposit');">Deposit
+                               on:click={trackDeposit}>Deposit
                                 Now</a>
                         </div>
                     </div>
