@@ -7,11 +7,12 @@ import type { WithdrawalRes } from '$lib/api/core/data-contracts';
 export const load = (async ({
   params,
   parent,
+  fetch,
 }): Promise<{
   result: ['err', ProblemDetails] | ['ok', WithdrawalRes];
 }> => {
   const data = await parent();
-  const api = NewApi({ data });
+  const api = NewApi({ data, fetch });
 
   const walletId = params.withdrawal_id;
 

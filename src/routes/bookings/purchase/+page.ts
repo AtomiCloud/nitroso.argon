@@ -8,12 +8,13 @@ import { Res } from '$lib/core/result';
 export const load = (async ({
   parent,
   url,
+  fetch,
 }): Promise<{
   result: ['err', ProblemDetails[]] | ['ok', [PassengerPrincipalRes[], MaterializedCostRes]];
 }> => {
   const { session, user } = await parent();
 
-  const api = NewApi({ data: { session } });
+  const api = NewApi({ data: { session }, fetch });
   const userId = session.roles?.includes('admin') ? undefined : (user?.principal.id ?? '');
 
   const passengers = await toResult(

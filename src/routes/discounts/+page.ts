@@ -7,12 +7,13 @@ import type { PageLoad } from './$types';
 export const load = (async ({
   parent,
   url,
+  fetch,
 }): Promise<{
   result: ['err', ProblemDetails] | ['ok', DiscountPrincipalRes[]];
 }> => {
   const { session } = await parent();
 
-  const api = NewApi({ data: { session } });
+  const api = NewApi({ data: { session }, fetch });
 
   const search = url.searchParams.get('search') ?? '';
   const discountType = url.searchParams.get('discountType') ?? '';

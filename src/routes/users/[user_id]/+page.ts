@@ -7,11 +7,12 @@ import type { UserRes } from '$lib/api/core/data-contracts';
 export const load = (async ({
   params,
   parent,
+  fetch,
 }): Promise<{
   result: ['err', ProblemDetails] | ['ok', UserRes];
 }> => {
   const data = await parent();
-  const api = NewApi({ data });
+  const api = NewApi({ data, fetch });
 
   const userId = params.user_id;
 

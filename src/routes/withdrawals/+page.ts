@@ -7,12 +7,13 @@ import type { PageLoad } from './$types';
 export const load = (async ({
   parent,
   url,
+  fetch,
 }): Promise<{
   result: ['err', ProblemDetails] | ['ok', WithdrawalPrincipalRes[]];
 }> => {
   const { session } = await parent();
 
-  const api = NewApi({ data: { session } });
+  const api = NewApi({ data: { session }, fetch });
 
   const userId = url.searchParams.get('userId') ?? '';
   const completerId = url.searchParams.get('completerId') ?? '';

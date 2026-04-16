@@ -7,12 +7,13 @@ import type { PageLoad } from './$types';
 export const load = (async ({
   parent,
   url,
+  fetch,
 }): Promise<{
   result: ['err', ProblemDetails] | ['ok', CostPrincipalRes[]];
 }> => {
   const { session } = await parent();
 
-  const api = NewApi({ data: { session } });
+  const api = NewApi({ data: { session }, fetch });
 
   const r = await toResult(() => api.vCostDetail('1'), 'Fail to get withdrawal').serial();
   return {
