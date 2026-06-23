@@ -15,6 +15,8 @@
     import {tick} from "svelte";
     import {Textarea} from "$lib/components/ui/textarea";
     import Validation from "$lib/components/core/Validation.svelte";
+    import {_} from "svelte-i18n";
+    import {lang, formatMoney} from "$lib/i18n";
 
     export let withdrawal: WithdrawalPrincipalRes;
     export let userId: string;
@@ -24,14 +26,14 @@
     let errors: ZodIssue[] = [];
     let taints: Record<string, boolean> = {}
 
-    const cancelWithdrawalSchema = z.object({
+    $: cancelWithdrawalSchema = z.object({
         note: z
             .string()
-            .min(2, {message: "Please enter a note."})
-            .max(4096, {message: "Note cannot be longer than 4096 characters."})
+            .min(2, {message: $_('withdrawals.cancel.noteRequired', { locale: $lang })})
+            .max(4096, {message: $_('withdrawals.cancel.noteTooLong', { locale: $lang })})
     });
 
-    type CancelWithdrawal = z.infer<typeof cancelWithdrawalSchema>;
+    type CancelWithdrawal = { note: string };
     const val: CancelWithdrawal = {
         note: "",
     }
@@ -58,9 +60,9 @@
     async function cancelWithdrawal(note: string) {
         submitting = true;
         await toResult(() => $api.vWithdrawalCancelCreate(withdrawal.id, userId, "1.0", {note}
-        ), "Failed to cancel withdrawal").match({
+        ), $_('withdrawals.cancel.failed', { locale: $lang })).match({
             ok: () => {
-                toast.info(`Successfully cancelled the withdrawal of SGD ${withdrawal.record?.amount.toFixed(2)}.`);
+                toast.info($_('withdrawals.cancel.success', { locale: $lang, values: { amount: formatMoney(withdrawal.record?.amount ?? 0, $lang) } }));
                 dialogOpen = false;
                 invalidateAll();
             },
@@ -76,20 +78,19 @@
 </script>
 <Dialog.Root bind:open={dialogOpen}>
     <Dialog.Trigger class="w-full lg:max-w-40  {buttonVariants({ variant: 'destructive' })}">
-        Cancel
+        {$_('actions.cancel', { locale: $lang })}
     </Dialog.Trigger>
     <Dialog.Content>
         <Dialog.Header>
-            <Dialog.Title>Cancel withdrawal</Dialog.Title>
+            <Dialog.Title>{$_('withdrawals.cancel.title', { locale: $lang })}</Dialog.Title>
             <Dialog.Description>
                 <div class="flex flex-col gap-4">
                     <p class="text-justify py-2">
-                        You are cancelling this withdrawal of S${withdrawal.record.amount.toFixed(2)} to
-                        PayNow {withdrawal.record.payNowNumber}.
+                        {$_('withdrawals.cancel.confirm', { locale: $lang, values: { amount: formatMoney(withdrawal.record.amount, $lang), payNowNumber: withdrawal.record.payNowNumber } })}
                     </p>
                     <Validation {errors} {taints} path="note">
                         <Textarea
-                                placeholder="Note"
+                                placeholder={$_('fields.notes', { locale: $lang })}
                                 bind:value={val.note}
                                 on:input={onChange("note")}
                         />
@@ -98,7 +99,7 @@
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                         {/if}
-                        Cancel
+                        {$_('actions.cancel', { locale: $lang })}
                     </Button>
                 </div>
             </Dialog.Description>

@@ -11,10 +11,12 @@
     import CancelBooking from "$lib/components/entities/Bookings/CancelBooking.svelte";
     import moment from "moment-timezone";
     import {page} from "$app/stores";
-    import {toResult, formatDateTime} from "$lib/utility";
+    import {toResult} from "$lib/utility";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
+    import {_} from "svelte-i18n";
+    import {lang, formatCalendarDate, formatClockTime} from "$lib/i18n";
 
     export let b: BookingPrincipalRes;
 
@@ -36,9 +38,9 @@
         reverting = true;
         console.log("reverting...");
         await toResult(() => $api.vBookingRevertCreate(b.id, "1.0"),
-            "Failed to revert buying state to pending").match({
+            $_('bookingActions.row.revertError', { locale: $lang })).match({
             ok: ok => {
-                toast.info(`Successfully reverted buying state to pending`);
+                toast.info($_('bookingActions.row.revertSuccess', { locale: $lang }));
                 invalidateAll();
             },
             err: (e) => {
@@ -60,14 +62,14 @@
             <div>
                 <Card.Title>
                     <div class="flex gap-1 items-center w-full">
-                        <div>{b.direction === "WToJ" ? "Woodlands" : "JB Sentral"}</div>
+                        <div>{b.direction === "WToJ" ? $_('bookingActions.card.woodlands', { locale: $lang }) : $_('bookingActions.card.jbSentral', { locale: $lang })}</div>
                         <ArrowRight class="h-4 w-4"/>
-                        <div>{b.direction === "WToJ" ? "JB Sentral" : "Woodlands"}</div>
+                        <div>{b.direction === "WToJ" ? $_('bookingActions.card.jbSentral', { locale: $lang }) : $_('bookingActions.card.woodlands', { locale: $lang })}</div>
                     </div>
                 </Card.Title>
                 <Card.Description>
                     <div class="flex flex-col gap-2 my-4 items-center md:items-start">
-                        <Badge class="flex justify-center">{formatDateTime(`${format(parse(b.date, "dd-MM-yyyy", new Date()), "yyyy-MM-dd")}T${b.time}`)}</Badge>
+                        <Badge class="flex justify-center">{formatCalendarDate(parse(b.date, "dd-MM-yyyy", new Date()), $lang)}, {formatClockTime(b.time, $lang)}</Badge>
                         <div>{b.passenger.fullName} ({b.passenger.passportNumber})</div>
                     </div>
                 </Card.Description>
@@ -75,10 +77,10 @@
             <div class="flex gap-1.5 text-center">
                 {#if b.status === "Buying" && session?.roles?.includes("admin")}
                     <button on:click={revertBuying}>
-                        <Badge class="{BOOKING_STATUS[b.status].color}">{b.status} (Click to revert)</Badge>
+                        <Badge class="{BOOKING_STATUS[b.status].color}">{$_('bookingActions.row.clickToRevert', { locale: $lang, values: { status: $_(`status.booking.${b.status}`, { locale: $lang }) } })}</Badge>
                     </button>
                 {:else}
-                    <Badge class="{BOOKING_STATUS[b.status].color}">{b.status}</Badge>
+                    <Badge class="{BOOKING_STATUS[b.status].color}">{$_(`status.booking.${b.status}`, { locale: $lang })}</Badge>
                 {/if}
             </div>
         </div>
@@ -89,11 +91,11 @@
             {#if b.status === "Pending"}
                 <CancelBooking booking={b}/>
             {:else if b.status === "Completed" && canTerminate(b.date, b.time)}
-                <Button class="w-full sm:max-w-40" href="{b.ticketLink}">View Ticket</Button>
+                <Button class="w-full sm:max-w-40" href="{b.ticketLink}">{$_('bookingActions.card.viewTicket', { locale: $lang })}</Button>
                 <TerminateBooking booking={b}/>
             {/if}
             <Button class="w-full sm:max-w-40" href="/bookings/{b.id}">
-                View Details
+                {$_('bookingActions.row.viewDetails', { locale: $lang })}
             </Button>
         </div>
     </Card.Content>

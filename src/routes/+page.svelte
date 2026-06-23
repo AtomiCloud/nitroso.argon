@@ -22,6 +22,8 @@
     import {page} from "$app/stores";
     import {signIn} from "@auth/sveltekit/client";
     import * as Card from "$lib/components/ui/card";
+    import {_} from "svelte-i18n";
+    import {lang} from "$lib/i18n";
 
     console.log("Configuration", config.app);
 
@@ -64,60 +66,60 @@
 
     ]
 
-    const customerReviews = [
+    $: customerReviews = [
         {
             name: "csyhue",
-            location: "Singapore",
+            location: $_('landing.reviews.locations.singapore', { locale: $lang }),
             rating: 5,
-            review: "Amazing service and seamless booking. Used this platform for very long and always managed to get tickets! Highly recommend!",
+            review: $_('landing.reviews.items.csyhue', { locale: $lang }),
             date: new Date('2025-01-24T10:30:00Z'),
             link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
         },
         {
             name: "fhong",
-            location: "Singapore",
+            location: $_('landing.reviews.locations.singapore', { locale: $lang }),
             rating: 5,
-            review: "A friendly and reliable seller. You have to try it to believe. We got the tickets 1 day before the departure date. Highly recommended 👍🏼👍🏼",
+            review: $_('landing.reviews.items.fhong', { locale: $lang }),
             date: new Date('2025-01-20T14:15:00Z'),
             link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
         },
         {
             name: "reappraisal",
-            location: "Singapore", 
+            location: $_('landing.reviews.locations.singapore', { locale: $lang }),
             rating: 5,
-            review: "Purchase 2 KTMB tickets went smoothly. There wasn't any queue and saved us a lot of time. Definitely recommended and trusted. Thank you",
+            review: $_('landing.reviews.items.reappraisal', { locale: $lang }),
             date: new Date('2025-01-18T09:45:00Z'),
             link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
         },
         {
             name: "clarrence",
-            location: "Singapore",
+            location: $_('landing.reviews.locations.singapore', { locale: $lang }),
             rating: 5,
-            review: "Super easy and straightforward to use! Used the service twice and on both occasions I got 100% of the tickets! A very reliable service to use if you are planning to go into JB! 10/10 would recommend!",
+            review: $_('landing.reviews.items.clarrence', { locale: $lang }),
             date: new Date('2024-03-15T16:20:00Z'),
             link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
         },
         {
             name: "melissatan",
-            location: "Singapore",
+            location: $_('landing.reviews.locations.singapore', { locale: $lang }),
             rating: 5,
-            review: "Absolutely fantastic! Saved me hours of frustration trying to book KTMB tickets myself. Got all 4 tickets for my family trip within 2 days. Will definitely use again!",
+            review: $_('landing.reviews.items.melissatan', { locale: $lang }),
             date: new Date('2024-12-28T11:30:00Z'),
             link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
         },
         {
             name: "davidlim88",
-            location: "Singapore",
+            location: $_('landing.reviews.locations.singapore', { locale: $lang }),
             rating: 5,
-            review: "Game changer for JB trips! No more stress about sold out tickets. The system worked perfectly and got our tickets even during peak holiday season. Highly recommended for frequent travelers!",
+            review: $_('landing.reviews.items.davidlim88', { locale: $lang }),
             date: new Date('2024-12-20T13:45:00Z'),
             link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
         },
         {
             name: "sarah_travels",
-            location: "Singapore",
+            location: $_('landing.reviews.locations.singapore', { locale: $lang }),
             rating: 5,
-            review: "Used BunnyBooker for my monthly JB shopping trips. Never failed to get tickets! Customer service is responsive and the whole process is so convenient. Worth every penny!",
+            review: $_('landing.reviews.items.sarahTravels', { locale: $lang }),
             date: new Date('2024-12-10T15:20:00Z'),
             link: "https://www.carousell.sg/u/bunnybooker/?tab=reviews"
         },
@@ -132,23 +134,23 @@
 </script>
 
 <svelte:head>
-    <title>BunnyBooker - Your Stress-Free KTMB Train Ticket Booking Assistant | Singapore to Johor Bahru</title>
-    <meta name="description" content="Book KTMB train tickets from Singapore to Johor Bahru effortlessly with BunnyBooker. 99% success rate, automated booking, 24/7 service. Skip the queue and let our AI handle your train reservations." />
-    <meta name="keywords" content="KTMB train tickets, Singapore to Johor Bahru, JB Sentral, automated booking, train reservation, Malaysia Singapore travel, cross-border transport" />
-    
+    <title>{$_('landing.meta.title', { locale: $lang })}</title>
+    <meta name="description" content={$_('landing.meta.description', { locale: $lang })} />
+    <meta name="keywords" content={$_('landing.meta.keywords', { locale: $lang })} />
+
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="BunnyBooker - Automated KTMB Train Ticket Booking" />
-    <meta property="og:description" content="Skip the hassle of manual KTMB (Singapore-Johor Train) booking. Our AI bunnies secure your train tickets automatically with 99% success rate. Book Singapore-JB train tickets stress-free!" />
+    <meta property="og:title" content={$_('landing.meta.ogTitle', { locale: $lang })} />
+    <meta property="og:description" content={$_('landing.meta.ogDescription', { locale: $lang })} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://bunnybooker.com" />
     <meta property="og:image" content={social} />
     <meta property="og:site_name" content="BunnyBooker" />
     <meta property="og:locale" content="en_SG" />
-    
+
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="BunnyBooker - Automated KTMB Train Ticket Booking" />
-    <meta name="twitter:description" content="Skip the hassle of manual KTMB booking. Our AI bunnies secure your train tickets automatically with 99% success rate." />
+    <meta name="twitter:title" content={$_('landing.meta.ogTitle', { locale: $lang })} />
+    <meta name="twitter:description" content={$_('landing.meta.twitterDescription', { locale: $lang })} />
     <meta name="twitter:image" content={social} />
     
     <!-- Additional SEO Meta Tags -->
@@ -233,14 +235,14 @@
         animation-play-state: paused;
     }
 </style>
-<Page notFoundMessage="Main page cannot be found">
+<Page notFoundMessage={$_('landing.notFound', { locale: $lang })}>
     <main>
-        <section class="flex h-[calc(100dvh-4rem)] geo-bg" aria-label="Hero section">
+        <section class="flex h-[calc(100dvh-4rem)] geo-bg" aria-label={$_('landing.hero.ariaLabel', { locale: $lang })}>
             <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto">
                 <div class="flex flex-grow flex-col justify-center align-center">
                     <div class="flex flex-row-reverse flex-wrap justify-center align-center mt-4">
                         <div>
-                            <img src={mascot} alt="BunnyBooker mascot - friendly bunny character representing automated KTMB train ticket booking service" class="h-[40vh] w-[40vh] md:h-80 md:w-80"
+                            <img src={mascot} alt={$_('landing.hero.mascotAlt', { locale: $lang })} class="h-[40vh] w-[40vh] md:h-80 md:w-80"
                                  style="transform: translateX(-5%)"/>
                         </div>
                         <header class="flex flex-col gap-4 justify-evenly align-center">
@@ -251,13 +253,12 @@
                             </div>
 
                             <p class="text-lg md:text-xl text-center md:text-left max-w-[500px]">
-                                <span>Everyone deserves a comfortable KTMB train ride to JB. We help you skip
-                                    the queue and crowd.</span>
+                                <span>{$_('landing.hero.subtitle', { locale: $lang })}</span>
                             </p>
                             {#if $page.data.session}
                                 <Button on:click={track} href="/schedules">
                                     <BookOpenCheck class="mr-2 h-4 w-4"/>
-                                    Secure My Tickets
+                                    {$_('landing.hero.cta', { locale: $lang })}
                                 </Button>
                             {:else}
                                 <Button on:click={cta} disabled={loading}>
@@ -266,14 +267,14 @@
                                     {:else}
                                         <BookOpenCheck class="mr-2 h-4 w-4"/>
                                     {/if}
-                                    Secure My Tickets
+                                    {$_('landing.hero.cta', { locale: $lang })}
                                 </Button>
                             {/if}
                         </header>
                     </div>
                 </div>
                 <div class="text-3xl text-center w-full flex flex-col items-center pt-12 pb-24 lg:pt-6 lg:pb-12">
-                    <div class="py-3">See how it works</div>
+                    <div class="py-3">{$_('landing.hero.seeHowItWorks', { locale: $lang })}</div>
                     <ChevronDownCircle class="animate-bounce h-8 w-8"/>
                 </div>
             </div>
@@ -283,17 +284,16 @@
             <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
                 <div class="flex flex-wrap align-center justify-center panel-1 gap-4">
                     <div class="flex flex-col align-center justify-center w-80">
-                        <h3 class="text-6xl font-extrabold text-center md:text-right">STEP 1</h3>
+                        <h3 class="text-6xl font-extrabold text-center md:text-right">{$_('landing.steps.step1.label', { locale: $lang })}</h3>
                         <h4 class="text-2xl text-center md:text-right">
-                            Select Your Date and Time
+                            {$_('landing.steps.step1.title', { locale: $lang })}
                         </h4>
                         <div class="text-lg font-light my-4 text-slate-700 text-justify md:text-right">
-                            Simply select your travel date and time, then our AI takes over.
-                            Set it once and forget it - no more endless refreshing.
+                            {$_('landing.steps.step1.body', { locale: $lang })}
                         </div>
                     </div>
                     <div class="w-full md:w-1/2">
-                        <img src={panel1} alt="Step 1: Select your date and time interface showing calendar and time selection"/>
+                        <img src={panel1} alt={$_('landing.steps.step1.imageAlt', { locale: $lang })}/>
                     </div>
                 </div>
             </div>
@@ -313,17 +313,16 @@
             <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
                 <div class="flex flex-wrap md:flex-row-reverse  align-center justify-center panel-1 gap-12">
                     <div class="flex flex-col align-center justify-center w-80">
-                        <h3 class="text-6xl font-extrabold text-center md:text-left">STEP 2</h3>
+                        <h3 class="text-6xl font-extrabold text-center md:text-left">{$_('landing.steps.step2.label', { locale: $lang })}</h3>
                         <h4 class="text-2xl text-center md:text-left">
-                            Sit Back & Relax
+                            {$_('landing.steps.step2.title', { locale: $lang })}
                         </h4>
                         <div class="text-lg font-light my-4 dark:text-slate-300 text-slate-700 text-justify md:text-left">
-                            No more stressing about sold-out tickets. Our AI monitors KTMB 24/7,
-                            so you can focus on planning your trip instead of hunting for tickets.
+                            {$_('landing.steps.step2.body', { locale: $lang })}
                         </div>
                     </div>
                     <div class="w-full md:w-1/2">
-                        <img src={panel2} alt="Step 2: Sit back and relax while our bunnies organize your booking"/>
+                        <img src={panel2} alt={$_('landing.steps.step2.imageAlt', { locale: $lang })}/>
                     </div>
                 </div>
             </div>
@@ -334,17 +333,16 @@
             <div class="flex flex-wrap  align-center justify-center panel-1 gap-12">
 
                 <div class="flex flex-col align-center justify-center w-80">
-                    <h3 class="text-6xl font-extrabold text-center md:text-right">STEP 3</h3>
+                    <h3 class="text-6xl font-extrabold text-center md:text-right">{$_('landing.steps.step3.label', { locale: $lang })}</h3>
                     <h4 class="text-2xl text-center md:text-right">
-                        Let Our Bunnies Hunt
+                        {$_('landing.steps.step3.title', { locale: $lang })}
                     </h4>
                     <div class="text-lg font-light my-4 dark:text-slate-300 text-slate-700 text-justify md:text-right">
-                        Our AI scans for newly released tickets every second, instantly
-                        pouncing on opportunities before they disappear.
+                        {$_('landing.steps.step3.body', { locale: $lang })}
                     </div>
                 </div>
                 <div class="w-full md:w-1/2">
-                    <img src={panel3} alt="Step 3"/>
+                    <img src={panel3} alt={$_('landing.steps.step3.imageAlt', { locale: $lang })}/>
                 </div>
             </div>
         </div>
@@ -365,17 +363,16 @@
             <div class="flex flex-wrap md:flex-row-reverse  align-center justify-center panel-1 gap-12">
 
                 <div class="flex flex-col align-center justify-center w-80">
-                    <h3 class="text-6xl font-extrabold text-center md:text-left">STEP 4</h3>
+                    <h3 class="text-6xl font-extrabold text-center md:text-left">{$_('landing.steps.step4.label', { locale: $lang })}</h3>
                     <h4 class="text-2xl text-center md:text-left">
-                        Instant Booking
+                        {$_('landing.steps.step4.title', { locale: $lang })}
                     </h4>
                     <div class="text-lg my-4 font-light text-slate-700 text-justify md:text-left">
-                        Lightning-fast execution. The instant tickets are released,
-                        our system secures them before others even notice.
+                        {$_('landing.steps.step4.body', { locale: $lang })}
                     </div>
                 </div>
                 <div class="w-full md:w-1/2">
-                    <img src={panel4} alt="Step 4"/>
+                    <img src={panel4} alt={$_('landing.steps.step4.imageAlt', { locale: $lang })}/>
                 </div>
             </div>
         </div>
@@ -385,18 +382,16 @@
             <div class="flex flex-wrap  align-center justify-center panel-1 gap-12">
 
                 <div class="flex flex-col align-center justify-center w-80">
-                    <h3 class="text-6xl font-extrabold text-center md:text-right">STEP 5</h3>
+                    <h3 class="text-6xl font-extrabold text-center md:text-right">{$_('landing.steps.step5.label', { locale: $lang })}</h3>
                     <h4 class="text-3xl text-center md:text-right">
-                        Get notified and Verify Booking Details
+                        {$_('landing.steps.step5.title', { locale: $lang })}
                     </h4>
                     <div class="text-lg my-4 font-light dark:text-slate-300 text-slate-700 text-justify md:text-right">
-                        Receive a prompt notification with all the ticket details as soon
-                        as it's booked. Check and verify the information on our user-friendly
-                        portal for a stress-free travel experience!
+                        {$_('landing.steps.step5.body', { locale: $lang })}
                     </div>
                 </div>
                 <div class="w-full md:w-1/2">
-                    <img src={panel5} alt="Step 5"/>
+                    <img src={panel5} alt={$_('landing.steps.step5.imageAlt', { locale: $lang })}/>
                 </div>
             </div>
         </div>
@@ -404,35 +399,35 @@
     <!-- Why Choose BunnyBooker Section -->
     <section class="w-full bg-yellow-300 dark:bg-yellow-400 text-black py-16">
         <div class="w-11/12 max-w-[1200px] mx-auto">
-            <h2 class="text-3xl md:text-4xl font-extrabold text-center mb-12 text-black" style="font-family: 'Cabin', 'sans-serif';">Why Choose BunnyBooker?</h2>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-center mb-12 text-black" style="font-family: 'Cabin', 'sans-serif';">{$_('landing.whyChoose.heading', { locale: $lang })}</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                 <div class="text-center bg-white/70 dark:bg-black/70 rounded-lg p-6 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow duration-200">
                     <div class="w-12 h-12 md:w-16 md:h-16 bg-amber-400 rounded-full flex items-center justify-center mx-auto mb-4">
                         <span class="text-lg md:text-2xl">💰</span>
                     </div>
-                    <h3 class="font-bold text-base md:text-lg mb-2 text-black dark:text-white" style="font-family: 'Cabin', 'sans-serif';">Money Back Guarantee</h3>
-                    <p class="text-slate-800 dark:text-slate-200 text-sm leading-relaxed" style="font-family: 'Raleway', 'sans-serif';">Get your money back if we can't secure your tickets</p>
+                    <h3 class="font-bold text-base md:text-lg mb-2 text-black dark:text-white" style="font-family: 'Cabin', 'sans-serif';">{$_('landing.whyChoose.moneyBack.title', { locale: $lang })}</h3>
+                    <p class="text-slate-800 dark:text-slate-200 text-sm leading-relaxed" style="font-family: 'Raleway', 'sans-serif';">{$_('landing.whyChoose.moneyBack.body', { locale: $lang })}</p>
                 </div>
                 <div class="text-center bg-white/70 dark:bg-black/70 rounded-lg p-6 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow duration-200">
                     <div class="w-12 h-12 md:w-16 md:h-16 bg-amber-400 rounded-full flex items-center justify-center mx-auto mb-4">
                         <span class="text-lg md:text-2xl">📧</span>
                     </div>
-                    <h3 class="font-bold text-base md:text-lg mb-2 text-black dark:text-white" style="font-family: 'Cabin', 'sans-serif';">Instant Updates</h3>
-                    <p class="text-slate-800 dark:text-slate-200 text-sm leading-relaxed" style="font-family: 'Raleway', 'sans-serif';">Get notified when your tickets are secured</p>
+                    <h3 class="font-bold text-base md:text-lg mb-2 text-black dark:text-white" style="font-family: 'Cabin', 'sans-serif';">{$_('landing.whyChoose.instantUpdates.title', { locale: $lang })}</h3>
+                    <p class="text-slate-800 dark:text-slate-200 text-sm leading-relaxed" style="font-family: 'Raleway', 'sans-serif';">{$_('landing.whyChoose.instantUpdates.body', { locale: $lang })}</p>
                 </div>
                 <div class="text-center bg-white/70 dark:bg-black/70 rounded-lg p-6 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow duration-200">
                     <div class="w-12 h-12 md:w-16 md:h-16 bg-amber-400 rounded-full flex items-center justify-center mx-auto mb-4">
                         <span class="text-lg md:text-2xl">📈</span>
                     </div>
-                    <h3 class="font-bold text-base md:text-lg mb-2 text-black dark:text-white" style="font-family: 'Cabin', 'sans-serif';">High Success Rate</h3>
-                    <p class="text-slate-800 dark:text-slate-200 text-sm leading-relaxed" style="font-family: 'Raleway', 'sans-serif';">99% of our bookings are successful</p>
+                    <h3 class="font-bold text-base md:text-lg mb-2 text-black dark:text-white" style="font-family: 'Cabin', 'sans-serif';">{$_('landing.whyChoose.successRate.title', { locale: $lang })}</h3>
+                    <p class="text-slate-800 dark:text-slate-200 text-sm leading-relaxed" style="font-family: 'Raleway', 'sans-serif';">{$_('landing.whyChoose.successRate.body', { locale: $lang })}</p>
                 </div>
                 <div class="text-center bg-white/70 dark:bg-black/70 rounded-lg p-6 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow duration-200">
                     <div class="w-12 h-12 md:w-16 md:h-16 bg-amber-400 rounded-full flex items-center justify-center mx-auto mb-4">
                         <span class="text-lg md:text-2xl">🕐</span>
                     </div>
-                    <h3 class="font-bold text-base md:text-lg mb-2 text-black dark:text-white" style="font-family: 'Cabin', 'sans-serif';">24/7 Available</h3>
-                    <p class="text-slate-800 dark:text-slate-200 text-sm leading-relaxed" style="font-family: 'Raleway', 'sans-serif';">Our system works around the clock</p>
+                    <h3 class="font-bold text-base md:text-lg mb-2 text-black dark:text-white" style="font-family: 'Cabin', 'sans-serif';">{$_('landing.whyChoose.available.title', { locale: $lang })}</h3>
+                    <p class="text-slate-800 dark:text-slate-200 text-sm leading-relaxed" style="font-family: 'Raleway', 'sans-serif';">{$_('landing.whyChoose.available.body', { locale: $lang })}</p>
                 </div>
             </div>
         </div>
@@ -450,7 +445,7 @@
         <div class="absolute bottom-40 right-10 w-8 h-8 bg-yellow-300 dark:bg-yellow-500/20 rounded-full opacity-50"></div>
         <div class="flex flex-col gap-4 justify-center align-center w-11/12 max-w-[1200px] mx-auto py-24">
             <div class="text-center">
-                <h2 class="text-4xl md:text-6xl font-extrabold mb-4 text-black dark:text-white" style="font-family: 'Cabin', 'sans-serif';" id="customer-reviews">Success Stories</h2>
+                <h2 class="text-4xl md:text-6xl font-extrabold mb-4 text-black dark:text-white" style="font-family: 'Cabin', 'sans-serif';" id="customer-reviews">{$_('landing.reviews.heading', { locale: $lang })}</h2>
                 <div class="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-2 mb-6">
                     <div class="flex items-center gap-2">
                         <div class="flex">
@@ -469,9 +464,9 @@
                         </div>
                         <span class="text-xl sm:text-xl font-semibold text-slate-800 dark:text-slate-200">{averageRating}/5</span>
                     </div>
-                    <a href="https://www.carousell.sg/u/bunnybooker/?tab=reviews" class="text-base sm:text-base text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline font-medium">View All Reviews</a>
+                    <a href="https://www.carousell.sg/u/bunnybooker/?tab=reviews" class="text-base sm:text-base text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline font-medium">{$_('landing.reviews.viewAll', { locale: $lang })}</a>
                 </div>
-                <p class="text-lg sm:text-lg text-slate-700 dark:text-slate-300 max-w-2xl mx-auto font-light px-4">Join thousands of happy travelers who trust BunnyBooker!</p>
+                <p class="text-lg sm:text-lg text-slate-700 dark:text-slate-300 max-w-2xl mx-auto font-light px-4">{$_('landing.reviews.joinTagline', { locale: $lang })}</p>
             </div>
 
             <!-- Mobile: Static 2-column grid -->
@@ -487,7 +482,7 @@
                                     <div class="flex justify-between items-start mb-2">
                                         <div>
                                             <h4 class="text-lg font-bold text-black dark:text-white group-hover:text-orange-700 dark:group-hover:text-orange-400 transition-colors" style="font-family: 'Cabin', 'sans-serif';">{review.name}</h4>
-                                            <p class="text-sm text-slate-600 dark:text-slate-400" style="font-family: 'Raleway', 'sans-serif';">{review.location} • {formatRelativeDate(review.date)}</p>
+                                            <p class="text-sm text-slate-600 dark:text-slate-400" style="font-family: 'Raleway', 'sans-serif';">{review.location} • {formatRelativeDate(review.date, $lang)}</p>
                                         </div>
                                         <div class="flex">
                                             {#each Array(review.rating) as _, i}
@@ -503,7 +498,7 @@
 
                                 <!-- Hover indicator -->
                                 <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-xs text-orange-600 dark:text-orange-400 font-medium">
-                                    Read more →
+                                    {$_('landing.reviews.readMore', { locale: $lang })}
                                 </div>
                             </div>
                         </a>
@@ -523,7 +518,7 @@
                                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 sm:mb-4 relative z-10">
                                     <div class="mb-2 sm:mb-0">
                                         <h4 class="text-base sm:text-lg font-bold text-black dark:text-white group-hover:text-orange-700 dark:group-hover:text-orange-400 transition-colors" style="font-family: 'Cabin', 'sans-serif';">{review.name}</h4>
-                                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400" style="font-family: 'Raleway', 'sans-serif';">{review.location} • {formatRelativeDate(review.date)}</p>
+                                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400" style="font-family: 'Raleway', 'sans-serif';">{review.location} • {formatRelativeDate(review.date, $lang)}</p>
                                     </div>
                                     <div class="flex">
                                         {#each Array(review.rating) as _, i}
@@ -538,7 +533,7 @@
 
                                 <!-- Hover indicator -->
                                 <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-xs text-orange-600 dark:text-orange-400 font-medium">
-                                    Read more →
+                                    {$_('landing.reviews.readMore', { locale: $lang })}
                                 </div>
                             </div>
                         </a>
@@ -551,19 +546,19 @@
                 <div class="absolute top-0 left-0 w-24 h-24 bg-yellow-200 dark:bg-yellow-500/20 rounded-full opacity-20 -translate-x-12 -translate-y-12"></div>
                 <div class="absolute bottom-0 right-0 w-32 h-32 bg-orange-200 dark:bg-orange-500/20 rounded-full opacity-15 translate-x-16 translate-y-16"></div>
 
-                <h4 class="text-2xl sm:text-3xl font-extrabold mb-6 text-black dark:text-white relative z-10" style="font-family: 'Cabin', 'sans-serif';">Trusted by 1,000+ Travelers</h4>
+                <h4 class="text-2xl sm:text-3xl font-extrabold mb-6 text-black dark:text-white relative z-10" style="font-family: 'Cabin', 'sans-serif';">{$_('landing.reviews.trustedBy', { locale: $lang })}</h4>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 relative z-10">
                     <div class="text-center">
                         <div class="text-3xl sm:text-5xl font-extrabold text-amber-600 dark:text-amber-500 mb-2" style="font-family: 'Cabin', 'sans-serif';">99%</div>
-                        <div class="text-base sm:text-base text-slate-700 dark:text-slate-300 font-medium" style="font-family: 'Raleway', 'sans-serif';">Success Rate</div>
+                        <div class="text-base sm:text-base text-slate-700 dark:text-slate-300 font-medium" style="font-family: 'Raleway', 'sans-serif';">{$_('landing.reviews.stats.successRate', { locale: $lang })}</div>
                     </div>
                     <div class="text-center">
                         <div class="text-3xl sm:text-5xl font-extrabold text-orange-600 dark:text-orange-500 mb-2" style="font-family: 'Cabin', 'sans-serif';">5,000+</div>
-                        <div class="text-base sm:text-base text-slate-700 dark:text-slate-300 font-medium" style="font-family: 'Raleway', 'sans-serif';">Bookings Made</div>
+                        <div class="text-base sm:text-base text-slate-700 dark:text-slate-300 font-medium" style="font-family: 'Raleway', 'sans-serif';">{$_('landing.reviews.stats.bookingsMade', { locale: $lang })}</div>
                     </div>
                     <div class="text-center sm:col-span-2 lg:col-span-1">
                         <div class="text-3xl sm:text-5xl font-extrabold text-amber-600 dark:text-amber-500 mb-2" style="font-family: 'Cabin', 'sans-serif';">24/7</div>
-                        <div class="text-base sm:text-base text-slate-700 dark:text-slate-300 font-medium" style="font-family: 'Raleway', 'sans-serif';">Automated Service</div>
+                        <div class="text-base sm:text-base text-slate-700 dark:text-slate-300 font-medium" style="font-family: 'Raleway', 'sans-serif';">{$_('landing.reviews.stats.automatedService', { locale: $lang })}</div>
                     </div>
                 </div>
             </div>
@@ -599,69 +594,50 @@
 
         <section class="w-full bg-[#FCCA3A] text-black" aria-labelledby="faq-section">
             <div class="flex flex-col gap-4 justify-between align-center w-11/12 max-w-[1200px] mx-auto py-24">
-                <h2 class="text-center text-4xl md:text-6xl" id="faq-section">FAQ</h2>
+                <h2 class="text-center text-4xl md:text-6xl" id="faq-section">{$_('landing.faq.heading', { locale: $lang })}</h2>
                 <h3 class="underline text-center text-xl md:text-2xl">BunnyBooker</h3>
             <Accordion.Root class="w-full max-w-[600px] w-full mx-auto">
                 <Accordion.Item value="item-1">
                     <Accordion.Trigger class="text-left">
-                        How does BunnyBooker work?
+                        {$_('landing.faq.bb.q1.question', { locale: $lang })}
                     </Accordion.Trigger>
                     <Accordion.Content>
                         <p class="py-2">
-                            Once you have made an order, we will use our AI systems to predict when tickets will
-                            refunded or re-released on the KTMB site.
-                            Once a timeslot that matches your order has been refunded
-                            and made available on the KTMB site, we will book the ticket on your behalf.
+                            {$_('landing.faq.bb.q1.answer1', { locale: $lang })}
                         </p>
                         <p class="py-2">
-                            We do not keep stock of any train tickets in our system and only make bookings based on
-                            pending orders.
+                            {$_('landing.faq.bb.q1.answer2', { locale: $lang })}
                         </p>
                     </Accordion.Content>
                 </Accordion.Item>
 
                 <Accordion.Item value="item-2">
                     <Accordion.Trigger class="text-left">
-                        Why should I buy tickets via BunnyBooker?
+                        {$_('landing.faq.bb.q2.question', { locale: $lang })}
                     </Accordion.Trigger>
                     <Accordion.Content>
-                        <h3 class="font-semibold">Convenience</h3>
+                        <h3 class="font-semibold">{$_('landing.faq.bb.q2.convenienceTitle', { locale: $lang })}</h3>
                         <p class="my-2">
-                            Buying tickets on BunnyBooker saves you the time and hassle
-                            from constantly going to the KTMB site to check on ticket availability
-                            as our systems checks and books any available tickets as soon
-                            as they are available.
+                            {$_('landing.faq.bb.q2.convenienceBody', { locale: $lang })}
                         </p>
 
-                        <h3 class="font-semibold mt-6">Check order status anytime, anywhere </h3>
+                        <h3 class="font-semibold mt-6">{$_('landing.faq.bb.q2.statusTitle', { locale: $lang })}</h3>
                         <p class="my-2">
-                            BunnyBooker allows you to check the status of your
-                            order whenever you like, allowing you to decide on the next steps of your travel.
+                            {$_('landing.faq.bb.q2.statusBody1', { locale: $lang })}
                         </p>
                         <p class="my-2">
-                            You will be able to check the status of each ticket per order,
-                            and it will be either "Purchased" or "Pending".
+                            {$_('landing.faq.bb.q2.statusBody2', { locale: $lang })}
                         </p>
-                        <h3 class="font-semibold mt-6">Check ticket queue to plan for travels</h3>
+                        <h3 class="font-semibold mt-6">{$_('landing.faq.bb.q2.queueTitle', { locale: $lang })}</h3>
                         <p class="my-2">
-                            BunnyBooker allows you to see the number of tickets
-                            pending before you in all the timeslots for the day
-                            and train direction you have selected.
+                            {$_('landing.faq.bb.q2.queueBody1', { locale: $lang })}
                         </p>
                         <p class="my-2">
-                            e.g. Customer 1 placed an order for 3 people for CIQ -> JB SENTRAL at 8.30AM on 31/12/2023,
-                            and customer 2 is looking to place an order for 5 people for the same direction, date and
-                            time.
-                            BunnyBooker queue will display "3 pending tickets" for Customer 2 to make an
-                            informed choice of whether or not she wants to make the order for the
-                            same timeslot or choose an alternative timeslot.
+                            {$_('landing.faq.bb.q2.queueBody2', { locale: $lang })}
                         </p>
-                        <h3 class="font-semibold mt-6">Safe</h3>
+                        <h3 class="font-semibold mt-6">{$_('landing.faq.bb.q2.safeTitle', { locale: $lang })}</h3>
                         <p class="my-2">
-                            BunnyBooker complies with PDPA and only retains
-                            information consensually provided by you for fulfilling
-                            booking orders, as well as marketing information
-                            only if consent is given by you.
+                            {$_('landing.faq.bb.q2.safeBody', { locale: $lang })}
                         </p>
                     </Accordion.Content>
                 </Accordion.Item>
@@ -669,28 +645,24 @@
 
                 <Accordion.Item value="item-3">
                     <Accordion.Trigger class="text-left">
-                        How can I check the purchase status of my order?
+                        {$_('landing.faq.bb.q3.question', { locale: $lang })}
                     </Accordion.Trigger>
                     <Accordion.Content>
-                        You can login to <a class="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
-                                            href="https://bunnybooker.com">bunnybooker.com</a> and check the status of
-                        your order.
+                        {$_('landing.faq.bb.q3.answerBefore', { locale: $lang })} <a class="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                                            href="https://bunnybooker.com">bunnybooker.com</a> {$_('landing.faq.bb.q3.answerAfter', { locale: $lang })}
                     </Accordion.Content>
                 </Accordion.Item>
 
                 <Accordion.Item value="item-4">
                     <Accordion.Trigger class="text-left">
-                        Can I change my order after order confirmation?
+                        {$_('landing.faq.bb.q4.question', { locale: $lang })}
                     </Accordion.Trigger>
                     <Accordion.Content>
                         <p class="my-2">
-                            You can cancel tickets at any time. However, if the
-                            tickets have been secured by our system, you will not be
-                            refunded for the cancelled ticket.
+                            {$_('landing.faq.bb.q4.answer', { locale: $lang })}
                         </p>
                         <p class="my-2">
-                            For more information on delivery, cancellation and refund policies,
-                            see <a href="/policy" class="underline hover:text-amber-300">here</a>
+                            {$_('landing.faq.bb.policyLinkBefore', { locale: $lang })} <a href="/policy" class="underline hover:text-amber-300">{$_('landing.faq.bb.policyLinkText', { locale: $lang })}</a>
                         </p>
 
                     </Accordion.Content>
@@ -698,30 +670,25 @@
 
                 <Accordion.Item value="item-5">
                     <Accordion.Trigger class="text-left">
-                        Are refunds allowed?
+                        {$_('landing.faq.bb.q5.question', { locale: $lang })}
                     </Accordion.Trigger>
                     <Accordion.Content>
                         <p class="my-2">
-                            Full refunds are provided for tickets that have not been secured by our system.
-                            However, tickets secured by our system can be cancelled, but will not be eligible
-                            for refunds.
+                            {$_('landing.faq.bb.q5.answer', { locale: $lang })}
                         </p>
                         <p class="my-2">
-                            For more information on delivery, cancellation and refund policies,
-                            see <a href="/policy" class="underline hover:text-amber-300">here</a>
+                            {$_('landing.faq.bb.policyLinkBefore', { locale: $lang })} <a href="/policy" class="underline hover:text-amber-300">{$_('landing.faq.bb.policyLinkText', { locale: $lang })}</a>
                         </p>
                     </Accordion.Content>
                 </Accordion.Item>
 
                 <Accordion.Item value="item-6">
                     <Accordion.Trigger class="text-left">
-                        Does BunnyBooker allow preorders?
+                        {$_('landing.faq.bb.q6.question', { locale: $lang })}
                     </Accordion.Trigger>
                     <Accordion.Content>
                         <p>
-                            Preorders for unreleased tickets are allowed. There are
-                            no limitations on how far in the future you may
-                            place the order for.
+                            {$_('landing.faq.bb.q6.answer', { locale: $lang })}
                         </p>
 
                     </Accordion.Content>
@@ -729,44 +696,39 @@
 
                 <Accordion.Item value="item-7">
                     <Accordion.Trigger class="text-left">
-                        How is my personal data handled?
+                        {$_('landing.faq.bb.q7.question', { locale: $lang })}
                     </Accordion.Trigger>
                     <Accordion.Content>
                         <ol class="my-6 ml-6 list-decimal [&>li]:mt-2">
-                            <li>All personal data are encrypted at rest in the database</li>
-                            <li>No data is shared with external parties</li>
-                            <li>No personal identifiable information is allowed to be accessed by internal staff</li>
+                            <li>{$_('landing.faq.bb.q7.item1', { locale: $lang })}</li>
+                            <li>{$_('landing.faq.bb.q7.item2', { locale: $lang })}</li>
+                            <li>{$_('landing.faq.bb.q7.item3', { locale: $lang })}</li>
                             <li>
-                                Upon rejection of marketing permissions, no personal data will be collected
-                                for marketing purposes and only essential information for booking tickets
-                                will be collected
+                                {$_('landing.faq.bb.q7.item4', { locale: $lang })}
                             </li>
                             <li>
-                                Upon deletion of account, all information related to the user will
-                                instantly be deleted from our database
+                                {$_('landing.faq.bb.q7.item5', { locale: $lang })}
                             </li>
                         </ol>
                         <p class="my-2">
-                            The above personal data handling is for BunnyBooker only. Click
+                            {$_('landing.faq.bb.q7.privacyBefore', { locale: $lang })}
                             <a href="/privacy" class="underline hover:text-amber-300">
-                                here </a> to
-                            read more about BunnyBooker's personal data handling.
+                                {$_('landing.faq.bb.q7.privacyLinkText', { locale: $lang })} </a> {$_('landing.faq.bb.q7.privacyAfter', { locale: $lang })}
                         </p>
                         <p class="my-2">
-                            If you would like to find out how your personal data is handled on the KTMB website, you may
-                            visit
+                            {$_('landing.faq.bb.q7.ktmbBefore', { locale: $lang })}
                             <a class="underline hover:text-amber-300"
-                               href="https://www.ktmb.com.my/assets/pdf/2022/customer_privacy_policy.pdf">here</a>
+                               href="https://www.ktmb.com.my/assets/pdf/2022/customer_privacy_policy.pdf">{$_('landing.faq.bb.q7.ktmbLinkText', { locale: $lang })}</a>
                         </p>
                     </Accordion.Content>
                 </Accordion.Item>
 
                 <Accordion.Item value="item-8">
                     <Accordion.Trigger class="text-left">
-                        What is the success rate of BunnyBooker booking service?
+                        {$_('landing.faq.bb.q8.question', { locale: $lang })}
                     </Accordion.Trigger>
                     <Accordion.Content>
-                        To date, the success rate is <b class="font-semibold">100%</b>.
+                        {$_('landing.faq.bb.q8.answerBefore', { locale: $lang })} <b class="font-semibold">100%</b>{$_('landing.faq.bb.q8.answerAfter', { locale: $lang })}
                     </Accordion.Content>
                 </Accordion.Item>
 
@@ -775,50 +737,44 @@
             <Accordion.Root class="w-full max-w-[600px] w-full mx-auto">
                 <Accordion.Item value="item-1">
                     <Accordion.Trigger class="text-left">
-                        How does taking train between Singapore and JB work?
+                        {$_('landing.faq.ktmb.q1.question', { locale: $lang })}
                     </Accordion.Trigger>
                     <Accordion.Content>
                         <p class="py-2">
-                            Take for example, you have a 9.45am train ride from SG -> JB.
+                            {$_('landing.faq.ktmb.q1.p1', { locale: $lang })}
                         </p>
                         <p class="py-2">
-                            Gates close strictly 20 minutes before train departure.
-                            Therefore, it is best to be in the queue at least 30 minutes before train departure (at
-                            9.15am).
+                            {$_('landing.faq.ktmb.q1.p2', { locale: $lang })}
                         </p>
                         <p class="py-2">
-                            From 9.25am - 9.45am (the 20 minutes before departure),
-                            All passengers will go through both Singapore & Malaysia customs
-                            before the train ride (yes, you read it right, 2 customs settled before the train ride!)
+                            {$_('landing.faq.ktmb.q1.p3', { locale: $lang })}
                         </p>
                         <p class="py-2">
-                            From 9.45am - 9.50am,
-                            The train departs at 9.45am and you will arrive in JB sentral at 9.50am!
+                            {$_('landing.faq.ktmb.q1.p4', { locale: $lang })}
                         </p>
                         <p class="py-2">
-                            At 9.50am,
-                            Destination reached, you are free to roam!
+                            {$_('landing.faq.ktmb.q1.p5', { locale: $lang })}
                         </p>
                         <p>
-                            NOTE: Train from JB-> SG closes <span class="underline">10 minutes</span>
-                            before departure, train from SG -> JB (in above example) closes
-                            <span class="underline">20 minutes</span> before departure.
+                            {$_('landing.faq.ktmb.q1.noteBefore', { locale: $lang })} <span class="underline">{$_('landing.faq.ktmb.tenMinutes', { locale: $lang })}</span>
+                            {$_('landing.faq.ktmb.q1.noteMiddle', { locale: $lang })}
+                            <span class="underline">{$_('landing.faq.ktmb.twentyMinutes', { locale: $lang })}</span> {$_('landing.faq.ktmb.q1.noteAfter', { locale: $lang })}
                         </p>
                     </Accordion.Content>
                 </Accordion.Item>
 
                 <Accordion.Item value="item-2">
                     <Accordion.Trigger class="text-left">
-                        What are the timeslots available for booking?
+                        {$_('landing.faq.ktmb.q2.question', { locale: $lang })}
                     </Accordion.Trigger>
                     <Accordion.Content>
 
                         <Table.Root>
-                            <Table.Caption>Timeslots available for booking</Table.Caption>
+                            <Table.Caption>{$_('landing.faq.ktmb.q2.caption', { locale: $lang })}</Table.Caption>
                             <Table.Header>
                                 <Table.Row>
-                                    <Table.Head class="text-center font-bold">SG -> JB</Table.Head>
-                                    <Table.Head class="text-center font-bold">JB -> SG</Table.Head>
+                                    <Table.Head class="text-center font-bold">{$_('landing.faq.ktmb.q2.sgToJb', { locale: $lang })}</Table.Head>
+                                    <Table.Head class="text-center font-bold">{$_('landing.faq.ktmb.q2.jbToSg', { locale: $lang })}</Table.Head>
                                 </Table.Row>
                             </Table.Header>
                             <Table.Body>
@@ -836,30 +792,27 @@
 
                 <Accordion.Item value="item-3">
                     <Accordion.Trigger class="text-left">
-                        When do the gates close before departure?
+                        {$_('landing.faq.ktmb.q3.question', { locale: $lang })}
                     </Accordion.Trigger>
                     <Accordion.Content>
 
                         <p class="my-2">
-                            <span class="font-semibold">Singapore to Johor: </span>
-                            <span class="underline">20 minutes</span> before departure
+                            <span class="font-semibold">{$_('landing.faq.ktmb.q3.sgToJohor', { locale: $lang })} </span>
+                            <span class="underline">{$_('landing.faq.ktmb.twentyMinutes', { locale: $lang })}</span> {$_('landing.faq.ktmb.q3.beforeDeparture', { locale: $lang })}
                         </p>
                         <p class="my-2">
-                            <span class="font-semibold">Johor to Singapore: </span>
-                            <span class="underline">10 minutes</span> before departure
+                            <span class="font-semibold">{$_('landing.faq.ktmb.q3.johorToSg', { locale: $lang })} </span>
+                            <span class="underline">{$_('landing.faq.ktmb.tenMinutes', { locale: $lang })}</span> {$_('landing.faq.ktmb.q3.beforeDeparture', { locale: $lang })}
                         </p>
 
                     </Accordion.Content>
                 </Accordion.Item>
                 <Accordion.Item value="item-4">
                     <Accordion.Trigger class="text-left">
-                        Why should I take the train to JB/SG instead of other modes of transport?
+                        {$_('landing.faq.ktmb.q4.question', { locale: $lang })}
                     </Accordion.Trigger>
                     <Accordion.Content>
-                        Booking a train is a reliable choice, avoiding unpredictable traffic and
-                        potential 4-hour customs delays with other modes of transport. Limited
-                        train seats and a dedicated customs check (only for train passengers) expedite
-                        your journey, ensuring a swift 30-minute journey to your destination.
+                        {$_('landing.faq.ktmb.q4.answer', { locale: $lang })}
 
                     </Accordion.Content>
                 </Accordion.Item>
@@ -870,15 +823,15 @@
         <!-- Final CTA Section -->
         <section class="w-full bg-[#FCCA3A] text-black py-16 md:py-20">
             <div class="w-11/12 max-w-[1200px] mx-auto text-center">
-                <h2 class="text-2xl md:text-4xl font-extrabold mb-6" style="font-family: 'Cabin', 'sans-serif';">Get Started Today</h2>
+                <h2 class="text-2xl md:text-4xl font-extrabold mb-6" style="font-family: 'Cabin', 'sans-serif';">{$_('landing.finalCta.heading', { locale: $lang })}</h2>
                 <p class="text-base md:text-lg mb-8 text-slate-700" style="font-family: 'Raleway', 'sans-serif';">
-                    Join thousands of travelers who trust BunnyBooker for their KTMB tickets.
+                    {$_('landing.finalCta.subtitle', { locale: $lang })}
                 </p>
                 <div class="mb-6">
                     {#if $page.data.session}
                         <Button size="lg" class="bg-black text-white hover:bg-gray-800 text-base md:text-lg px-6 py-3 md:px-8 md:py-4" on:click={track} href="/schedules">
                             <BookOpenCheck class="mr-2 h-4 w-4 md:h-5 md:w-5"/>
-                            Book Now
+                            {$_('landing.finalCta.bookNow', { locale: $lang })}
                         </Button>
                     {:else}
                         <Button size="lg" class="bg-black text-white hover:bg-gray-800 text-base md:text-lg px-6 py-3 md:px-8 md:py-4" on:click={cta} disabled={loading}>
@@ -887,12 +840,12 @@
                             {:else}
                                 <BookOpenCheck class="mr-2 h-4 w-4 md:h-5 md:w-5"/>
                             {/if}
-                            Book Now
+                            {$_('landing.finalCta.bookNow', { locale: $lang })}
                         </Button>
                     {/if}
                 </div>
                 <p class="text-xs md:text-sm text-slate-600" style="font-family: 'Raleway', 'sans-serif';">
-                    Full refund guarantee • Email notifications • Secure platform
+                    {$_('landing.finalCta.guarantees', { locale: $lang })}
                 </p>
             </div>
         </section>

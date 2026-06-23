@@ -13,7 +13,7 @@
  *     browser, so it can never bleed across server requests.
  */
 import { derived, writable } from 'svelte/store';
-import { init, register, locale, waitLocale } from 'svelte-i18n';
+import { init, register, locale, waitLocale, _, unwrapFunctionStore } from 'svelte-i18n';
 import { browser } from '$app/environment';
 import { page } from '$app/stores';
 import { DEFAULT_LOCALE, LOCALE_COOKIE, SUPPORTED_LOCALES, isSupportedLocale, type SupportedLocale } from './resolve';
@@ -70,4 +70,57 @@ export async function setLocale(next: SupportedLocale): Promise<void> {
   document.documentElement.lang = next;
 }
 
+/**
+ * Translate a frontend-owned load-error fallback string from inside a
+ * SvelteKit `load` function (universal `+page.ts` or `+page.server.ts`).
+ *
+ * Plan 2 / FR3: load-error copy *emitted by the loaders themselves* is
+ * localized, while backend/API RFC7807 `problem_details` strings (parsed from
+ * an HTTP error body) stay English. This helper only ever localizes the local
+ * fallback passed to `toResult(...)` — the value rendered as `prob.detail` when
+ * the local request wrapper throws a non-HTTP exception.
+ *
+ * SSR-safe by construction: it never calls `locale.set()`. It warms the target
+ * catalog with `waitLocale` and formats with an explicit `{ locale }`, mirroring
+ * the `{ locale: $lang }` contract every component formatting call already uses,
+ * so it can never bleed the locale across concurrent server requests.
+ *
+ * The unwrapped formatter is acquired **once** at module load and reused for the
+ * process lifetime (the documented `unwrapFunctionStore` usage for code outside
+ * components). `unwrapFunctionStore(_)` subscribes to the `_`/`$format` store and
+ * returns a formatter with a `.freeze()` unsubscribe; acquiring it per call would
+ * leak one subscription per invocation. A single long-lived subscription keeps
+ * the formatter's dictionary in sync as catalogs load (via `waitLocale`) while
+ * holding exactly one bounded, intentional subscription — and we always pass an
+ * explicit `{ locale }`, so the shared formatter never reads the global `$locale`.
+ *
+ * It is `export`ed so plain `.ts` modules that have no Svelte store access — e.g.
+ * the Zod schema factory in `src/lib/components/entities/Wallets/transfer.ts` —
+ * can localize their validation messages with
+ * `formatStandalone(key, { locale, values })`, mirroring the `{ locale: $lang }`
+ * contract every component formatting call uses. Callers build the schema
+ * reactively from `$lang`, so it stays SSR-safe (the catalog is warmed by
+ * `+layout.ts`'s `waitLocale` before first paint) and never calls `locale.set()`.
+ */
+export const formatStandalone = unwrapFunctionStore(_);
+
+export async function loadError(
+  requestLocale: string | undefined,
+  key: string,
+  values?: Record<string, string | number | boolean | Date>,
+): Promise<string> {
+  const l = isSupportedLocale(requestLocale) ? requestLocale : DEFAULT_LOCALE;
+  await waitLocale(l);
+  return formatStandalone(key, { locale: l, values });
+}
+
 export { SUPPORTED_LOCALES, DEFAULT_LOCALE, type SupportedLocale };
+export {
+  formatMoney,
+  formatNumber,
+  formatDate,
+  formatDateTime,
+  formatTime,
+  formatClockTime,
+  formatCalendarDate,
+} from './format';

@@ -8,6 +8,8 @@
     import {Input} from "$lib/components/ui/input";
     import {page} from "$app/stores";
     import {goto} from "$app/navigation";
+    import {_} from "svelte-i18n";
+    import {lang} from "$lib/i18n";
 
     //@ts-ignore
     import * as Card from "$lib/components/ui/card";
@@ -54,25 +56,25 @@
 <div class="flex flex-col">
     <div class="border-b bg-muted ">
         <div class="flex justify-center text-3xl lg:text-4xl sm:justify-between gap-4 flex-wrap py-8 items-center text-foreground max-w-[1200px] w-11/12 mx-auto">
-            Passengers
+            {$_('passengers.list.pageTitle', { locale: $lang })}
         </div>
 
     </div>
     <div class="flex flex-col gap-4 w-11/12 max-w-[1200px] mx-auto my-12">
         <div class="flex gap-4">
 
-            <Input placeholder="Search passenger" bind:value={search} on:input={triggerSearch}/>
+            <Input placeholder={$_('passengers.list.searchPlaceholder', { locale: $lang })} bind:value={search} on:input={triggerSearch}/>
             <CreatePassengers userId={userId === "" ? $page.data.user.principal.id : userId}/>
         </div>
         {#if session?.roles?.includes("admin")}
-            <Input class="flex-1" placeholder="Filter by user ID..." bind:value={userId} on:input={triggerSearch}/>
+            <Input class="flex-1" placeholder={$_('passengers.list.filterByUserIdPlaceholder', { locale: $lang })} bind:value={userId} on:input={triggerSearch}/>
         {/if}
 
 
         {#await passengers}
             <Loader/>
         {:then ps}
-            <Page notFoundMessage="Not passengers found" empty={ps.length === 0}>
+            <Page notFoundMessage={$_('passengers.list.emptyState', { locale: $lang })} empty={ps.length === 0}>
                 {#each ps as p}
                     <Card.Root>
                         <Card.Header>

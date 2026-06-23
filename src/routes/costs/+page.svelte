@@ -22,6 +22,8 @@
     import {toResult} from "$lib/utility";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
+    import {_} from "svelte-i18n";
+    import {lang, formatMoney, formatDateTime} from "$lib/i18n";
 
     export let data: PageData;
 
@@ -41,16 +43,22 @@
 
 
     function isValid(s: string): string {
-        if (s.length === 0) return "Required";
+        if (s.length === 0) return "required";
         const n = Number(s);
-        if (isNaN(n)) return "Invalid number";
-        if (n < 0) return "Number must be positive";
+        if (isNaN(n)) return "invalidNumber";
+        if (n < 0) return "mustBePositive";
         return "valid";
     }
 
     let value: string = "";
 
     $: valid = isValid(value) === "valid";
+
+    function validationMessage(s: string): string {
+        const code = isValid(s);
+        if (code === "valid") return "";
+        return $_(`errors.${code}`, {locale: $lang});
+    }
 
     async function updateCost() {
         await toResult(
@@ -62,7 +70,7 @@
                     toast.error(e.detail ?? e.type);
                 },
                 ok: () => {
-                    toast.success("Cost updated");
+                    toast.success($_("admin.costs.costUpdated", {locale: $lang}));
                     invalidateAll();
                 },
             })
@@ -71,7 +79,7 @@
 
 </script>
 
-<Page notFoundMessage="Withdrawals cannot be found">
+<Page notFoundMessage={$_("admin.costs.notFound", {locale: $lang})}>
     <div class="flex flex-col">
         <div class="flex flex-col gap-4 w-11/12 max-w-[1200px] mx-auto my-12">
 
@@ -79,24 +87,21 @@
                 <Loader/>
             {:then cs}
                 <div class="flex flex-wrap justify-between gap-4">
-                    <div class="text-2xl">Current Price: ${cs[0].cost.toFixed(2)}</div>
+                    <div class="text-2xl">{$_("admin.costs.currentPrice", {locale: $lang, values: {price: formatMoney(cs[0].cost, $lang)}})}</div>
                     <div class="grid w-full max-w-sm items-center gap-1.5">
-                        <Input inputmode="numeric" placeholder="New Cost" bind:value/>
-                        <p class="text-sm text-destructive {valid ? 'opacity-0' : 'opacity-100'}">{isValid(value)}</p>
+                        <Input inputmode="numeric" placeholder={$_("admin.costs.newCostPlaceholder", {locale: $lang})} bind:value/>
+                        <p class="text-sm text-destructive {valid ? 'opacity-0' : 'opacity-100'}">{validationMessage(value)}</p>
                     </div>
-                    <Button class="w-full max-w-sm" on:click={updateCost}>Update Cost</Button>
+                    <Button class="w-full max-w-sm" on:click={updateCost}>{$_("admin.costs.updateCost", {locale: $lang})}</Button>
                 </div>
 
                 <div class="flex flex-col gap-4 my-4">
                     {#each cs as c}
                         <Card.Root>
                             <Card.Header>
-                                <Card.Title>S${c.cost.toFixed(2)}</Card.Title>
+                                <Card.Title>{formatMoney(c.cost, $lang)}</Card.Title>
                                 <div class="flex justify-between py-2">
-                                    <Card.Description>{new Date(c.createdAt).toLocaleString(undefined, {
-                                        dateStyle: 'medium',
-                                        timeStyle: 'medium'
-                                    })}</Card.Description>
+                                    <Card.Description>{formatDateTime(c.createdAt, $lang)}</Card.Description>
                                 </div>
                             </Card.Header>
                         </Card.Root>

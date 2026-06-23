@@ -15,6 +15,8 @@
     import {tick} from "svelte";
     import Validation from "$lib/components/core/Validation.svelte";
     import {Textarea} from "$lib/components/ui/textarea";
+    import {_} from "svelte-i18n";
+    import {lang, formatMoney} from "$lib/i18n";
 
     export let withdrawal: WithdrawalPrincipalRes;
 
@@ -23,14 +25,14 @@
     let errors: ZodIssue[] = [];
     let taints: Record<string, boolean> = {}
 
-    const rejectWithdrawalSchema = z.object({
+    $: rejectWithdrawalSchema = z.object({
         note: z
             .string()
-            .min(2, {message: "Please enter a note."})
-            .max(4096, {message: "Note cannot be longer than 4096 characters."})
+            .min(2, {message: $_('withdrawals.reject.noteRequired', { locale: $lang })})
+            .max(4096, {message: $_('withdrawals.reject.noteTooLong', { locale: $lang })})
     });
 
-    type RejectWithdrawal = z.infer<typeof rejectWithdrawalSchema>;
+    type RejectWithdrawal = { note: string };
 
     const val: RejectWithdrawal = {
         note: "",
@@ -59,9 +61,9 @@
     async function rejectWithdrawal(note: string) {
         submitting = true;
         await toResult(() => $api.vWithdrawalRejectCreate(withdrawal.id, "1.0", {note}
-        ), "Failed to reject withdrawal").match({
+        ), $_('withdrawals.reject.failed', { locale: $lang })).match({
             ok: () => {
-                toast.info(`Successfully rejected the withdrawal of SGD ${withdrawal.record?.amount.toFixed(2)}.`);
+                toast.info($_('withdrawals.reject.success', { locale: $lang, values: { amount: formatMoney(withdrawal.record?.amount ?? 0, $lang) } }));
                 dialogOpen = false;
                 invalidateAll();
             },
@@ -78,20 +80,19 @@
 </script>
 <Dialog.Root bind:open={dialogOpen}>
     <Dialog.Trigger class="w-full lg:max-w-40  {buttonVariants({ variant: 'destructive' })}">
-        Reject
+        {$_('actions.reject', { locale: $lang })}
     </Dialog.Trigger>
     <Dialog.Content>
         <Dialog.Header>
-            <Dialog.Title>Reject withdrawal</Dialog.Title>
+            <Dialog.Title>{$_('withdrawals.reject.title', { locale: $lang })}</Dialog.Title>
             <Dialog.Description>
                 <div class="flex flex-col gap-4">
                     <p class="text-justify py-2">
-                        You are rejecting this withdrawal of S${withdrawal.record.amount.toFixed(2)} to
-                        PayNow {withdrawal.record.payNowNumber}.
+                        {$_('withdrawals.reject.confirm', { locale: $lang, values: { amount: formatMoney(withdrawal.record.amount, $lang), payNowNumber: withdrawal.record.payNowNumber } })}
                     </p>
                     <Validation {errors} {taints} path="note">
                         <Textarea
-                                placeholder="Note"
+                                placeholder={$_('fields.notes', { locale: $lang })}
                                 bind:value={val.note}
                                 on:input={onChange("note")}
                         />
@@ -100,7 +101,7 @@
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                         {/if}
-                        Reject
+                        {$_('actions.reject', { locale: $lang })}
                     </Button>
                 </div>
             </Dialog.Description>

@@ -10,7 +10,7 @@
     import * as Avatar from "$lib/components/ui/avatar";
     import {LucideLoader, User} from "lucide-svelte";
     import {_} from "svelte-i18n";
-    import {lang} from "$lib/i18n";
+    import {lang, formatMoney} from "$lib/i18n";
 
 
     let loading = false;
@@ -82,7 +82,7 @@
             <DropdownMenu.Separator/>
             <a href="/wallets/{$page.data.user.wallet.id}">
                 <DropdownMenu.Item>
-                    {$_('account.balance', { locale: $lang, values: { amount: $page.data.user?.wallet?.usable?.toFixed(2) ?? "0.00" } })}
+                    {$_('account.balance', { locale: $lang, values: { amount: formatMoney($page.data.user?.wallet?.usable ?? 0, $lang) } })}
                 </DropdownMenu.Item>
             </a>
             <DropdownMenu.Separator/>

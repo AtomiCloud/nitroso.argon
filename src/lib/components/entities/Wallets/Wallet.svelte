@@ -9,6 +9,8 @@
     import Promo from "$lib/components/entities/Wallets/Promo.svelte";
     import {Button} from "$lib/components/ui/button";
     import {CircleDollarSign} from "lucide-svelte";
+    import {_} from "svelte-i18n";
+    import {lang, formatMoney} from "$lib/i18n";
 
     export let user: UserPrincipalRes;
     export let wallet: WalletPrincipalRes;
@@ -27,7 +29,7 @@
             </div>
             <Button class="w-full sm:max-w-40 " href="/wallets/deposit">
                 <CircleDollarSign class="h-4 w-4 mr-2"/>
-                Deposit
+                {$_('wallets.deposit.title', { locale: $lang })}
             </Button>
         </div>
     </Card.Header>
@@ -35,22 +37,22 @@
         <Table.Root>
             <Table.Header>
                 <Table.Row>
-                    <Table.Head>Account</Table.Head>
-                    <Table.Head>Amount</Table.Head>
+                    <Table.Head>{$_('wallets.card.account', { locale: $lang })}</Table.Head>
+                    <Table.Head>{$_('fields.amount', { locale: $lang })}</Table.Head>
                 </Table.Row>
             </Table.Header>
             <Table.Body>
                 <Table.Row>
-                    <Table.Cell>USABLE</Table.Cell>
-                    <Table.Cell>SGD {wallet.usable.toFixed(2)}</Table.Cell>
+                    <Table.Cell>{$_('wallets.card.usable', { locale: $lang })}</Table.Cell>
+                    <Table.Cell>{formatMoney(wallet.usable, $lang)}</Table.Cell>
                 </Table.Row>
                 <Table.Row>
-                    <Table.Cell>BOOKING RESERVE</Table.Cell>
-                    <Table.Cell>SGD {wallet.bookingReserve.toFixed(2)}</Table.Cell>
+                    <Table.Cell>{$_('wallets.card.bookingReserve', { locale: $lang })}</Table.Cell>
+                    <Table.Cell>{formatMoney(wallet.bookingReserve, $lang)}</Table.Cell>
                 </Table.Row>
                 <Table.Row>
-                    <Table.Cell>WITHDRAW RESERVE</Table.Cell>
-                    <Table.Cell>SGD {wallet.withdrawReserve.toFixed(2)}</Table.Cell>
+                    <Table.Cell>{$_('wallets.card.withdrawReserve', { locale: $lang })}</Table.Cell>
+                    <Table.Cell>{formatMoney(wallet.withdrawReserve, $lang)}</Table.Cell>
                 </Table.Row>
             </Table.Body>
         </Table.Root>

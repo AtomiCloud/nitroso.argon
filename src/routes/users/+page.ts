@@ -2,6 +2,7 @@ import type { ProblemDetails } from '../../errors/problem_details';
 import type { UserPrincipalRes } from '$lib/api/core/data-contracts';
 import { NewApi } from '../../store';
 import { toResult } from '$lib/utility';
+import { loadError } from '$lib/i18n';
 import type { PageLoad } from './$types';
 
 export const load = (async ({
@@ -11,7 +12,7 @@ export const load = (async ({
 }): Promise<{
   result: ['err', ProblemDetails] | ['ok', UserPrincipalRes[]];
 }> => {
-  const { session } = await parent();
+  const { session, locale } = await parent();
 
   const api = NewApi({ data: { session }, fetch });
 
@@ -25,7 +26,10 @@ export const load = (async ({
   if (userIdSearch) queryParams.Id = userIdSearch;
   if (emailSearch) queryParams.Email = emailSearch;
 
-  const r = await toResult(() => api.vUserDetail('1', queryParams), 'Fail to get users').serial();
+  const r = await toResult(
+    () => api.vUserDetail('1', queryParams),
+    await loadError(locale, 'errors.load.users'),
+  ).serial();
   return {
     result: r,
   };

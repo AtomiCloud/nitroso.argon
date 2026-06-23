@@ -2,6 +2,7 @@ import type { ProblemDetails } from '../../errors/problem_details';
 import type { TransactionPrincipalRes, WalletPrincipalRes } from '$lib/api/core/data-contracts';
 import { NewApi } from '../../store';
 import { toResult } from '$lib/utility';
+import { loadError } from '$lib/i18n';
 import type { PageLoad } from './$types';
 
 export const load = (async ({
@@ -11,7 +12,7 @@ export const load = (async ({
 }): Promise<{
   result: ['err', ProblemDetails] | ['ok', TransactionPrincipalRes[]];
 }> => {
-  const { session } = await parent();
+  const { session, locale } = await parent();
 
   const api = NewApi({ data: { session }, fetch });
 
@@ -30,7 +31,7 @@ export const load = (async ({
         Before: before,
         TransactionType: transactionType,
       }),
-    'Fail to get transactions',
+    await loadError(locale, 'errors.load.transactions'),
   ).serial();
   return {
     result: r,

@@ -70,7 +70,7 @@
 
     {#if $page.data.auth.signIn}
         <div class="flex items-center justify-center h-full">
-            <Loader loadingText="Re-authenticating..."/>
+            <Loader loadingText={$_('loader.reauthenticating', { locale: $lang })}/>
         </div>
     {:else}
     <div class="flex-1 {$showContent ? '' : 'hidden'}">
