@@ -7,6 +7,7 @@ import type {
 } from '$lib/api/core/data-contracts';
 import { NewApi } from '../../store';
 import { toResult } from '$lib/utility';
+import { loadError } from '$lib/i18n';
 import type { PageLoad } from './$types';
 import { Res } from '$lib/core/result';
 import type { Timings } from './typing';
@@ -44,7 +45,7 @@ export const load = (async ({
 }): Promise<{
   result: ['err', ProblemDetails[]] | ['ok', [Timings, MaterializedCostRes]];
 }> => {
-  const { session } = await parent();
+  const { session, locale } = await parent();
 
   const api = NewApi({ data: { session }, fetch });
 
@@ -68,13 +69,16 @@ export const load = (async ({
 
   const after = n.compare(t) === 0 ? new Date().toLocaleTimeString(undefined, { hour12: false }) : undefined;
 
-  const schedule = toResult(() => api.vScheduleDetail(date, '1'), 'Fail to get schedule');
+  const schedule = toResult(() => api.vScheduleDetail(date, '1'), await loadError(locale, 'errors.load.schedule'));
 
-  const timing = toResult(() => api.vTimingDetail(direction, '1'), 'Fail to get timing');
+  const timing = toResult(() => api.vTimingDetail(direction, '1'), await loadError(locale, 'errors.load.timing'));
 
-  const counts = toResult(() => api.vBookingCountsDetail2(date, direction, '1'), 'Failed to get counts');
+  const counts = toResult(
+    () => api.vBookingCountsDetail2(date, direction, '1'),
+    await loadError(locale, 'errors.load.counts'),
+  );
 
-  const cost = toResult(() => api.vCostSelfDetail('1'), 'Failed to get cost');
+  const cost = toResult(() => api.vCostSelfDetail('1'), await loadError(locale, 'errors.load.cost'));
 
   const result = await Res.all(schedule, timing, cost, counts)
     .map(

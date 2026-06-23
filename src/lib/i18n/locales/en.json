@@ -1,0 +1,1038 @@
+{
+  "common": {
+    "appName": "BunnyBooker"
+  },
+  "nav": {
+    "bookNow": "Book Now"
+  },
+  "account": {
+    "costs": "Costs",
+    "discounts": "Discounts",
+    "wallets": "Wallets",
+    "users": "Users",
+    "balance": "BALANCE: {amount}",
+    "manageBookings": "Manage Bookings",
+    "passengers": "Passengers",
+    "withdrawals": "Withdrawals",
+    "transactions": "Transactions",
+    "profile": "Profile",
+    "logout": "Log out",
+    "signIn": "Sign in"
+  },
+  "theme": {
+    "toggle": "Toggle theme"
+  },
+  "language": {
+    "label": "Language"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "update": "Update",
+    "confirm": "Confirm",
+    "close": "Close",
+    "back": "Back",
+    "submit": "Submit",
+    "add": "Add",
+    "remove": "Remove",
+    "approve": "Approve",
+    "reject": "Reject",
+    "search": "Search",
+    "retry": "Retry",
+    "view": "View",
+    "copy": "Copy",
+    "download": "Download",
+    "yes": "Yes",
+    "no": "No",
+    "loading": "Loading...",
+    "processing": "Processing..."
+  },
+  "fields": {
+    "email": "Email",
+    "name": "Name",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "fullName": "Full Name",
+    "phone": "Phone",
+    "amount": "Amount",
+    "status": "Status",
+    "date": "Date",
+    "time": "Time",
+    "actions": "Actions",
+    "description": "Description",
+    "quantity": "Quantity",
+    "price": "Price",
+    "total": "Total",
+    "notes": "Notes",
+    "reason": "Reason",
+    "address": "Address",
+    "dateOfBirth": "Date of Birth",
+    "passportNumber": "Passport Number",
+    "nationality": "Nationality",
+    "gender": "Gender",
+    "balance": "Balance"
+  },
+  "errors": {
+    "required": "Required",
+    "invalidNumber": "Invalid number",
+    "mustBePositive": "Number must be positive",
+    "generic": "Something went wrong",
+    "notFound": "Not found",
+    "loadFailed": "Failed to load",
+    "load": {
+      "bookings": "Fail to get bookings",
+      "booking": "Fail to get booking",
+      "discounts": "Fail to get discounts",
+      "schedule": "Fail to get schedule",
+      "timing": "Fail to get timing",
+      "counts": "Failed to get counts",
+      "cost": "Failed to get cost",
+      "costs": "Fail to get costs",
+      "passengers": "Fail to get passengers",
+      "transactions": "Fail to get transactions",
+      "transaction": "Fail to get transaction",
+      "wallets": "Fail to get wallets",
+      "wallet": "Fail to get wallet",
+      "withdrawals": "Fail to get withdrawals",
+      "withdrawal": "Fail to get withdrawal",
+      "users": "Fail to get users",
+      "user": "Fail to get user"
+    }
+  },
+  "admin": {
+    "users": {
+      "searchByUsername": "Search by Username",
+      "searchByUserId": "Search by User ID",
+      "searchByEmail": "Search by Email",
+      "usernamePlaceholder": "Enter username...",
+      "userIdPlaceholder": "Enter user ID...",
+      "emailPlaceholder": "Enter email...",
+      "noUsersFound": "No users found",
+      "notAvailable": "N/A",
+      "verified": "Verified",
+      "unverified": "Unverified",
+      "roles": "Roles",
+      "noRoles": "None",
+      "viewDetails": "View Details",
+      "userNotFound": "User cannot be found",
+      "userHeading": "User",
+      "userData": "User Data",
+      "userDataDescription": "Quick access to {username}'s related information",
+      "transactions": "Transactions",
+      "bookings": "Bookings",
+      "passengers": "Passengers",
+      "withdrawals": "Withdrawals"
+    },
+    "costs": {
+      "currentPrice": "Current Price: {price}",
+      "newCostPlaceholder": "New Cost",
+      "updateCost": "Update Cost",
+      "costUpdated": "Cost updated",
+      "notFound": "Withdrawals cannot be found"
+    }
+  },
+  "bookingActions": {
+    "card": {
+      "woodlands": "Woodlands",
+      "jbSentral": "JB Sentral",
+      "started": "Started {datetime}",
+      "actions": "Actions",
+      "viewTicket": "View Ticket",
+      "owner": "Owner:",
+      "passportExpiresOn": "Passport expires on",
+      "ticketInformation": "Ticket Information",
+      "ticketNo": "Ticket No: {value}",
+      "bookingNo": "Booking No: {value}",
+      "completedOn": "Completed on {datetime}",
+      "statusOn": "{status} on {datetime}"
+    },
+    "row": {
+      "revertSuccess": "Successfully reverted buying state to pending",
+      "revertError": "Failed to revert buying state to pending",
+      "clickToRevert": "{status} (Click to revert)",
+      "viewDetails": "View Details"
+    },
+    "cancel": {
+      "stayToast": "Great choice! Your booking is still active. Most tickets become available 1-2 days before departure.",
+      "success": "Successfully cancelled booking",
+      "error": "Failed to cancel booking",
+      "title": "Cancel Booking",
+      "educationTitle": "Wait! Before You Cancel...",
+      "eduHeading": "Did you know most tickets become available 1-2 days before departure?",
+      "eduSubheading": "Here's what our data shows about KTMB ticket patterns:",
+      "peakTitle": "Peak Cancellations",
+      "peakDesc": "Most people cancel 1-2 days before departure due to last-minute plan changes",
+      "windowTitle": "Best Success Window",
+      "windowDesc": "1-2 days before departure is when most tickets get successfully booked",
+      "patienceTitle": "Patience Pays Off",
+      "patienceDesc": "Our 99% success rate comes from customers who wait for the optimal booking window",
+      "proTipTitle": "Pro Tip",
+      "proTipBody": "Since you're closer to your departure date, you're actually in the sweet spot where tickets are most likely to become available.",
+      "proTipEmphasis": "Most of our successful bookings happen within 48 hours of departure!",
+      "keepWait": "Keep My Booking & Wait",
+      "stillCancel": "Still Cancel",
+      "intro": "Cancel this booking for {name}. All money paid will be refunded. This action cannot be undone.",
+      "takeNoteTitle": "Take Note!",
+      "takeNoteBody": "Cancelling a booking will invalid all discounts applied to it. If you were to rebook, you will have to reapply the discounts, and you will be pushed to the back of the queue.",
+      "typeNameBefore": "Please type the name of the passenger,",
+      "typeNameAfter": "to proceed.",
+      "typeNameError": "Please type the name of the passenger of the booking to proceed.",
+      "confirmButton": "Cancel Booking"
+    },
+    "purchase": {
+      "success": "Successfully purchased booking",
+      "error": "Failed to purchase booking",
+      "createPassengerError": "Failed to create passenger",
+      "trigger": "Purchase",
+      "title": "Purchase Booking",
+      "requestBefore": "Purchase booking request for train ticket on",
+      "requestFrom": "from",
+      "requestAfter": ".",
+      "johorToWoodlands": "Johor to Woodlands",
+      "woodlandsToJohor": "Woodlands to Johor",
+      "importantTitle": "Important",
+      "importantBody": "BunnyBooker is not responsible if you enter incorrect information. Please check your information (below) before proceeding to your purchase.",
+      "passportExpiry": "Passport Expiry",
+      "male": "Male",
+      "female": "Female"
+    },
+    "terminate": {
+      "success": "Successfully terminated booking",
+      "error": "Failed to terminate booking",
+      "trigger": "Terminate",
+      "title": "Terminate Booking",
+      "intro": "Our bunnies have already managed to secure your ticket on KITS! Terminating this ticket release the your ticket back to KITS.",
+      "takeNoteTitle": "Take Note!",
+      "takeNoteBefore": "Terminating a booking will only refund",
+      "refundPercent": "50%",
+      "takeNoteAfter": "of the ticket price you paid for. This is to prevent abuse of the system.",
+      "typeNameBefore": "Please type the name of the passenger,",
+      "typeNameAfter": "to proceed.",
+      "typeNameError": "Please type the name of the passenger of the booking to proceed.",
+      "confirmButton": "Terminate Booking"
+    }
+  },
+  "bookings": {
+    "list": {
+      "title": "Bookings",
+      "filterByUserId": "Filter by user ID...",
+      "selectDate": "Select a date",
+      "none": "None",
+      "woodlandsToJb": "Woodlands to JB",
+      "woodlandsToJbSentral": "Woodlands to JB Sentral",
+      "jbToWoodlands": "JB to Woodlands",
+      "jbSentralToWoodlands": "JB Sentral to Woodlands",
+      "empty": "No bookings found"
+    },
+    "detail": {
+      "title": "Booking",
+      "notFound": "Booking cannot be found"
+    },
+    "purchase": {
+      "title": "Purchase Booking",
+      "directionJToW": "JB Sentral to Woodlands",
+      "directionWToJ": "Woodlands to JB Sentral",
+      "selectExistingPassenger": "Select Existing Passenger",
+      "passenger": "Passenger",
+      "none": "None",
+      "passengerDetails": "Passenger Details",
+      "fullNamePlaceholder": "Fullname as per Passport",
+      "passportNumberPlaceholder": "Passport Number",
+      "passportExpiry": "Passport Expiry",
+      "male": "Male",
+      "female": "Female",
+      "savePassenger": "Save this passenger",
+      "bookingCost": "Booking Cost",
+      "insufficientBalance": "Insufficient balance",
+      "yourBalance": "Your Balance",
+      "depositNow": "Deposit Now",
+      "fullNameMin": "Full name must be at least 1 character long",
+      "fullNameMax": "Full name must be at most 512 characters long",
+      "fullNameRegex": "Full name must only contain letters and special characters @ . / ' , - ` *",
+      "passportNumberRegex": "Passport number must only contain letters and numbers",
+      "passportNumberMin": "Passport number must be at least 1 character long",
+      "passportNumberMax": "Passport number must be at most 20 characters long",
+      "passportExpiryMin": "Passport expiry must at least 6 months from ticket date"
+    },
+    "success": {
+      "title": "Success!",
+      "message": "Successfully purchased booking",
+      "balance": "Balance: {amount}",
+      "purchaseAnother": "Purchase Another Booking",
+      "viewBookings": "View Bookings"
+    }
+  },
+  "discounts": {
+    "list": {
+      "none": "None",
+      "discountType": "Discount Type",
+      "matchMode": "Match Mode",
+      "notFound": "Discounts cannot be found",
+      "providesDiscount": "Provides {amount} discount for",
+      "and": "AND",
+      "or": "OR",
+      "enabledToast": "Successfully enabled discount",
+      "disabledToast": "Successfully disabled discount",
+      "updateError": "Failed to update discount"
+    },
+    "create": {
+      "trigger": "Create Discount",
+      "title": "Create a new discount",
+      "intro": "Create a new Discount that applies to members who meet a certain condition.",
+      "takeNote": "Take Note!",
+      "noteBody": "Discounts are effective the moment they are created. You can disable them at any time.",
+      "amountPlaceholder": "Discount Amount",
+      "toggle": "Toggle {label}",
+      "matchType": "Match Type",
+      "matchTarget": "Match Target",
+      "addMatchTarget": "Add Match Target",
+      "createdToast": "Successfully created discount '{name}'",
+      "createError": "Failed to create discount"
+    },
+    "update": {
+      "trigger": "Update Discount",
+      "title": "Editing a new discount",
+      "intro": "Edit an existing Discount that applies to members who meet a certain condition.",
+      "takeNote": "Take Note!",
+      "noteBody": "Discounts are effective the moment they are updated. You can disable them at any time.",
+      "updatedToast": "Successfully updated discount '{name}'",
+      "updateError": "Failed to update discount"
+    },
+    "delete": {
+      "trigger": "Delete Discount",
+      "title": "Delete a discount",
+      "intro": "Delete a discount. This action is irreversible.",
+      "takeNote": "Take Note!",
+      "noteBody": "Discounts are effective the moment they are delete. This action cannot be undone.",
+      "confirmPrefix": "Please type the name of the discount,",
+      "confirmSuffix": "to proceed.",
+      "typeNameHint": "Please type the name of the discount to proceed.",
+      "deletedToast": "Successfully deleted discount '{name}'",
+      "deleteError": "Failed to delete discount"
+    }
+  },
+  "landing": {
+    "notFound": "Main page cannot be found",
+    "meta": {
+      "title": "BunnyBooker - Your Stress-Free KTMB Train Ticket Booking Assistant | Singapore to Johor Bahru",
+      "description": "Book KTMB train tickets from Singapore to Johor Bahru effortlessly with BunnyBooker. 99% success rate, automated booking, 24/7 service. Skip the queue and let our AI handle your train reservations.",
+      "keywords": "KTMB train tickets, Singapore to Johor Bahru, JB Sentral, automated booking, train reservation, Malaysia Singapore travel, cross-border transport",
+      "ogTitle": "BunnyBooker - Automated KTMB Train Ticket Booking",
+      "ogDescription": "Skip the hassle of manual KTMB (Singapore-Johor Train) booking. Our AI bunnies secure your train tickets automatically with 99% success rate. Book Singapore-JB train tickets stress-free!",
+      "twitterDescription": "Skip the hassle of manual KTMB booking. Our AI bunnies secure your train tickets automatically with 99% success rate."
+    },
+    "hero": {
+      "ariaLabel": "Hero section",
+      "mascotAlt": "BunnyBooker mascot - friendly bunny character representing automated KTMB train ticket booking service",
+      "subtitle": "Everyone deserves a comfortable KTMB train ride to JB. We help you skip the queue and crowd.",
+      "cta": "Secure My Tickets",
+      "seeHowItWorks": "See how it works"
+    },
+    "steps": {
+      "step1": {
+        "label": "STEP 1",
+        "title": "Select Your Date and Time",
+        "body": "Simply select your travel date and time, then our AI takes over. Set it once and forget it - no more endless refreshing.",
+        "imageAlt": "Step 1: Select your date and time interface showing calendar and time selection"
+      },
+      "step2": {
+        "label": "STEP 2",
+        "title": "Sit Back & Relax",
+        "body": "No more stressing about sold-out tickets. Our AI monitors KTMB 24/7, so you can focus on planning your trip instead of hunting for tickets.",
+        "imageAlt": "Step 2: Sit back and relax while our bunnies organize your booking"
+      },
+      "step3": {
+        "label": "STEP 3",
+        "title": "Let Our Bunnies Hunt",
+        "body": "Our AI scans for newly released tickets every second, instantly pouncing on opportunities before they disappear.",
+        "imageAlt": "Step 3"
+      },
+      "step4": {
+        "label": "STEP 4",
+        "title": "Instant Booking",
+        "body": "Lightning-fast execution. The instant tickets are released, our system secures them before others even notice.",
+        "imageAlt": "Step 4"
+      },
+      "step5": {
+        "label": "STEP 5",
+        "title": "Get notified and Verify Booking Details",
+        "body": "Receive a prompt notification with all the ticket details as soon as it's booked. Check and verify the information on our user-friendly portal for a stress-free travel experience!",
+        "imageAlt": "Step 5"
+      }
+    },
+    "whyChoose": {
+      "heading": "Why Choose BunnyBooker?",
+      "moneyBack": {
+        "title": "Money Back Guarantee",
+        "body": "Get your money back if we can't secure your tickets"
+      },
+      "instantUpdates": {
+        "title": "Instant Updates",
+        "body": "Get notified when your tickets are secured"
+      },
+      "successRate": {
+        "title": "High Success Rate",
+        "body": "99% of our bookings are successful"
+      },
+      "available": {
+        "title": "24/7 Available",
+        "body": "Our system works around the clock"
+      }
+    },
+    "reviews": {
+      "heading": "Success Stories",
+      "viewAll": "View All Reviews",
+      "joinTagline": "Join thousands of happy travelers who trust BunnyBooker!",
+      "readMore": "Read more →",
+      "trustedBy": "Trusted by 1,000+ Travelers",
+      "stats": {
+        "successRate": "Success Rate",
+        "bookingsMade": "Bookings Made",
+        "automatedService": "Automated Service"
+      },
+      "locations": {
+        "singapore": "Singapore"
+      },
+      "items": {
+        "csyhue": "Amazing service and seamless booking. Used this platform for very long and always managed to get tickets! Highly recommend!",
+        "fhong": "A friendly and reliable seller. You have to try it to believe. We got the tickets 1 day before the departure date. Highly recommended 👍🏼👍🏼",
+        "reappraisal": "Purchase 2 KTMB tickets went smoothly. There wasn't any queue and saved us a lot of time. Definitely recommended and trusted. Thank you",
+        "clarrence": "Super easy and straightforward to use! Used the service twice and on both occasions I got 100% of the tickets! A very reliable service to use if you are planning to go into JB! 10/10 would recommend!",
+        "melissatan": "Absolutely fantastic! Saved me hours of frustration trying to book KTMB tickets myself. Got all 4 tickets for my family trip within 2 days. Will definitely use again!",
+        "davidlim88": "Game changer for JB trips! No more stress about sold out tickets. The system worked perfectly and got our tickets even during peak holiday season. Highly recommended for frequent travelers!",
+        "sarahTravels": "Used BunnyBooker for my monthly JB shopping trips. Never failed to get tickets! Customer service is responsive and the whole process is so convenient. Worth every penny!"
+      }
+    },
+    "faq": {
+      "heading": "FAQ",
+      "bb": {
+        "policyLinkBefore": "For more information on delivery, cancellation and refund policies, see",
+        "policyLinkText": "here",
+        "q1": {
+          "question": "How does BunnyBooker work?",
+          "answer1": "Once you have made an order, we will use our AI systems to predict when tickets will refunded or re-released on the KTMB site. Once a timeslot that matches your order has been refunded and made available on the KTMB site, we will book the ticket on your behalf.",
+          "answer2": "We do not keep stock of any train tickets in our system and only make bookings based on pending orders."
+        },
+        "q2": {
+          "question": "Why should I buy tickets via BunnyBooker?",
+          "convenienceTitle": "Convenience",
+          "convenienceBody": "Buying tickets on BunnyBooker saves you the time and hassle from constantly going to the KTMB site to check on ticket availability as our systems checks and books any available tickets as soon as they are available.",
+          "statusTitle": "Check order status anytime, anywhere",
+          "statusBody1": "BunnyBooker allows you to check the status of your order whenever you like, allowing you to decide on the next steps of your travel.",
+          "statusBody2": "You will be able to check the status of each ticket per order, and it will be either \"Purchased\" or \"Pending\".",
+          "queueTitle": "Check ticket queue to plan for travels",
+          "queueBody1": "BunnyBooker allows you to see the number of tickets pending before you in all the timeslots for the day and train direction you have selected.",
+          "queueBody2": "e.g. Customer 1 placed an order for 3 people for CIQ -> JB SENTRAL at 8.30AM on 31/12/2023, and customer 2 is looking to place an order for 5 people for the same direction, date and time. BunnyBooker queue will display \"3 pending tickets\" for Customer 2 to make an informed choice of whether or not she wants to make the order for the same timeslot or choose an alternative timeslot.",
+          "safeTitle": "Safe",
+          "safeBody": "BunnyBooker complies with PDPA and only retains information consensually provided by you for fulfilling booking orders, as well as marketing information only if consent is given by you."
+        },
+        "q3": {
+          "question": "How can I check the purchase status of my order?",
+          "answerBefore": "You can login to",
+          "answerAfter": "and check the status of your order."
+        },
+        "q4": {
+          "question": "Can I change my order after order confirmation?",
+          "answer": "You can cancel tickets at any time. However, if the tickets have been secured by our system, you will not be refunded for the cancelled ticket."
+        },
+        "q5": {
+          "question": "Are refunds allowed?",
+          "answer": "Full refunds are provided for tickets that have not been secured by our system. However, tickets secured by our system can be cancelled, but will not be eligible for refunds."
+        },
+        "q6": {
+          "question": "Does BunnyBooker allow preorders?",
+          "answer": "Preorders for unreleased tickets are allowed. There are no limitations on how far in the future you may place the order for."
+        },
+        "q7": {
+          "question": "How is my personal data handled?",
+          "item1": "All personal data are encrypted at rest in the database",
+          "item2": "No data is shared with external parties",
+          "item3": "No personal identifiable information is allowed to be accessed by internal staff",
+          "item4": "Upon rejection of marketing permissions, no personal data will be collected for marketing purposes and only essential information for booking tickets will be collected",
+          "item5": "Upon deletion of account, all information related to the user will instantly be deleted from our database",
+          "privacyBefore": "The above personal data handling is for BunnyBooker only. Click",
+          "privacyLinkText": "here",
+          "privacyAfter": "to read more about BunnyBooker's personal data handling.",
+          "ktmbBefore": "If you would like to find out how your personal data is handled on the KTMB website, you may visit",
+          "ktmbLinkText": "here"
+        },
+        "q8": {
+          "question": "What is the success rate of BunnyBooker booking service?",
+          "answerBefore": "To date, the success rate is",
+          "answerAfter": "."
+        }
+      },
+      "ktmb": {
+        "tenMinutes": "10 minutes",
+        "twentyMinutes": "20 minutes",
+        "q1": {
+          "question": "How does taking train between Singapore and JB work?",
+          "p1": "Take for example, you have a 9.45am train ride from SG -> JB.",
+          "p2": "Gates close strictly 20 minutes before train departure. Therefore, it is best to be in the queue at least 30 minutes before train departure (at 9.15am).",
+          "p3": "From 9.25am - 9.45am (the 20 minutes before departure), All passengers will go through both Singapore & Malaysia customs before the train ride (yes, you read it right, 2 customs settled before the train ride!)",
+          "p4": "From 9.45am - 9.50am, The train departs at 9.45am and you will arrive in JB sentral at 9.50am!",
+          "p5": "At 9.50am, Destination reached, you are free to roam!",
+          "noteBefore": "NOTE: Train from JB-> SG closes",
+          "noteMiddle": "before departure, train from SG -> JB (in above example) closes",
+          "noteAfter": "before departure."
+        },
+        "q2": {
+          "question": "What are the timeslots available for booking?",
+          "caption": "Timeslots available for booking",
+          "sgToJb": "SG -> JB",
+          "jbToSg": "JB -> SG"
+        },
+        "q3": {
+          "question": "When do the gates close before departure?",
+          "sgToJohor": "Singapore to Johor:",
+          "johorToSg": "Johor to Singapore:",
+          "beforeDeparture": "before departure"
+        },
+        "q4": {
+          "question": "Why should I take the train to JB/SG instead of other modes of transport?",
+          "answer": "Booking a train is a reliable choice, avoiding unpredictable traffic and potential 4-hour customs delays with other modes of transport. Limited train seats and a dedicated customs check (only for train passengers) expedite your journey, ensuring a swift 30-minute journey to your destination."
+        }
+      }
+    },
+    "finalCta": {
+      "heading": "Get Started Today",
+      "subtitle": "Join thousands of travelers who trust BunnyBooker for their KTMB tickets.",
+      "bookNow": "Book Now",
+      "guarantees": "Full refund guarantee • Email notifications • Secure platform"
+    }
+  },
+  "legal": {
+    "terms": {
+      "heading": "Terms and Condition",
+      "intro1": "All access to any area on our websites at BunnyBooker is governed by the terms and conditions below (\"Terms\"). If you are not comfortable with any of these Terms, we would advise you to exit. Please continue only if you can accept these Terms.",
+      "intro2": "In these Terms, the words \"we,\" \"our,\" and \"us\" refer to BunnyBooker.",
+      "accessHeading": "Access to BunnyBooker",
+      "accessBody": "The accessibility and operation of our website rely on technologies outside our control. We cannot guarantee continuous accessibility or uninterrupted operation of our website.",
+      "relyingHeading": "Relying on Information",
+      "relyingBody": "We provide our website as a general information source only. We are not involved in giving professional advice here. The website may not cover all information available on a particular issue. We advise that you conduct your own checks or obtain professional advice relevant to your particular circumstances, outside of our website.",
+      "securityHeading": "Security",
+      "securityBody": "Where appropriate, we use available technology to protect the security of communications made through our website. We do not accept liability for the security, authenticity, integrity, or confidentiality of any transactions and other communications made through our website. Internet communications may be susceptible to interference or interception by third parties. We will do our best, but we cannot make any warranties that our website is free of infection by computer viruses or other unauthorized software.",
+      "hyperlinksHeading": "Hyperlinks",
+      "hyperlinksBody1": "We are not responsible or liable for the availability or content of any other Internet site (not provided by us) linked to or from our website. Access to any other Internet site is at your own risk. If you create a link or frame to our website, you do so at your own risk.",
+      "hyperlinksBody2": "We reserve the right to object or disable any link or frame to or from our website.",
+      "restrictionsHeading": "Restrictions on Use of Materials",
+      "restrictionsBody1": "All content on this website, including trade names, articles, texts, artwork, pictures, photographs, films, the BunnyBooker logo, and related images, are protected by applicable laws, including copyright laws, and may not be reproduced or appropriated without the prior written consent of the relevant rights holder.",
+      "restrictionsBody2": "No license or right is granted, and your access to this website and/or use of the online services should not be construed as granting any license or right to use any intellectual property appearing on the website without the prior written consent of BunnyBooker or the relevant rights holder.",
+      "restrictionsBody3": "Modification of any of the materials or use of any of the materials for any other purpose will be a violation of BunnyBooker’s copyright.",
+      "thirdPartyHeading": "Third-Party Content",
+      "thirdPartyBody": "Third-party content may appear on the website or may be accessible via links from the website. BunnyBooker shall not be responsible and assumes no liability for any infringement, mistakes, misstatements of law, defamation, libel, slander, omissions, falsehood, or profanity in the statements, opinions, representations, or any other form of content contained in any third-party content appearing on the website.",
+      "nonConfidentialityHeading": "Non-Confidentiality",
+      "nonConfidentialityBody": "You agree that all information and/or particulars sent or submitted by you to BunnyBooker in relation to the access of this website is non-confidential and non-proprietary unless otherwise expressly indicated by you. You further undertake not to submit any information and/or other materials which are or may be offensive, illegal, or which may not be lawfully disseminated under the laws of Singapore or any other relevant country.",
+      "modificationHeading": "Modification to Terms and Conditions of Use",
+      "modificationBody": "The Terms and Conditions set out here may be edited from time to time. Updated versions of the Terms and Conditions of Use will be posted on the website and are effective immediately.",
+      "privacyHeading": "Privacy",
+      "privacyBodyPrefix": "Your use of the website is subject to BunnyBooker’s Privacy Policy, which can be found",
+      "privacyBodyLink": "here",
+      "registrationHeading": "Registration on Website and Booking Service",
+      "registrationBody1": "Information collected from our users may be used for various reasons.",
+      "registrationBody2": "We are committed to safeguarding your privacy. We do not disclose specific information about our users to any third parties unless so required by law or any government agencies. In the event that you participate in contests or other promotional programs on our site sponsored or organized by third parties or purchase goods and services offered by third parties or offer goods and services to third parties on our sites, your information may be disclosed to and used by such third parties.",
+      "accuracyHeading": "Accuracy of Information",
+      "accuracyBody1": "You warrant and undertake that all health declarations submitted by you are the complete and true declarations of yourself and all the people for whom you are purchasing tickets.",
+      "accuracyBody2": "Please note that if you do not submit full and accurate declarations for all ticket holders, you may not be able to purchase tickets to or board the train. BunnyBooker will not be liable for inaccurate information inputted by you.",
+      "limitationsHeading": "Limitations",
+      "limitationsBody1": "We do not accept liabilities in the event where the train provider postpones, cancels, interrupts or stops the Services due to adverse weather, dangerous situations, or any other causes beyond our reasonable control. We will do our best to check that the train services are available and functioning before accepting ticket orders, but we cannot make any warranties that the train is free of fault by wear and tear or other technical faults.",
+      "limitationsBody2": "We strive to fulfill all orders. However, in the scenario where we are unable to meet orders due to the KTMB site being down, under maintenance or inaccessible for an extended period of time, full refunds will be provided and credited to your BunnyBooker account. However, we do not accept liabilities outside of providing a full refund for affected tickets.",
+      "responsibilitiesHeading": "Your Responsibilities",
+      "responsibilitiesBody1": "All tickets must be collected within the time periods stipulated for you. No refunds will be made for uncollected or unused tickets.",
+      "responsibilitiesBody2": "No photography, audio or video recording is allowed during customs check-in unless otherwise stated by KTMB.",
+      "responsibilitiesBody3": "You voluntarily assume all risk and danger incidental to the ticket service and in your travel destination whether occurring prior to, during or subsequent to the actual ticket service or your presence at the travel destination, including any death, personal injury, loss, damage or liability.",
+      "covidHeading": "Covid-19 Regulations",
+      "covidIntro": "During the COVID-19 pandemic, without prejudice to any other rights of the KTMB and BunnyBooker, and notwithstanding anything to the contrary, KTMB and BunnyBooker reserve the right not to grant refunds for any Tickets purchased for a Train (\"Train\") in any or all of the following circumstances (which are non-exhaustive):",
+      "covidItem1": "where the Ticket Holder is well, but does not wish to board the Train for fears of exposure to COVID-19;",
+      "covidItem2": "where the Ticket Holder is unwell but tests negative for COVID-19 and/or does not have any COVID-19 related symptoms, and does not board the Train;",
+      "covidItem3": "where the Ticket Holder is denied entry or asked to leave the train pursuant to health advisories in clause 1.",
+      "covidItem4": "where the Ticket Holder is denied entry to the Train for reasons disclosed to the Ticket Holder in these Terms and Conditions of Sale; and/or",
+      "covidItem5": "where the Ticket Holder boards the Train, and subsequently leaves the Train before the Train departs to the destination due to the Ticket Holder feeling unwell.",
+      "clause1Heading": "Clause 1.",
+      "clause1Body": "Ticket Holders must abide by all health and safety requirements as may be specified by the Singapore government, including any directions on preventing the transmission of COVID-19, and all other health advisories and guidelines (\"Health Advisories\"). These include but are not limited to: the wearing of masks, using Trace Together/Safe-Entry, vaccination and testing protocols, and safe distancing measures. Any Ticket Holder found not adhering to any Health Advisory shall also be denied entry to the Train or asked to leave the Venue.",
+      "vaccinationHeading": "Vaccination and Testing Protocols",
+      "vaccinationIntro": "Where required by KTMB:",
+      "vaccinationItem1": "You must, at the point of purchase of Tickets, provide true declarations of the COVID-19 vaccination status of every Ticket Holder (\"Declaration\");",
+      "vaccinationItem2": "Ticket Holders who have been fully vaccinated against COVID-19 must at the Venue, display official proof of their COVID-19 vaccination status (\"Vaccinated Ticket Holders\"); and",
+      "vaccinationItem3": "Ticket Holders who have no official proof of full vaccination against COVID-19 (\"Unvaccinated Ticket Holders\") will:",
+      "vaccinationItem4": "If Unvaccinated Ticket Holders are not permitted on the Train, be denied entry;",
+      "vaccinationItem5": "If Unvaccinated Ticket Holders are permitted on the Train, they are required to obtain pre-Train or pre-Service testing for COVID-19 (\"PET\") either at the Venue prior to entry, or at a time and location to be notified to you, and display a negative result report for COVID-19 prior to entry.",
+      "vaccinationBody1": "Any non-compliance with the above requirements will result in denial of entry on the Train.",
+      "vaccinationBody2": "You warrant and undertake that all Declarations submitted by you are the complete and true Declarations of yourself and all persons for whom you are purchasing Tickets.",
+      "vaccinationConsentPrefix": "You warrant that you are authorised by all your Ticket Holders, to consent, and hereby consent to, BunnyBooker's and KTMB's collection, use, processing and disclosure of all personal data contained in the Declarations submitted by you, in accordance with",
+      "vaccinationConsentLink": "BunnyBooker's Privacy Policy",
+      "vaccinationConsentSuffix": "as well as these Terms and Conditions.",
+      "vaccinationBody3": "Please note that BunnyBooker and KTMB are required to comply with all Health Advisories. These include but are not limited to admission criteria, safe distancing measures, such as the appropriate segregation, spacing, and separation of train passengers, and rules on maximum seating capacity in trains.",
+      "vaccinationBody4": "To enable BunnyBooker and KTMB to comply with Health Advisories, BunnyBookerker and KTMB collect your Declarations for the purposes of ascertaining the vaccination status of each Ticket Holder. This will enable them to assess travel safety, comply with entry and maximum capacity requirements, perform crowd management, arrange for PET, and ensure that your seats, time and date of the train are in compliance with all Health Advisories.",
+      "vaccinationBody5": "As such, BunnyBooker and KTMB reserves the right to take any actions as may be required to comply with any Health Advisories based on the information contained in the Declarations provided by you, which may include but are not limited to: reallocating or making any changes to your seating arrangements, Ticket date and/or timing; cancelling or invalidating any Tickets purchased; denying any Ticket Holder entry to the Event and/or the Venue; requiring that Unvaccinated Ticket Holders submit to PET; and postponing or cancelling the train.",
+      "vaccinationBody6": "The declarations will be for BunnyBooker's and KTMB's internal use and will be accessed only by their employees and service providers, and will not be disclosed to any unauthorised third parties.",
+      "vaccinationBody7": "Please note that if you do not submit full and accurate declarations for all Ticket Holders, you may not be able to purchase tickets to or board the train.",
+      "deliveryHeading": "Delivery, Refunds & Exchange Policy",
+      "deliveryIntro": "You accept the following terms for delivery, refund and exchange of tickets:",
+      "deliveryItem1": "Full refunds will be provided for tickets that have not been successfully secured by the BunnyBooker system on the KTMB website.",
+      "deliveryItem2": "Tickets that have been secured on KTMB's website successfully are not eligible for refunds or exchanges.",
+      "deliveryItem3": "Cancellations can be initiated once a ticket is booked. However, please note that no refunds will be provided for cancelled tickets after the BunnyBooker system successfully secures the ticket on the KTMB website.",
+      "deliveryItem4": "Once a ticket is ordered and our booking service is engaged, our bunnies will actively attempt to secure your ticket.",
+      "deliveryItem5": "Booking efforts will continue up until 30 minutes before the scheduled departure time in the chosen train direction.",
+      "deliveryItem6": "If successful, you will be promptly notified of your confirmed booking details.",
+      "deliveryItem7": "If unsuccessful, you will be refunded in full as credit in your BunnyBooker wallet, which can be withdrawn.",
+      "fairUseHeading": "Fair Use",
+      "fairUseIntro": "You agree that you will not use the services of BunnyBooker for any purpose other than booking train tickets, this includes but is not limited to:",
+      "fairUseItem1": "Using the services of BunnyBooker to make profit from the tickets you purchase.",
+      "fairUseItem2": "Using BunnyBooker wallet to purchase items that are not train tickets or as an mechanism transfer or move funds.",
+      "fairUseItem3": "Using the services of BunnyBooker to engage in any other illegal activities.",
+      "fairUseItem4": "Attempting to use the services of BunnyBooker to violate any applicable laws.",
+      "fairUseConsequencesIntro": "If you are found or suspected to be in violation of any of the above, you will be subject to appropriate legal action, which may include but is not limited to:",
+      "fairUseConsequence1": "Suspension or termination of your account.",
+      "fairUseConsequence2": "Blacklist of all passengers associated with your account.",
+      "fairUseConsequence3": "Withholding of funds from your account until the violation is resolved.",
+      "fairUseConsequence4": "Escalation of the violation to the relevant authorities.",
+      "fairUseReserve": "We reserve the right to take any action against you for any violation of this policy.",
+      "interestsHeading": "Protecting BunnyBooker's Interests",
+      "interestsIntro": "BunnyBooker reserves the right to protect its interests in accordance with the laws of the jurisdiction in which it operates. This includes but is not limited to:",
+      "interestsItem1": "Modify or discontinue the services of BunnyBooker at any time without notice.",
+      "interestsItem2": "Change the terms and conditions of use of BunnyBooker at any time without notice.",
+      "interestsItem3": "Change the privacy policy of BunnyBooker at any time without notice.",
+      "interestsItem4": "Take any action against you for any violation of this policy.",
+      "interestsItem5": "Terminate your account at any time without notice.",
+      "interestsItem6": "Withhold funds within your account at any time, without notice.",
+      "interestsItem7": "Escalate any violation of this policy to the relevant authorities, without notice."
+    },
+    "privacy": {
+      "heading": "Privacy Policy",
+      "noticeHeading": "DATA PROTECTION NOTICE",
+      "noticeBody": "This Data Protection Notice (\"Notice\") sets out the basis which BunnyBooker (\"we\", \"us\", or \"our\") may collect, use, disclose or otherwise process personal data of our customers in accordance with the Personal Data Protection Act (\"PDPA\"). This Notice applies to personal data in our possession or under our control, including personal data in the possession of organisations which we have engaged to collect, use, disclose or process personal data for our purposes.",
+      "personalDataHeading": "PERSONAL DATA",
+      "definitionsIntro": "As used in this Notice:",
+      "definitionCustomer": "\"customer\" means an individual who (a) has contacted us through any means to find out more about any goods or services we provide, or (b) may, or has, entered into a contract with us for the supply of any goods or services by us; and",
+      "definitionPersonalData": "\"personal data\" means data, whether true or not, about a customer who can be identified: (a) from that data; or (b) from that data and other information to which we have or are likely to have access.",
+      "examplesItem": "Depending on the nature of your interaction with us, some examples of personal data which we may collect from you include your name and identification information such as your full name, passport number, passport expiry date, contact information such as your email address, mobile number, nationality, gender, date of birth, marital status, photographs and other audio-visual information and financial information such as credit card numbers, debit card numbers or bank account information.",
+      "otherTermsItem": "Other terms used in this Notice shall have the meanings given to them in the PDPA (where the context so permits).",
+      "collectionHeading": "COLLECTION, USE AND DISCLOSURE OF PERSONAL DATA",
+      "collectionConsentItem": "We generally do not collect your personal data unless (a) it is provided to us voluntarily by you directly or via a third party who has been duly authorised by you to disclose your personal data to us (your “authorised representative”) after (i) you (or your authorised representative) have been notified of the purposes for which the data is collected, and (ii) you (or your authorised representative) have provided written consent to the collection and usage of your personal data for those purposes, or (b) collection and use of personal data without consent is permitted or required by the PDPA or other laws. We shall seek your consent before collecting any additional personal data and before using your personal data for a purpose which has not been notified to you (except where permitted or authorised by law).",
+      "purposesIntro": "We may collect and use your personal data for any or all of the following purposes:",
+      "purposeA": "(a) performing obligations in the course of or in connection with our provision of the goods and/or services requested by you;",
+      "purposeB": "(b) verifying your identity;",
+      "purposeC": "(c) responding to, handling, and processing queries, requests, applications, complaints, and feedback from you;",
+      "purposeD": "(d) managing your relationship with us;",
+      "purposeE": "(e) processing payment or credit transactions;",
+      "purposeF": "(f) sending your marketing information about our goods or services including notifying you of our marketing events, initiatives and promotions, lucky draws, membership and rewards schemes and other promotions;",
+      "purposeG": "(g) complying with any applicable laws, regulations, codes of practice, guidelines, or rules, or to assist in law enforcement and investigations conducted by any governmental and/or regulatory authority;",
+      "purposeH": "(h) any other purposes for which you have provided the information;",
+      "purposeI": "(i) transmitting to any unaffiliated third parties including our third party service providers and agents, and relevant governmental and/or regulatory authorities, whether in Singapore or abroad, for the aforementioned purposes; and",
+      "purposeJ": "(j) any other incidental business purposes related to or in connection with the above.",
+      "disclosureIntro": "We may disclose your personal data:",
+      "disclosureA": "(a) where such disclosure is required for performing obligations in the course of or in connection with our provision of the goods or services requested by you; or",
+      "disclosureB": "(b) to third party service providers, agents and other organisations we have engaged to perform any of the functions listed in clause 5 above for us.",
+      "purposesContinueItem": "The purposes listed in the above clauses may continue to apply even in situations where your relationship with us (for example, pursuant to a contract) has been terminated or altered in any way, for a reasonable period thereafter (including, where applicable, a period to enable us to enforce our rights under any contract with you).",
+      "withdrawingHeading": "WITHDRAWING YOUR CONSENT",
+      "withdrawingItem1": "The consent that you provide for the collection, use and disclosure of your personal data will remain valid until such time it is being withdrawn by you in writing. You may withdraw consent and request us to stop using and/or disclosing your personal data for any or all of the purposes listed above by submitting your request in writing or via email to our Data Protection Officer at the contact details provided below.",
+      "withdrawingItem2": "Upon receipt of your written request to withdraw your consent, we may require reasonable time (depending on the complexity of the request and its impact on our relationship with you) for your request to be processed and for us to notify you of the consequences of us acceding to the same, including any legal consequences which may affect your rights and liabilities to us. In general, we shall seek to process your request within ten (10) business days of receiving it.",
+      "withdrawingItem3": "Whilst we respect your decision to withdraw your consent, please note that depending on the nature and scope of your request, we may not be in a position to continue providing our goods or services to you and we shall, in such circumstances, notify you before completing the processing of your request. Should you decide to cancel your withdrawal of consent, please inform us in writing in the manner described in clause 8 above.",
+      "withdrawingItem4": "Please note that withdrawing consent does not affect our right to continue to collect, use and disclose personal data where such collection, use and disclose without consent is permitted or required under applicable laws.",
+      "accessHeading": "ACCESS TO AND CORRECTION OF PERSONAL DATA",
+      "accessItem1": "If you wish to make (a) an access request for access to a copy of the personal data which we hold about you or information about the ways in which we use or disclose your personal data, or (b) a correction request to correct or update any of your personal data which we hold about you, you may submit your request in writing or via email to our Data Protection Officer at the contact details provided below.",
+      "accessItem2": "Please note that a reasonable fee may be charged for an access request. If so, we will inform you of the fee before processing your request.",
+      "accessItem3": "We will respond to your request as soon as reasonably possible. Should we not be able to respond to your request within thirty (30) days after receiving your request, we will inform you in writing within thirty (30) days of the time by which we will be able to respond to your request. If we are unable to provide you with any personal data or to make a correction requested by you, we shall generally inform you of the reasons why we are unable to do so (except where we are not required to do so under the PDPA).",
+      "protectionHeading": "PROTECTION OF PERSONAL DATA",
+      "protectionItem1": "To safeguard your personal data from unauthorised access, collection, use, disclosure, copying, modification, disposal or similar risks, we have introduced appropriate administrative, physical and technical measures such as up-to-date antivirus protection, encryption and the use of privacy filters to secure all storage and transmission of personal data by us, and disclosing personal data both internally and to our authorised third party service providers and agents only on a need-to-know basis.",
+      "protectionItem2": "You should be aware, however, that no method of transmission over the Internet or method of electronic storage is completely secure. While security cannot be guaranteed, we strive to protect the security of your information and are constantly reviewing and enhancing our information security measures.",
+      "accuracyHeading": "ACCURACY OF PERSONAL DATA",
+      "accuracyItem": "We generally rely on personal data provided by you (or your authorised representative). In order to ensure that your personal data is current, complete and accurate, please update us if there are changes to your personal data by informing our Data Protection Officer in writing or via email at the contact details provided below.",
+      "retentionHeading": "RETENTION OF PERSONAL DATA",
+      "retentionItem1": "We may retain your personal data for as long as it is necessary to fulfil the purpose for which it was collected, or as required or permitted by applicable laws.",
+      "retentionItem2": "We will cease to retain your personal data, or remove the means by which the data can be associated with you, as soon as it is reasonable to assume that such retention no longer serves the purpose for which the personal data was collected, and is no longer necessary for legal or business purposes.",
+      "transfersHeading": "TRANSFERS OF PERSONAL DATA OUTSIDE OF SINGAPORE",
+      "transfersItem": "We generally do not transfer your personal data to countries outside of Singapore. However, if we do so, we will obtain your consent for the transfer to be made and we will take steps to ensure that your personal data continues to receive a standard of protection that is at least comparable to that provided under the PDPA.",
+      "dpoHeading": "DATA PROTECTION OFFICER",
+      "dpoItem": "You may contact our Data Protection Officer if you have any enquiries or feedback on our personal data protection policies and procedures, or if you wish to make any request, in the following manner:",
+      "dpoTitle": "Data Protection Officer",
+      "dpoNameLabel": "Name",
+      "dpoAddressLabel": "Address",
+      "dpoEmailLabel": "Email",
+      "dpoMobileLabel": "Mobile",
+      "effectHeading": "EFFECT OF NOTICE AND CHANGES TO NOTICE",
+      "effectItem1": "This Notice applies in conjunction with any other notices, contractual clauses and consent clauses that apply in relation to the collection, use and disclosure of your personal data by us.",
+      "effectItem2": "We may revise this Notice from time to time without any prior notice. You may determine if any such revision has taken place by referring to the date on which this Notice was last updated. Your continued use of our services constitutes your acknowledgement and acceptance of such changes.",
+      "effectiveDate": "Effective date: 31/12/2023",
+      "lastUpdated": "Last updated: 31/12/2023"
+    },
+    "policy": {
+      "heading": "Delivery, Cancellation & Refund Policy",
+      "ticketRefundsHeading": "Ticket Refunds",
+      "ticketRefundsItem1": "If our system has not successfully secured your ticket on KTMB, you will be eligible for a full refund, which will be provided in the form of credits in your BunnyBooker wallet. You can then withdraw these credits by using the withdrawal system in BunnyBooker.",
+      "ticketRefundsItem2": "Tickets that have been secured by our system on KTMB are not eligible for refunds or exchanges.",
+      "cancellationsHeading": "Cancellations",
+      "cancellationsBody": "You can request a cancellation at any time, but please aware that if our system has already successfully secured your ticket on KTMB, no refunds will be provided for the cancelled tickets.",
+      "walletWithdrawalHeading": "Wallet Withdrawal",
+      "walletWithdrawalBody1": "We only accept withdrawal via PayNow.",
+      "walletWithdrawalBody2": "You can withdraw your wallet balance by submitting a withdrawal request in BunnyBooker site with your PayNow details. We will process your withdrawal request within 3 working days. For any conflict, questions or concerns, please contact us via WhatsApp, Telegram, or email.",
+      "bookingProcessHeading": "Booking Process",
+      "bookingProcessStep1": "Top up money into BunnyBooker's wallet via our payment gateway.",
+      "bookingProcessStep2": "Select tickets you need and place an order.",
+      "bookingProcessStep3": "Once a ticket is ordered and our booking service is engaged, our system will actively attempt to secure your ticket.",
+      "bookingProcessStep4": "Booking efforts will continue up until 30 minutes before the scheduled departure time in the train direction you ordered.",
+      "bookingProcessStep5": "If successful, you will be promptly notified of your confirmed booking details.",
+      "bookingProcessStep6": "If unsuccessful, you will be notified and refunded the full amount of the ticket to your BunnyBooker account wallet."
+    }
+  },
+  "passengers": {
+    "list": {
+      "pageTitle": "Passengers",
+      "searchPlaceholder": "Search passenger",
+      "filterByUserIdPlaceholder": "Filter by user ID...",
+      "emptyState": "No passengers found"
+    },
+    "alert": {
+      "takeNote": "Take Note!",
+      "detailsLead": "Please ensure and check the passport details creating. Our system does not have the ability to validate your details. All incorrect tickets purchased with incorrect details will",
+      "not": "NOT",
+      "refundedTrail": "be refunded."
+    },
+    "gender": {
+      "male": "Male",
+      "female": "Female"
+    },
+    "passportExpiryLabel": "Passport Expiry Date",
+    "create": {
+      "trigger": "Create Passenger",
+      "title": "Create a new passenger",
+      "subtitle": "Create a new Passenger for ease of bookings.",
+      "fullNamePlaceholder": "Fullname as per Passport",
+      "submit": "Create Passenger",
+      "successToast": "Successfully created passenger '{name}'",
+      "errorToast": "Failed to create passenger",
+      "validation": {
+        "fullNameMin": "Full name must be at least 1 character long",
+        "fullNameMax": "Full name must be at most 512 characters long",
+        "fullNameRegex": "Full name must only contain letters and special characters @ . / ' , - ` *",
+        "passportNumberRegex": "Passport number must only contain letters and numbers",
+        "passportNumberMin": "Passport number must be at least 1 character long",
+        "passportNumberMax": "Passport number must be at most 20 characters long",
+        "passportExpiryMin": "Passport expiry must at least 6 months from now"
+      }
+    },
+    "update": {
+      "title": "Updating a passenger",
+      "subtitle": "Updating an existing Passenger.",
+      "submit": "Update Passenger",
+      "successToast": "Successfully updated passenger '{name}'",
+      "errorToast": "Failed to update passenger"
+    },
+    "delete": {
+      "title": "Delete a passenger",
+      "subtitle": "Delete a passenger. This action is irreversible.",
+      "cannotUndo": "This action cannot be undone.",
+      "confirmLead": "Please type the name of the passenger,",
+      "confirmTrail": "to proceed.",
+      "confirmHint": "Please type the name of the passenger to proceed.",
+      "submit": "Delete Passenger",
+      "successToast": "Successfully deleted passenger '{name}'",
+      "errorToast": "Failed to delete passenger"
+    }
+  },
+  "profile": {
+    "pageTitle": "Profile",
+    "userNotFound": "User not found",
+    "usernameTitle": "Username",
+    "usernameDesc": "This is a unique identifier for you. All your templates with prefix with this value.",
+    "usernameImmutable": "This value cannot be changed.",
+    "usernameFormat": "This value is lowercase alphanumeric or -.",
+    "nameDesc": "This is the name you signed up with",
+    "nameImmutable": "There is no restriction to this name. However, changing it is not supported yet",
+    "userIdTitle": "User ID",
+    "userIdDesc": "Unique index for your user.",
+    "userIdHelp": "This is automated generated by your OAuth provider",
+    "avatarTitle": "Avatar",
+    "avatarDesc": "This is your profile picture",
+    "avatarSource": "This is obtained directly from your login method",
+    "emailDesc": "This is the email associated with your sign up",
+    "emailSource": "This is associated with your login method",
+    "rolesTitle": "Roles",
+    "rolesDesc": "The roles you are assigned",
+    "permissionsTitle": "Permissions",
+    "permissionsDesc": "The permissions associated with your account",
+    "managedByAdmins": "This is managed by BunnyBooker administrators.",
+    "jwtAccessTitle": "JWT Access Token",
+    "jwtAccessDesc": "Access Token for development",
+    "jwtIdTitle": "JWT ID Token",
+    "jwtIdDesc": "ID Token for development"
+  },
+  "auth": {
+    "userNotFound": "User not found",
+    "chooseUsername": "Choose your username for BunnyBooker. This cannot be changed and needs to be unique.",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "Your username",
+    "usernameTaken": "Username has been taken",
+    "usernameAvailable": "Username has not been taken",
+    "errorMinLength": "Username must contain at least 1 character",
+    "errorMaxLength": "Username must be less than 256 characters",
+    "errorCharset": "Username must only contain lowercase letters, numbers, and dashes",
+    "errorStartEnd": "Username must start with a letter and cannot end with dashes",
+    "existError": "Failed to check if user exists",
+    "createError": "Failed to create user",
+    "acceptPrefix": "I accept the",
+    "termsLink": "terms and conditions",
+    "privacyLink": "privacy policy"
+  },
+  "schedules": {
+    "pageTitle": "Purchase Tickets",
+    "selectDate": "Select a date",
+    "woodlandsToJb": "Woodlands to JB",
+    "woodlandsToJbSentral": "Woodlands to JB Sentral",
+    "jbToWoodlands": "JB to Woodlands",
+    "jbSentralToWoodlands": "JB Sentral to Woodlands",
+    "noSchedulesFound": "No schedules found",
+    "ticketsInQueue": "{count} tickets in queue",
+    "buy": "Buy"
+  },
+  "calendar": {
+    "selectMonth": "Select month",
+    "selectYear": "Select year"
+  },
+  "footer": {
+    "contactHelp": "Need help? Contact Us!",
+    "refundPolicy": "Delivery, Cancellation & Refund Policy",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfUse": "Terms of Use"
+  },
+  "loader": {
+    "default": "Loading, please wait...",
+    "reauthenticating": "Re-authenticating..."
+  },
+  "errorState": {
+    "alienInvasion": "Error - Alien Invasion",
+    "doggyCantSwim": "Error - Doggy Can't Swim",
+    "lostInSpace": "Error - Lost in Space",
+    "chemicalExplosion": "Error - Chemical Explosion",
+    "coffeeSpilt": "Error - Coffee Spilt",
+    "doggyCantSmell": "Error - Doggy Can't Smell",
+    "dogEatsNewsPaper": "Error - Dog Eats News Paper",
+    "icecreamMelted": "Error - Icecream Melted",
+    "laptopBroken": "Error - Laptop Broken",
+    "lochnessMonster": "Error - Lochness Monster Exist?",
+    "missingPiece": "Error - Missing Piece",
+    "noTissue": "Error - No Tissue",
+    "errorDetails": "Error Details"
+  },
+  "transactions": {
+    "list": {
+      "title": "Transactions",
+      "searchPlaceholder": "Search for transactions...",
+      "userIdPlaceholder": "Filter by user ID...",
+      "dateRangePlaceholder": "Filter by date range",
+      "typePlaceholder": "Transaction Type",
+      "typeNone": "None",
+      "emptyState": "No transactions found",
+      "colType": "Type",
+      "colFrom": "From",
+      "colTo": "To"
+    },
+    "detail": {
+      "title": "Transaction",
+      "notFound": "Wallet cannot be found"
+    },
+    "card": {
+      "direction": "Transaction Direction",
+      "amount": "Transaction Amount",
+      "related": "Related",
+      "walletLink": "Wallet",
+      "userLink": "User"
+    }
+  },
+  "wallets": {
+    "list": {
+      "searchPlaceholder": "Search for wallets...",
+      "notFound": "Wallets not found",
+      "viewDetails": "View Details"
+    },
+    "detail": {
+      "title": "Wallet",
+      "notFound": "Wallet cannot be found"
+    },
+    "card": {
+      "account": "Account",
+      "usable": "USABLE",
+      "bookingReserve": "BOOKING RESERVE",
+      "withdrawReserve": "WITHDRAW RESERVE"
+    },
+    "deposit": {
+      "title": "Deposit",
+      "subtitle": "Deposit to BunnyBooker",
+      "balance": "Balance: {amount}",
+      "prompt": "How much in SGD would you like to deposit?",
+      "viewWallet": "View Wallet",
+      "cancel": {
+        "title": "Deposit Cancelled",
+        "message": "Deposit to BunnyBooker has been cancelled."
+      },
+      "failed": {
+        "title": "Deposit Failed",
+        "message": "Failed to deposit into BunnyBooker",
+        "tryAgain": "Try Again"
+      },
+      "success": {
+        "title": "Success!",
+        "message": "Successfully deposited into BunnyBooker",
+        "currentBalance": "Current Balance: {amount}"
+      },
+      "initError": "Failed to initialize payment"
+    },
+    "adminIn": {
+      "trigger": "Add Usable Balance",
+      "title": "Add Usable Balance",
+      "descriptionBefore": "You will be adding usable balance to user",
+      "descriptionAfter": "'s account.",
+      "successToast": "Successfully added {amount} to user's account.",
+      "errorToast": "Failed to create admin inflow"
+    },
+    "adminOut": {
+      "trigger": "Deduct Usable Balance",
+      "title": "Deduct Usable Balance",
+      "descriptionBefore": "You will be deducting usable balance from user",
+      "descriptionAfter": "'s account.",
+      "successToast": "Successfully deducted {amount} from user's account.",
+      "errorToast": "Failed to create admin outflow"
+    },
+    "promo": {
+      "trigger": "Give Promo Credits",
+      "title": "Give Promo Credits",
+      "descriptionBefore": "You will be adding promotional credits to user",
+      "descriptionAfter": "'s account.",
+      "successToast": "Successfully added {amount} worth of Promo Credit to user's account.",
+      "errorToast": "Failed to create promo transfer"
+    }
+  },
+  "withdrawals": {
+    "status": {
+      "Pending": "Pending",
+      "Completed": "Completed",
+      "Cancel": "Cancelled",
+      "Rejected": "Rejected"
+    },
+    "list": {
+      "title": "Withdrawal",
+      "filterById": "Filter by ID...",
+      "filterByUserId": "Filter by user ID...",
+      "filterByCompleterId": "Filter by completer ID...",
+      "filterByDateRange": "Filter by date range",
+      "statusNone": "None",
+      "notFound": "Withdrawals not found"
+    },
+    "card": {
+      "amountToPayNow": "{amount} to PayNow {payNowNumber}",
+      "viewDetails": "View Details",
+      "by": "By",
+      "completer": "Completer",
+      "viewUserProfile": "View user profile →",
+      "noNote": "No Note",
+      "receiptAlt": "receipt"
+    },
+    "detail": {
+      "title": "Withdrawal",
+      "notFound": "Withdrawal cannot be found"
+    },
+    "approve": {
+      "title": "Make a withdrawal",
+      "instructions": "Please transfer the {amount} to PayNow {payNowNumber}, screenshot, and upload the receipt, and click complete.",
+      "complete": "Complete",
+      "success": "Successfully completed the withdrawal {amount}.",
+      "failed": "Failed to approve withdrawal"
+    },
+    "cancel": {
+      "title": "Cancel withdrawal",
+      "confirm": "You are cancelling this withdrawal of {amount} to PayNow {payNowNumber}.",
+      "noteRequired": "Please enter a note.",
+      "noteTooLong": "Note cannot be longer than 4096 characters.",
+      "success": "Successfully cancelled the withdrawal of {amount}.",
+      "failed": "Failed to cancel withdrawal"
+    },
+    "reject": {
+      "title": "Reject withdrawal",
+      "confirm": "You are rejecting this withdrawal of {amount} to PayNow {payNowNumber}.",
+      "noteRequired": "Please enter a note.",
+      "noteTooLong": "Note cannot be longer than 4096 characters.",
+      "success": "Successfully rejected the withdrawal of {amount}.",
+      "failed": "Failed to reject withdrawal"
+    },
+    "create": {
+      "trigger": "Make a Withdrawal",
+      "title": "Make a withdrawal",
+      "intro": "You will be withdrawing from your usable balance in your wallet.",
+      "importantTitle": "Important!",
+      "payNowWarningPrefix": "Please ensure you PayNow number is correct before proceeding.",
+      "payNowWarningEmphasis": "No compensations",
+      "payNowWarningSuffix": "will be provided for incorrect PayNow numbers.",
+      "durationTitle": "Withdrawal Duration",
+      "durationPrefix": "Withdrawal is not instant. It will take up to",
+      "durationEmphasis": "2 working days",
+      "durationSuffix": "to be processed.",
+      "balanceLabel": "Balance: {amount}",
+      "payNowPlaceholder": "PayNow Number to withdraw to",
+      "submit": "Request Withdrawal",
+      "amountGreaterThanZero": "Amount must be greater than 0",
+      "amountExceedsBalance": "Amount must be less than or equal to your usable balance",
+      "amountFinite": "Amount must be a finite number",
+      "invalidPayNow": "Not a valid PayNow number",
+      "success": "Successfully requested withdrawal of {amount} from your USABLE balance.",
+      "failed": "Failed to make withdrawal"
+    }
+  },
+  "status": {
+    "booking": {
+      "Pending": "Pending",
+      "Buying": "Buying",
+      "Completed": "Completed",
+      "Cancelled": "Cancelled",
+      "Refunded": "Refunded",
+      "Terminated": "Terminated"
+    },
+    "transactionType": {
+      "BookingRequest": "Booking Request",
+      "BookingComplete": "Booking Complete",
+      "BookingCancel": "Booking Cancel",
+      "BookingRefund": "Booking Refund",
+      "BookingTerminated": "Booking Terminated",
+      "Deposit": "Deposit",
+      "WithdrawRequest": "Withdraw Request",
+      "WithdrawComplete": "Withdraw Complete",
+      "WithdrawCancelled": "Withdraw Cancelled",
+      "WithdrawRejected": "Withdraw Rejected",
+      "Promotional": "Promotional",
+      "Transfer": "Transfer"
+    },
+    "discountType": {
+      "Percentage": "Percentage",
+      "Flat": "Flat"
+    },
+    "discountMode": {
+      "All": "All",
+      "Any": "Any",
+      "None": "None"
+    },
+    "discountMatchType": {
+      "UserId": "UserId",
+      "Role": "Role"
+    },
+    "discountEnabled": {
+      "true": "Disabled",
+      "false": "Enabled"
+    }
+  },
+  "validation": {
+    "topup": {
+      "min": "Top up amount must be greater than {min}",
+      "finite": "Top up amount must be a finite number",
+      "precision": "Maximum precision of {max}"
+    },
+    "transfer": {
+      "amountGt": "Amount must be greater than {min}",
+      "amountFinite": "Amount must be a finite number",
+      "descMin": "Description must be at least {min} characters long",
+      "descMax": "Description must be less than {max} characters long"
+    }
+  }
+}

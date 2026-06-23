@@ -7,9 +7,11 @@ import BsInstagram from "svelte-icons-pack/bs/BsInstagram.js";
 import BsTelegram from "svelte-icons-pack/bs/BsTelegram.js";
 import AiOutlineMail from "svelte-icons-pack/ai/AiOutlineMail.js";
 import BsTelephone from "svelte-icons-pack/bs/BsTelephone.js";
+import {_} from "svelte-i18n";
+import {lang} from "$lib/i18n";
 </script>
 
-<h2 class="text-lg text-center">Need help? Contact Us!</h2>
+<h2 class="text-lg text-center">{$_('footer.contactHelp', {locale: $lang})}</h2>
 <div class="flex flex-wrap align-center justify-center gap-8 p-8">
     <a href="https://wa.me/6588178504" class="cursor-pointer hover:text-green-500">
         <Icon src={BsWhatsapp} size="24" color="currentColor"/>
@@ -31,9 +33,9 @@ import BsTelephone from "svelte-icons-pack/bs/BsTelephone.js";
     </a>
 </div>
 <div class="flex flex-col justify-center align-center text-center">
-    <a href="/policy" class="underline hover:text-amber-300">Delivery, Cancellation & Refund Policy</a>
-    <a href="/privacy" class="underline hover:text-amber-300">Privacy Policy</a>
-    <a href="/terms" class="underline hover:text-amber-300">Terms of Use</a>
+    <a href="/policy" class="underline hover:text-amber-300">{$_('footer.refundPolicy', {locale: $lang})}</a>
+    <a href="/privacy" class="underline hover:text-amber-300">{$_('footer.privacyPolicy', {locale: $lang})}</a>
+    <a href="/terms" class="underline hover:text-amber-300">{$_('footer.termsOfUse', {locale: $lang})}</a>
 </div>
 <div class="flex flex-col gap-4 my-12">
     <div class="text-center ">BUNNYBOOKER</div>

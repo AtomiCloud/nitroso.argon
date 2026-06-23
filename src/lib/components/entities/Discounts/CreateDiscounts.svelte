@@ -19,6 +19,8 @@
     import Validation from "$lib/components/core/Validation.svelte";
     import {DISCOUNT_MATCH_MODE, DISCOUNT_MATCH_TYPE, DISCOUNT_TYPE} from "../../../../routes/discounts/status";
     import {tick} from "svelte";
+    import {_} from "svelte-i18n";
+    import {lang} from "$lib/i18n";
 
     let dialogOpen = false;
 
@@ -97,9 +99,9 @@
     async function createDiscount(c: CreateDiscountReq) {
         submitting = true;
         await toResult(() => $api.vDiscountCreate("1.0", c),
-            "Failed to create discount").match({
+            $_('discounts.create.createError', { locale: $lang })).match({
             ok: ok => {
-                toast.info(`Successfully created discount '${ok.record.name}'`);
+                toast.info($_('discounts.create.createdToast', { locale: $lang, values: { name: ok.record.name } }));
                 dialogOpen = false;
                 invalidateAll();
             },
@@ -116,33 +118,33 @@
 
 <Dialog.Root bind:open={dialogOpen}>
     <Dialog.Trigger class="w-full max-w-80  {buttonVariants({ variant: 'default' })}">
-        Create Discount
+        {$_('discounts.create.trigger', { locale: $lang })}
     </Dialog.Trigger>
     <Dialog.Content>
         <Dialog.Header>
-            <Dialog.Title>Create a new discount</Dialog.Title>
+            <Dialog.Title>{$_('discounts.create.title', { locale: $lang })}</Dialog.Title>
             <Dialog.Description>
                 <div class="flex flex-col gap-4">
                     <p class="text-justify py-2">
-                        Create a new Discount that applies to members who meet a certain condition.
+                        {$_('discounts.create.intro', { locale: $lang })}
                     </p>
                     <Alert.Root>
                         <AlertTriangle class="h-4 w-4"/>
-                        <Alert.Title>Take Note!</Alert.Title>
+                        <Alert.Title>{$_('discounts.create.takeNote', { locale: $lang })}</Alert.Title>
                         <Alert.Description
-                        >Discounts are effective the moment they are created. You can disable them at any time.
+                        >{$_('discounts.create.noteBody', { locale: $lang })}
                         </Alert.Description>
                     </Alert.Root>
                     <Validation {errors} {taints} path="record.name">
                         <Input
-                                placeholder="Name"
+                                placeholder={$_('fields.name', { locale: $lang })}
                                 bind:value={val.record.name}
                                 on:input={onChange("record.name")}
                         />
                     </Validation>
                     <Validation {errors} {taints} path="record.description">
                         <Input
-                                placeholder="Description"
+                                placeholder={$_('fields.description', { locale: $lang })}
                                 bind:value={val.record.description}
                                 on:input={onChange("record.description")}
                         />
@@ -155,7 +157,7 @@
                                 {/if}
                                 <Input
                                         class="flex-1"
-                                        placeholder="Discount Amount"
+                                        placeholder={$_('discounts.create.amountPlaceholder', { locale: $lang })}
                                         inputmode="numeric"
                                         bind:value={val.record.amount}
                                         on:input={onChange("record.amount")}
@@ -170,8 +172,8 @@
                             <ToggleGroup.Root type="single" bind:value={val.record.type}
                                               onValueChange={onChange("record.type")}>
                                 {#each Object.entries(DISCOUNT_TYPE) as [, v]}
-                                    <ToggleGroup.Item value={v.value} aria-label="Toggle {v.label}">
-                                        {v.label}
+                                    <ToggleGroup.Item value={v.value} aria-label={$_('discounts.create.toggle', { locale: $lang, values: { label: $_(`status.discountType.${v.value}`, { locale: $lang }) } })}>
+                                        {$_(`status.discountType.${v.value}`, { locale: $lang })}
                                     </ToggleGroup.Item>
                                 {/each}
                             </ToggleGroup.Root>
@@ -180,13 +182,13 @@
                     <Validation {errors} {taints} path="target.matchMode">
                         <div class="flex flex-1 justify-between items-center text-primary border pl-4 rounded-md">
                             <div>
-                                Match Type
+                                {$_('discounts.create.matchType', { locale: $lang })}
                             </div>
                             <ToggleGroup.Root type="single" bind:value={val.target.matchMode}
                                               onValueChange={onChange("target.matchMode")}>
                                 {#each Object.entries(DISCOUNT_MATCH_MODE) as [, v]}
-                                    <ToggleGroup.Item class="w-16" value={v.value} aria-label="Toggle {v.label}">
-                                        {v.label}
+                                    <ToggleGroup.Item class="w-16" value={v.value} aria-label={$_('discounts.create.toggle', { locale: $lang, values: { label: $_(`status.discountMode.${v.value}`, { locale: $lang }) } })}>
+                                        {$_(`status.discountMode.${v.value}`, { locale: $lang })}
                                     </ToggleGroup.Item>
                                 {/each}
                             </ToggleGroup.Root>
@@ -198,7 +200,7 @@
                             <Validation {errors} {taints} path="target.matches.{i}.value">
                                 <Input
                                         class="w-48"
-                                        placeholder="Match Target"
+                                        placeholder={$_('discounts.create.matchTarget', { locale: $lang })}
                                         bind:value={match.value}
                                         on:input={onChange(`target.matches.${i}.value`)}
                                 />
@@ -207,8 +209,8 @@
                                 <ToggleGroup.Root type="single" bind:value={match.matchType}
                                                   onValueChange={onChange(`target.matches.${i}.matchType`)}>
                                     {#each Object.entries(DISCOUNT_MATCH_TYPE) as [, v]}
-                                        <ToggleGroup.Item class="w-16" value={v.value} aria-label="Toggle {v.label}">
-                                            {v.label}
+                                        <ToggleGroup.Item class="w-16" value={v.value} aria-label={$_('discounts.create.toggle', { locale: $lang, values: { label: $_(`status.discountMatchType.${v.value}`, { locale: $lang }) } })}>
+                                            {$_(`status.discountMatchType.${v.value}`, { locale: $lang })}
                                         </ToggleGroup.Item>
                                     {/each}
                                 </ToggleGroup.Root>
@@ -220,14 +222,14 @@
                     {/each}
                     <Button on:click={addTarget} disabled={val.target.matchMode === "None"}>
                         <LucidePlusCircle class="mr-2 h-4 w-4"/>
-                        Add Match Target
+                        {$_('discounts.create.addMatchTarget', { locale: $lang })}
                     </Button>
                     <hr>
                     <Button class="my-2" on:click={submit} disabled={submitting}>
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                         {/if}
-                        Create Discount
+                        {$_('discounts.create.trigger', { locale: $lang })}
                     </Button>
                 </div>
             </Dialog.Description>

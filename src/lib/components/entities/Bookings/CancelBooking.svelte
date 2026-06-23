@@ -17,6 +17,8 @@
     import {Input} from "$lib/components/ui/input";
     import {page} from "$app/stores";
     import {tick} from "svelte";
+    import {_} from "svelte-i18n";
+    import {lang} from "$lib/i18n";
 
     let dialogOpen = false;
     let showCancellationStep = false;
@@ -35,7 +37,7 @@
     function stayWithBooking() {
         dialogOpen = false;
         showCancellationStep = false;
-        toast.info("Great choice! Your booking is still active. Most tickets become available 1-2 days before departure.");
+        toast.info($_('bookingActions.cancel.stayToast', { locale: $lang }));
     }
     
     async function openDialog() {
@@ -68,9 +70,9 @@
             : {userId: $page.data.user.principal.id}
 
         await toResult(() => $api.vBookingCancelCreate(booking.id, "1.0", user),
-            "Failed to cancel booking").match({
+            $_('bookingActions.cancel.error', { locale: $lang })).match({
             ok: ok => {
-                toast.info(`Successfully cancelled booking`);
+                toast.info($_('bookingActions.cancel.success', { locale: $lang }));
                 dialogOpen = false;
                 showCancellationStep = false;
                 invalidateAll();
@@ -105,19 +107,19 @@
 <Dialog.Root bind:open={dialogOpen}>
     <Dialog.Trigger class="{buttonVariants({ variant: 'destructive' })}  w-full sm:max-w-40" on:click={openDialog}>
         <LucideTrash2 class="mr-2 h-4 w-4"/>
-        Cancel
+        {$_('actions.cancel', { locale: $lang })}
     </Dialog.Trigger>
     <Dialog.Content class="w-[95vw] max-w-2xl max-h-[90vh]">
         <div class="overflow-y-auto max-h-[calc(90vh-8rem)]" bind:this={dialogElement}>
         <Dialog.Header>
-            <Dialog.Title>{showCancellationStep ? 'Cancel Booking' : 'Wait! Before You Cancel...'}</Dialog.Title>
+            <Dialog.Title>{showCancellationStep ? $_('bookingActions.cancel.title', { locale: $lang }) : $_('bookingActions.cancel.educationTitle', { locale: $lang })}</Dialog.Title>
             <Dialog.Description>
                 {#if !showCancellationStep}
                     <!-- Education Step -->
                     <div class="flex flex-col gap-4 sm:gap-6">
                         <div class="text-center">
-                            <h3 class="text-lg sm:text-lg font-semibold mb-1 sm:mb-2 text-foreground">Did you know most tickets become available 1-2 days before departure?</h3>
-                            <p class="text-base text-muted-foreground">Here's what our data shows about KTMB ticket patterns:</p>
+                            <h3 class="text-lg sm:text-lg font-semibold mb-1 sm:mb-2 text-foreground">{$_('bookingActions.cancel.eduHeading', { locale: $lang })}</h3>
+                            <p class="text-base text-muted-foreground">{$_('bookingActions.cancel.eduSubheading', { locale: $lang })}</p>
                         </div>
                         
                         <div class="grid sm:grid-cols-3 gap-3">
@@ -126,8 +128,8 @@
                                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
                                         <Users class="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
                                     </div>
-                                    <h4 class="font-semibold text-sm sm:text-sm">Peak Cancellations</h4>
-                                    <p class="text-sm text-muted-foreground leading-tight">Most people cancel 1-2 days before departure due to last-minute plan changes</p>
+                                    <h4 class="font-semibold text-sm sm:text-sm">{$_('bookingActions.cancel.peakTitle', { locale: $lang })}</h4>
+                                    <p class="text-sm text-muted-foreground leading-tight">{$_('bookingActions.cancel.peakDesc', { locale: $lang })}</p>
                                 </Card.Content>
                             </Card.Root>
                             
@@ -136,8 +138,8 @@
                                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
                                         <TrendingUp class="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
                                     </div>
-                                    <h4 class="font-semibold text-sm sm:text-sm">Best Success Window</h4>
-                                    <p class="text-sm text-muted-foreground leading-tight">1-2 days before departure is when most tickets get successfully booked</p>
+                                    <h4 class="font-semibold text-sm sm:text-sm">{$_('bookingActions.cancel.windowTitle', { locale: $lang })}</h4>
+                                    <p class="text-sm text-muted-foreground leading-tight">{$_('bookingActions.cancel.windowDesc', { locale: $lang })}</p>
                                 </Card.Content>
                             </Card.Root>
                             
@@ -146,29 +148,29 @@
                                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 dark:bg-amber-900 rounded-full flex items-center justify-center">
                                         <Clock class="h-5 w-5 sm:h-6 sm:w-6 text-amber-600 dark:text-amber-400" />
                                     </div>
-                                    <h4 class="font-semibold text-sm sm:text-sm">Patience Pays Off</h4>
-                                    <p class="text-sm text-muted-foreground leading-tight">Our 99% success rate comes from customers who wait for the optimal booking window</p>
+                                    <h4 class="font-semibold text-sm sm:text-sm">{$_('bookingActions.cancel.patienceTitle', { locale: $lang })}</h4>
+                                    <p class="text-sm text-muted-foreground leading-tight">{$_('bookingActions.cancel.patienceDesc', { locale: $lang })}</p>
                                 </Card.Content>
                             </Card.Root>
                         </div>
                         
                         <Alert.Root class="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950 p-3 sm:p-4">
                             <Clock class="h-4 w-4" />
-                            <Alert.Title class="text-base sm:text-base">Pro Tip</Alert.Title>
+                            <Alert.Title class="text-base sm:text-base">{$_('bookingActions.cancel.proTipTitle', { locale: $lang })}</Alert.Title>
                             <Alert.Description class="text-sm sm:text-sm leading-relaxed">
-                                Since you're closer to your departure date, you're actually in the sweet spot where tickets are most likely to become available. 
-                                <strong>Most of our successful bookings happen within 48 hours of departure!</strong>
+                                {$_('bookingActions.cancel.proTipBody', { locale: $lang })}
+                                <strong>{$_('bookingActions.cancel.proTipEmphasis', { locale: $lang })}</strong>
                             </Alert.Description>
                         </Alert.Root>
                         
                         <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
                             <Button variant="default" on:click={stayWithBooking} class="flex-1 h-11 sm:h-10">
                                 <Clock class="mr-2 h-4 w-4" />
-                                Keep My Booking & Wait
+                                {$_('bookingActions.cancel.keepWait', { locale: $lang })}
                             </Button>
                             <Button variant="outline" on:click={proceedToCancellation} class="flex-1 h-11 sm:h-10">
                                 <LucideTrash2 class="mr-2 h-4 w-4" />
-                                Still Cancel
+                                {$_('bookingActions.cancel.stillCancel', { locale: $lang })}
                             </Button>
                         </div>
                     </div>
@@ -176,44 +178,41 @@
                     <!-- Original Cancellation Step -->
                     <div class="flex flex-col gap-4">
                         <p class="text-justify py-2 text-base">
-                            Cancel this booking for {booking.passenger.fullName}. All money
-                            paid will be refunded. This action cannot be undone.
+                            {$_('bookingActions.cancel.intro', { locale: $lang, values: { name: booking.passenger.fullName } })}
                         </p>
                         <Alert.Root>
                             <AlertTriangle class="h-4 w-4"/>
-                            <Alert.Title>Take Note!</Alert.Title>
+                            <Alert.Title>{$_('bookingActions.cancel.takeNoteTitle', { locale: $lang })}</Alert.Title>
                             <Alert.Description>
-                                Cancelling a booking will invalid all discounts applied to it.
-                                If you were to rebook, you will have to reapply the discounts,
-                                and you will be pushed to the back of the queue.
+                                {$_('bookingActions.cancel.takeNoteBody', { locale: $lang })}
                             </Alert.Description>
                         </Alert.Root>
 
                         <p class="text-justify py-2 text-base">
-                            Please type the name of the passenger, <code
+                            {$_('bookingActions.cancel.typeNameBefore', { locale: $lang })} <code
                                 class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
                             {booking.passenger.fullName}
-                        </code> to proceed.
+                        </code> {$_('bookingActions.cancel.typeNameAfter', { locale: $lang })}
                         </p>
 
                         <div class="flex flex-col gap-4">
-                            <Input placeholder="Name"
+                            <Input placeholder={$_('fields.name', { locale: $lang })}
                                    bind:value={confirm}
                             />
                             <div class="text-base text-destructive {valid ? 'opacity-0' : 'opacity-1'}">
-                                Please type the name of the passenger of the booking to proceed.
+                                {$_('bookingActions.cancel.typeNameError', { locale: $lang })}
                             </div>
                         </div>
 
                         <div class="flex gap-3">
                             <Button variant="outline" on:click={() => showCancellationStep = false} class="flex-1">
-                                Go Back
+                                {$_('actions.back', { locale: $lang })}
                             </Button>
                             <Button variant="destructive" class="flex-1" on:click={submit} disabled={submitting || !valid}>
                                 {#if submitting}
                                     <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                                 {/if}
-                                Cancel Booking
+                                {$_('bookingActions.cancel.confirmButton', { locale: $lang })}
                             </Button>
                         </div>
                     </div>

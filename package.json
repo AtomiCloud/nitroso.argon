@@ -7,10 +7,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "npm run test:integration && npm run test:unit",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && npm run i18n:check",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test:integration": "playwright test",
-    "test:unit": "vitest"
+    "test:unit": "vitest",
+    "i18n:check": "node scripts/i18n-check.mjs",
+    "i18n:sweep": "node scripts/i18n-sweep.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.28.1",
@@ -47,6 +49,7 @@
     "mode-watcher": "^0.2.1",
     "moment": "^2.30.1",
     "moment-timezone": "^0.5.45",
+    "svelte-i18n": "4.0.1",
     "svelte-icons-pack": "^2.1.0",
     "svelte-radix": "^1.0.1",
     "svelte-sonner": "^0.3.11",

@@ -32,6 +32,8 @@
     import CancelWithdrawal from "$lib/components/entities/Withdrawals/CancelWithdrawal.svelte";
     import type {PageData} from "./$types";
     import {format, parse} from "date-fns";
+    import {_} from "svelte-i18n";
+    import {lang, formatMoney, formatDateTime} from "$lib/i18n";
 
     export let data: PageData;
 
@@ -71,6 +73,14 @@
 
     let withdrawStatus: Selected<string> | undefined = WITHDRAWAL_STATUS[status];
 
+    // Keep the closed-trigger label localized for deep-linked / language-switched
+    // state; the menu items are already translated but `Selected.label` defaults
+    // to the English constant.
+    $: if (withdrawStatus?.value) {
+        const translated = $_(`withdrawals.status.${withdrawStatus.value}`, { locale: $lang });
+        if (withdrawStatus.label !== translated) withdrawStatus = { ...withdrawStatus, label: translated };
+    }
+
     let dateFilter: DateRange = {
         start: toCalDate($page.url.searchParams.get("after") || ""),
         end: toCalDate($page.url.searchParams.get("before") || ""),
@@ -106,38 +116,38 @@
         <div class="flex justify-center sm:justify-between gap-4 flex-wrap py-8 items-center text-foreground max-w-[1200px] w-11/12 mx-auto">
 
             <div class="text-3xl lg:text-4xl">
-                Withdrawal
+                {$_('withdrawals.list.title', { locale: $lang })}
 
             </div>
             <div class="flex flex-col justify-center items-center font-light">
-                <div class="text-2xl">S${$page.data.user?.wallet?.usable?.toFixed(2) ?? "0.00" }</div>
-                <div>Balance</div>
+                <div class="text-2xl">{formatMoney($page.data.user?.wallet?.usable ?? 0, $lang)}</div>
+                <div>{$_('fields.balance', { locale: $lang })}</div>
             </div>
         </div>
 
     </div>
     <div class="flex flex-col gap-4 w-11/12 max-w-[1200px] mx-auto my-12">
         {#if session?.roles?.includes("admin")}
-            <Input placeholder="Filter by ID..." bind:value={withdrawalId} on:input={triggerSearch}/>
-            <Input placeholder="Filter by user ID..." bind:value={userId} on:input={triggerSearch}/>
-            <Input placeholder="Filter by completer ID..." bind:value={completerId} on:input={triggerSearch}/>
+            <Input placeholder={$_('withdrawals.list.filterById', { locale: $lang })} bind:value={withdrawalId} on:input={triggerSearch}/>
+            <Input placeholder={$_('withdrawals.list.filterByUserId', { locale: $lang })} bind:value={userId} on:input={triggerSearch}/>
+            <Input placeholder={$_('withdrawals.list.filterByCompleterId', { locale: $lang })} bind:value={completerId} on:input={triggerSearch}/>
         {/if}
         <div class="flex flex-wrap gap-4 w-full">
             <DateRangePicker
                     onValueChange={dateFilterChange}
                     bind:value={dateFilter}
-                    placeholder="Filter by date range"
+                    placeholder={$_('withdrawals.list.filterByDateRange', { locale: $lang })}
                     numberOfMonths={1}
             />
             <Select.Root bind:selected={withdrawStatus} onSelectedChange={statusChange}>
                 <Select.Trigger class="w-full lg:max-w-60">
                     <ArrowLeftRight class="mr-2 h-4 w-4"/>
-                    <Select.Value placeholder="Status"/>
+                    <Select.Value placeholder={$_('fields.status', { locale: $lang })}/>
                 </Select.Trigger>
                 <Select.Content>
-                    <Select.Item value="">None</Select.Item>
+                    <Select.Item value="">{$_('withdrawals.list.statusNone', { locale: $lang })}</Select.Item>
                     {#each Object.entries(WITHDRAWAL_STATUS) as [label, val]}
-                        <Select.Item value={val.value}>{label}</Select.Item>
+                        <Select.Item value={val.value}>{$_(`withdrawals.status.${val.value}`, { locale: $lang })}</Select.Item>
                     {/each}
                 </Select.Content>
             </Select.Root>
@@ -151,19 +161,15 @@
         {#await withdrawals}
             <Loader/>
         {:then ws}
-            <Page notFoundMessage="Withdrawals not found" empty={ws.length === 0}>
+            <Page notFoundMessage={$_('withdrawals.list.notFound', { locale: $lang })} empty={ws.length === 0}>
                 <div class="flex flex-col gap-4 my-4">
                     {#each ws as w}
                         <Card.Root>
                             <Card.Header>
-                                <Card.Title>S${w.record.amount.toFixed(2)} to
-                                    PayNow {w.record.payNowNumber}</Card.Title>
+                                <Card.Title>{$_('withdrawals.card.amountToPayNow', { locale: $lang, values: { amount: formatMoney(w.record.amount, $lang), payNowNumber: w.record.payNowNumber } })}</Card.Title>
                                 <div class="flex justify-between py-2">
-                                    <Card.Description>{new Date(w.createAt).toLocaleString(undefined, {
-                                        dateStyle: 'medium',
-                                        timeStyle: 'medium'
-                                    })}</Card.Description>
-                                    <Badge class="{WITHDRAWAL_STATUS_BADGE[w.status.status ?? ''].color}">{WITHDRAWAL_STATUS_BADGE[w.status.status ?? ""].display}</Badge>
+                                    <Card.Description>{formatDateTime(w.createAt, $lang)}</Card.Description>
+                                    <Badge class="{WITHDRAWAL_STATUS_BADGE[w.status.status ?? ''].color}">{$_(`withdrawals.status.${w.status.status ?? ''}`, { locale: $lang })}</Badge>
                                 </div>
 
                             </Card.Header>
@@ -181,7 +187,7 @@
                                         {/if}
                                     </div>
                                     <Button href="/withdrawals/{w.id}" variant="ghost" class="w-full lg:max-w-40">
-                                        View Details
+                                        {$_('withdrawals.card.viewDetails', { locale: $lang })}
                                     </Button>
 
                                 </div>

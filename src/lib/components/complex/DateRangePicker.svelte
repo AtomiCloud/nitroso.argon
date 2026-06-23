@@ -1,16 +1,14 @@
 <script lang="ts">
     import type {DateRange} from "bits-ui";
-    import {DateFormatter, getLocalTimeZone} from "@internationalized/date";
+    import {getLocalTimeZone} from "@internationalized/date";
     import {cn} from "$lib/utils";
     import {Button} from "$lib/components/ui/button";
     import {RangeCalendar} from "$lib/components/ui/range-calendar";
     // @ts-ignore
     import * as Popover from "$lib/components/ui/popover";
     import {CalendarIcon} from "lucide-svelte";
+    import {lang, formatCalendarDate} from "$lib/i18n";
 
-    const df = new DateFormatter("en-US", {
-        dateStyle: "medium"
-    });
     export let value: DateRange;
     export let onValueChange: (d: DateRange) => void;
     export let numberOfMonths: number;
@@ -33,11 +31,11 @@
                 <CalendarIcon class="mr-2 h-4 w-4"/>
                 {#if value && value.start}
                     {#if value.end}
-                        {df.format(value.start.toDate(getLocalTimeZone()))} - {df.format(
-                        value.end.toDate(getLocalTimeZone())
+                        {formatCalendarDate(value.start.toDate(getLocalTimeZone()), $lang)} - {formatCalendarDate(
+                        value.end.toDate(getLocalTimeZone()), $lang
                     )}
                     {:else}
-                        {df.format(value.start.toDate(getLocalTimeZone()))}
+                        {formatCalendarDate(value.start.toDate(getLocalTimeZone()), $lang)}
                     {/if}
                 {:else}
                     {placeholder}

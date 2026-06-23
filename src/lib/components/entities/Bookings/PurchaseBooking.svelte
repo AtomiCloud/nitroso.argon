@@ -13,6 +13,8 @@
     import {goto} from "$app/navigation";
     import {format, parse} from "date-fns";
     import type {ZodIssue} from "zod";
+    import {_} from "svelte-i18n";
+    import {lang, formatCalendarDate, formatClockTime} from "$lib/i18n";
 
 
     export let checked: boolean;
@@ -54,15 +56,11 @@
     }
 
     function toDisplayDate(date: string) {
-        return format(toNativeDate(date), "dd MMM yyyy");
+        return formatCalendarDate(toNativeDate(date), $lang);
     }
 
     function displayTime(time: string): string {
-        return new Date(`1970-01-01T${time}`).toLocaleTimeString(undefined, {
-            hourCycle: "h12",
-            timeStyle: "short",
-        });
-
+        return formatClockTime(time, $lang);
     }
 
     function track() {
@@ -78,16 +76,16 @@
                 passportExpiry: format(passenger.passportExpiry, "dd-MM-yyyy"),
                 gender: passenger.gender,
                 passportNumber: passenger.passportNumber,
-            }), "Failed to create passenger")
+            }), $_('bookingActions.purchase.createPassengerError', { locale: $lang }))
                 .andThen(() => toResult(() => $api.vBookingPurchaseCreate(userId, "1", {
                     date, time, direction, passenger: {
                         ...passenger,
                         passportExpiry: format(passenger.passportExpiry, "dd-MM-yyyy"),
                     }
-                }), "Failed to purchase booking"))
+                }), $_('bookingActions.purchase.error', { locale: $lang })))
                 .match({
                     ok: ok => {
-                        toast.info(`Successfully purchased booking`);
+                        toast.info($_('bookingActions.purchase.success', { locale: $lang }));
                         redirectSuccess();
                     },
                     err: (e) => {
@@ -102,10 +100,10 @@
                     ...passenger,
                     passportExpiry: format(passenger.passportExpiry, "dd-MM-yyyy"),
                 }
-            }), "Failed to purchase booking")
+            }), $_('bookingActions.purchase.error', { locale: $lang }))
                 .match({
                     ok: ok => {
-                        toast.info(`Successfully purchased booking`);
+                        toast.info($_('bookingActions.purchase.success', { locale: $lang }));
                         redirectSuccess();
                     },
                     err: (e) => {
@@ -125,51 +123,50 @@
 <Dialog.Root bind:open={dialogOpen}>
     <Dialog.Trigger on:click={track} class="{buttonVariants({ variant: 'default' })}" disabled={!isValid}>
         <ShoppingBasket class="mr-2 h-4 w-4"/>
-        Purchase
+        {$_('bookingActions.purchase.trigger', { locale: $lang })}
     </Dialog.Trigger>
     <Dialog.Content>
         <Dialog.Header>
-            <Dialog.Title>Purchase Booking</Dialog.Title>
+            <Dialog.Title>{$_('bookingActions.purchase.title', { locale: $lang })}</Dialog.Title>
             <Dialog.Description>
                 <div class="flex flex-col gap-4">
                     <p class="text-justify py-2">
-                        Purchase booking request for train ticket on <code
+                        {$_('bookingActions.purchase.requestBefore', { locale: $lang })} <code
                             class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
                         {toDisplayDate(date)}, {displayTime(time)}
-                    </code> from <code
+                    </code> {$_('bookingActions.purchase.requestFrom', { locale: $lang })} <code
                             class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
-                        {direction === "JToW" ? "Johor to Woodlands" : "Woodlands to Johor"}
-                    </code>.
+                        {direction === "JToW" ? $_('bookingActions.purchase.johorToWoodlands', { locale: $lang }) : $_('bookingActions.purchase.woodlandsToJohor', { locale: $lang })}
+                    </code>{$_('bookingActions.purchase.requestAfter', { locale: $lang })}
 
                     </p>
                     <Alert.Root>
                         <AlertTriangle class="h-4 w-4"/>
-                        <Alert.Title> Important</Alert.Title>
+                        <Alert.Title>{$_('bookingActions.purchase.importantTitle', { locale: $lang })}</Alert.Title>
                         <Alert.Description>
-                            BunnyBooker is not responsible if you enter incorrect information. Please
-                            check your information (below) before proceeding to your purchase.
+                            {$_('bookingActions.purchase.importantBody', { locale: $lang })}
                         </Alert.Description>
                     </Alert.Root>
 
 
                     <div class="my-8">
                         <div class="flex justify-between">
-                            <div class="font-bold">Full Name</div>
+                            <div class="font-bold">{$_('fields.fullName', { locale: $lang })}</div>
                             <div>{passenger.fullName}</div>
                         </div>
                         <div class="flex justify-between">
-                            <div class="font-bold">Passport Expiry</div>
-                            <div>{format(new Date(passenger.passportExpiry), "do MMM yyyy")}</div>
+                            <div class="font-bold">{$_('bookingActions.purchase.passportExpiry', { locale: $lang })}</div>
+                            <div>{formatCalendarDate(new Date(passenger.passportExpiry), $lang)}</div>
                         </div>
 
                         <div class="flex justify-between">
-                            <div class="font-bold">Passport Number</div>
+                            <div class="font-bold">{$_('fields.passportNumber', { locale: $lang })}</div>
                             <div>{passenger.passportNumber}</div>
                         </div>
 
                         <div class="flex justify-between">
-                            <div class="font-bold">Gender</div>
-                            <div>{passenger.gender === "M" ? "Male" : "Female"}</div>
+                            <div class="font-bold">{$_('fields.gender', { locale: $lang })}</div>
+                            <div>{passenger.gender === "M" ? $_('bookingActions.purchase.male', { locale: $lang }) : $_('bookingActions.purchase.female', { locale: $lang })}</div>
                         </div>
                     </div>
 
@@ -177,7 +174,7 @@
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                         {/if}
-                        Purchase
+                        {$_('bookingActions.purchase.trigger', { locale: $lang })}
                     </Button>
                 </div>
             </Dialog.Description>

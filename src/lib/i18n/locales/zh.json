@@ -1,0 +1,1038 @@
+{
+  "common": {
+    "appName": "BunnyBooker"
+  },
+  "nav": {
+    "bookNow": "立即预订"
+  },
+  "account": {
+    "costs": "费用",
+    "discounts": "折扣",
+    "wallets": "钱包",
+    "users": "用户",
+    "balance": "余额：{amount}",
+    "manageBookings": "管理预订",
+    "passengers": "乘客",
+    "withdrawals": "提款",
+    "transactions": "交易记录",
+    "profile": "个人资料",
+    "logout": "登出",
+    "signIn": "登录"
+  },
+  "theme": {
+    "toggle": "切换主题"
+  },
+  "language": {
+    "label": "语言"
+  },
+  "actions": {
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "create": "创建",
+    "update": "更新",
+    "confirm": "确认",
+    "close": "关闭",
+    "back": "返回",
+    "submit": "提交",
+    "add": "添加",
+    "remove": "移除",
+    "approve": "批准",
+    "reject": "拒绝",
+    "search": "搜索",
+    "retry": "重试",
+    "view": "查看",
+    "copy": "复制",
+    "download": "下载",
+    "yes": "是",
+    "no": "否",
+    "loading": "加载中...",
+    "processing": "处理中..."
+  },
+  "fields": {
+    "email": "电子邮件",
+    "name": "姓名",
+    "firstName": "名字",
+    "lastName": "姓氏",
+    "fullName": "全名",
+    "phone": "电话",
+    "amount": "金额",
+    "status": "状态",
+    "date": "日期",
+    "time": "时间",
+    "actions": "操作",
+    "description": "描述",
+    "quantity": "数量",
+    "price": "价格",
+    "total": "总计",
+    "notes": "备注",
+    "reason": "原因",
+    "address": "地址",
+    "dateOfBirth": "出生日期",
+    "passportNumber": "护照号码",
+    "nationality": "国籍",
+    "gender": "性别",
+    "balance": "余额"
+  },
+  "errors": {
+    "required": "必填",
+    "invalidNumber": "无效数字",
+    "mustBePositive": "数字必须为正数",
+    "generic": "出错了",
+    "notFound": "未找到",
+    "loadFailed": "加载失败",
+    "load": {
+      "bookings": "获取预订失败",
+      "booking": "获取预订失败",
+      "discounts": "获取折扣失败",
+      "schedule": "获取班次失败",
+      "timing": "获取时刻失败",
+      "counts": "获取数量失败",
+      "cost": "获取费用失败",
+      "costs": "获取费用失败",
+      "passengers": "获取乘客失败",
+      "transactions": "获取交易失败",
+      "transaction": "获取交易失败",
+      "wallets": "获取钱包失败",
+      "wallet": "获取钱包失败",
+      "withdrawals": "获取提现失败",
+      "withdrawal": "获取提现失败",
+      "users": "获取用户失败",
+      "user": "获取用户失败"
+    }
+  },
+  "admin": {
+    "users": {
+      "searchByUsername": "按用户名搜索",
+      "searchByUserId": "按用户 ID 搜索",
+      "searchByEmail": "按电子邮件搜索",
+      "usernamePlaceholder": "输入用户名…",
+      "userIdPlaceholder": "输入用户 ID…",
+      "emailPlaceholder": "输入电子邮件…",
+      "noUsersFound": "未找到用户",
+      "notAvailable": "无",
+      "verified": "已验证",
+      "unverified": "未验证",
+      "roles": "角色",
+      "noRoles": "无",
+      "viewDetails": "查看详情",
+      "userNotFound": "找不到该用户",
+      "userHeading": "用户",
+      "userData": "用户数据",
+      "userDataDescription": "快速访问 {username} 的相关信息",
+      "transactions": "交易",
+      "bookings": "预订",
+      "passengers": "乘客",
+      "withdrawals": "提现"
+    },
+    "costs": {
+      "currentPrice": "当前价格：{price}",
+      "newCostPlaceholder": "新价格",
+      "updateCost": "更新价格",
+      "costUpdated": "价格已更新",
+      "notFound": "找不到提现记录"
+    }
+  },
+  "bookingActions": {
+    "card": {
+      "woodlands": "兀兰",
+      "jbSentral": "新山中央",
+      "started": "开始于 {datetime}",
+      "actions": "操作",
+      "viewTicket": "查看车票",
+      "owner": "所有者：",
+      "passportExpiresOn": "护照到期日",
+      "ticketInformation": "车票信息",
+      "ticketNo": "车票编号：{value}",
+      "bookingNo": "预订编号：{value}",
+      "completedOn": "完成于 {datetime}",
+      "statusOn": "{status} 于 {datetime}"
+    },
+    "row": {
+      "revertSuccess": "已成功将购买状态还原为待处理",
+      "revertError": "将购买状态还原为待处理失败",
+      "clickToRevert": "{status}（点击还原）",
+      "viewDetails": "查看详情"
+    },
+    "cancel": {
+      "stayToast": "好选择！您的预订仍然有效。大多数车票会在出发前1-2天可用。",
+      "success": "已成功取消预订",
+      "error": "取消预订失败",
+      "title": "取消预订",
+      "educationTitle": "等一下！在您取消之前……",
+      "eduHeading": "您知道大多数车票会在出发前1-2天才可用吗？",
+      "eduSubheading": "以下是我们的数据所显示的 KTMB 车票规律：",
+      "peakTitle": "取消高峰",
+      "peakDesc": "大多数人因临时改变计划而在出发前1-2天取消",
+      "windowTitle": "最佳成功时段",
+      "windowDesc": "出发前1-2天是大多数车票成功预订的时候",
+      "patienceTitle": "耐心终有回报",
+      "patienceDesc": "我们99%的成功率来自于那些等待最佳预订时段的客户",
+      "proTipTitle": "专业提示",
+      "proTipBody": "由于您距离出发日期更近，您实际上正处于车票最有可能可用的最佳时段。",
+      "proTipEmphasis": "我们大多数成功的预订都发生在出发前48小时内！",
+      "keepWait": "保留我的预订并等待",
+      "stillCancel": "仍要取消",
+      "intro": "取消 {name} 的此预订。所有已支付的款项将获退还。此操作无法撤销。",
+      "takeNoteTitle": "请注意！",
+      "takeNoteBody": "取消预订将使应用于该预订的所有折扣失效。如果您重新预订，您将必须重新申请折扣，并且会被排到队列的末尾。",
+      "typeNameBefore": "请输入乘客的姓名，",
+      "typeNameAfter": "以继续。",
+      "typeNameError": "请输入该预订乘客的姓名以继续。",
+      "confirmButton": "取消预订"
+    },
+    "purchase": {
+      "success": "已成功购买预订",
+      "error": "购买预订失败",
+      "createPassengerError": "创建乘客失败",
+      "trigger": "购买",
+      "title": "购买预订",
+      "requestBefore": "购买预订请求，火车票日期为",
+      "requestFrom": "从",
+      "requestAfter": "。",
+      "johorToWoodlands": "新山至兀兰",
+      "woodlandsToJohor": "兀兰至新山",
+      "importantTitle": "重要",
+      "importantBody": "如果您输入了错误的信息，BunnyBooker 概不负责。请在继续购买前核对您的信息（如下）。",
+      "passportExpiry": "护照到期日",
+      "male": "男",
+      "female": "女"
+    },
+    "terminate": {
+      "success": "已成功终止预订",
+      "error": "终止预订失败",
+      "trigger": "终止",
+      "title": "终止预订",
+      "intro": "我们的小兔子们已经成功在 KITS 上为您锁定了车票！终止此车票会将您的车票释放回 KITS。",
+      "takeNoteTitle": "请注意！",
+      "takeNoteBefore": "终止预订只会退还",
+      "refundPercent": "50%",
+      "takeNoteAfter": "您所支付车票价格的金额。这是为了防止滥用系统。",
+      "typeNameBefore": "请输入乘客的姓名，",
+      "typeNameAfter": "以继续。",
+      "typeNameError": "请输入该预订乘客的姓名以继续。",
+      "confirmButton": "终止预订"
+    }
+  },
+  "bookings": {
+    "list": {
+      "title": "预订",
+      "filterByUserId": "按用户 ID 筛选...",
+      "selectDate": "选择日期",
+      "none": "无",
+      "woodlandsToJb": "兀兰前往新山",
+      "woodlandsToJbSentral": "兀兰前往新山中央",
+      "jbToWoodlands": "新山前往兀兰",
+      "jbSentralToWoodlands": "新山中央前往兀兰",
+      "empty": "未找到预订"
+    },
+    "detail": {
+      "title": "预订",
+      "notFound": "找不到预订"
+    },
+    "purchase": {
+      "title": "购买预订",
+      "directionJToW": "新山中央前往兀兰",
+      "directionWToJ": "兀兰前往新山中央",
+      "selectExistingPassenger": "选择现有乘客",
+      "passenger": "乘客",
+      "none": "无",
+      "passengerDetails": "乘客详情",
+      "fullNamePlaceholder": "与护照一致的全名",
+      "passportNumberPlaceholder": "护照号码",
+      "passportExpiry": "护照有效期",
+      "male": "男",
+      "female": "女",
+      "savePassenger": "保存此乘客",
+      "bookingCost": "预订费用",
+      "insufficientBalance": "余额不足",
+      "yourBalance": "您的余额",
+      "depositNow": "立即充值",
+      "fullNameMin": "全名长度至少为 1 个字符",
+      "fullNameMax": "全名长度最多为 512 个字符",
+      "fullNameRegex": "全名只能包含字母和特殊字符 @ . / ' , - ` *",
+      "passportNumberRegex": "护照号码只能包含字母和数字",
+      "passportNumberMin": "护照号码长度至少为 1 个字符",
+      "passportNumberMax": "护照号码长度最多为 20 个字符",
+      "passportExpiryMin": "护照有效期必须距离车票日期至少 6 个月"
+    },
+    "success": {
+      "title": "成功！",
+      "message": "已成功购买预订",
+      "balance": "余额：{amount}",
+      "purchaseAnother": "再购买一个预订",
+      "viewBookings": "查看预订"
+    }
+  },
+  "discounts": {
+    "list": {
+      "none": "无",
+      "discountType": "折扣类型",
+      "matchMode": "匹配模式",
+      "notFound": "找不到折扣",
+      "providesDiscount": "提供 {amount} 折扣，适用于",
+      "and": "且",
+      "or": "或",
+      "enabledToast": "已成功启用折扣",
+      "disabledToast": "已成功停用折扣",
+      "updateError": "更新折扣失败"
+    },
+    "create": {
+      "trigger": "创建折扣",
+      "title": "创建新折扣",
+      "intro": "创建适用于满足特定条件成员的新折扣。",
+      "takeNote": "请注意！",
+      "noteBody": "折扣自创建之时起即刻生效。您可以随时停用它们。",
+      "amountPlaceholder": "折扣金额",
+      "toggle": "切换 {label}",
+      "matchType": "匹配类型",
+      "matchTarget": "匹配目标",
+      "addMatchTarget": "添加匹配目标",
+      "createdToast": "已成功创建折扣 '{name}'",
+      "createError": "创建折扣失败"
+    },
+    "update": {
+      "trigger": "更新折扣",
+      "title": "编辑折扣",
+      "intro": "编辑适用于满足特定条件成员的现有折扣。",
+      "takeNote": "请注意！",
+      "noteBody": "折扣自更新之时起即刻生效。您可以随时停用它们。",
+      "updatedToast": "已成功更新折扣 '{name}'",
+      "updateError": "更新折扣失败"
+    },
+    "delete": {
+      "trigger": "删除折扣",
+      "title": "删除折扣",
+      "intro": "删除折扣。此操作不可逆。",
+      "takeNote": "请注意！",
+      "noteBody": "折扣自删除之时起即刻生效。此操作无法撤销。",
+      "confirmPrefix": "请输入折扣的名称，",
+      "confirmSuffix": "以继续。",
+      "typeNameHint": "请输入折扣的名称以继续。",
+      "deletedToast": "已成功删除折扣 '{name}'",
+      "deleteError": "删除折扣失败"
+    }
+  },
+  "landing": {
+    "notFound": "找不到主页面",
+    "meta": {
+      "title": "BunnyBooker - 您无压力的 KTMB 火车票预订助手 | 新加坡至新山",
+      "description": "通过 BunnyBooker 轻松预订从新加坡到新山的 KTMB 火车票。99% 成功率、自动预订、全天候服务。免去排队，让我们的 AI 为您处理火车票预订。",
+      "keywords": "KTMB 火车票, 新加坡至新山, JB Sentral, 自动预订, 火车票预订, 马来西亚新加坡旅行, 跨境交通",
+      "ogTitle": "BunnyBooker - 自动 KTMB 火车票预订",
+      "ogDescription": "省去手动预订 KTMB（新加坡-新山火车）的麻烦。我们的 AI 兔子以 99% 的成功率自动为您锁定火车票。无压力预订新加坡-新山火车票！",
+      "twitterDescription": "省去手动预订 KTMB 的麻烦。我们的 AI 兔子以 99% 的成功率自动为您锁定火车票。"
+    },
+    "hero": {
+      "ariaLabel": "主视觉区域",
+      "mascotAlt": "BunnyBooker 吉祥物 - 代表自动 KTMB 火车票预订服务的友好兔子角色",
+      "subtitle": "每个人都应享受舒适的 KTMB 前往新山的火车之旅。我们帮您避开排队和人潮。",
+      "cta": "锁定我的车票",
+      "seeHowItWorks": "查看运作方式"
+    },
+    "steps": {
+      "step1": {
+        "label": "步骤 1",
+        "title": "选择您的日期和时间",
+        "body": "只需选择您的出行日期和时间，剩下的交给我们的 AI。设置一次即可，无需再不停刷新。",
+        "imageAlt": "步骤 1：选择日期和时间界面，显示日历和时间选择"
+      },
+      "step2": {
+        "label": "步骤 2",
+        "title": "坐下来放松",
+        "body": "不再为车票售罄而烦恼。我们的 AI 全天候监控 KTMB，让您专注于规划旅程，而不必费心抢票。",
+        "imageAlt": "步骤 2：坐下来放松，让我们的兔子为您整理预订"
+      },
+      "step3": {
+        "label": "步骤 3",
+        "title": "让我们的兔子去搜寻",
+        "body": "我们的 AI 每秒扫描新释出的车票，在它们消失前立即出手抢下。",
+        "imageAlt": "步骤 3"
+      },
+      "step4": {
+        "label": "步骤 4",
+        "title": "即时预订",
+        "body": "闪电般的执行速度。车票一释出，我们的系统就在别人察觉之前为您锁定。",
+        "imageAlt": "步骤 4"
+      },
+      "step5": {
+        "label": "步骤 5",
+        "title": "获得通知并核对预订详情",
+        "body": "车票一经预订，您将立即收到包含所有车票详情的通知。在我们友好易用的门户上查看并核对信息，享受无压力的出行体验！",
+        "imageAlt": "步骤 5"
+      }
+    },
+    "whyChoose": {
+      "heading": "为什么选择 BunnyBooker？",
+      "moneyBack": {
+        "title": "退款保证",
+        "body": "如果我们无法为您锁定车票，将退还您的款项"
+      },
+      "instantUpdates": {
+        "title": "即时更新",
+        "body": "车票锁定后第一时间通知您"
+      },
+      "successRate": {
+        "title": "高成功率",
+        "body": "我们 99% 的预订都成功"
+      },
+      "available": {
+        "title": "全天候服务",
+        "body": "我们的系统昼夜不停运作"
+      }
+    },
+    "reviews": {
+      "heading": "成功案例",
+      "viewAll": "查看所有评价",
+      "joinTagline": "加入数千名信赖 BunnyBooker 的快乐旅客！",
+      "readMore": "阅读更多 →",
+      "trustedBy": "1,000+ 旅客的信赖之选",
+      "stats": {
+        "successRate": "成功率",
+        "bookingsMade": "已完成预订",
+        "automatedService": "自动化服务"
+      },
+      "locations": {
+        "singapore": "新加坡"
+      },
+      "items": {
+        "csyhue": "服务出色，预订无缝衔接。使用这个平台很久了，总能抢到票！强烈推荐！",
+        "fhong": "友好可靠的卖家。你得亲自试过才会相信。我们在出发日前一天就拿到了票。强烈推荐 👍🏼👍🏼",
+        "reappraisal": "购买 2 张 KTMB 车票非常顺利。完全不用排队，为我们节省了很多时间。绝对推荐且值得信赖。谢谢",
+        "clarrence": "使用起来超级简单直接！用过两次服务，两次都拿到了 100% 的车票！如果你打算前往新山，这是一个非常可靠的服务！满分推荐！",
+        "melissatan": "绝对棒极了！为我省去了自己预订 KTMB 车票数小时的烦恼。两天内拿到了全家出行所需的全部 4 张票。一定会再次使用！",
+        "davidlim88": "新山之旅的游戏规则改变者！不再为车票售罄而烦恼。系统运作完美，即使在假期高峰期也帮我们拿到了车票。强烈推荐给经常出行的旅客！",
+        "sarahTravels": "我每月去新山购物都用 BunnyBooker。从未抢不到票！客服响应迅速，整个流程非常便利。物超所值！"
+      }
+    },
+    "faq": {
+      "heading": "常见问题",
+      "bb": {
+        "policyLinkBefore": "有关配送、取消和退款政策的更多信息，请参阅",
+        "policyLinkText": "这里",
+        "q1": {
+          "question": "BunnyBooker 是如何运作的？",
+          "answer1": "您下单后，我们会使用 AI 系统预测车票何时会在 KTMB 网站上被退票或重新释出。一旦与您订单匹配的时段被退票并在 KTMB 网站上可订，我们就会代您预订车票。",
+          "answer2": "我们的系统不囤积任何火车票，仅根据待处理的订单进行预订。"
+        },
+        "q2": {
+          "question": "我为什么应该通过 BunnyBooker 购票？",
+          "convenienceTitle": "便利",
+          "convenienceBody": "在 BunnyBooker 上购票可省去您不断前往 KTMB 网站查询车票余量的时间和麻烦，因为我们的系统会在车票一可订时立即查询并预订。",
+          "statusTitle": "随时随地查看订单状态",
+          "statusBody1": "BunnyBooker 让您可以随时查看订单状态，以便决定下一步的旅行安排。",
+          "statusBody2": "您将能够查看每个订单中每张车票的状态，状态为「已购买」或「待处理」。",
+          "queueTitle": "查看车票排队情况以规划行程",
+          "queueBody1": "BunnyBooker 让您可以查看在您所选当天和列车方向的所有时段中，排在您前面的待处理车票数量。",
+          "queueBody2": "例如：顾客 1 为 3 人下单了 2023 年 12 月 31 日上午 8.30 CIQ -> JB SENTRAL 的车票，顾客 2 想为 5 人下单同一方向、日期和时间的车票。BunnyBooker 队列将为顾客 2 显示「3 张待处理车票」，让她可以明智地决定是否要为同一时段下单或选择其他时段。",
+          "safeTitle": "安全",
+          "safeBody": "BunnyBooker 遵守 PDPA，仅保留您自愿提供用于完成预订订单的信息，以及在您同意的情况下保留营销信息。"
+        },
+        "q3": {
+          "question": "我如何查看订单的购买状态？",
+          "answerBefore": "您可以登录",
+          "answerAfter": "并查看您的订单状态。"
+        },
+        "q4": {
+          "question": "订单确认后我可以更改订单吗？",
+          "answer": "您可以随时取消车票。但是，如果车票已被我们的系统锁定，已取消的车票将不予退款。"
+        },
+        "q5": {
+          "question": "允许退款吗？",
+          "answer": "对于尚未被我们系统锁定的车票，提供全额退款。但是，已被我们系统锁定的车票可以取消，但不符合退款资格。"
+        },
+        "q6": {
+          "question": "BunnyBooker 允许预订未释出的车票吗？",
+          "answer": "允许预订尚未释出的车票。您下单的日期可以提前多久没有任何限制。"
+        },
+        "q7": {
+          "question": "我的个人数据是如何处理的？",
+          "item1": "所有个人数据在数据库中静态加密存储",
+          "item2": "不与任何外部方共享数据",
+          "item3": "内部员工不得访问任何个人身份识别信息",
+          "item4": "在拒绝营销许可后，不会为营销目的收集任何个人数据，仅收集预订车票所必需的信息",
+          "item5": "删除账户后，与该用户相关的所有信息将立即从我们的数据库中删除",
+          "privacyBefore": "以上个人数据处理仅适用于 BunnyBooker。点击",
+          "privacyLinkText": "这里",
+          "privacyAfter": "了解更多有关 BunnyBooker 个人数据处理的信息。",
+          "ktmbBefore": "如果您想了解 KTMB 网站如何处理您的个人数据，可以访问",
+          "ktmbLinkText": "这里"
+        },
+        "q8": {
+          "question": "BunnyBooker 预订服务的成功率是多少？",
+          "answerBefore": "迄今为止，成功率为",
+          "answerAfter": "。"
+        }
+      },
+      "ktmb": {
+        "tenMinutes": "10 分钟",
+        "twentyMinutes": "20 分钟",
+        "q1": {
+          "question": "在新加坡和新山之间乘坐火车是如何运作的？",
+          "p1": "举例来说，您有一班上午 9.45 从 SG -> JB 的火车。",
+          "p2": "闸门严格在火车发车前 20 分钟关闭。因此，最好在发车前至少 30 分钟（即上午 9.15）排队。",
+          "p3": "从上午 9.25 - 9.45（发车前 20 分钟），所有乘客将在乘车前通过新加坡和马来西亚两国海关（没错，您没看错，乘车前就办妥两国海关！）",
+          "p4": "从上午 9.45 - 9.50，火车在上午 9.45 发车，您将于上午 9.50 抵达新山中央车站！",
+          "p5": "上午 9.50，抵达目的地，您可自由活动！",
+          "noteBefore": "注意：从 JB-> SG 的火车在发车前",
+          "noteMiddle": "关闭，从 SG -> JB 的火车（上述示例中）在发车前",
+          "noteAfter": "关闭。"
+        },
+        "q2": {
+          "question": "有哪些可供预订的时段？",
+          "caption": "可供预订的时段",
+          "sgToJb": "SG -> JB",
+          "jbToSg": "JB -> SG"
+        },
+        "q3": {
+          "question": "闸门在发车前多久关闭？",
+          "sgToJohor": "新加坡到新山：",
+          "johorToSg": "新山到新加坡：",
+          "beforeDeparture": "发车前"
+        },
+        "q4": {
+          "question": "我为什么应该乘坐火车往返新山/新加坡，而不是其他交通方式？",
+          "answer": "预订火车是可靠的选择，可避免难以预料的交通拥堵以及其他交通方式可能长达 4 小时的海关延误。有限的火车座位和专属的海关检查（仅针对火车乘客）加快您的行程，确保您在 30 分钟内迅速抵达目的地。"
+        }
+      }
+    },
+    "finalCta": {
+      "heading": "今天就开始",
+      "subtitle": "加入数千名信赖 BunnyBooker 预订 KTMB 车票的旅客。",
+      "bookNow": "立即预订",
+      "guarantees": "全额退款保证 • 电子邮件通知 • 安全平台"
+    }
+  },
+  "legal": {
+    "terms": {
+      "heading": "条款与条件",
+      "intro1": "对 BunnyBooker 网站任何区域的所有访问均受以下条款与条件（\"条款\"）的约束。如果您不接受其中任何条款，我们建议您退出。仅在您能够接受这些条款的情况下继续使用。",
+      "intro2": "在本条款中，\"我们\"、\"我们的\"等词语均指 BunnyBooker。",
+      "accessHeading": "访问 BunnyBooker",
+      "accessBody": "本网站的可访问性和运行依赖于我们无法控制的技术。我们无法保证本网站持续可访问或不间断运行。",
+      "relyingHeading": "信息依赖",
+      "relyingBody": "我们仅将本网站作为一般信息来源提供。我们不在此提供专业建议。本网站可能未涵盖某一特定问题的所有可用信息。我们建议您在本网站之外，针对您的具体情况自行核实或获取相关的专业建议。",
+      "securityHeading": "安全",
+      "securityBody": "在适当情况下，我们会使用现有技术来保护通过本网站进行的通信的安全。对于通过本网站进行的任何交易和其他通信的安全性、真实性、完整性或保密性，我们不承担任何责任。互联网通信可能容易受到第三方的干扰或拦截。我们将尽力而为，但无法保证本网站不受计算机病毒或其他未经授权软件的感染。",
+      "hyperlinksHeading": "超链接",
+      "hyperlinksBody1": "对于与本网站链接的任何其他互联网网站（非我们提供）的可用性或内容，我们不承担任何责任或义务。访问任何其他互联网网站的风险由您自行承担。如果您创建指向本网站的链接或框架，风险由您自行承担。",
+      "hyperlinksBody2": "我们保留反对或禁用任何指向或来自本网站的链接或框架的权利。",
+      "restrictionsHeading": "材料使用限制",
+      "restrictionsBody1": "本网站上的所有内容，包括商号、文章、文本、艺术作品、图片、照片、影片、BunnyBooker 标志及相关图像，均受适用法律（包括版权法）的保护，未经相关权利人事先书面同意，不得复制或挪用。",
+      "restrictionsBody2": "未授予任何许可或权利，您对本网站的访问和/或对在线服务的使用，不应被解释为授予任何使用本网站上出现的任何知识产权的许可或权利，除非事先获得 BunnyBooker 或相关权利人的书面同意。",
+      "restrictionsBody3": "修改任何材料或将任何材料用于任何其他目的，均构成对 BunnyBooker 版权的侵犯。",
+      "thirdPartyHeading": "第三方内容",
+      "thirdPartyBody": "第三方内容可能出现在本网站上，或可通过本网站的链接访问。对于本网站上出现的任何第三方内容中所含的陈述、意见、表述或任何其他形式内容中的任何侵权、错误、对法律的不实陈述、诽谤、书面诽谤、口头诽谤、遗漏、虚假或亵渎内容，BunnyBooker 概不负责，亦不承担任何责任。",
+      "nonConfidentialityHeading": "非保密性",
+      "nonConfidentialityBody": "您同意，除非您另有明确说明，否则您就访问本网站向 BunnyBooker 发送或提交的所有信息和/或资料均为非保密和非专有信息。您进一步承诺不提交任何具有或可能具有冒犯性、非法性，或根据新加坡或任何其他相关国家法律不得合法传播的信息和/或其他材料。",
+      "modificationHeading": "使用条款与条件的修改",
+      "modificationBody": "此处列出的条款与条件可能会不时修订。更新后的使用条款与条件将发布在本网站上，并立即生效。",
+      "privacyHeading": "隐私",
+      "privacyBodyPrefix": "您对本网站的使用受 BunnyBooker 隐私政策的约束，可在",
+      "privacyBodyLink": "此处",
+      "registrationHeading": "网站注册与预订服务",
+      "registrationBody1": "从我们用户处收集的信息可能用于各种目的。",
+      "registrationBody2": "我们致力于保护您的隐私。除非法律或任何政府机构要求，我们不会向任何第三方披露有关用户的具体信息。如果您参加由第三方赞助或组织的在我们网站上举办的竞赛或其他促销活动，或购买第三方提供的商品和服务，或在我们网站上向第三方提供商品和服务，您的信息可能会被披露给此类第三方并由其使用。",
+      "accuracyHeading": "信息准确性",
+      "accuracyBody1": "您保证并承诺，您提交的所有健康申报均为您本人以及您为之购买车票的所有人的完整且真实的申报。",
+      "accuracyBody2": "请注意，如果您未能为所有持票人提交完整且准确的申报，您可能无法购买车票或乘坐火车。对于您输入的不准确信息，BunnyBooker 概不负责。",
+      "limitationsHeading": "限制",
+      "limitationsBody1": "如果火车运营方因恶劣天气、危险情况或任何其他超出我们合理控制范围的原因而推迟、取消、中断或停止服务，我们不承担任何责任。在接受车票订单之前，我们会尽力检查火车服务是否可用并正常运行，但我们无法保证火车不存在因磨损或其他技术故障导致的问题。",
+      "limitationsBody2": "我们努力完成所有订单。但是，如果由于 KTMB 网站宕机、维护或长时间无法访问而导致我们无法满足订单，我们将提供全额退款并记入您的 BunnyBooker 账户。但是，除为受影响车票提供全额退款外，我们不承担任何责任。",
+      "responsibilitiesHeading": "您的责任",
+      "responsibilitiesBody1": "所有车票必须在为您规定的时间段内领取。未领取或未使用的车票将不予退款。",
+      "responsibilitiesBody2": "除非 KTMB 另有说明，否则在海关检查登记期间不得进行任何摄影、录音或录像。",
+      "responsibilitiesBody3": "您自愿承担与车票服务以及您旅行目的地相关的所有风险和危险，无论其发生在实际车票服务之前、期间或之后，或您在旅行目的地的逗留期间，包括任何死亡、人身伤害、损失、损害或责任。",
+      "covidHeading": "新冠疫情相关规定",
+      "covidIntro": "在 COVID-19 大流行期间，在不影响 KTMB 和 BunnyBooker 任何其他权利的情况下，且无论有任何相反规定，KTMB 和 BunnyBooker 保留在以下任何或全部情况下（非穷尽列举）对为某趟列车（\"列车\"）购买的任何车票不予退款的权利：",
+      "covidItem1": "持票人身体健康，但因担心暴露于 COVID-19 而不愿登上列车；",
+      "covidItem2": "持票人身体不适但 COVID-19 检测呈阴性和/或没有任何 COVID-19 相关症状，且未登上列车；",
+      "covidItem3": "持票人根据第 1 条款中的健康通告被拒绝进入或被要求离开列车。",
+      "covidItem4": "持票人因本销售条款与条件中向持票人披露的原因被拒绝进入列车；和/或",
+      "covidItem5": "持票人登上列车，随后由于身体不适在列车出发前往目的地之前离开列车。",
+      "clause1Heading": "第 1 条款。",
+      "clause1Body": "持票人必须遵守新加坡政府可能规定的所有健康和安全要求，包括任何关于防止 COVID-19 传播的指示，以及所有其他健康通告和指南（\"健康通告\"）。这些包括但不限于：佩戴口罩、使用 Trace Together/Safe-Entry、疫苗接种和检测规程，以及安全距离措施。任何被发现未遵守任何健康通告的持票人，也将被拒绝进入列车或被要求离开场所。",
+      "vaccinationHeading": "疫苗接种与检测规程",
+      "vaccinationIntro": "在 KTMB 要求的情况下：",
+      "vaccinationItem1": "您必须在购买车票时，提供每位持票人 COVID-19 疫苗接种状态的真实申报（\"申报\"）；",
+      "vaccinationItem2": "已完全接种 COVID-19 疫苗的持票人必须在场所出示其 COVID-19 疫苗接种状态的官方证明（\"已接种持票人\"）；以及",
+      "vaccinationItem3": "没有完全接种 COVID-19 疫苗官方证明的持票人（\"未接种持票人\"）将：",
+      "vaccinationItem4": "如果不允许未接种持票人登上列车，则被拒绝进入；",
+      "vaccinationItem5": "如果允许未接种持票人登上列车，他们需要在进入前于场所，或在通知您的时间和地点，进行列车前或服务前 COVID-19 检测（\"PET\"），并在进入前出示 COVID-19 阴性结果报告。",
+      "vaccinationBody1": "任何不符合上述要求的情况都将导致被拒绝登上列车。",
+      "vaccinationBody2": "您保证并承诺，您提交的所有申报均为您本人以及您为之购买车票的所有人的完整且真实的申报。",
+      "vaccinationConsentPrefix": "您保证您已获得所有持票人的授权进行同意，并在此同意 BunnyBooker 和 KTMB 根据",
+      "vaccinationConsentLink": "BunnyBooker 隐私政策",
+      "vaccinationConsentSuffix": "以及本条款与条件，收集、使用、处理和披露您提交的申报中所含的所有个人数据。",
+      "vaccinationBody3": "请注意，BunnyBooker 和 KTMB 必须遵守所有健康通告。这些包括但不限于准入标准、安全距离措施，例如对火车乘客进行适当的隔离、间隔和分隔，以及关于火车最大座位容量的规定。",
+      "vaccinationBody4": "为使 BunnyBooker 和 KTMB 能够遵守健康通告，BunnyBooker 和 KTMB 收集您的申报，以确定每位持票人的疫苗接种状态。这将使他们能够评估出行安全、遵守进入和最大容量要求、进行人群管理、安排 PET，并确保您的座位、火车的时间和日期符合所有健康通告。",
+      "vaccinationBody5": "因此，BunnyBooker 和 KTMB 保留根据您提供的申报中所含信息采取任何必要行动以遵守任何健康通告的权利，这些行动可能包括但不限于：重新分配或对您的座位安排、车票日期和/或时间进行任何更改；取消或使任何已购买车票失效；拒绝任何持票人进入活动和/或场所；要求未接种持票人接受 PET；以及推迟或取消列车。",
+      "vaccinationBody6": "这些申报将供 BunnyBooker 和 KTMB 内部使用，仅由其员工和服务提供商访问，不会向任何未经授权的第三方披露。",
+      "vaccinationBody7": "请注意，如果您未能为所有持票人提交完整且准确的申报，您可能无法购买车票或乘坐火车。",
+      "deliveryHeading": "交付、退款与换票政策",
+      "deliveryIntro": "您接受以下关于车票交付、退款和换票的条款：",
+      "deliveryItem1": "对于 BunnyBooker 系统未能在 KTMB 网站上成功锁定的车票，将提供全额退款。",
+      "deliveryItem2": "已在 KTMB 网站上成功锁定的车票不符合退款或换票条件。",
+      "deliveryItem3": "车票预订后可发起取消。但请注意，在 BunnyBooker 系统于 KTMB 网站上成功锁定车票之后，已取消的车票将不予退款。",
+      "deliveryItem4": "车票一经订购并启用我们的预订服务，我们的小兔子将积极尝试锁定您的车票。",
+      "deliveryItem5": "预订工作将持续到所选列车方向预定出发时间前 30 分钟。",
+      "deliveryItem6": "如果成功，您将及时收到确认的预订详情通知。",
+      "deliveryItem7": "如果不成功，将以可提现的额度全额退款至您的 BunnyBooker 钱包。",
+      "fairUseHeading": "合理使用",
+      "fairUseIntro": "您同意除预订火车票外，不会将 BunnyBooker 的服务用于任何其他目的，这包括但不限于：",
+      "fairUseItem1": "使用 BunnyBooker 的服务从您购买的车票中牟利。",
+      "fairUseItem2": "使用 BunnyBooker 钱包购买非火车票的物品，或作为转移或移动资金的机制。",
+      "fairUseItem3": "使用 BunnyBooker 的服务从事任何其他非法活动。",
+      "fairUseItem4": "试图使用 BunnyBooker 的服务违反任何适用法律。",
+      "fairUseConsequencesIntro": "如果您被发现或被怀疑违反上述任何规定，您将受到适当的法律行动，这些行动可能包括但不限于：",
+      "fairUseConsequence1": "暂停或终止您的账户。",
+      "fairUseConsequence2": "将与您账户关联的所有乘客列入黑名单。",
+      "fairUseConsequence3": "在违规问题解决之前扣留您账户中的资金。",
+      "fairUseConsequence4": "将违规情况上报相关当局。",
+      "fairUseReserve": "对于您违反本政策的任何行为，我们保留采取任何行动的权利。",
+      "interestsHeading": "保护 BunnyBooker 的利益",
+      "interestsIntro": "BunnyBooker 保留根据其运营所在司法管辖区的法律保护其利益的权利。这包括但不限于：",
+      "interestsItem1": "随时修改或停止 BunnyBooker 的服务，恕不另行通知。",
+      "interestsItem2": "随时更改 BunnyBooker 的使用条款与条件，恕不另行通知。",
+      "interestsItem3": "随时更改 BunnyBooker 的隐私政策，恕不另行通知。",
+      "interestsItem4": "对于您违反本政策的任何行为采取任何行动。",
+      "interestsItem5": "随时终止您的账户，恕不另行通知。",
+      "interestsItem6": "随时扣留您账户内的资金，恕不另行通知。",
+      "interestsItem7": "将任何违反本政策的行为上报相关当局，恕不另行通知。"
+    },
+    "privacy": {
+      "heading": "隐私政策",
+      "noticeHeading": "数据保护声明",
+      "noticeBody": "本数据保护声明（\"声明\"）阐明了 BunnyBooker（\"我们\"、\"我们\"或\"我们的\"）依据《个人数据保护法》（\"PDPA\"）收集、使用、披露或以其他方式处理我们客户个人数据的依据。本声明适用于我们拥有或控制的个人数据，包括我们委托收集、使用、披露或处理个人数据以达成我们目的的组织所拥有的个人数据。",
+      "personalDataHeading": "个人数据",
+      "definitionsIntro": "在本声明中：",
+      "definitionCustomer": "\"客户\"指（a）通过任何方式联系我们以了解更多关于我们提供的任何商品或服务的个人，或（b）可能或已经与我们就由我们提供任何商品或服务订立合同的个人；以及",
+      "definitionPersonalData": "\"个人数据\"指有关客户的数据，无论真实与否，凭借该数据能够识别该客户：（a）从该数据；或（b）从该数据以及我们拥有或可能拥有访问权限的其他信息。",
+      "examplesItem": "根据您与我们互动的性质，我们可能从您处收集的个人数据示例包括您的姓名和身份识别信息，如您的全名、护照号码、护照有效期；联系信息，如您的电子邮件地址、手机号码、国籍、性别、出生日期、婚姻状况、照片及其他视听信息；以及财务信息，如信用卡号、借记卡号或银行账户信息。",
+      "otherTermsItem": "本声明中使用的其他术语应具有 PDPA 赋予它们的含义（在上下文允许的情况下）。",
+      "collectionHeading": "个人数据的收集、使用与披露",
+      "collectionConsentItem": "我们通常不会收集您的个人数据，除非（a）您直接或通过经您正式授权向我们披露您个人数据的第三方（您的\"授权代表\"）自愿向我们提供，且在（i）您（或您的授权代表）已被告知收集数据的目的，以及（ii）您（或您的授权代表）已对为这些目的收集和使用您的个人数据提供书面同意之后；或（b）PDPA 或其他法律允许或要求在未经同意的情况下收集和使用个人数据。在收集任何额外个人数据之前，以及在将您的个人数据用于未向您告知的目的之前（法律允许或授权的情况除外），我们将征求您的同意。",
+      "purposesIntro": "我们可能为以下任何或全部目的收集和使用您的个人数据：",
+      "purposeA": "（a）在我们向您提供所请求商品和/或服务的过程中或与之相关的履行义务；",
+      "purposeB": "（b）核实您的身份；",
+      "purposeC": "（c）回应、处理您的查询、请求、申请、投诉和反馈；",
+      "purposeD": "（d）管理您与我们的关系；",
+      "purposeE": "（e）处理付款或信用交易；",
+      "purposeF": "（f）向您发送有关我们商品或服务的营销信息，包括通知您我们的营销活动、举措和促销、抽奖、会员和奖励计划及其他促销；",
+      "purposeG": "（g）遵守任何适用的法律、法规、业务守则、指南或规则，或协助任何政府和/或监管机构进行的执法和调查；",
+      "purposeH": "（h）您提供该信息所针对的任何其他目的；",
+      "purposeI": "（i）为上述目的，向任何非关联第三方传输，包括我们的第三方服务提供商和代理，以及相关政府和/或监管机构，无论在新加坡境内或境外；以及",
+      "purposeJ": "（j）与上述相关或有关联的任何其他附带业务目的。",
+      "disclosureIntro": "我们可能披露您的个人数据：",
+      "disclosureA": "（a）在我们向您提供所请求商品或服务的过程中或与之相关的履行义务时需要此类披露；或",
+      "disclosureB": "（b）向我们委托执行上文第 5 条所列任何职能的第三方服务提供商、代理及其他组织披露。",
+      "purposesContinueItem": "即使在您与我们的关系（例如根据合同）已终止或以任何方式变更的情况下，上述条款中所列目的仍可能在此后的合理期间内继续适用（包括在适用情况下，使我们能够执行合同项下权利的期间）。",
+      "withdrawingHeading": "撤回您的同意",
+      "withdrawingItem1": "您为收集、使用和披露您个人数据所提供的同意将持续有效，直至您以书面形式撤回。您可以通过以书面或电子邮件方式向我们的数据保护官提交请求（联系方式见下文），撤回同意并要求我们停止为上述任何或全部目的使用和/或披露您的个人数据。",
+      "withdrawingItem2": "在收到您撤回同意的书面请求后，我们可能需要合理的时间（取决于请求的复杂性及其对我们与您关系的影响）来处理您的请求，并通知您我们同意此请求的后果，包括可能影响您对我们权利和义务的任何法律后果。一般而言，我们将力求在收到请求后的十（10）个工作日内处理您的请求。",
+      "withdrawingItem3": "尽管我们尊重您撤回同意的决定，但请注意，根据您请求的性质和范围，我们可能无法继续向您提供商品或服务，在此情况下，我们将在完成处理您的请求之前通知您。如果您决定取消撤回同意，请按上文第 8 条所述方式以书面形式通知我们。",
+      "withdrawingItem4": "请注意，撤回同意不影响我们在适用法律允许或要求的情况下继续收集、使用和披露个人数据的权利。",
+      "accessHeading": "个人数据的访问与更正",
+      "accessItem1": "如果您希望提出（a）访问请求，以获取我们持有的关于您的个人数据副本或我们使用或披露您个人数据方式的信息，或（b）更正请求，以更正或更新我们持有的关于您的任何个人数据，您可以以书面或电子邮件方式向我们的数据保护官提交请求（联系方式见下文）。",
+      "accessItem2": "请注意，访问请求可能会收取合理的费用。如果是这样，我们将在处理您的请求之前告知您费用。",
+      "accessItem3": "我们将尽快回应您的请求。如果我们无法在收到您请求后的三十（30）天内回应，我们将在三十（30）天内书面告知您我们能够回应的时间。如果我们无法向您提供任何个人数据或进行您所请求的更正，我们通常会告知您无法这样做的原因（除非根据 PDPA 我们无需这样做）。",
+      "protectionHeading": "个人数据的保护",
+      "protectionItem1": "为保护您的个人数据免受未经授权的访问、收集、使用、披露、复制、修改、处置或类似风险，我们采取了适当的管理、物理和技术措施，例如最新的防病毒保护、加密以及使用隐私过滤器，以保护我们对个人数据的所有存储和传输，并仅在需要知晓的基础上在内部以及向我们授权的第三方服务提供商和代理披露个人数据。",
+      "protectionItem2": "但是，您应当知晓，没有任何通过互联网传输或电子存储的方法是完全安全的。虽然无法保证安全，但我们努力保护您信息的安全，并不断审查和加强我们的信息安全措施。",
+      "accuracyHeading": "个人数据的准确性",
+      "accuracyItem": "我们通常依赖您（或您的授权代表）提供的个人数据。为确保您的个人数据是最新、完整和准确的，如果您的个人数据有变更，请以书面或电子邮件方式通知我们的数据保护官（联系方式见下文）以更新。",
+      "retentionHeading": "个人数据的保留",
+      "retentionItem1": "我们可能在为收集个人数据的目的所需的期间内，或在适用法律要求或允许的范围内，保留您的个人数据。",
+      "retentionItem2": "一旦可以合理认定该保留不再服务于收集个人数据的目的，且不再为法律或业务目的所必需，我们将停止保留您的个人数据，或移除可将数据与您关联的方式。",
+      "transfersHeading": "向新加坡境外转移个人数据",
+      "transfersItem": "我们通常不会将您的个人数据转移到新加坡境外的国家。但是，如果我们这样做，我们将获得您对该转移的同意，并将采取措施确保您的个人数据继续获得至少与 PDPA 所提供的保护标准相当的保护。",
+      "dpoHeading": "数据保护官",
+      "dpoItem": "如果您对我们的个人数据保护政策和程序有任何疑问或反馈，或希望提出任何请求，您可以通过以下方式联系我们的数据保护官：",
+      "dpoTitle": "数据保护官",
+      "dpoNameLabel": "姓名",
+      "dpoAddressLabel": "地址",
+      "dpoEmailLabel": "电子邮件",
+      "dpoMobileLabel": "手机",
+      "effectHeading": "声明的效力与变更",
+      "effectItem1": "本声明与适用于我们收集、使用和披露您个人数据的任何其他声明、合同条款和同意条款一并适用。",
+      "effectItem2": "我们可能会不时修订本声明，恕不另行通知。您可以通过参考本声明最后更新的日期来确定是否进行了此类修订。您继续使用我们的服务即构成您对此类变更的知晓和接受。",
+      "effectiveDate": "生效日期：31/12/2023",
+      "lastUpdated": "最后更新：31/12/2023"
+    },
+    "policy": {
+      "heading": "交付、取消与退款政策",
+      "ticketRefundsHeading": "车票退款",
+      "ticketRefundsItem1": "如果我们的系统未能在 KTMB 上成功锁定您的车票，您将有资格获得全额退款，退款将以额度形式提供至您的 BunnyBooker 钱包。您随后可以通过 BunnyBooker 的提现系统提取这些额度。",
+      "ticketRefundsItem2": "已由我们系统在 KTMB 上锁定的车票不符合退款或换票条件。",
+      "cancellationsHeading": "取消",
+      "cancellationsBody": "您可以随时请求取消，但请注意，如果我们的系统已经在 KTMB 上成功锁定您的车票，则已取消的车票将不予退款。",
+      "walletWithdrawalHeading": "钱包提现",
+      "walletWithdrawalBody1": "我们仅接受通过 PayNow 提现。",
+      "walletWithdrawalBody2": "您可以通过在 BunnyBooker 网站提交提现请求并附上您的 PayNow 详情来提取您的钱包余额。我们将在 3 个工作日内处理您的提现请求。如有任何冲突、疑问或顾虑，请通过 WhatsApp、Telegram 或电子邮件联系我们。",
+      "bookingProcessHeading": "预订流程",
+      "bookingProcessStep1": "通过我们的支付网关向 BunnyBooker 钱包充值。",
+      "bookingProcessStep2": "选择您需要的车票并下单。",
+      "bookingProcessStep3": "车票一经订购并启用我们的预订服务，我们的系统将积极尝试锁定您的车票。",
+      "bookingProcessStep4": "预订工作将持续到您所订列车方向预定出发时间前 30 分钟。",
+      "bookingProcessStep5": "如果成功，您将及时收到确认的预订详情通知。",
+      "bookingProcessStep6": "如果不成功，您将收到通知，且车票全额退款至您的 BunnyBooker 账户钱包。"
+    }
+  },
+  "passengers": {
+    "list": {
+      "pageTitle": "乘客",
+      "searchPlaceholder": "搜索乘客",
+      "filterByUserIdPlaceholder": "按用户 ID 筛选...",
+      "emptyState": "未找到乘客"
+    },
+    "alert": {
+      "takeNote": "请注意！",
+      "detailsLead": "请确保并核对所填写的护照信息。本系统无法验证您的信息。所有使用错误信息购买的错误车票将",
+      "not": "不会",
+      "refundedTrail": "予以退款。"
+    },
+    "gender": {
+      "male": "男",
+      "female": "女"
+    },
+    "passportExpiryLabel": "护照有效期",
+    "create": {
+      "trigger": "创建乘客",
+      "title": "创建新乘客",
+      "subtitle": "创建新乘客以便于预订。",
+      "fullNamePlaceholder": "与护照一致的全名",
+      "submit": "创建乘客",
+      "successToast": "成功创建乘客 '{name}'",
+      "errorToast": "创建乘客失败",
+      "validation": {
+        "fullNameMin": "全名长度至少为 1 个字符",
+        "fullNameMax": "全名长度最多为 512 个字符",
+        "fullNameRegex": "全名只能包含字母和特殊字符 @ . / ' , - ` *",
+        "passportNumberRegex": "护照号码只能包含字母和数字",
+        "passportNumberMin": "护照号码长度至少为 1 个字符",
+        "passportNumberMax": "护照号码长度最多为 20 个字符",
+        "passportExpiryMin": "护照有效期距今至少需 6 个月"
+      }
+    },
+    "update": {
+      "title": "更新乘客",
+      "subtitle": "更新现有乘客。",
+      "submit": "更新乘客",
+      "successToast": "成功更新乘客 '{name}'",
+      "errorToast": "更新乘客失败"
+    },
+    "delete": {
+      "title": "删除乘客",
+      "subtitle": "删除乘客。此操作不可逆。",
+      "cannotUndo": "此操作无法撤销。",
+      "confirmLead": "请输入乘客的姓名，",
+      "confirmTrail": "以继续。",
+      "confirmHint": "请输入乘客的姓名以继续。",
+      "submit": "删除乘客",
+      "successToast": "成功删除乘客 '{name}'",
+      "errorToast": "删除乘客失败"
+    }
+  },
+  "profile": {
+    "pageTitle": "个人资料",
+    "userNotFound": "未找到用户",
+    "usernameTitle": "用户名",
+    "usernameDesc": "这是您的唯一标识符。您所有的模板都将以此值作为前缀。",
+    "usernameImmutable": "此值无法更改。",
+    "usernameFormat": "此值为小写字母数字或 -。",
+    "nameDesc": "这是您注册时使用的姓名",
+    "nameImmutable": "此姓名没有限制。但是，目前尚不支持更改。",
+    "userIdTitle": "用户 ID",
+    "userIdDesc": "您用户的唯一索引。",
+    "userIdHelp": "这是由您的 OAuth 提供商自动生成的",
+    "avatarTitle": "头像",
+    "avatarDesc": "这是您的个人头像",
+    "avatarSource": "这是直接从您的登录方式获取的",
+    "emailDesc": "这是与您注册关联的电子邮件",
+    "emailSource": "这是与您的登录方式关联的",
+    "rolesTitle": "角色",
+    "rolesDesc": "分配给您的角色",
+    "permissionsTitle": "权限",
+    "permissionsDesc": "与您账户关联的权限",
+    "managedByAdmins": "这由 BunnyBooker 管理员管理。",
+    "jwtAccessTitle": "JWT 访问令牌",
+    "jwtAccessDesc": "用于开发的访问令牌",
+    "jwtIdTitle": "JWT ID 令牌",
+    "jwtIdDesc": "用于开发的 ID 令牌"
+  },
+  "auth": {
+    "userNotFound": "未找到用户",
+    "chooseUsername": "为 BunnyBooker 选择您的用户名。此用户名无法更改且必须唯一。",
+    "usernameLabel": "用户名",
+    "usernamePlaceholder": "您的用户名",
+    "usernameTaken": "该用户名已被占用",
+    "usernameAvailable": "该用户名尚未被占用",
+    "errorMinLength": "用户名必须至少包含 1 个字符",
+    "errorMaxLength": "用户名必须少于 256 个字符",
+    "errorCharset": "用户名只能包含小写字母、数字和短横线",
+    "errorStartEnd": "用户名必须以字母开头且不能以短横线结尾",
+    "existError": "检查用户是否存在失败",
+    "createError": "创建用户失败",
+    "acceptPrefix": "我接受",
+    "termsLink": "条款与条件",
+    "privacyLink": "隐私政策"
+  },
+  "schedules": {
+    "pageTitle": "购买车票",
+    "selectDate": "选择日期",
+    "woodlandsToJb": "兀兰前往新山",
+    "woodlandsToJbSentral": "兀兰前往新山中央车站",
+    "jbToWoodlands": "新山前往兀兰",
+    "jbSentralToWoodlands": "新山中央车站前往兀兰",
+    "noSchedulesFound": "未找到班次",
+    "ticketsInQueue": "排队中有 {count} 张车票",
+    "buy": "购买"
+  },
+  "calendar": {
+    "selectMonth": "选择月份",
+    "selectYear": "选择年份"
+  },
+  "footer": {
+    "contactHelp": "需要帮助？联系我们！",
+    "refundPolicy": "配送、取消及退款政策",
+    "privacyPolicy": "隐私政策",
+    "termsOfUse": "使用条款"
+  },
+  "loader": {
+    "default": "正在加载，请稍候……",
+    "reauthenticating": "重新认证中..."
+  },
+  "errorState": {
+    "alienInvasion": "错误 - 外星人入侵",
+    "doggyCantSwim": "错误 - 小狗不会游泳",
+    "lostInSpace": "错误 - 迷失太空",
+    "chemicalExplosion": "错误 - 化学爆炸",
+    "coffeeSpilt": "错误 - 咖啡洒了",
+    "doggyCantSmell": "错误 - 小狗闻不到",
+    "dogEatsNewsPaper": "错误 - 小狗吃报纸",
+    "icecreamMelted": "错误 - 冰淇淋融化了",
+    "laptopBroken": "错误 - 笔记本电脑坏了",
+    "lochnessMonster": "错误 - 尼斯湖水怪存在吗？",
+    "missingPiece": "错误 - 缺少一块",
+    "noTissue": "错误 - 没有纸巾",
+    "errorDetails": "错误详情"
+  },
+  "transactions": {
+    "list": {
+      "title": "交易记录",
+      "searchPlaceholder": "搜索交易...",
+      "userIdPlaceholder": "按用户 ID 筛选...",
+      "dateRangePlaceholder": "按日期范围筛选",
+      "typePlaceholder": "交易类型",
+      "typeNone": "无",
+      "emptyState": "未找到交易记录",
+      "colType": "类型",
+      "colFrom": "来自",
+      "colTo": "至"
+    },
+    "detail": {
+      "title": "交易",
+      "notFound": "找不到钱包"
+    },
+    "card": {
+      "direction": "交易方向",
+      "amount": "交易金额",
+      "related": "相关",
+      "walletLink": "钱包",
+      "userLink": "用户"
+    }
+  },
+  "wallets": {
+    "list": {
+      "searchPlaceholder": "搜索钱包...",
+      "notFound": "未找到钱包",
+      "viewDetails": "查看详情"
+    },
+    "detail": {
+      "title": "钱包",
+      "notFound": "找不到该钱包"
+    },
+    "card": {
+      "account": "账户",
+      "usable": "可用",
+      "bookingReserve": "预订预留",
+      "withdrawReserve": "提现预留"
+    },
+    "deposit": {
+      "title": "充值",
+      "subtitle": "充值到 BunnyBooker",
+      "balance": "余额：{amount}",
+      "prompt": "您想充值多少新元（SGD）？",
+      "viewWallet": "查看钱包",
+      "cancel": {
+        "title": "充值已取消",
+        "message": "已取消向 BunnyBooker 充值。"
+      },
+      "failed": {
+        "title": "充值失败",
+        "message": "向 BunnyBooker 充值失败",
+        "tryAgain": "重试"
+      },
+      "success": {
+        "title": "成功！",
+        "message": "已成功充值到 BunnyBooker",
+        "currentBalance": "当前余额：{amount}"
+      },
+      "initError": "初始化付款失败"
+    },
+    "adminIn": {
+      "trigger": "增加可用余额",
+      "title": "增加可用余额",
+      "descriptionBefore": "您将为以下用户增加可用余额",
+      "descriptionAfter": " 的账户。",
+      "successToast": "已成功向用户账户增加 {amount}。",
+      "errorToast": "创建管理员入账失败"
+    },
+    "adminOut": {
+      "trigger": "扣除可用余额",
+      "title": "扣除可用余额",
+      "descriptionBefore": "您将从以下用户扣除可用余额",
+      "descriptionAfter": " 的账户。",
+      "successToast": "已成功从用户账户扣除 {amount}。",
+      "errorToast": "创建管理员出账失败"
+    },
+    "promo": {
+      "trigger": "赠送促销积分",
+      "title": "赠送促销积分",
+      "descriptionBefore": "您将为以下用户增加促销积分",
+      "descriptionAfter": " 的账户。",
+      "successToast": "已成功向用户账户增加价值 {amount} 的促销积分。",
+      "errorToast": "创建促销转账失败"
+    }
+  },
+  "withdrawals": {
+    "status": {
+      "Pending": "待处理",
+      "Completed": "已完成",
+      "Cancel": "已取消",
+      "Rejected": "已拒绝"
+    },
+    "list": {
+      "title": "提款",
+      "filterById": "按 ID 筛选...",
+      "filterByUserId": "按用户 ID 筛选...",
+      "filterByCompleterId": "按处理人 ID 筛选...",
+      "filterByDateRange": "按日期范围筛选",
+      "statusNone": "无",
+      "notFound": "未找到提款记录"
+    },
+    "card": {
+      "amountToPayNow": "{amount} 至 PayNow {payNowNumber}",
+      "viewDetails": "查看详情",
+      "by": "由",
+      "completer": "处理人",
+      "viewUserProfile": "查看用户资料 →",
+      "noNote": "无备注",
+      "receiptAlt": "收据"
+    },
+    "detail": {
+      "title": "提款",
+      "notFound": "找不到该提款记录"
+    },
+    "approve": {
+      "title": "进行提款",
+      "instructions": "请将 {amount} 转账至 PayNow {payNowNumber}，截图并上传收据，然后点击完成。",
+      "complete": "完成",
+      "success": "已成功完成提款 {amount}。",
+      "failed": "批准提款失败"
+    },
+    "cancel": {
+      "title": "取消提款",
+      "confirm": "您正在取消这笔 {amount} 至 PayNow {payNowNumber} 的提款。",
+      "noteRequired": "请输入备注。",
+      "noteTooLong": "备注不能超过 4096 个字符。",
+      "success": "已成功取消 {amount} 的提款。",
+      "failed": "取消提款失败"
+    },
+    "reject": {
+      "title": "拒绝提款",
+      "confirm": "您正在拒绝这笔 {amount} 至 PayNow {payNowNumber} 的提款。",
+      "noteRequired": "请输入备注。",
+      "noteTooLong": "备注不能超过 4096 个字符。",
+      "success": "已成功拒绝 {amount} 的提款。",
+      "failed": "拒绝提款失败"
+    },
+    "create": {
+      "trigger": "进行提款",
+      "title": "进行提款",
+      "intro": "您将从钱包中的可用余额进行提款。",
+      "importantTitle": "重要！",
+      "payNowWarningPrefix": "请在继续之前确认您的 PayNow 号码正确无误。",
+      "payNowWarningEmphasis": "概不赔偿",
+      "payNowWarningSuffix": "因 PayNow 号码错误造成的损失恕不补偿。",
+      "durationTitle": "提款时长",
+      "durationPrefix": "提款并非即时到账，最长需要",
+      "durationEmphasis": "2 个工作日",
+      "durationSuffix": "才能处理完成。",
+      "balanceLabel": "余额：{amount}",
+      "payNowPlaceholder": "用于提款的 PayNow 号码",
+      "submit": "申请提款",
+      "amountGreaterThanZero": "金额必须大于 0",
+      "amountExceedsBalance": "金额必须小于或等于您的可用余额",
+      "amountFinite": "金额必须是有限的数字",
+      "invalidPayNow": "不是有效的 PayNow 号码",
+      "success": "已成功从您的可用余额申请提款 {amount}。",
+      "failed": "申请提款失败"
+    }
+  },
+  "status": {
+    "booking": {
+      "Pending": "待处理",
+      "Buying": "购买中",
+      "Completed": "已完成",
+      "Cancelled": "已取消",
+      "Refunded": "已退款",
+      "Terminated": "已终止"
+    },
+    "transactionType": {
+      "BookingRequest": "预订请求",
+      "BookingComplete": "预订完成",
+      "BookingCancel": "预订取消",
+      "BookingRefund": "预订退款",
+      "BookingTerminated": "预订终止",
+      "Deposit": "充值",
+      "WithdrawRequest": "提款请求",
+      "WithdrawComplete": "提款完成",
+      "WithdrawCancelled": "提款取消",
+      "WithdrawRejected": "提款被拒",
+      "Promotional": "促销",
+      "Transfer": "转账"
+    },
+    "discountType": {
+      "Percentage": "百分比",
+      "Flat": "固定"
+    },
+    "discountMode": {
+      "All": "全部",
+      "Any": "任意",
+      "None": "无"
+    },
+    "discountMatchType": {
+      "UserId": "用户 ID",
+      "Role": "角色"
+    },
+    "discountEnabled": {
+      "true": "已停用",
+      "false": "已启用"
+    }
+  },
+  "validation": {
+    "topup": {
+      "min": "充值金额必须大于 {min}",
+      "finite": "充值金额必须是有限数字",
+      "precision": "最多保留 {max} 位小数"
+    },
+    "transfer": {
+      "amountGt": "金额必须大于 {min}",
+      "amountFinite": "金额必须是有限数字",
+      "descMin": "描述至少需要 {min} 个字符",
+      "descMax": "描述必须少于 {max} 个字符"
+    }
+  }
+}

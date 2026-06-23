@@ -10,6 +10,8 @@
     import Withdrawal from "$lib/components/entities/Withdrawals/Withdrawal.svelte";
     import {page} from "$app/stores";
     import type {PageData} from "./$types";
+    import {_} from "svelte-i18n";
+    import {lang} from "$lib/i18n";
 
     export let data: PageData;
 
@@ -27,10 +29,10 @@
     const session: any = $page.data.session;
 </script>
 
-<Page notFoundMessage="Withdrawal cannot be found">
+<Page notFoundMessage={$_('withdrawals.detail.notFound', { locale: $lang })}>
     <div class="border-b border-b-muted">
         <h2 class="py-10 text-3xl lg:text-4xl text-foreground max-w-[1200px] w-11/12 mx-auto">
-            Withdrawal
+            {$_('withdrawals.detail.title', { locale: $lang })}
         </h2>
     </div>
     <div class="w-full min-h-[80vh] bg-muted dark:bg-background">

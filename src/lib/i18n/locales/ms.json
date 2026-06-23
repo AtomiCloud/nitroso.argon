@@ -1,0 +1,1038 @@
+{
+  "common": {
+    "appName": "BunnyBooker"
+  },
+  "nav": {
+    "bookNow": "Tempah Sekarang"
+  },
+  "account": {
+    "costs": "Kos",
+    "discounts": "Diskaun",
+    "wallets": "Dompet",
+    "users": "Pengguna",
+    "balance": "BAKI: {amount}",
+    "manageBookings": "Urus Tempahan",
+    "passengers": "Penumpang",
+    "withdrawals": "Pengeluaran",
+    "transactions": "Transaksi",
+    "profile": "Profil",
+    "logout": "Log keluar",
+    "signIn": "Log masuk"
+  },
+  "theme": {
+    "toggle": "Tukar tema"
+  },
+  "language": {
+    "label": "Bahasa"
+  },
+  "actions": {
+    "save": "Simpan",
+    "cancel": "Batal",
+    "delete": "Padam",
+    "edit": "Sunting",
+    "create": "Cipta",
+    "update": "Kemas Kini",
+    "confirm": "Sahkan",
+    "close": "Tutup",
+    "back": "Kembali",
+    "submit": "Hantar",
+    "add": "Tambah",
+    "remove": "Buang",
+    "approve": "Lulus",
+    "reject": "Tolak",
+    "search": "Cari",
+    "retry": "Cuba Lagi",
+    "view": "Lihat",
+    "copy": "Salin",
+    "download": "Muat Turun",
+    "yes": "Ya",
+    "no": "Tidak",
+    "loading": "Memuatkan...",
+    "processing": "Memproses..."
+  },
+  "fields": {
+    "email": "E-mel",
+    "name": "Nama",
+    "firstName": "Nama Pertama",
+    "lastName": "Nama Akhir",
+    "fullName": "Nama Penuh",
+    "phone": "Telefon",
+    "amount": "Jumlah",
+    "status": "Status",
+    "date": "Tarikh",
+    "time": "Masa",
+    "actions": "Tindakan",
+    "description": "Penerangan",
+    "quantity": "Kuantiti",
+    "price": "Harga",
+    "total": "Jumlah Keseluruhan",
+    "notes": "Nota",
+    "reason": "Sebab",
+    "address": "Alamat",
+    "dateOfBirth": "Tarikh Lahir",
+    "passportNumber": "Nombor Pasport",
+    "nationality": "Warganegara",
+    "gender": "Jantina",
+    "balance": "Baki"
+  },
+  "errors": {
+    "required": "Diperlukan",
+    "invalidNumber": "Nombor tidak sah",
+    "mustBePositive": "Nombor mesti positif",
+    "generic": "Sesuatu tidak kena",
+    "notFound": "Tidak dijumpai",
+    "loadFailed": "Gagal memuatkan",
+    "load": {
+      "bookings": "Gagal mendapatkan tempahan",
+      "booking": "Gagal mendapatkan tempahan",
+      "discounts": "Gagal mendapatkan diskaun",
+      "schedule": "Gagal mendapatkan jadual",
+      "timing": "Gagal mendapatkan masa",
+      "counts": "Gagal mendapatkan kiraan",
+      "cost": "Gagal mendapatkan kos",
+      "costs": "Gagal mendapatkan kos",
+      "passengers": "Gagal mendapatkan penumpang",
+      "transactions": "Gagal mendapatkan transaksi",
+      "transaction": "Gagal mendapatkan transaksi",
+      "wallets": "Gagal mendapatkan dompet",
+      "wallet": "Gagal mendapatkan dompet",
+      "withdrawals": "Gagal mendapatkan pengeluaran",
+      "withdrawal": "Gagal mendapatkan pengeluaran",
+      "users": "Gagal mendapatkan pengguna",
+      "user": "Gagal mendapatkan pengguna"
+    }
+  },
+  "admin": {
+    "users": {
+      "searchByUsername": "Cari mengikut Nama Pengguna",
+      "searchByUserId": "Cari mengikut ID Pengguna",
+      "searchByEmail": "Cari mengikut E-mel",
+      "usernamePlaceholder": "Masukkan nama pengguna...",
+      "userIdPlaceholder": "Masukkan ID pengguna...",
+      "emailPlaceholder": "Masukkan e-mel...",
+      "noUsersFound": "Tiada pengguna ditemui",
+      "notAvailable": "T/A",
+      "verified": "Disahkan",
+      "unverified": "Belum Disahkan",
+      "roles": "Peranan",
+      "noRoles": "Tiada",
+      "viewDetails": "Lihat Butiran",
+      "userNotFound": "Pengguna tidak dijumpai",
+      "userHeading": "Pengguna",
+      "userData": "Data Pengguna",
+      "userDataDescription": "Akses pantas kepada maklumat berkaitan {username}",
+      "transactions": "Transaksi",
+      "bookings": "Tempahan",
+      "passengers": "Penumpang",
+      "withdrawals": "Pengeluaran"
+    },
+    "costs": {
+      "currentPrice": "Harga Semasa: {price}",
+      "newCostPlaceholder": "Kos Baharu",
+      "updateCost": "Kemas Kini Kos",
+      "costUpdated": "Kos dikemas kini",
+      "notFound": "Pengeluaran tidak dijumpai"
+    }
+  },
+  "bookingActions": {
+    "card": {
+      "woodlands": "Woodlands",
+      "jbSentral": "JB Sentral",
+      "started": "Dimulakan {datetime}",
+      "actions": "Tindakan",
+      "viewTicket": "Lihat Tiket",
+      "owner": "Pemilik:",
+      "passportExpiresOn": "Pasport tamat tempoh pada",
+      "ticketInformation": "Maklumat Tiket",
+      "ticketNo": "No. Tiket: {value}",
+      "bookingNo": "No. Tempahan: {value}",
+      "completedOn": "Selesai pada {datetime}",
+      "statusOn": "{status} pada {datetime}"
+    },
+    "row": {
+      "revertSuccess": "Berjaya mengembalikan keadaan pembelian kepada belum selesai",
+      "revertError": "Gagal mengembalikan keadaan pembelian kepada belum selesai",
+      "clickToRevert": "{status} (Klik untuk kembali)",
+      "viewDetails": "Lihat Butiran"
+    },
+    "cancel": {
+      "stayToast": "Pilihan yang bagus! Tempahan anda masih aktif. Kebanyakan tiket tersedia 1-2 hari sebelum berlepas.",
+      "success": "Berjaya membatalkan tempahan",
+      "error": "Gagal membatalkan tempahan",
+      "title": "Batalkan Tempahan",
+      "educationTitle": "Tunggu! Sebelum Anda Membatalkan...",
+      "eduHeading": "Tahukah anda kebanyakan tiket tersedia 1-2 hari sebelum berlepas?",
+      "eduSubheading": "Inilah yang ditunjukkan oleh data kami tentang corak tiket KTMB:",
+      "peakTitle": "Pembatalan Puncak",
+      "peakDesc": "Kebanyakan orang membatalkan 1-2 hari sebelum berlepas disebabkan perubahan rancangan saat akhir",
+      "windowTitle": "Tetingkap Kejayaan Terbaik",
+      "windowDesc": "1-2 hari sebelum berlepas adalah masa kebanyakan tiket berjaya ditempah",
+      "patienceTitle": "Kesabaran Berbaloi",
+      "patienceDesc": "Kadar kejayaan 99% kami datang daripada pelanggan yang menunggu tetingkap tempahan optimum",
+      "proTipTitle": "Petua Pro",
+      "proTipBody": "Memandangkan anda lebih hampir dengan tarikh berlepas, anda sebenarnya berada di kedudukan terbaik di mana tiket paling berkemungkinan tersedia.",
+      "proTipEmphasis": "Kebanyakan tempahan kami yang berjaya berlaku dalam tempoh 48 jam sebelum berlepas!",
+      "keepWait": "Kekalkan Tempahan Saya & Tunggu",
+      "stillCancel": "Tetap Batalkan",
+      "intro": "Batalkan tempahan ini untuk {name}. Semua wang yang dibayar akan dikembalikan. Tindakan ini tidak boleh dibatalkan.",
+      "takeNoteTitle": "Ambil Perhatian!",
+      "takeNoteBody": "Membatalkan tempahan akan membatalkan semua diskaun yang dikenakan padanya. Jika anda menempah semula, anda perlu memohon semula diskaun, dan anda akan ditolak ke belakang giliran.",
+      "typeNameBefore": "Sila taipkan nama penumpang,",
+      "typeNameAfter": "untuk meneruskan.",
+      "typeNameError": "Sila taipkan nama penumpang tempahan untuk meneruskan.",
+      "confirmButton": "Batalkan Tempahan"
+    },
+    "purchase": {
+      "success": "Berjaya membeli tempahan",
+      "error": "Gagal membeli tempahan",
+      "createPassengerError": "Gagal mencipta penumpang",
+      "trigger": "Beli",
+      "title": "Beli Tempahan",
+      "requestBefore": "Permintaan tempahan untuk tiket kereta api pada",
+      "requestFrom": "dari",
+      "requestAfter": ".",
+      "johorToWoodlands": "Johor ke Woodlands",
+      "woodlandsToJohor": "Woodlands ke Johor",
+      "importantTitle": "Penting",
+      "importantBody": "BunnyBooker tidak bertanggungjawab jika anda memasukkan maklumat yang salah. Sila semak maklumat anda (di bawah) sebelum meneruskan pembelian anda.",
+      "passportExpiry": "Tamat Tempoh Pasport",
+      "male": "Lelaki",
+      "female": "Perempuan"
+    },
+    "terminate": {
+      "success": "Berjaya menamatkan tempahan",
+      "error": "Gagal menamatkan tempahan",
+      "trigger": "Tamatkan",
+      "title": "Tamatkan Tempahan",
+      "intro": "Arnab kami telah berjaya mendapatkan tiket anda di KITS! Menamatkan tiket ini akan melepaskan tiket anda semula kepada KITS.",
+      "takeNoteTitle": "Ambil Perhatian!",
+      "takeNoteBefore": "Menamatkan tempahan hanya akan mengembalikan",
+      "refundPercent": "50%",
+      "takeNoteAfter": "daripada harga tiket yang anda bayar. Ini adalah untuk mengelakkan penyalahgunaan sistem.",
+      "typeNameBefore": "Sila taipkan nama penumpang,",
+      "typeNameAfter": "untuk meneruskan.",
+      "typeNameError": "Sila taipkan nama penumpang tempahan untuk meneruskan.",
+      "confirmButton": "Tamatkan Tempahan"
+    }
+  },
+  "bookings": {
+    "list": {
+      "title": "Tempahan",
+      "filterByUserId": "Tapis mengikut ID pengguna...",
+      "selectDate": "Pilih tarikh",
+      "none": "Tiada",
+      "woodlandsToJb": "Woodlands ke JB",
+      "woodlandsToJbSentral": "Woodlands ke JB Sentral",
+      "jbToWoodlands": "JB ke Woodlands",
+      "jbSentralToWoodlands": "JB Sentral ke Woodlands",
+      "empty": "Tiada tempahan ditemui"
+    },
+    "detail": {
+      "title": "Tempahan",
+      "notFound": "Tempahan tidak dapat ditemui"
+    },
+    "purchase": {
+      "title": "Beli Tempahan",
+      "directionJToW": "JB Sentral ke Woodlands",
+      "directionWToJ": "Woodlands ke JB Sental",
+      "selectExistingPassenger": "Pilih Penumpang Sedia Ada",
+      "passenger": "Penumpang",
+      "none": "Tiada",
+      "passengerDetails": "Butiran Penumpang",
+      "fullNamePlaceholder": "Nama penuh seperti dalam Pasport",
+      "passportNumberPlaceholder": "Nombor Pasport",
+      "passportExpiry": "Tarikh Luput Pasport",
+      "male": "Lelaki",
+      "female": "Perempuan",
+      "savePassenger": "Simpan penumpang ini",
+      "bookingCost": "Kos Tempahan",
+      "insufficientBalance": "Baki tidak mencukupi",
+      "yourBalance": "Baki Anda",
+      "depositNow": "Deposit Sekarang",
+      "fullNameMin": "Nama penuh mestilah sekurang-kurangnya 1 aksara",
+      "fullNameMax": "Nama penuh mestilah tidak melebihi 512 aksara",
+      "fullNameRegex": "Nama penuh hanya boleh mengandungi huruf dan aksara khas @ . / ' , - ` *",
+      "passportNumberRegex": "Nombor pasport hanya boleh mengandungi huruf dan nombor",
+      "passportNumberMin": "Nombor pasport mestilah sekurang-kurangnya 1 aksara",
+      "passportNumberMax": "Nombor pasport mestilah tidak melebihi 20 aksara",
+      "passportExpiryMin": "Tarikh luput pasport mestilah sekurang-kurangnya 6 bulan dari tarikh tiket"
+    },
+    "success": {
+      "title": "Berjaya!",
+      "message": "Tempahan berjaya dibeli",
+      "balance": "Baki: {amount}",
+      "purchaseAnother": "Beli Tempahan Lain",
+      "viewBookings": "Lihat Tempahan"
+    }
+  },
+  "discounts": {
+    "list": {
+      "none": "Tiada",
+      "discountType": "Jenis Diskaun",
+      "matchMode": "Mod Padanan",
+      "notFound": "Diskaun tidak dijumpai",
+      "providesDiscount": "Menyediakan diskaun {amount} untuk",
+      "and": "DAN",
+      "or": "ATAU",
+      "enabledToast": "Berjaya mengaktifkan diskaun",
+      "disabledToast": "Berjaya menyahaktifkan diskaun",
+      "updateError": "Gagal mengemas kini diskaun"
+    },
+    "create": {
+      "trigger": "Cipta Diskaun",
+      "title": "Cipta diskaun baharu",
+      "intro": "Cipta Diskaun baharu yang terpakai kepada ahli yang memenuhi syarat tertentu.",
+      "takeNote": "Ambil Perhatian!",
+      "noteBody": "Diskaun berkuat kuasa sebaik sahaja dicipta. Anda boleh menyahaktifkannya pada bila-bila masa.",
+      "amountPlaceholder": "Jumlah Diskaun",
+      "toggle": "Togol {label}",
+      "matchType": "Jenis Padanan",
+      "matchTarget": "Sasaran Padanan",
+      "addMatchTarget": "Tambah Sasaran Padanan",
+      "createdToast": "Berjaya mencipta diskaun '{name}'",
+      "createError": "Gagal mencipta diskaun"
+    },
+    "update": {
+      "trigger": "Kemas Kini Diskaun",
+      "title": "Menyunting diskaun",
+      "intro": "Sunting Diskaun sedia ada yang terpakai kepada ahli yang memenuhi syarat tertentu.",
+      "takeNote": "Ambil Perhatian!",
+      "noteBody": "Diskaun berkuat kuasa sebaik sahaja dikemas kini. Anda boleh menyahaktifkannya pada bila-bila masa.",
+      "updatedToast": "Berjaya mengemas kini diskaun '{name}'",
+      "updateError": "Gagal mengemas kini diskaun"
+    },
+    "delete": {
+      "trigger": "Padam Diskaun",
+      "title": "Padam diskaun",
+      "intro": "Padam diskaun. Tindakan ini tidak boleh diterbalikkan.",
+      "takeNote": "Ambil Perhatian!",
+      "noteBody": "Diskaun berkuat kuasa sebaik sahaja dipadam. Tindakan ini tidak boleh dibatalkan.",
+      "confirmPrefix": "Sila taipkan nama diskaun,",
+      "confirmSuffix": "untuk meneruskan.",
+      "typeNameHint": "Sila taipkan nama diskaun untuk meneruskan.",
+      "deletedToast": "Berjaya memadam diskaun '{name}'",
+      "deleteError": "Gagal memadam diskaun"
+    }
+  },
+  "landing": {
+    "notFound": "Halaman utama tidak dapat ditemui",
+    "meta": {
+      "title": "BunnyBooker - Pembantu Tempahan Tiket Kereta Api KTMB Tanpa Tekanan | Singapura ke Johor Bahru",
+      "description": "Tempah tiket kereta api KTMB dari Singapura ke Johor Bahru dengan mudah bersama BunnyBooker. Kadar kejayaan 99%, tempahan automatik, perkhidmatan 24/7. Langkau barisan dan biar AI kami menguruskan tempahan kereta api anda.",
+      "keywords": "tiket kereta api KTMB, Singapura ke Johor Bahru, JB Sentral, tempahan automatik, tempahan kereta api, perjalanan Malaysia Singapura, pengangkutan rentas sempadan",
+      "ogTitle": "BunnyBooker - Tempahan Tiket Kereta Api KTMB Automatik",
+      "ogDescription": "Langkau kerumitan menempah KTMB (Kereta Api Singapura-Johor) secara manual. Arnab AI kami mengamankan tiket kereta api anda secara automatik dengan kadar kejayaan 99%. Tempah tiket kereta api Singapura-JB tanpa tekanan!",
+      "twitterDescription": "Langkau kerumitan tempahan KTMB secara manual. Arnab AI kami mengamankan tiket kereta api anda secara automatik dengan kadar kejayaan 99%."
+    },
+    "hero": {
+      "ariaLabel": "Bahagian hero",
+      "mascotAlt": "Maskot BunnyBooker - watak arnab mesra yang mewakili perkhidmatan tempahan tiket kereta api KTMB automatik",
+      "subtitle": "Semua orang berhak menikmati perjalanan kereta api KTMB yang selesa ke JB. Kami membantu anda melangkau barisan dan orang ramai.",
+      "cta": "Amankan Tiket Saya",
+      "seeHowItWorks": "Lihat cara ia berfungsi"
+    },
+    "steps": {
+      "step1": {
+        "label": "LANGKAH 1",
+        "title": "Pilih Tarikh dan Masa Anda",
+        "body": "Hanya pilih tarikh dan masa perjalanan anda, kemudian AI kami akan mengambil alih. Tetapkan sekali dan lupakan - tiada lagi menyegar semula tanpa henti.",
+        "imageAlt": "Langkah 1: Antara muka pilih tarikh dan masa anda yang menunjukkan pilihan kalendar dan masa"
+      },
+      "step2": {
+        "label": "LANGKAH 2",
+        "title": "Berehat & Bersantai",
+        "body": "Tiada lagi tekanan tentang tiket habis dijual. AI kami memantau KTMB 24/7, jadi anda boleh fokus merancang perjalanan anda dan bukannya memburu tiket.",
+        "imageAlt": "Langkah 2: Berehat dan bersantai sementara arnab kami menguruskan tempahan anda"
+      },
+      "step3": {
+        "label": "LANGKAH 3",
+        "title": "Biar Arnab Kami Memburu",
+        "body": "AI kami mengimbas tiket yang baru dikeluarkan setiap saat, dengan serta-merta menerkam peluang sebelum ia hilang.",
+        "imageAlt": "Langkah 3"
+      },
+      "step4": {
+        "label": "LANGKAH 4",
+        "title": "Tempahan Serta-merta",
+        "body": "Pelaksanaan pantas kilat. Sebaik sahaja tiket dikeluarkan, sistem kami mengamankannya sebelum orang lain perasan.",
+        "imageAlt": "Langkah 4"
+      },
+      "step5": {
+        "label": "LANGKAH 5",
+        "title": "Terima notifikasi dan Sahkan Butiran Tempahan",
+        "body": "Terima notifikasi segera dengan semua butiran tiket sebaik sahaja ia ditempah. Semak dan sahkan maklumat di portal mesra pengguna kami untuk pengalaman perjalanan tanpa tekanan!",
+        "imageAlt": "Langkah 5"
+      }
+    },
+    "whyChoose": {
+      "heading": "Mengapa Pilih BunnyBooker?",
+      "moneyBack": {
+        "title": "Jaminan Wang Dikembalikan",
+        "body": "Dapatkan wang anda kembali jika kami tidak dapat mengamankan tiket anda"
+      },
+      "instantUpdates": {
+        "title": "Kemas Kini Serta-merta",
+        "body": "Diberitahu apabila tiket anda diamankan"
+      },
+      "successRate": {
+        "title": "Kadar Kejayaan Tinggi",
+        "body": "99% tempahan kami berjaya"
+      },
+      "available": {
+        "title": "Tersedia 24/7",
+        "body": "Sistem kami berfungsi sepanjang masa"
+      }
+    },
+    "reviews": {
+      "heading": "Kisah Kejayaan",
+      "viewAll": "Lihat Semua Ulasan",
+      "joinTagline": "Sertai beribu-ribu pengembara gembira yang mempercayai BunnyBooker!",
+      "readMore": "Baca lagi →",
+      "trustedBy": "Dipercayai oleh 1,000+ Pengembara",
+      "stats": {
+        "successRate": "Kadar Kejayaan",
+        "bookingsMade": "Tempahan Dibuat",
+        "automatedService": "Perkhidmatan Automatik"
+      },
+      "locations": {
+        "singapore": "Singapura"
+      },
+      "items": {
+        "csyhue": "Perkhidmatan hebat dan tempahan lancar. Telah menggunakan platform ini sangat lama dan sentiasa berjaya mendapatkan tiket! Sangat disyorkan!",
+        "fhong": "Penjual yang mesra dan boleh dipercayai. Anda perlu mencubanya untuk percaya. Kami mendapat tiket 1 hari sebelum tarikh berlepas. Sangat disyorkan 👍🏼👍🏼",
+        "reappraisal": "Pembelian 2 tiket KTMB berjalan lancar. Tiada sebarang barisan dan menjimatkan banyak masa kami. Pasti disyorkan dan dipercayai. Terima kasih",
+        "clarrence": "Sangat mudah dan ringkas untuk digunakan! Telah menggunakan perkhidmatan dua kali dan pada kedua-dua kali saya mendapat 100% tiket! Perkhidmatan yang sangat boleh dipercayai jika anda merancang untuk ke JB! 10/10 saya syorkan!",
+        "melissatan": "Sungguh hebat! Menjimatkan saya berjam-jam kekecewaan cuba menempah tiket KTMB sendiri. Mendapat kesemua 4 tiket untuk perjalanan keluarga saya dalam masa 2 hari. Pasti akan guna lagi!",
+        "davidlim88": "Pengubah permainan untuk perjalanan ke JB! Tiada lagi tekanan tentang tiket habis dijual. Sistem berfungsi dengan sempurna dan mendapat tiket kami walaupun semasa musim cuti puncak. Sangat disyorkan untuk pengembara kerap!",
+        "sarahTravels": "Menggunakan BunnyBooker untuk perjalanan beli-belah bulanan saya ke JB. Tidak pernah gagal mendapatkan tiket! Khidmat pelanggan responsif dan keseluruhan proses sangat mudah. Berbaloi setiap sen!"
+      }
+    },
+    "faq": {
+      "heading": "Soalan Lazim",
+      "bb": {
+        "policyLinkBefore": "Untuk maklumat lanjut tentang dasar penghantaran, pembatalan dan pemulangan wang, lihat",
+        "policyLinkText": "di sini",
+        "q1": {
+          "question": "Bagaimana BunnyBooker berfungsi?",
+          "answer1": "Sebaik sahaja anda membuat tempahan, kami akan menggunakan sistem AI kami untuk meramal bila tiket akan dikembalikan atau dikeluarkan semula di tapak KTMB. Sebaik sahaja slot masa yang sepadan dengan tempahan anda telah dikembalikan dan disediakan di tapak KTMB, kami akan menempah tiket bagi pihak anda.",
+          "answer2": "Kami tidak menyimpan stok tiket kereta api dalam sistem kami dan hanya membuat tempahan berdasarkan pesanan yang belum diselesaikan."
+        },
+        "q2": {
+          "question": "Mengapa saya patut membeli tiket melalui BunnyBooker?",
+          "convenienceTitle": "Kemudahan",
+          "convenienceBody": "Membeli tiket di BunnyBooker menjimatkan masa dan kerumitan anda daripada sentiasa pergi ke tapak KTMB untuk menyemak ketersediaan tiket kerana sistem kami menyemak dan menempah sebarang tiket yang ada sebaik sahaja ia tersedia.",
+          "statusTitle": "Semak status pesanan bila-bila masa, di mana sahaja",
+          "statusBody1": "BunnyBooker membenarkan anda menyemak status pesanan anda bila-bila masa yang anda suka, membolehkan anda menentukan langkah seterusnya bagi perjalanan anda.",
+          "statusBody2": "Anda akan dapat menyemak status setiap tiket bagi setiap pesanan, dan ia adalah sama ada \"Dibeli\" atau \"Belum Selesai\".",
+          "queueTitle": "Semak barisan tiket untuk merancang perjalanan",
+          "queueBody1": "BunnyBooker membenarkan anda melihat bilangan tiket yang menunggu di hadapan anda dalam semua slot masa bagi hari dan arah kereta api yang anda pilih.",
+          "queueBody2": "cth. Pelanggan 1 membuat pesanan untuk 3 orang bagi CIQ -> JB SENTRAL pada 8.30 PAGI pada 31/12/2023, dan pelanggan 2 ingin membuat pesanan untuk 5 orang bagi arah, tarikh dan masa yang sama. Barisan BunnyBooker akan memaparkan \"3 tiket belum selesai\" untuk Pelanggan 2 membuat pilihan yang berinformasi sama ada dia mahu membuat pesanan untuk slot masa yang sama atau memilih slot masa alternatif.",
+          "safeTitle": "Selamat",
+          "safeBody": "BunnyBooker mematuhi PDPA dan hanya menyimpan maklumat yang diberikan secara sukarela oleh anda untuk memenuhi pesanan tempahan, serta maklumat pemasaran hanya jika kebenaran diberikan oleh anda."
+        },
+        "q3": {
+          "question": "Bagaimana saya boleh menyemak status pembelian pesanan saya?",
+          "answerBefore": "Anda boleh log masuk ke",
+          "answerAfter": "dan menyemak status pesanan anda."
+        },
+        "q4": {
+          "question": "Bolehkah saya menukar pesanan saya selepas pengesahan pesanan?",
+          "answer": "Anda boleh membatalkan tiket pada bila-bila masa. Walau bagaimanapun, jika tiket telah diamankan oleh sistem kami, anda tidak akan dikembalikan wang bagi tiket yang dibatalkan."
+        },
+        "q5": {
+          "question": "Adakah pemulangan wang dibenarkan?",
+          "answer": "Pemulangan wang penuh disediakan untuk tiket yang belum diamankan oleh sistem kami. Walau bagaimanapun, tiket yang diamankan oleh sistem kami boleh dibatalkan, tetapi tidak layak untuk pemulangan wang."
+        },
+        "q6": {
+          "question": "Adakah BunnyBooker membenarkan prapesanan?",
+          "answer": "Prapesanan untuk tiket yang belum dikeluarkan dibenarkan. Tiada had tentang berapa jauh ke hadapan anda boleh membuat pesanan."
+        },
+        "q7": {
+          "question": "Bagaimana data peribadi saya dikendalikan?",
+          "item1": "Semua data peribadi disulitkan semasa rehat dalam pangkalan data",
+          "item2": "Tiada data dikongsi dengan pihak luar",
+          "item3": "Tiada maklumat pengenalan peribadi dibenarkan untuk diakses oleh kakitangan dalaman",
+          "item4": "Selepas penolakan kebenaran pemasaran, tiada data peribadi akan dikumpulkan untuk tujuan pemasaran dan hanya maklumat penting untuk menempah tiket akan dikumpulkan",
+          "item5": "Selepas pemadaman akaun, semua maklumat berkaitan pengguna akan dipadamkan serta-merta daripada pangkalan data kami",
+          "privacyBefore": "Pengendalian data peribadi di atas adalah untuk BunnyBooker sahaja. Klik",
+          "privacyLinkText": "di sini",
+          "privacyAfter": "untuk membaca lebih lanjut tentang pengendalian data peribadi BunnyBooker.",
+          "ktmbBefore": "Jika anda ingin mengetahui bagaimana data peribadi anda dikendalikan di laman web KTMB, anda boleh melawati",
+          "ktmbLinkText": "di sini"
+        },
+        "q8": {
+          "question": "Apakah kadar kejayaan perkhidmatan tempahan BunnyBooker?",
+          "answerBefore": "Sehingga kini, kadar kejayaan adalah",
+          "answerAfter": "."
+        }
+      },
+      "ktmb": {
+        "tenMinutes": "10 minit",
+        "twentyMinutes": "20 minit",
+        "q1": {
+          "question": "Bagaimana menaiki kereta api antara Singapura dan JB berfungsi?",
+          "p1": "Sebagai contoh, anda mempunyai perjalanan kereta api 9.45 pagi dari SG -> JB.",
+          "p2": "Pintu pagar ditutup tepat 20 minit sebelum pelepasan kereta api. Oleh itu, adalah lebih baik untuk berada dalam barisan sekurang-kurangnya 30 minit sebelum pelepasan kereta api (pada 9.15 pagi).",
+          "p3": "Dari 9.25 pagi - 9.45 pagi (20 minit sebelum pelepasan), Semua penumpang akan melalui kastam Singapura & Malaysia sebelum perjalanan kereta api (ya, anda baca dengan betul, 2 kastam diselesaikan sebelum perjalanan kereta api!)",
+          "p4": "Dari 9.45 pagi - 9.50 pagi, Kereta api berlepas pada 9.45 pagi dan anda akan tiba di JB sentral pada 9.50 pagi!",
+          "p5": "Pada 9.50 pagi, Destinasi dicapai, anda bebas untuk bersiar-siar!",
+          "noteBefore": "NOTA: Kereta api dari JB-> SG ditutup",
+          "noteMiddle": "sebelum pelepasan, kereta api dari SG -> JB (dalam contoh di atas) ditutup",
+          "noteAfter": "sebelum pelepasan."
+        },
+        "q2": {
+          "question": "Apakah slot masa yang tersedia untuk tempahan?",
+          "caption": "Slot masa yang tersedia untuk tempahan",
+          "sgToJb": "SG -> JB",
+          "jbToSg": "JB -> SG"
+        },
+        "q3": {
+          "question": "Bila pintu pagar ditutup sebelum pelepasan?",
+          "sgToJohor": "Singapura ke Johor:",
+          "johorToSg": "Johor ke Singapura:",
+          "beforeDeparture": "sebelum pelepasan"
+        },
+        "q4": {
+          "question": "Mengapa saya patut menaiki kereta api ke JB/SG dan bukannya mod pengangkutan lain?",
+          "answer": "Menempah kereta api adalah pilihan yang boleh dipercayai, mengelakkan lalu lintas yang tidak menentu dan kemungkinan kelewatan kastam selama 4 jam dengan mod pengangkutan lain. Tempat duduk kereta api yang terhad dan pemeriksaan kastam khusus (hanya untuk penumpang kereta api) mempercepatkan perjalanan anda, memastikan perjalanan pantas 30 minit ke destinasi anda."
+        }
+      }
+    },
+    "finalCta": {
+      "heading": "Mulakan Hari Ini",
+      "subtitle": "Sertai beribu-ribu pengembara yang mempercayai BunnyBooker untuk tiket KTMB mereka.",
+      "bookNow": "Tempah Sekarang",
+      "guarantees": "Jaminan pemulangan wang penuh • Notifikasi e-mel • Platform selamat"
+    }
+  },
+  "legal": {
+    "terms": {
+      "heading": "Terma dan Syarat",
+      "intro1": "Semua akses ke mana-mana kawasan di laman web kami di BunnyBooker tertakluk kepada terma dan syarat di bawah (\"Terma\"). Jika anda tidak selesa dengan mana-mana Terma ini, kami menasihatkan anda untuk keluar. Sila teruskan hanya jika anda boleh menerima Terma ini.",
+      "intro2": "Dalam Terma ini, perkataan \"kami\", \"kita\" dan \"kepunyaan kami\" merujuk kepada BunnyBooker.",
+      "accessHeading": "Akses ke BunnyBooker",
+      "accessBody": "Kebolehcapaian dan pengendalian laman web kami bergantung pada teknologi di luar kawalan kami. Kami tidak dapat menjamin kebolehcapaian berterusan atau pengendalian laman web kami tanpa gangguan.",
+      "relyingHeading": "Bergantung pada Maklumat",
+      "relyingBody": "Kami menyediakan laman web kami sebagai sumber maklumat umum sahaja. Kami tidak terlibat dalam memberikan nasihat profesional di sini. Laman web ini mungkin tidak meliputi semua maklumat yang tersedia tentang sesuatu isu tertentu. Kami menasihatkan anda untuk membuat semakan sendiri atau mendapatkan nasihat profesional yang berkaitan dengan keadaan khusus anda, di luar laman web kami.",
+      "securityHeading": "Keselamatan",
+      "securityBody": "Jika sesuai, kami menggunakan teknologi yang tersedia untuk melindungi keselamatan komunikasi yang dibuat melalui laman web kami. Kami tidak menerima liabiliti atas keselamatan, ketulenan, integriti atau kerahsiaan sebarang transaksi dan komunikasi lain yang dibuat melalui laman web kami. Komunikasi Internet mungkin terdedah kepada gangguan atau pemintasan oleh pihak ketiga. Kami akan berusaha sebaik mungkin, tetapi kami tidak dapat memberikan sebarang jaminan bahawa laman web kami bebas daripada jangkitan virus komputer atau perisian lain yang tidak dibenarkan.",
+      "hyperlinksHeading": "Hiperpautan",
+      "hyperlinksBody1": "Kami tidak bertanggungjawab atau bertanggungan terhadap ketersediaan atau kandungan mana-mana laman Internet lain (yang bukan disediakan oleh kami) yang dipautkan ke atau dari laman web kami. Akses ke mana-mana laman Internet lain adalah atas risiko anda sendiri. Jika anda mencipta pautan atau bingkai ke laman web kami, anda melakukannya atas risiko anda sendiri.",
+      "hyperlinksBody2": "Kami berhak untuk membantah atau melumpuhkan sebarang pautan atau bingkai ke atau dari laman web kami.",
+      "restrictionsHeading": "Sekatan ke atas Penggunaan Bahan",
+      "restrictionsBody1": "Semua kandungan di laman web ini, termasuk nama dagangan, artikel, teks, karya seni, gambar, foto, filem, logo BunnyBooker dan imej berkaitan, dilindungi oleh undang-undang yang terpakai, termasuk undang-undang hak cipta, dan tidak boleh diterbitkan semula atau diambil tanpa kebenaran bertulis terlebih dahulu daripada pemegang hak yang berkaitan.",
+      "restrictionsBody2": "Tiada lesen atau hak diberikan, dan akses anda ke laman web ini dan/atau penggunaan perkhidmatan dalam talian tidak seharusnya ditafsirkan sebagai memberikan sebarang lesen atau hak untuk menggunakan sebarang harta intelek yang muncul di laman web tanpa kebenaran bertulis terlebih dahulu daripada BunnyBooker atau pemegang hak yang berkaitan.",
+      "restrictionsBody3": "Pengubahsuaian mana-mana bahan atau penggunaan mana-mana bahan untuk sebarang tujuan lain akan menjadi pelanggaran hak cipta BunnyBooker.",
+      "thirdPartyHeading": "Kandungan Pihak Ketiga",
+      "thirdPartyBody": "Kandungan pihak ketiga mungkin muncul di laman web atau boleh diakses melalui pautan dari laman web. BunnyBooker tidak akan bertanggungjawab dan tidak menanggung sebarang liabiliti atas sebarang pelanggaran, kesilapan, salah nyata undang-undang, fitnah, libel, slander, peninggalan, kepalsuan atau kata-kata kesat dalam kenyataan, pendapat, perwakilan, atau sebarang bentuk kandungan lain yang terkandung dalam mana-mana kandungan pihak ketiga yang muncul di laman web.",
+      "nonConfidentialityHeading": "Bukan Kerahsiaan",
+      "nonConfidentialityBody": "Anda bersetuju bahawa semua maklumat dan/atau butiran yang dihantar atau diserahkan oleh anda kepada BunnyBooker berhubung dengan akses laman web ini adalah bukan sulit dan bukan hak milik melainkan dinyatakan secara nyata oleh anda. Anda selanjutnya berjanji untuk tidak menyerahkan sebarang maklumat dan/atau bahan lain yang bersifat atau mungkin menyinggung, menyalahi undang-undang, atau yang tidak boleh disebarkan secara sah di bawah undang-undang Singapura atau mana-mana negara lain yang berkaitan.",
+      "modificationHeading": "Pengubahsuaian kepada Terma dan Syarat Penggunaan",
+      "modificationBody": "Terma dan Syarat yang dinyatakan di sini mungkin disunting dari semasa ke semasa. Versi terkini Terma dan Syarat Penggunaan akan disiarkan di laman web dan berkuat kuasa serta-merta.",
+      "privacyHeading": "Privasi",
+      "privacyBodyPrefix": "Penggunaan laman web oleh anda tertakluk kepada Dasar Privasi BunnyBooker, yang boleh didapati",
+      "privacyBodyLink": "di sini",
+      "registrationHeading": "Pendaftaran di Laman Web dan Perkhidmatan Tempahan",
+      "registrationBody1": "Maklumat yang dikumpul daripada pengguna kami mungkin digunakan untuk pelbagai sebab.",
+      "registrationBody2": "Kami komited untuk melindungi privasi anda. Kami tidak mendedahkan maklumat khusus tentang pengguna kami kepada mana-mana pihak ketiga melainkan dikehendaki oleh undang-undang atau mana-mana agensi kerajaan. Sekiranya anda menyertai peraduan atau program promosi lain di laman kami yang ditaja atau dianjurkan oleh pihak ketiga atau membeli barangan dan perkhidmatan yang ditawarkan oleh pihak ketiga atau menawarkan barangan dan perkhidmatan kepada pihak ketiga di laman kami, maklumat anda mungkin didedahkan kepada dan digunakan oleh pihak ketiga tersebut.",
+      "accuracyHeading": "Ketepatan Maklumat",
+      "accuracyBody1": "Anda menjamin dan berjanji bahawa semua perisytiharan kesihatan yang diserahkan oleh anda adalah perisytiharan yang lengkap dan benar tentang diri anda dan semua orang yang anda belikan tiket.",
+      "accuracyBody2": "Sila ambil perhatian bahawa jika anda tidak menyerahkan perisytiharan yang lengkap dan tepat untuk semua pemegang tiket, anda mungkin tidak dapat membeli tiket atau menaiki kereta api. BunnyBooker tidak akan bertanggungjawab atas maklumat tidak tepat yang dimasukkan oleh anda.",
+      "limitationsHeading": "Had",
+      "limitationsBody1": "Kami tidak menerima liabiliti sekiranya pembekal kereta api menangguhkan, membatalkan, mengganggu atau menghentikan Perkhidmatan disebabkan cuaca buruk, situasi berbahaya, atau sebarang punca lain di luar kawalan munasabah kami. Kami akan berusaha sebaik mungkin untuk menyemak bahawa perkhidmatan kereta api tersedia dan berfungsi sebelum menerima pesanan tiket, tetapi kami tidak dapat memberikan sebarang jaminan bahawa kereta api bebas daripada kerosakan akibat haus dan lusuh atau kerosakan teknikal lain.",
+      "limitationsBody2": "Kami berusaha memenuhi semua pesanan. Walau bagaimanapun, dalam senario di mana kami tidak dapat memenuhi pesanan disebabkan laman KTMB tidak berfungsi, dalam penyelenggaraan atau tidak dapat diakses untuk tempoh yang lama, bayaran balik penuh akan diberikan dan dikreditkan ke akaun BunnyBooker anda. Walau bagaimanapun, kami tidak menerima liabiliti selain daripada menyediakan bayaran balik penuh untuk tiket yang terjejas.",
+      "responsibilitiesHeading": "Tanggungjawab Anda",
+      "responsibilitiesBody1": "Semua tiket mesti dikutip dalam tempoh masa yang ditetapkan untuk anda. Tiada bayaran balik akan dibuat untuk tiket yang tidak dikutip atau tidak digunakan.",
+      "responsibilitiesBody2": "Tiada fotografi, rakaman audio atau video dibenarkan semasa daftar masuk kastam melainkan dinyatakan sebaliknya oleh KTMB.",
+      "responsibilitiesBody3": "Anda secara sukarela menanggung semua risiko dan bahaya yang berkaitan dengan perkhidmatan tiket dan di destinasi perjalanan anda sama ada berlaku sebelum, semasa atau selepas perkhidmatan tiket sebenar atau kehadiran anda di destinasi perjalanan, termasuk sebarang kematian, kecederaan diri, kerugian, kerosakan atau liabiliti.",
+      "covidHeading": "Peraturan Covid-19",
+      "covidIntro": "Semasa pandemik COVID-19, tanpa menjejaskan sebarang hak lain KTMB dan BunnyBooker, dan walau apa pun yang bertentangan, KTMB dan BunnyBooker berhak untuk tidak memberikan bayaran balik bagi sebarang Tiket yang dibeli untuk Kereta Api (\"Kereta Api\") dalam mana-mana atau semua keadaan berikut (yang tidak menyeluruh):",
+      "covidItem1": "di mana Pemegang Tiket sihat, tetapi tidak mahu menaiki Kereta Api kerana takut terdedah kepada COVID-19;",
+      "covidItem2": "di mana Pemegang Tiket tidak sihat tetapi diuji negatif untuk COVID-19 dan/atau tidak mempunyai sebarang gejala berkaitan COVID-19, dan tidak menaiki Kereta Api;",
+      "covidItem3": "di mana Pemegang Tiket dinafikan kemasukan atau diminta meninggalkan kereta api menurut nasihat kesihatan dalam fasal 1.",
+      "covidItem4": "di mana Pemegang Tiket dinafikan kemasukan ke Kereta Api atas sebab yang didedahkan kepada Pemegang Tiket dalam Terma dan Syarat Jualan ini; dan/atau",
+      "covidItem5": "di mana Pemegang Tiket menaiki Kereta Api, dan kemudiannya meninggalkan Kereta Api sebelum Kereta Api berlepas ke destinasi disebabkan Pemegang Tiket berasa tidak sihat.",
+      "clause1Heading": "Fasal 1.",
+      "clause1Body": "Pemegang Tiket mesti mematuhi semua keperluan kesihatan dan keselamatan yang ditetapkan oleh kerajaan Singapura, termasuk sebarang arahan untuk mencegah penularan COVID-19, dan semua nasihat serta garis panduan kesihatan lain (\"Nasihat Kesihatan\"). Ini termasuk tetapi tidak terhad kepada: pemakaian topeng muka, penggunaan Trace Together/Safe-Entry, protokol vaksinasi dan ujian, serta langkah penjarakan selamat. Mana-mana Pemegang Tiket yang didapati tidak mematuhi sebarang Nasihat Kesihatan juga akan dinafikan kemasukan ke Kereta Api atau diminta meninggalkan Tempat.",
+      "vaccinationHeading": "Protokol Vaksinasi dan Ujian",
+      "vaccinationIntro": "Di mana dikehendaki oleh KTMB:",
+      "vaccinationItem1": "Anda mesti, pada masa pembelian Tiket, memberikan perisytiharan benar mengenai status vaksinasi COVID-19 setiap Pemegang Tiket (\"Perisytiharan\");",
+      "vaccinationItem2": "Pemegang Tiket yang telah divaksinasi sepenuhnya terhadap COVID-19 mesti, di Tempat, menunjukkan bukti rasmi status vaksinasi COVID-19 mereka (\"Pemegang Tiket Divaksinasi\"); dan",
+      "vaccinationItem3": "Pemegang Tiket yang tidak mempunyai bukti rasmi vaksinasi penuh terhadap COVID-19 (\"Pemegang Tiket Tidak Divaksinasi\") akan:",
+      "vaccinationItem4": "Jika Pemegang Tiket Tidak Divaksinasi tidak dibenarkan menaiki Kereta Api, dinafikan kemasukan;",
+      "vaccinationItem5": "Jika Pemegang Tiket Tidak Divaksinasi dibenarkan menaiki Kereta Api, mereka dikehendaki mendapatkan ujian pra-Kereta Api atau pra-Perkhidmatan untuk COVID-19 (\"PET\") sama ada di Tempat sebelum kemasukan, atau pada masa dan lokasi yang akan dimaklumkan kepada anda, dan menunjukkan laporan keputusan negatif untuk COVID-19 sebelum kemasukan.",
+      "vaccinationBody1": "Sebarang ketidakpatuhan terhadap keperluan di atas akan mengakibatkan penafian kemasukan ke Kereta Api.",
+      "vaccinationBody2": "Anda menjamin dan berjanji bahawa semua Perisytiharan yang diserahkan oleh anda adalah Perisytiharan yang lengkap dan benar tentang diri anda dan semua orang yang anda belikan Tiket.",
+      "vaccinationConsentPrefix": "Anda menjamin bahawa anda diberi kuasa oleh semua Pemegang Tiket anda untuk bersetuju, dan dengan ini bersetuju dengan, pengumpulan, penggunaan, pemprosesan dan pendedahan oleh BunnyBooker dan KTMB ke atas semua data peribadi yang terkandung dalam Perisytiharan yang diserahkan oleh anda, selaras dengan",
+      "vaccinationConsentLink": "Dasar Privasi BunnyBooker",
+      "vaccinationConsentSuffix": "serta Terma dan Syarat ini.",
+      "vaccinationBody3": "Sila ambil perhatian bahawa BunnyBooker dan KTMB dikehendaki mematuhi semua Nasihat Kesihatan. Ini termasuk tetapi tidak terhad kepada kriteria kemasukan, langkah penjarakan selamat, seperti pengasingan, jarak dan pemisahan penumpang kereta api yang sesuai, dan peraturan mengenai kapasiti tempat duduk maksimum dalam kereta api.",
+      "vaccinationBody4": "Bagi membolehkan BunnyBooker dan KTMB mematuhi Nasihat Kesihatan, BunnyBooker dan KTMB mengumpul Perisytiharan anda bagi tujuan menentukan status vaksinasi setiap Pemegang Tiket. Ini akan membolehkan mereka menilai keselamatan perjalanan, mematuhi keperluan kemasukan dan kapasiti maksimum, melaksanakan pengurusan orang ramai, mengatur PET, dan memastikan tempat duduk, masa dan tarikh kereta api anda mematuhi semua Nasihat Kesihatan.",
+      "vaccinationBody5": "Oleh itu, BunnyBooker dan KTMB berhak mengambil sebarang tindakan yang mungkin diperlukan untuk mematuhi sebarang Nasihat Kesihatan berdasarkan maklumat yang terkandung dalam Perisytiharan yang diberikan oleh anda, yang mungkin termasuk tetapi tidak terhad kepada: memperuntukkan semula atau membuat sebarang perubahan kepada susunan tempat duduk, tarikh dan/atau masa Tiket anda; membatalkan atau membatalkan sebarang Tiket yang dibeli; menafikan kemasukan mana-mana Pemegang Tiket ke Acara dan/atau Tempat; menghendaki Pemegang Tiket Tidak Divaksinasi menjalani PET; dan menangguhkan atau membatalkan kereta api.",
+      "vaccinationBody6": "Perisytiharan tersebut adalah untuk kegunaan dalaman BunnyBooker dan KTMB dan hanya akan diakses oleh pekerja dan pembekal perkhidmatan mereka, dan tidak akan didedahkan kepada mana-mana pihak ketiga yang tidak dibenarkan.",
+      "vaccinationBody7": "Sila ambil perhatian bahawa jika anda tidak menyerahkan perisytiharan yang lengkap dan tepat untuk semua Pemegang Tiket, anda mungkin tidak dapat membeli tiket atau menaiki kereta api.",
+      "deliveryHeading": "Dasar Penghantaran, Bayaran Balik & Pertukaran",
+      "deliveryIntro": "Anda menerima terma berikut untuk penghantaran, bayaran balik dan pertukaran tiket:",
+      "deliveryItem1": "Bayaran balik penuh akan diberikan untuk tiket yang tidak berjaya diperoleh oleh sistem BunnyBooker di laman web KTMB.",
+      "deliveryItem2": "Tiket yang telah berjaya diperoleh di laman web KTMB tidak layak untuk bayaran balik atau pertukaran.",
+      "deliveryItem3": "Pembatalan boleh dimulakan setelah tiket ditempah. Walau bagaimanapun, sila ambil perhatian bahawa tiada bayaran balik akan diberikan untuk tiket yang dibatalkan selepas sistem BunnyBooker berjaya memperoleh tiket di laman web KTMB.",
+      "deliveryItem4": "Setelah tiket dipesan dan perkhidmatan tempahan kami digunakan, arnab kami akan secara aktif cuba memperoleh tiket anda.",
+      "deliveryItem5": "Usaha tempahan akan diteruskan sehingga 30 minit sebelum waktu berlepas yang dijadualkan dalam arah kereta api yang dipilih.",
+      "deliveryItem6": "Jika berjaya, anda akan dimaklumkan dengan segera tentang butiran tempahan anda yang disahkan.",
+      "deliveryItem7": "Jika tidak berjaya, anda akan dibayar balik sepenuhnya sebagai kredit dalam dompet BunnyBooker anda, yang boleh dikeluarkan.",
+      "fairUseHeading": "Penggunaan Adil",
+      "fairUseIntro": "Anda bersetuju bahawa anda tidak akan menggunakan perkhidmatan BunnyBooker untuk sebarang tujuan selain daripada menempah tiket kereta api, ini termasuk tetapi tidak terhad kepada:",
+      "fairUseItem1": "Menggunakan perkhidmatan BunnyBooker untuk mengaut keuntungan daripada tiket yang anda beli.",
+      "fairUseItem2": "Menggunakan dompet BunnyBooker untuk membeli barangan yang bukan tiket kereta api atau sebagai mekanisme untuk memindahkan atau mengalihkan dana.",
+      "fairUseItem3": "Menggunakan perkhidmatan BunnyBooker untuk terlibat dalam sebarang aktiviti haram lain.",
+      "fairUseItem4": "Cuba menggunakan perkhidmatan BunnyBooker untuk melanggar sebarang undang-undang yang terpakai.",
+      "fairUseConsequencesIntro": "Jika anda didapati atau disyaki melanggar mana-mana perkara di atas, anda akan tertakluk kepada tindakan undang-undang yang sewajarnya, yang mungkin termasuk tetapi tidak terhad kepada:",
+      "fairUseConsequence1": "Penggantungan atau penamatan akaun anda.",
+      "fairUseConsequence2": "Penyenaraihitaman semua penumpang yang dikaitkan dengan akaun anda.",
+      "fairUseConsequence3": "Menahan dana daripada akaun anda sehingga pelanggaran diselesaikan.",
+      "fairUseConsequence4": "Mengeskalasikan pelanggaran kepada pihak berkuasa yang berkaitan.",
+      "fairUseReserve": "Kami berhak mengambil sebarang tindakan terhadap anda atas sebarang pelanggaran dasar ini.",
+      "interestsHeading": "Melindungi Kepentingan BunnyBooker",
+      "interestsIntro": "BunnyBooker berhak melindungi kepentingannya selaras dengan undang-undang bidang kuasa tempat ia beroperasi. Ini termasuk tetapi tidak terhad kepada:",
+      "interestsItem1": "Mengubah suai atau menghentikan perkhidmatan BunnyBooker pada bila-bila masa tanpa notis.",
+      "interestsItem2": "Mengubah terma dan syarat penggunaan BunnyBooker pada bila-bila masa tanpa notis.",
+      "interestsItem3": "Mengubah dasar privasi BunnyBooker pada bila-bila masa tanpa notis.",
+      "interestsItem4": "Mengambil sebarang tindakan terhadap anda atas sebarang pelanggaran dasar ini.",
+      "interestsItem5": "Menamatkan akaun anda pada bila-bila masa tanpa notis.",
+      "interestsItem6": "Menahan dana dalam akaun anda pada bila-bila masa, tanpa notis.",
+      "interestsItem7": "Mengeskalasikan sebarang pelanggaran dasar ini kepada pihak berkuasa yang berkaitan, tanpa notis."
+    },
+    "privacy": {
+      "heading": "Dasar Privasi",
+      "noticeHeading": "NOTIS PERLINDUNGAN DATA",
+      "noticeBody": "Notis Perlindungan Data ini (\"Notis\") menetapkan asas BunnyBooker (\"kami\", \"kita\", atau \"kepunyaan kami\") boleh mengumpul, menggunakan, mendedahkan atau selainnya memproses data peribadi pelanggan kami selaras dengan Akta Perlindungan Data Peribadi (\"PDPA\"). Notis ini terpakai kepada data peribadi dalam pemilikan kami atau di bawah kawalan kami, termasuk data peribadi dalam pemilikan organisasi yang telah kami libatkan untuk mengumpul, menggunakan, mendedahkan atau memproses data peribadi bagi tujuan kami.",
+      "personalDataHeading": "DATA PERIBADI",
+      "definitionsIntro": "Sebagaimana digunakan dalam Notis ini:",
+      "definitionCustomer": "\"pelanggan\" bermaksud individu yang (a) telah menghubungi kami melalui sebarang cara untuk mengetahui lebih lanjut tentang sebarang barangan atau perkhidmatan yang kami sediakan, atau (b) mungkin, atau telah, memeterai kontrak dengan kami untuk pembekalan sebarang barangan atau perkhidmatan oleh kami; dan",
+      "definitionPersonalData": "\"data peribadi\" bermaksud data, sama ada benar atau tidak, tentang pelanggan yang boleh dikenal pasti: (a) daripada data tersebut; atau (b) daripada data tersebut dan maklumat lain yang kami ada atau berkemungkinan ada akses kepadanya.",
+      "examplesItem": "Bergantung pada sifat interaksi anda dengan kami, beberapa contoh data peribadi yang mungkin kami kumpul daripada anda termasuk nama anda dan maklumat pengenalan seperti nama penuh anda, nombor pasport, tarikh luput pasport, maklumat hubungan seperti alamat e-mel anda, nombor telefon bimbit, kewarganegaraan, jantina, tarikh lahir, status perkahwinan, foto dan maklumat audio-visual lain serta maklumat kewangan seperti nombor kad kredit, nombor kad debit atau maklumat akaun bank.",
+      "otherTermsItem": "Istilah lain yang digunakan dalam Notis ini hendaklah mempunyai maksud yang diberikan kepadanya dalam PDPA (di mana konteks membenarkan).",
+      "collectionHeading": "PENGUMPULAN, PENGGUNAAN DAN PENDEDAHAN DATA PERIBADI",
+      "collectionConsentItem": "Kami secara amnya tidak mengumpul data peribadi anda melainkan (a) ia diberikan kepada kami secara sukarela oleh anda secara langsung atau melalui pihak ketiga yang telah diberi kuasa dengan sewajarnya oleh anda untuk mendedahkan data peribadi anda kepada kami (“wakil sah anda”) selepas (i) anda (atau wakil sah anda) telah dimaklumkan tentang tujuan data dikumpul, dan (ii) anda (atau wakil sah anda) telah memberikan persetujuan bertulis untuk pengumpulan dan penggunaan data peribadi anda bagi tujuan tersebut, atau (b) pengumpulan dan penggunaan data peribadi tanpa persetujuan dibenarkan atau dikehendaki oleh PDPA atau undang-undang lain. Kami akan mendapatkan persetujuan anda sebelum mengumpul sebarang data peribadi tambahan dan sebelum menggunakan data peribadi anda untuk tujuan yang belum dimaklumkan kepada anda (kecuali di mana dibenarkan atau diberi kuasa oleh undang-undang).",
+      "purposesIntro": "Kami mungkin mengumpul dan menggunakan data peribadi anda untuk mana-mana atau semua tujuan berikut:",
+      "purposeA": "(a) melaksanakan kewajipan dalam perjalanan atau berhubung dengan penyediaan barangan dan/atau perkhidmatan yang diminta oleh anda;",
+      "purposeB": "(b) mengesahkan identiti anda;",
+      "purposeC": "(c) memberi respons, mengendalikan, dan memproses pertanyaan, permintaan, permohonan, aduan, dan maklum balas daripada anda;",
+      "purposeD": "(d) mengurus hubungan anda dengan kami;",
+      "purposeE": "(e) memproses transaksi pembayaran atau kredit;",
+      "purposeF": "(f) menghantar maklumat pemasaran kepada anda tentang barangan atau perkhidmatan kami termasuk memaklumkan anda tentang acara pemasaran, inisiatif dan promosi, cabutan bertuah, skim keahlian dan ganjaran serta promosi lain;",
+      "purposeG": "(g) mematuhi sebarang undang-undang, peraturan, kod amalan, garis panduan, atau peraturan yang terpakai, atau untuk membantu dalam penguatkuasaan undang-undang dan penyiasatan yang dijalankan oleh mana-mana pihak berkuasa kerajaan dan/atau kawal selia;",
+      "purposeH": "(h) sebarang tujuan lain yang anda telah berikan maklumat tersebut;",
+      "purposeI": "(i) menghantar kepada mana-mana pihak ketiga tidak bersekutu termasuk pembekal perkhidmatan dan ejen pihak ketiga kami, dan pihak berkuasa kerajaan dan/atau kawal selia yang berkaitan, sama ada di Singapura atau di luar negara, untuk tujuan yang disebutkan di atas; dan",
+      "purposeJ": "(j) sebarang tujuan perniagaan sampingan lain yang berkaitan atau berhubung dengan perkara di atas.",
+      "disclosureIntro": "Kami mungkin mendedahkan data peribadi anda:",
+      "disclosureA": "(a) di mana pendedahan tersebut diperlukan untuk melaksanakan kewajipan dalam perjalanan atau berhubung dengan penyediaan barangan atau perkhidmatan yang diminta oleh anda; atau",
+      "disclosureB": "(b) kepada pembekal perkhidmatan, ejen dan organisasi lain pihak ketiga yang telah kami libatkan untuk melaksanakan mana-mana fungsi yang disenaraikan dalam fasal 5 di atas untuk kami.",
+      "purposesContinueItem": "Tujuan yang disenaraikan dalam fasal di atas mungkin terus terpakai walaupun dalam situasi di mana hubungan anda dengan kami (sebagai contoh, menurut kontrak) telah ditamatkan atau diubah dengan apa-apa cara, untuk tempoh yang munasabah selepas itu (termasuk, di mana berkenaan, tempoh untuk membolehkan kami menguatkuasakan hak kami di bawah mana-mana kontrak dengan anda).",
+      "withdrawingHeading": "MENARIK BALIK PERSETUJUAN ANDA",
+      "withdrawingItem1": "Persetujuan yang anda berikan untuk pengumpulan, penggunaan dan pendedahan data peribadi anda akan kekal sah sehingga ia ditarik balik oleh anda secara bertulis. Anda boleh menarik balik persetujuan dan meminta kami berhenti menggunakan dan/atau mendedahkan data peribadi anda untuk mana-mana atau semua tujuan yang disenaraikan di atas dengan menyerahkan permintaan anda secara bertulis atau melalui e-mel kepada Pegawai Perlindungan Data kami di butiran hubungan yang disediakan di bawah.",
+      "withdrawingItem2": "Apabila menerima permintaan bertulis anda untuk menarik balik persetujuan anda, kami mungkin memerlukan masa yang munasabah (bergantung pada kerumitan permintaan dan kesannya terhadap hubungan kami dengan anda) untuk permintaan anda diproses dan untuk kami memaklumkan anda tentang akibat kami bersetuju dengannya, termasuk sebarang akibat undang-undang yang mungkin menjejaskan hak dan liabiliti anda kepada kami. Secara amnya, kami akan berusaha memproses permintaan anda dalam tempoh sepuluh (10) hari perniagaan selepas menerimanya.",
+      "withdrawingItem3": "Walaupun kami menghormati keputusan anda untuk menarik balik persetujuan anda, sila ambil perhatian bahawa bergantung pada sifat dan skop permintaan anda, kami mungkin tidak dapat meneruskan penyediaan barangan atau perkhidmatan kami kepada anda dan kami akan, dalam keadaan sedemikian, memaklumkan anda sebelum menyelesaikan pemprosesan permintaan anda. Sekiranya anda memutuskan untuk membatalkan penarikan balik persetujuan anda, sila maklumkan kami secara bertulis dengan cara yang diterangkan dalam fasal 8 di atas.",
+      "withdrawingItem4": "Sila ambil perhatian bahawa menarik balik persetujuan tidak menjejaskan hak kami untuk terus mengumpul, menggunakan dan mendedahkan data peribadi di mana pengumpulan, penggunaan dan pendedahan tanpa persetujuan tersebut dibenarkan atau dikehendaki di bawah undang-undang yang terpakai.",
+      "accessHeading": "AKSES KEPADA DAN PEMBETULAN DATA PERIBADI",
+      "accessItem1": "Jika anda ingin membuat (a) permintaan akses untuk mengakses salinan data peribadi yang kami simpan tentang anda atau maklumat tentang cara kami menggunakan atau mendedahkan data peribadi anda, atau (b) permintaan pembetulan untuk membetulkan atau mengemas kini mana-mana data peribadi anda yang kami simpan tentang anda, anda boleh menyerahkan permintaan anda secara bertulis atau melalui e-mel kepada Pegawai Perlindungan Data kami di butiran hubungan yang disediakan di bawah.",
+      "accessItem2": "Sila ambil perhatian bahawa bayaran yang munasabah mungkin dikenakan untuk permintaan akses. Jika ya, kami akan memaklumkan anda tentang bayaran sebelum memproses permintaan anda.",
+      "accessItem3": "Kami akan memberi respons kepada permintaan anda secepat mungkin yang munasabah. Sekiranya kami tidak dapat memberi respons kepada permintaan anda dalam tempoh tiga puluh (30) hari selepas menerima permintaan anda, kami akan memaklumkan anda secara bertulis dalam tempoh tiga puluh (30) hari tentang masa kami akan dapat memberi respons kepada permintaan anda. Jika kami tidak dapat menyediakan anda sebarang data peribadi atau membuat pembetulan yang diminta oleh anda, kami secara amnya akan memaklumkan anda tentang sebab-sebab kami tidak dapat berbuat demikian (kecuali di mana kami tidak dikehendaki berbuat demikian di bawah PDPA).",
+      "protectionHeading": "PERLINDUNGAN DATA PERIBADI",
+      "protectionItem1": "Untuk melindungi data peribadi anda daripada akses, pengumpulan, penggunaan, pendedahan, penyalinan, pengubahsuaian, pelupusan tanpa kebenaran atau risiko serupa, kami telah memperkenalkan langkah pentadbiran, fizikal dan teknikal yang sesuai seperti perlindungan antivirus terkini, penyulitan dan penggunaan penapis privasi untuk menjamin semua penyimpanan dan penghantaran data peribadi oleh kami, dan mendedahkan data peribadi sama ada secara dalaman dan kepada pembekal perkhidmatan dan ejen pihak ketiga yang dibenarkan hanya atas dasar perlu tahu.",
+      "protectionItem2": "Walau bagaimanapun, anda harus sedar bahawa tiada kaedah penghantaran melalui Internet atau kaedah penyimpanan elektronik yang benar-benar selamat. Walaupun keselamatan tidak dapat dijamin, kami berusaha melindungi keselamatan maklumat anda dan sentiasa mengkaji semula dan meningkatkan langkah keselamatan maklumat kami.",
+      "accuracyHeading": "KETEPATAN DATA PERIBADI",
+      "accuracyItem": "Kami secara amnya bergantung pada data peribadi yang diberikan oleh anda (atau wakil sah anda). Bagi memastikan data peribadi anda terkini, lengkap dan tepat, sila maklumkan kami jika terdapat perubahan kepada data peribadi anda dengan memaklumkan Pegawai Perlindungan Data kami secara bertulis atau melalui e-mel di butiran hubungan yang disediakan di bawah.",
+      "retentionHeading": "PENYIMPANAN DATA PERIBADI",
+      "retentionItem1": "Kami mungkin menyimpan data peribadi anda selagi ia perlu untuk memenuhi tujuan ia dikumpul, atau sebagaimana dikehendaki atau dibenarkan oleh undang-undang yang terpakai.",
+      "retentionItem2": "Kami akan berhenti menyimpan data peribadi anda, atau mengeluarkan cara data tersebut boleh dikaitkan dengan anda, sebaik sahaja munasabah untuk menganggap bahawa penyimpanan tersebut tidak lagi memenuhi tujuan data peribadi itu dikumpul, dan tidak lagi diperlukan untuk tujuan undang-undang atau perniagaan.",
+      "transfersHeading": "PEMINDAHAN DATA PERIBADI DI LUAR SINGAPURA",
+      "transfersItem": "Kami secara amnya tidak memindahkan data peribadi anda ke negara di luar Singapura. Walau bagaimanapun, jika kami berbuat demikian, kami akan mendapatkan persetujuan anda untuk pemindahan tersebut dibuat dan kami akan mengambil langkah untuk memastikan data peribadi anda terus menerima standard perlindungan yang sekurang-kurangnya setanding dengan yang disediakan di bawah PDPA.",
+      "dpoHeading": "PEGAWAI PERLINDUNGAN DATA",
+      "dpoItem": "Anda boleh menghubungi Pegawai Perlindungan Data kami jika anda mempunyai sebarang pertanyaan atau maklum balas tentang dasar dan prosedur perlindungan data peribadi kami, atau jika anda ingin membuat sebarang permintaan, dengan cara berikut:",
+      "dpoTitle": "Pegawai Perlindungan Data",
+      "dpoNameLabel": "Nama",
+      "dpoAddressLabel": "Alamat",
+      "dpoEmailLabel": "E-mel",
+      "dpoMobileLabel": "Telefon Bimbit",
+      "effectHeading": "KESAN NOTIS DAN PERUBAHAN KEPADA NOTIS",
+      "effectItem1": "Notis ini terpakai bersama-sama dengan sebarang notis lain, klausa kontrak dan klausa persetujuan yang terpakai berhubung dengan pengumpulan, penggunaan dan pendedahan data peribadi anda oleh kami.",
+      "effectItem2": "Kami mungkin menyemak semula Notis ini dari semasa ke semasa tanpa sebarang notis terlebih dahulu. Anda boleh menentukan sama ada sebarang semakan sedemikian telah berlaku dengan merujuk kepada tarikh Notis ini terakhir dikemas kini. Penggunaan berterusan perkhidmatan kami oleh anda merupakan pengakuan dan penerimaan anda terhadap perubahan tersebut.",
+      "effectiveDate": "Tarikh berkuat kuasa: 31/12/2023",
+      "lastUpdated": "Kemas kini terakhir: 31/12/2023"
+    },
+    "policy": {
+      "heading": "Dasar Penghantaran, Pembatalan & Bayaran Balik",
+      "ticketRefundsHeading": "Bayaran Balik Tiket",
+      "ticketRefundsItem1": "Jika sistem kami tidak berjaya memperoleh tiket anda di KTMB, anda layak mendapat bayaran balik penuh, yang akan diberikan dalam bentuk kredit dalam dompet BunnyBooker anda. Anda kemudiannya boleh mengeluarkan kredit ini dengan menggunakan sistem pengeluaran dalam BunnyBooker.",
+      "ticketRefundsItem2": "Tiket yang telah diperoleh oleh sistem kami di KTMB tidak layak untuk bayaran balik atau pertukaran.",
+      "cancellationsHeading": "Pembatalan",
+      "cancellationsBody": "Anda boleh meminta pembatalan pada bila-bila masa, tetapi sila maklum bahawa jika sistem kami telah berjaya memperoleh tiket anda di KTMB, tiada bayaran balik akan diberikan untuk tiket yang dibatalkan.",
+      "walletWithdrawalHeading": "Pengeluaran Dompet",
+      "walletWithdrawalBody1": "Kami hanya menerima pengeluaran melalui PayNow.",
+      "walletWithdrawalBody2": "Anda boleh mengeluarkan baki dompet anda dengan menyerahkan permintaan pengeluaran di laman BunnyBooker dengan butiran PayNow anda. Kami akan memproses permintaan pengeluaran anda dalam tempoh 3 hari bekerja. Untuk sebarang konflik, soalan atau kebimbangan, sila hubungi kami melalui WhatsApp, Telegram, atau e-mel.",
+      "bookingProcessHeading": "Proses Tempahan",
+      "bookingProcessStep1": "Tambah nilai wang ke dalam dompet BunnyBooker melalui gerbang pembayaran kami.",
+      "bookingProcessStep2": "Pilih tiket yang anda perlukan dan buat pesanan.",
+      "bookingProcessStep3": "Setelah tiket dipesan dan perkhidmatan tempahan kami digunakan, sistem kami akan secara aktif cuba memperoleh tiket anda.",
+      "bookingProcessStep4": "Usaha tempahan akan diteruskan sehingga 30 minit sebelum waktu berlepas yang dijadualkan dalam arah kereta api yang anda pesan.",
+      "bookingProcessStep5": "Jika berjaya, anda akan dimaklumkan dengan segera tentang butiran tempahan anda yang disahkan.",
+      "bookingProcessStep6": "Jika tidak berjaya, anda akan dimaklumkan dan dibayar balik jumlah penuh tiket ke dompet akaun BunnyBooker anda."
+    }
+  },
+  "passengers": {
+    "list": {
+      "pageTitle": "Penumpang",
+      "searchPlaceholder": "Cari penumpang",
+      "filterByUserIdPlaceholder": "Tapis mengikut ID pengguna...",
+      "emptyState": "Tiada penumpang dijumpai"
+    },
+    "alert": {
+      "takeNote": "Sila Ambil Perhatian!",
+      "detailsLead": "Sila pastikan dan semak butiran pasport yang dibuat. Sistem kami tidak mempunyai keupayaan untuk mengesahkan butiran anda. Semua tiket yang dibeli dengan butiran yang salah",
+      "not": "TIDAK",
+      "refundedTrail": "akan dikembalikan."
+    },
+    "gender": {
+      "male": "Lelaki",
+      "female": "Perempuan"
+    },
+    "passportExpiryLabel": "Tarikh Luput Pasport",
+    "create": {
+      "trigger": "Cipta Penumpang",
+      "title": "Cipta penumpang baharu",
+      "subtitle": "Cipta Penumpang baharu untuk memudahkan tempahan.",
+      "fullNamePlaceholder": "Nama penuh seperti dalam Pasport",
+      "submit": "Cipta Penumpang",
+      "successToast": "Berjaya mencipta penumpang '{name}'",
+      "errorToast": "Gagal mencipta penumpang",
+      "validation": {
+        "fullNameMin": "Nama penuh mestilah sekurang-kurangnya 1 aksara",
+        "fullNameMax": "Nama penuh mestilah tidak melebihi 512 aksara",
+        "fullNameRegex": "Nama penuh hanya boleh mengandungi huruf dan aksara khas @ . / ' , - ` *",
+        "passportNumberRegex": "Nombor pasport hanya boleh mengandungi huruf dan nombor",
+        "passportNumberMin": "Nombor pasport mestilah sekurang-kurangnya 1 aksara",
+        "passportNumberMax": "Nombor pasport mestilah tidak melebihi 20 aksara",
+        "passportExpiryMin": "Tarikh luput pasport mestilah sekurang-kurangnya 6 bulan dari sekarang"
+      }
+    },
+    "update": {
+      "title": "Mengemas kini penumpang",
+      "subtitle": "Mengemas kini Penumpang sedia ada.",
+      "submit": "Kemas Kini Penumpang",
+      "successToast": "Berjaya mengemas kini penumpang '{name}'",
+      "errorToast": "Gagal mengemas kini penumpang"
+    },
+    "delete": {
+      "title": "Padam penumpang",
+      "subtitle": "Padam penumpang. Tindakan ini tidak boleh diterbalikkan.",
+      "cannotUndo": "Tindakan ini tidak boleh dibatalkan.",
+      "confirmLead": "Sila taipkan nama penumpang,",
+      "confirmTrail": "untuk meneruskan.",
+      "confirmHint": "Sila taipkan nama penumpang untuk meneruskan.",
+      "submit": "Padam Penumpang",
+      "successToast": "Berjaya memadam penumpang '{name}'",
+      "errorToast": "Gagal memadam penumpang"
+    }
+  },
+  "profile": {
+    "pageTitle": "Profil",
+    "userNotFound": "Pengguna tidak dijumpai",
+    "usernameTitle": "Nama Pengguna",
+    "usernameDesc": "Ini ialah pengecam unik untuk anda. Semua templat anda akan diawali dengan nilai ini.",
+    "usernameImmutable": "Nilai ini tidak boleh diubah.",
+    "usernameFormat": "Nilai ini ialah huruf kecil abjad angka atau -.",
+    "nameDesc": "Ini ialah nama yang anda gunakan semasa mendaftar",
+    "nameImmutable": "Tiada sekatan pada nama ini. Walau bagaimanapun, mengubahnya belum disokong lagi",
+    "userIdTitle": "ID Pengguna",
+    "userIdDesc": "Indeks unik untuk pengguna anda.",
+    "userIdHelp": "Ini dijana secara automatik oleh penyedia OAuth anda",
+    "avatarTitle": "Avatar",
+    "avatarDesc": "Ini ialah gambar profil anda",
+    "avatarSource": "Ini diperoleh terus daripada kaedah log masuk anda",
+    "emailDesc": "Ini ialah e-mel yang dikaitkan dengan pendaftaran anda",
+    "emailSource": "Ini dikaitkan dengan kaedah log masuk anda",
+    "rolesTitle": "Peranan",
+    "rolesDesc": "Peranan yang ditugaskan kepada anda",
+    "permissionsTitle": "Kebenaran",
+    "permissionsDesc": "Kebenaran yang dikaitkan dengan akaun anda",
+    "managedByAdmins": "Ini diuruskan oleh pentadbir BunnyBooker.",
+    "jwtAccessTitle": "Token Akses JWT",
+    "jwtAccessDesc": "Token Akses untuk pembangunan",
+    "jwtIdTitle": "Token ID JWT",
+    "jwtIdDesc": "Token ID untuk pembangunan"
+  },
+  "auth": {
+    "userNotFound": "Pengguna tidak dijumpai",
+    "chooseUsername": "Pilih nama pengguna anda untuk BunnyBooker. Ini tidak boleh diubah dan mesti unik.",
+    "usernameLabel": "Nama Pengguna",
+    "usernamePlaceholder": "Nama pengguna anda",
+    "usernameTaken": "Nama pengguna telah diambil",
+    "usernameAvailable": "Nama pengguna belum diambil",
+    "errorMinLength": "Nama pengguna mesti mengandungi sekurang-kurangnya 1 aksara",
+    "errorMaxLength": "Nama pengguna mesti kurang daripada 256 aksara",
+    "errorCharset": "Nama pengguna hanya boleh mengandungi huruf kecil, nombor dan sengkang",
+    "errorStartEnd": "Nama pengguna mesti bermula dengan huruf dan tidak boleh berakhir dengan sengkang",
+    "existError": "Gagal menyemak sama ada pengguna wujud",
+    "createError": "Gagal mencipta pengguna",
+    "acceptPrefix": "Saya menerima",
+    "termsLink": "terma dan syarat",
+    "privacyLink": "dasar privasi"
+  },
+  "schedules": {
+    "pageTitle": "Beli Tiket",
+    "selectDate": "Pilih tarikh",
+    "woodlandsToJb": "Woodlands ke JB",
+    "woodlandsToJbSentral": "Woodlands ke JB Sentral",
+    "jbToWoodlands": "JB ke Woodlands",
+    "jbSentralToWoodlands": "JB Sentral ke Woodlands",
+    "noSchedulesFound": "Tiada jadual dijumpai",
+    "ticketsInQueue": "{count} tiket dalam giliran",
+    "buy": "Beli"
+  },
+  "calendar": {
+    "selectMonth": "Pilih bulan",
+    "selectYear": "Pilih tahun"
+  },
+  "footer": {
+    "contactHelp": "Perlukan bantuan? Hubungi Kami!",
+    "refundPolicy": "Dasar Penghantaran, Pembatalan & Bayaran Balik",
+    "privacyPolicy": "Dasar Privasi",
+    "termsOfUse": "Terma Penggunaan"
+  },
+  "loader": {
+    "default": "Sedang memuatkan, sila tunggu...",
+    "reauthenticating": "Mengesahkan semula..."
+  },
+  "errorState": {
+    "alienInvasion": "Ralat - Serangan Makhluk Asing",
+    "doggyCantSwim": "Ralat - Anjing Tidak Boleh Berenang",
+    "lostInSpace": "Ralat - Sesat di Angkasa",
+    "chemicalExplosion": "Ralat - Letupan Kimia",
+    "coffeeSpilt": "Ralat - Kopi Tertumpah",
+    "doggyCantSmell": "Ralat - Anjing Tidak Boleh Menghidu",
+    "dogEatsNewsPaper": "Ralat - Anjing Makan Surat Khabar",
+    "icecreamMelted": "Ralat - Aiskrim Cair",
+    "laptopBroken": "Ralat - Komputer Riba Rosak",
+    "lochnessMonster": "Ralat - Adakah Raksasa Loch Ness Wujud?",
+    "missingPiece": "Ralat - Kepingan Hilang",
+    "noTissue": "Ralat - Tiada Tisu",
+    "errorDetails": "Butiran Ralat"
+  },
+  "transactions": {
+    "list": {
+      "title": "Transaksi",
+      "searchPlaceholder": "Cari transaksi...",
+      "userIdPlaceholder": "Tapis mengikut ID pengguna...",
+      "dateRangePlaceholder": "Tapis mengikut julat tarikh",
+      "typePlaceholder": "Jenis Transaksi",
+      "typeNone": "Tiada",
+      "emptyState": "Tiada transaksi dijumpai",
+      "colType": "Jenis",
+      "colFrom": "Daripada",
+      "colTo": "Kepada"
+    },
+    "detail": {
+      "title": "Transaksi",
+      "notFound": "Dompet tidak dapat dijumpai"
+    },
+    "card": {
+      "direction": "Arah Transaksi",
+      "amount": "Jumlah Transaksi",
+      "related": "Berkaitan",
+      "walletLink": "Dompet",
+      "userLink": "Pengguna"
+    }
+  },
+  "wallets": {
+    "list": {
+      "searchPlaceholder": "Cari dompet...",
+      "notFound": "Dompet tidak dijumpai",
+      "viewDetails": "Lihat Butiran"
+    },
+    "detail": {
+      "title": "Dompet",
+      "notFound": "Dompet tidak dapat ditemui"
+    },
+    "card": {
+      "account": "Akaun",
+      "usable": "BOLEH GUNA",
+      "bookingReserve": "RIZAB TEMPAHAN",
+      "withdrawReserve": "RIZAB PENGELUARAN"
+    },
+    "deposit": {
+      "title": "Deposit",
+      "subtitle": "Deposit ke BunnyBooker",
+      "balance": "Baki: {amount}",
+      "prompt": "Berapa banyak dalam SGD yang anda ingin depositkan?",
+      "viewWallet": "Lihat Dompet",
+      "cancel": {
+        "title": "Deposit Dibatalkan",
+        "message": "Deposit ke BunnyBooker telah dibatalkan."
+      },
+      "failed": {
+        "title": "Deposit Gagal",
+        "message": "Gagal membuat deposit ke BunnyBooker",
+        "tryAgain": "Cuba Lagi"
+      },
+      "success": {
+        "title": "Berjaya!",
+        "message": "Berjaya membuat deposit ke BunnyBooker",
+        "currentBalance": "Baki Semasa: {amount}"
+      },
+      "initError": "Gagal memulakan pembayaran"
+    },
+    "adminIn": {
+      "trigger": "Tambah Baki Boleh Guna",
+      "title": "Tambah Baki Boleh Guna",
+      "descriptionBefore": "Anda akan menambah baki boleh guna kepada pengguna",
+      "descriptionAfter": " akaun.",
+      "successToast": "Berjaya menambah {amount} ke akaun pengguna.",
+      "errorToast": "Gagal mencipta aliran masuk admin"
+    },
+    "adminOut": {
+      "trigger": "Tolak Baki Boleh Guna",
+      "title": "Tolak Baki Boleh Guna",
+      "descriptionBefore": "Anda akan menolak baki boleh guna daripada pengguna",
+      "descriptionAfter": " akaun.",
+      "successToast": "Berjaya menolak {amount} daripada akaun pengguna.",
+      "errorToast": "Gagal mencipta aliran keluar admin"
+    },
+    "promo": {
+      "trigger": "Beri Kredit Promosi",
+      "title": "Beri Kredit Promosi",
+      "descriptionBefore": "Anda akan menambah kredit promosi kepada pengguna",
+      "descriptionAfter": " akaun.",
+      "successToast": "Berjaya menambah kredit promosi bernilai {amount} ke akaun pengguna.",
+      "errorToast": "Gagal mencipta pemindahan promosi"
+    }
+  },
+  "withdrawals": {
+    "status": {
+      "Pending": "Menunggu",
+      "Completed": "Selesai",
+      "Cancel": "Dibatalkan",
+      "Rejected": "Ditolak"
+    },
+    "list": {
+      "title": "Pengeluaran",
+      "filterById": "Tapis mengikut ID...",
+      "filterByUserId": "Tapis mengikut ID pengguna...",
+      "filterByCompleterId": "Tapis mengikut ID penyelesai...",
+      "filterByDateRange": "Tapis mengikut julat tarikh",
+      "statusNone": "Tiada",
+      "notFound": "Pengeluaran tidak dijumpai"
+    },
+    "card": {
+      "amountToPayNow": "{amount} ke PayNow {payNowNumber}",
+      "viewDetails": "Lihat Butiran",
+      "by": "Oleh",
+      "completer": "Penyelesai",
+      "viewUserProfile": "Lihat profil pengguna →",
+      "noNote": "Tiada Nota",
+      "receiptAlt": "resit"
+    },
+    "detail": {
+      "title": "Pengeluaran",
+      "notFound": "Pengeluaran tidak dapat dijumpai"
+    },
+    "approve": {
+      "title": "Buat pengeluaran",
+      "instructions": "Sila pindahkan {amount} ke PayNow {payNowNumber}, ambil tangkapan skrin, muat naik resit, dan klik selesai.",
+      "complete": "Selesai",
+      "success": "Berjaya menyelesaikan pengeluaran {amount}.",
+      "failed": "Gagal meluluskan pengeluaran"
+    },
+    "cancel": {
+      "title": "Batalkan pengeluaran",
+      "confirm": "Anda membatalkan pengeluaran {amount} ke PayNow {payNowNumber} ini.",
+      "noteRequired": "Sila masukkan nota.",
+      "noteTooLong": "Nota tidak boleh melebihi 4096 aksara.",
+      "success": "Berjaya membatalkan pengeluaran {amount}.",
+      "failed": "Gagal membatalkan pengeluaran"
+    },
+    "reject": {
+      "title": "Tolak pengeluaran",
+      "confirm": "Anda menolak pengeluaran {amount} ke PayNow {payNowNumber} ini.",
+      "noteRequired": "Sila masukkan nota.",
+      "noteTooLong": "Nota tidak boleh melebihi 4096 aksara.",
+      "success": "Berjaya menolak pengeluaran {amount}.",
+      "failed": "Gagal menolak pengeluaran"
+    },
+    "create": {
+      "trigger": "Buat Pengeluaran",
+      "title": "Buat pengeluaran",
+      "intro": "Anda akan mengeluarkan daripada baki boleh guna dalam dompet anda.",
+      "importantTitle": "Penting!",
+      "payNowWarningPrefix": "Sila pastikan nombor PayNow anda betul sebelum meneruskan.",
+      "payNowWarningEmphasis": "Tiada pampasan",
+      "payNowWarningSuffix": "akan diberikan untuk nombor PayNow yang salah.",
+      "durationTitle": "Tempoh Pengeluaran",
+      "durationPrefix": "Pengeluaran tidak serta-merta. Ia mengambil masa sehingga",
+      "durationEmphasis": "2 hari bekerja",
+      "durationSuffix": "untuk diproses.",
+      "balanceLabel": "Baki: {amount}",
+      "payNowPlaceholder": "Nombor PayNow untuk pengeluaran",
+      "submit": "Mohon Pengeluaran",
+      "amountGreaterThanZero": "Jumlah mesti lebih besar daripada 0",
+      "amountExceedsBalance": "Jumlah mesti kurang daripada atau sama dengan baki boleh guna anda",
+      "amountFinite": "Jumlah mesti nombor terhingga",
+      "invalidPayNow": "Bukan nombor PayNow yang sah",
+      "success": "Berjaya memohon pengeluaran {amount} daripada baki BOLEH GUNA anda.",
+      "failed": "Gagal membuat pengeluaran"
+    }
+  },
+  "status": {
+    "booking": {
+      "Pending": "Belum Selesai",
+      "Buying": "Membeli",
+      "Completed": "Selesai",
+      "Cancelled": "Dibatalkan",
+      "Refunded": "Dikembalikan",
+      "Terminated": "Ditamatkan"
+    },
+    "transactionType": {
+      "BookingRequest": "Permintaan Tempahan",
+      "BookingComplete": "Tempahan Selesai",
+      "BookingCancel": "Pembatalan Tempahan",
+      "BookingRefund": "Pemulangan Tempahan",
+      "BookingTerminated": "Tempahan Ditamatkan",
+      "Deposit": "Deposit",
+      "WithdrawRequest": "Permintaan Pengeluaran",
+      "WithdrawComplete": "Pengeluaran Selesai",
+      "WithdrawCancelled": "Pengeluaran Dibatalkan",
+      "WithdrawRejected": "Pengeluaran Ditolak",
+      "Promotional": "Promosi",
+      "Transfer": "Pemindahan"
+    },
+    "discountType": {
+      "Percentage": "Peratusan",
+      "Flat": "Tetap"
+    },
+    "discountMode": {
+      "All": "Semua",
+      "Any": "Mana-mana",
+      "None": "Tiada"
+    },
+    "discountMatchType": {
+      "UserId": "ID Pengguna",
+      "Role": "Peranan"
+    },
+    "discountEnabled": {
+      "true": "Dilumpuhkan",
+      "false": "Diaktifkan"
+    }
+  },
+  "validation": {
+    "topup": {
+      "min": "Jumlah tambah nilai mestilah lebih daripada {min}",
+      "finite": "Jumlah tambah nilai mestilah nombor terhingga",
+      "precision": "Ketepatan maksimum {max} tempat perpuluhan"
+    },
+    "transfer": {
+      "amountGt": "Jumlah mestilah lebih daripada {min}",
+      "amountFinite": "Jumlah mestilah nombor terhingga",
+      "descMin": "Penerangan mestilah sekurang-kurangnya {min} aksara",
+      "descMax": "Penerangan mestilah kurang daripada {max} aksara"
+    }
+  }
+}

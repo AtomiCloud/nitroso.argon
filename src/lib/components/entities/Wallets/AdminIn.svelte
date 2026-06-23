@@ -10,11 +10,13 @@
     import type {SafeParseError, ZodIssue} from "zod";
     import Validation from "$lib/components/core/Validation.svelte";
     import {Input} from "$lib/components/ui/input";
-    import {type TransferObject, transferObjectSchema} from "$lib/components/entities/Wallets/transfer";
+    import {type TransferObject, makeTransferSchema} from "$lib/components/entities/Wallets/transfer";
     import {tick} from "svelte";
     import {LucideLoader} from "lucide-svelte";
     //@ts-ignore
     import * as Dialog from "$lib/components/ui/dialog";
+    import {_} from "svelte-i18n";
+    import {lang, formatMoney} from "$lib/i18n";
 
     export let user: UserPrincipalRes;
 
@@ -30,9 +32,17 @@
         desc: "",
     }
 
+    // Localized validation schema — rebuilt when the active locale changes so the
+    // rendered Zod messages follow the language (AC5).
+    $: transferObjectSchema = makeTransferSchema($lang);
+
     const onChange = (path: string) => async () => {
         await tick();
         taints[path] = true;
+        validate();
+    }
+
+    function validate() {
         const r = transferObjectSchema.safeParse(val);
         if (!r.success) {
             const e = r as SafeParseError<TransferReq>;
@@ -40,6 +50,19 @@
         } else {
             errors = [];
         }
+    }
+
+    // Re-run validation whenever the locale-rebuilt schema changes, so an error
+    // already on screen re-renders in the new language after a no-reload language
+    // switch (AC5). `errors` stores the localized ZodIssue.message captured at
+    // parse time; without this the visible message would stay stale until the
+    // field is edited. Guarded on taints so it never surfaces errors before the
+    // user has interacted.
+    $: revalidateOnLocale(transferObjectSchema);
+
+    function revalidateOnLocale(_schema: ReturnType<typeof makeTransferSchema>) {
+        if (Object.keys(taints).length === 0) return;
+        validate();
     }
 
     async function submit() {
@@ -55,10 +78,10 @@
         submitting = true;
         await toResult(() => $api.vAdminInflowCreate(
             user?.id ?? "", "1.0", {amount, desc}
-        ), "Failed to create admin inflow")
+        ), $_('wallets.adminIn.errorToast', { locale: $lang }))
             .match({
                 ok: () => {
-                    toast.info(`Successfully added SGD ${amount?.toFixed(2)} to user's account.`);
+                    toast.info($_('wallets.adminIn.successToast', { locale: $lang, values: { amount: formatMoney(amount ?? 0, $lang) } }));
                     invalidateAll();
                     dialogOpen = false;
                 },
@@ -77,22 +100,21 @@
 
 <Dialog.Root bind:open={dialogOpen}>
     <Dialog.Trigger class="w-full max-w-80  {buttonVariants({ variant: 'default' })}">
-        Add Usable Balance
+        {$_('wallets.adminIn.trigger', { locale: $lang })}
     </Dialog.Trigger>
     <Dialog.Content>
         <Dialog.Header>
-            <Dialog.Title>Add Usable Balance</Dialog.Title>
+            <Dialog.Title>{$_('wallets.adminIn.title', { locale: $lang })}</Dialog.Title>
             <Dialog.Description>
                 <div class="flex flex-col gap-4">
                     <p class="text-justify">
-                        You will be adding usable balance to user
+                        {$_('wallets.adminIn.descriptionBefore', { locale: $lang })}
                         <code class="break-all relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold"
-                        >{user?.id?.trim() ?? ''}</code>'s
-                        account.
+                        >{user?.id?.trim() ?? ''}</code>{$_('wallets.adminIn.descriptionAfter', { locale: $lang })}
                     </p>
                     <Validation {errors} {taints} path="desc">
                         <Input
-                                placeholder="Description"
+                                placeholder={$_('fields.description', { locale: $lang })}
                                 bind:value={val.desc}
                                 on:input={onChange("desc")}
                         />
@@ -102,7 +124,7 @@
                         <div class="flex gap-2 justify-between items-center">
                             <div class="text-lg">S$</div>
                             <Input
-                                    placeholder="Amount"
+                                    placeholder={$_('fields.amount', { locale: $lang })}
                                     inputmode="numeric"
                                     bind:value={val.amount}
                                     on:input={onChange("amount")}/>
@@ -112,7 +134,7 @@
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                         {/if}
-                        Confirm
+                        {$_('actions.confirm', { locale: $lang })}
                     </Button>
                 </div>
             </Dialog.Description>

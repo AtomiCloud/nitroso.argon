@@ -12,6 +12,8 @@
     //@ts-ignore
     import * as Card from "$lib/components/ui/card";
     import {Button} from "$lib/components/ui/button";
+    import {_} from "svelte-i18n";
+    import {lang} from "$lib/i18n";
 
     import type {PageData} from "./$types";
 
@@ -51,22 +53,22 @@
     <div class="flex flex-col w-11/12 max-w-[1200px] mx-auto my-12">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div>
-                <label for="username-search" class="block text-sm font-medium mb-2">Search by Username</label>
-                <Input id="username-search" placeholder="Enter username..." bind:value={usernameSearch} on:input={triggerSearch}/>
+                <label for="username-search" class="block text-sm font-medium mb-2">{$_("admin.users.searchByUsername", {locale: $lang})}</label>
+                <Input id="username-search" placeholder={$_("admin.users.usernamePlaceholder", {locale: $lang})} bind:value={usernameSearch} on:input={triggerSearch}/>
             </div>
             <div>
-                <label for="userid-search" class="block text-sm font-medium mb-2">Search by User ID</label>
-                <Input id="userid-search" placeholder="Enter user ID..." bind:value={userIdSearch} on:input={triggerSearch}/>
+                <label for="userid-search" class="block text-sm font-medium mb-2">{$_("admin.users.searchByUserId", {locale: $lang})}</label>
+                <Input id="userid-search" placeholder={$_("admin.users.userIdPlaceholder", {locale: $lang})} bind:value={userIdSearch} on:input={triggerSearch}/>
             </div>
             <div>
-                <label for="email-search" class="block text-sm font-medium mb-2">Search by Email</label>
-                <Input id="email-search" placeholder="Enter email..." bind:value={emailSearch} on:input={triggerSearch}/>
+                <label for="email-search" class="block text-sm font-medium mb-2">{$_("admin.users.searchByEmail", {locale: $lang})}</label>
+                <Input id="email-search" placeholder={$_("admin.users.emailPlaceholder", {locale: $lang})} bind:value={emailSearch} on:input={triggerSearch}/>
             </div>
         </div>
         {#await users}
             <Loader/>
         {:then u}
-            <Page notFoundMessage="No users found" empty={u.length === 0}>
+            <Page notFoundMessage={$_("admin.users.noUsersFound", {locale: $lang})} empty={u.length === 0}>
 
                 <div class="grid gap-6 my-6">
                     {#each u as user}
@@ -90,17 +92,17 @@
                                             <div class="flex items-center gap-2">
                                                 <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
                                                 <div class="text-sm">
-                                                    <span class="text-muted-foreground">Email:</span>
-                                                    <span class="ml-1 font-medium">{user.email || 'N/A'}</span>
+                                                    <span class="text-muted-foreground">{$_("fields.email", {locale: $lang})}:</span>
+                                                    <span class="ml-1 font-medium">{user.email || $_("admin.users.notAvailable", {locale: $lang})}</span>
                                                 </div>
                                             </div>
                                             
                                             <div class="flex items-center gap-2">
                                                 <div class="w-2 h-2 {user.emailVerified ? 'bg-green-500' : 'bg-red-500'} rounded-full"></div>
                                                 <div class="text-sm">
-                                                    <span class="text-muted-foreground">Status:</span>
+                                                    <span class="text-muted-foreground">{$_("fields.status", {locale: $lang})}:</span>
                                                     <span class="ml-1 font-medium {user.emailVerified ? 'text-green-600' : 'text-red-600'}">
-                                                        {user.emailVerified ? 'Verified' : 'Unverified'}
+                                                        {user.emailVerified ? $_("admin.users.verified", {locale: $lang}) : $_("admin.users.unverified", {locale: $lang})}
                                                     </span>
                                                 </div>
                                             </div>
@@ -108,7 +110,7 @@
                                             <div class="flex items-center gap-2">
                                                 <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
                                                 <div class="text-sm">
-                                                    <span class="text-muted-foreground">Roles:</span>
+                                                    <span class="text-muted-foreground">{$_("admin.users.roles", {locale: $lang})}:</span>
                                                     <span class="ml-1 font-medium">
                                                         {#if user.roles && user.roles.length > 0}
                                                             {#each user.roles as role, i}
@@ -117,7 +119,7 @@
                                                                 </span>
                                                             {/each}
                                                         {:else}
-                                                            <span class="text-muted-foreground">None</span>
+                                                            <span class="text-muted-foreground">{$_("admin.users.noRoles", {locale: $lang})}</span>
                                                         {/if}
                                                     </span>
                                                 </div>
@@ -131,7 +133,7 @@
                                             href="/users/{user.id}"
                                             variant="outline"
                                         >
-                                            View Details
+                                            {$_("admin.users.viewDetails", {locale: $lang})}
                                         </Button>
                                     </div>
                                 </div>

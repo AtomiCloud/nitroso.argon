@@ -2,6 +2,8 @@
     import {Button} from "$lib/components/ui/button";
     import {Label} from "$lib/components/ui/label";
     import {Input} from "$lib/components/ui/input";
+    import {_} from "svelte-i18n";
+    import {lang} from "$lib/i18n";
     import {api} from "../../store";
     import {get} from "svelte/store";
     import {toResult} from "$lib/utility";
@@ -22,10 +24,10 @@
 
     function errors(name: string): string[] {
         const err = [];
-        if (name.length < 1) err.push("Username must contain at least 1 character");
-        if (name.length > 256) err.push("Username must be less than 256 characters");
-        if (!name.match(/^[0-9a-z-]+$/)) err.push("Username must only contain lowercase letters, numbers, and dashes");
-        if (!name.match(/^[a-z](-?[a-z0-9]+)*$/)) err.push("Username must start with a letter and cannot end with dashes");
+        if (name.length < 1) err.push($_('auth.errorMinLength', { locale: $lang }));
+        if (name.length > 256) err.push($_('auth.errorMaxLength', { locale: $lang }));
+        if (!name.match(/^[0-9a-z-]+$/)) err.push($_('auth.errorCharset', { locale: $lang }));
+        if (!name.match(/^[a-z](-?[a-z0-9]+)*$/)) err.push($_('auth.errorStartEnd', { locale: $lang }));
         return err;
     }
 
@@ -35,7 +37,7 @@
 
     async function exist(name: string): Promise<boolean> {
         if (name === "") return false;
-        const results = toResult(() => a.vUserExistDetail(name, "1"), "Failed to check if user exists");
+        const results = toResult(() => a.vUserExistDetail(name, "1"), $_('auth.existError', { locale: $lang }));
         const ok = await results.isOk();
         if (ok) {
             const r = await results.unwrap();
@@ -49,7 +51,7 @@
     async function createUser(name: string): Promise<void> {
         (window as any)?.fathom?.trackEvent('Sign Up')
         submitting = true;
-        const r = toResult(() => a.vUserCreate("1", {username: name}), "Failed to create user");
+        const r = toResult(() => a.vUserCreate("1", {username: name}), $_('auth.createError', { locale: $lang }));
         await r.match({
             ok: (o) => {
                 console.log(o);
@@ -78,7 +80,7 @@
 </script>
 
 <Page
-        notFoundMessage="User not found"
+        notFoundMessage={$_('auth.userNotFound', { locale: $lang })}
         empty={false}
         {problem}
         queue={0}
@@ -88,17 +90,16 @@
                 class="w-full p-0 border-none shadow-none md:border-solid md:border md:shadow-sm m-0 md:m-8 lg:w-[640px] md:p-8">
             <Card.Header>
                 <Card.Description>
-                    Choose your username for BunnyBooker.
-                    This cannot be changed and needs to be unique.
+                    {$_('auth.chooseUsername', { locale: $lang })}
                 </Card.Description>
             </Card.Header>
             <Card.Content>
                 <form>
                     <div class="grid w-full items-center gap-4">
                         <div class="flex flex-col space-y-1.5">
-                            <Label for="name">Username</Label>
+                            <Label for="name">{$_('auth.usernameLabel', { locale: $lang })}</Label>
                             <div class="flex justify-between space-x-5 items-center">
-                                <Input id="name" placeholder="Your username" on:input={() => typed=true}
+                                <Input id="name" placeholder={$_('auth.usernamePlaceholder', { locale: $lang })} on:input={() => typed=true}
                                        bind:value={name}/>
                                 {#await exist(name)}
                                     <div class="animate-spin">
@@ -112,7 +113,7 @@
                                                 <X class="w-6 h-6 text-red-400"/>
                                             </Tooltip.Trigger>
                                             <Tooltip.Content>
-                                                <p>Username has been taken</p>
+                                                <p>{$_('auth.usernameTaken', { locale: $lang })}</p>
                                             </Tooltip.Content>
                                         </Tooltip.Root>
                                     {:else}
@@ -121,7 +122,7 @@
                                                 <Check class="w-6 h-6 text-green-400"/>
                                             </Tooltip.Trigger>
                                             <Tooltip.Content>
-                                                <p>Username has not been taken</p>
+                                                <p>{$_('auth.usernameAvailable', { locale: $lang })}</p>
                                             </Tooltip.Content>
                                         </Tooltip.Root>
                                     {/if}
@@ -137,13 +138,13 @@
                             <Checkbox id="terms" bind:checked={acceptTerms}  aria-labelledby="terms-label" />
                             <Label for="terms"
                                    id="terms-label">
-                                I accept the <a href="/terms" target="_blank" class="underline hover:text-amber-500">terms and conditions</a>
+                                {$_('auth.acceptPrefix', { locale: $lang })} <a href="/terms" target="_blank" class="underline hover:text-amber-500">{$_('auth.termsLink', { locale: $lang })}</a>
                             </Label>
                         </div>
                         <div class="flex align-center gap-2">
                             <Checkbox id="privacy" bind:checked={acceptPrivacy}  />
                             <Label for="privacy">
-                                I accept the <a href="/privacy" target="_blank" class="underline hover:text-amber-500">privacy policy</a>
+                                {$_('auth.acceptPrefix', { locale: $lang })} <a href="/privacy" target="_blank" class="underline hover:text-amber-500">{$_('auth.privacyLink', { locale: $lang })}</a>
                             </Label>
                         </div>
                     </div>
@@ -154,7 +155,7 @@
                     {#if submitting}
                         <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                     {/if}
-                    Confirm
+                    {$_('actions.confirm', { locale: $lang })}
                 </Button>
             </Card.Footer>
         </Card.Root>

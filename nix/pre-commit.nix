@@ -50,7 +50,7 @@ pre-commit-lib.run {
       enable = true;
       name = "Gitlint";
       description = "Lints git commit message";
-      entry = "${packages.gitlint}/bin/gitlint --staged --msg-filename .git/COMMIT_EDITMSG";
+      entry = "${packages.bash}/bin/bash -c '${packages.gitlint}/bin/gitlint --staged --msg-filename \"$(${packages.git}/bin/git rev-parse --git-path COMMIT_EDITMSG)\"'";
       language = "system";
       pass_filenames = false;
       stages = [ "commit-msg" ];
@@ -89,6 +89,18 @@ pre-commit-lib.run {
       name = "Svelte Check";
       description = "Svelte Check via Bun";
       entry = "${packages.bun}/bin/bun run check";
+      language = "system";
+      pass_filenames = false;
+    };
+
+    # Dedicated i18n catalog-sync hook. Deliberately NOT named `a-svelte-check`
+    # so it is not part of CI's `SKIP=a-svelte-check` set — this runs in both
+    # local pre-commit and CI.
+    a-i18n-check = {
+      enable = true;
+      name = "i18n Catalog Sync";
+      description = "Ensure en/zh/ms i18n catalogs share one key set";
+      entry = "${packages.bun}/bin/bun run i18n:check";
       language = "system";
       pass_filenames = false;
     };

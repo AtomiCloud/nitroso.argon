@@ -25,6 +25,8 @@
     import {toast} from "svelte-sonner";
     import UpdateDiscounts from "$lib/components/entities/Discounts/UpdateDiscounts.svelte";
     import DeleteDiscounts from "$lib/components/entities/Discounts/DeleteDiscounts.svelte";
+    import {_} from "svelte-i18n";
+    import {lang, formatMoney, formatNumber} from "$lib/i18n";
 
     export let data: PageData;
 
@@ -50,6 +52,22 @@
     let discountTypeSelect: Selected<string> | undefined = DISCOUNT_TYPE[discountType];
     let matchModeSelect: Selected<string> | undefined = DISCOUNT_MATCH_MODE[matchMode];
     let disabledSelect: Selected<string> | undefined = DISCOUNT_STATUS[disabled];
+
+    // Keep the closed-trigger labels localized for deep-linked / language-switched
+    // state; the menu items are already translated but `Selected.label` defaults
+    // to the English constant.
+    $: if (discountTypeSelect?.value) {
+        const translated = $_(`status.discountType.${discountTypeSelect.value}`, { locale: $lang });
+        if (discountTypeSelect.label !== translated) discountTypeSelect = { ...discountTypeSelect, label: translated };
+    }
+    $: if (matchModeSelect?.value) {
+        const translated = $_(`status.discountMode.${matchModeSelect.value}`, { locale: $lang });
+        if (matchModeSelect.label !== translated) matchModeSelect = { ...matchModeSelect, label: translated };
+    }
+    $: if (disabledSelect?.value) {
+        const translated = $_(`status.discountEnabled.${disabledSelect.value}`, { locale: $lang });
+        if (disabledSelect.label !== translated) disabledSelect = { ...disabledSelect, label: translated };
+    }
 
     function discountTypeChange(s: Selected<string> | undefined) {
         discountTypeSelect = s;
@@ -80,9 +98,9 @@
 
     function displayDiscount(record: DiscountRecordRes): string {
         if (record.type === "Percentage") {
-            return `${(record.amount * 100).toFixed(1)}%`
+            return `${formatNumber(record.amount * 100, $lang, {maximumFractionDigits: 1})}%`
         }
-        return `S$${record.amount.toFixed(2)}`
+        return formatMoney(record.amount, $lang)
     }
 
     const loadingTracker: Record<string, boolean> = {}
@@ -102,9 +120,11 @@
                 ...current.status,
                 disabled: !e
             }
-        }), "Failed to update discount").match({
+        }), $_('discounts.list.updateError', { locale: $lang })).match({
             ok: ok => {
-                toast.info(`Successfully ${ok.status.disabled ? 'disabled' : 'enabled'} discount`);
+                toast.info(ok.status.disabled
+                    ? $_('discounts.list.disabledToast', { locale: $lang })
+                    : $_('discounts.list.enabledToast', { locale: $lang }));
                 invalidateAll();
             },
             err: (e) => {
@@ -120,28 +140,28 @@
 <div class="flex flex-col">
     <div class="flex flex-col gap-4 w-11/12 max-w-[1200px] mx-auto my-12">
         <div class="flex flex-wrap gap-4 w-full">
-            <Input placeholder="Search" bind:value={search} on:input={triggerSearch}/>
+            <Input placeholder={$_('actions.search', { locale: $lang })} bind:value={search} on:input={triggerSearch}/>
             <Select.Root bind:selected={disabledSelect} onSelectedChange={disableChange}>
                 <Select.Trigger class="w-full lg:max-w-60">
                     <FilePieChart class="mr-2 h-4 w-4"/>
-                    <Select.Value placeholder="Status"/>
+                    <Select.Value placeholder={$_('fields.status', { locale: $lang })}/>
                 </Select.Trigger>
                 <Select.Content>
-                    <Select.Item value="">None</Select.Item>
+                    <Select.Item value="">{$_('discounts.list.none', { locale: $lang })}</Select.Item>
                     {#each Object.entries(DISCOUNT_STATUS) as [, val]}
-                        <Select.Item value={val.value}>{val.label}</Select.Item>
+                        <Select.Item value={val.value}>{$_(`status.discountEnabled.${val.value}`, { locale: $lang })}</Select.Item>
                     {/each}
                 </Select.Content>
             </Select.Root>
             <Select.Root bind:selected={discountTypeSelect} onSelectedChange={discountTypeChange}>
                 <Select.Trigger class="w-full lg:max-w-60">
                     <LucideTicket  class="mr-2 h-4 w-4"/>
-                    <Select.Value placeholder="Discount Type"/>
+                    <Select.Value placeholder={$_('discounts.list.discountType', { locale: $lang })}/>
                 </Select.Trigger>
                 <Select.Content>
-                    <Select.Item value="">None</Select.Item>
+                    <Select.Item value="">{$_('discounts.list.none', { locale: $lang })}</Select.Item>
                     {#each Object.entries(DISCOUNT_TYPE) as [, val]}
-                        <Select.Item value={val.value}>{val.label}</Select.Item>
+                        <Select.Item value={val.value}>{$_(`status.discountType.${val.value}`, { locale: $lang })}</Select.Item>
                     {/each}
                 </Select.Content>
             </Select.Root>
@@ -149,12 +169,12 @@
             <Select.Root bind:selected={matchModeSelect} onSelectedChange={matchModeChange}>
                 <Select.Trigger class="w-full lg:max-w-60">
                     <Puzzle class="mr-2 h-4 w-4"/>
-                    <Select.Value placeholder="Match Mode"/>
+                    <Select.Value placeholder={$_('discounts.list.matchMode', { locale: $lang })}/>
                 </Select.Trigger>
                 <Select.Content>
-                    <Select.Item value="">None</Select.Item>
+                    <Select.Item value="">{$_('discounts.list.none', { locale: $lang })}</Select.Item>
                     {#each Object.entries(DISCOUNT_MATCH_MODE) as [, val]}
-                        <Select.Item value={val.value}>{val.label}</Select.Item>
+                        <Select.Item value={val.value}>{$_(`status.discountMode.${val.value}`, { locale: $lang })}</Select.Item>
                     {/each}
                 </Select.Content>
             </Select.Root>
@@ -163,7 +183,7 @@
         {#await discounts}
             <Loader/>
         {:then ds}
-            <Page notFoundMessage="Discounts cannot be found" empty={ds.length === 0}>
+            <Page notFoundMessage={$_('discounts.list.notFound', { locale: $lang })} empty={ds.length === 0}>
                 <div class="flex flex-col gap-4 my-4">
                     {#each ds as d}
                         <Card.Root>
@@ -174,7 +194,7 @@
                                         <Card.Description>{d.record.description}</Card.Description>
                                     </div>
                                     <div class="flex items-center">
-                                        <Badge>{d.record?.type}</Badge>
+                                        <Badge>{d.record?.type ? $_(`status.discountType.${d.record.type}`, { locale: $lang }) : ''}</Badge>
                                     </div>
                                 </div>
                             </Card.Header>
@@ -182,18 +202,18 @@
                                 <div class="flex gap-8 justify-between mt-4">
                                     <div>
                                         <div class="text-lg my-4">
-                                            Provides {displayDiscount(d.record)} discount for
+                                            {$_('discounts.list.providesDiscount', { locale: $lang, values: { amount: displayDiscount(d.record) } })}
                                         </div>
 
                                         <div class="flex gap-4 items-center flex-wrap">
                                             {#each d.target.matches as m, i }
                                                 <div class="flex gap-2 my-2 items-center border p-2 rounded-lg">
-                                                    {m.matchType}
+                                                    {m.matchType ? $_(`status.discountMatchType.${m.matchType}`, { locale: $lang }) : ''}
                                                     <Badge>{m.value}</Badge>
                                                 </div>
                                                 <div>
                                                     {#if i !== d.target.matches.length - 1}
-                                                        {d.target.matchMode === "All" ? 'AND' : 'OR'}
+                                                        {d.target.matchMode === "All" ? $_('discounts.list.and', { locale: $lang }) : $_('discounts.list.or', { locale: $lang })}
                                                     {/if}
                                                 </div>
                                             {/each}
