@@ -71,7 +71,7 @@
         passportExpiry: new Date(),
     }
 
-    const passengerSchema = z.object({
+    $: passengerSchema = z.object({
         fullName: z.string()
             .min(1, $_('bookings.purchase.fullNameMin', { locale: $lang }))
             .max(512, $_('bookings.purchase.fullNameMax', { locale: $lang }))
@@ -99,6 +99,10 @@
     const onChange = (path: string) => async () => {
         await tick();
         taints[path] = true;
+        validate();
+    }
+
+    function validate() {
         const r = passengerSchema.safeParse(passenger);
 
         if (!r.success) {
@@ -107,6 +111,17 @@
         } else {
             errors = [];
         }
+    }
+
+    // Re-run validation whenever the locale-rebuilt schema changes, so an error
+    // already on screen re-renders in the new language after a no-reload language
+    // switch (AC5). Guarded on taints so it never surfaces errors before the user
+    // has interacted.
+    $: revalidateOnLocale(passengerSchema);
+
+    function revalidateOnLocale(_schema: typeof passengerSchema) {
+        if (Object.keys(taints).length === 0) return;
+        validate();
     }
 
     let submitting = false;

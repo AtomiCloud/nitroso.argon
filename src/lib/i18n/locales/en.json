@@ -225,7 +225,7 @@
       "woodlandsToJbSentral": "Woodlands to JB Sentral",
       "jbToWoodlands": "JB to Woodlands",
       "jbSentralToWoodlands": "JB Sentral to Woodlands",
-      "empty": "Not bookings found"
+      "empty": "No bookings found"
     },
     "detail": {
       "title": "Booking",
@@ -234,7 +234,7 @@
     "purchase": {
       "title": "Purchase Booking",
       "directionJToW": "JB Sentral to Woodlands",
-      "directionWToJ": "Woodlands to JB Sental",
+      "directionWToJ": "Woodlands to JB Sentral",
       "selectExistingPassenger": "Select Existing Passenger",
       "passenger": "Passenger",
       "none": "None",
@@ -684,7 +684,7 @@
       "pageTitle": "Passengers",
       "searchPlaceholder": "Search passenger",
       "filterByUserIdPlaceholder": "Filter by user ID...",
-      "emptyState": "Not passengers found"
+      "emptyState": "No passengers found"
     },
     "alert": {
       "takeNote": "Take Note!",

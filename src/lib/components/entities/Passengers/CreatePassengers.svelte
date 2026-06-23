@@ -30,7 +30,7 @@
     let errors: ZodIssue[] = [];
     let taints: Record<string, boolean> = {}
 
-    const createPassengerSchema = z.object({
+    $: createPassengerSchema = z.object({
         fullName: z.string()
             .min(1, $_('passengers.create.validation.fullNameMin', { locale: $lang }))
             .max(512, $_('passengers.create.validation.fullNameMax', { locale: $lang }))
@@ -70,6 +70,10 @@
     const onChange = (path: string) => async () => {
         await tick();
         taints[path] = true;
+        validate();
+    }
+
+    function validate() {
         const r = createPassengerSchema.safeParse(val);
         if (!r.success) {
             const e = r as SafeParseError<CreateDiscountReq>;
@@ -77,6 +81,17 @@
         } else {
             errors = [];
         }
+    }
+
+    // Re-run validation whenever the locale-rebuilt schema changes, so an error
+    // already on screen re-renders in the new language after a no-reload language
+    // switch (AC5). Guarded on taints so it never surfaces errors before the user
+    // has interacted.
+    $: revalidateOnLocale(createPassengerSchema);
+
+    function revalidateOnLocale(_schema: typeof createPassengerSchema) {
+        if (Object.keys(taints).length === 0) return;
+        validate();
     }
 
 

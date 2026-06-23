@@ -145,7 +145,7 @@
     <meta property="og:url" content="https://bunnybooker.com" />
     <meta property="og:image" content={social} />
     <meta property="og:site_name" content="BunnyBooker" />
-    <meta property="og:locale" content="en_SG" />
+    <meta property="og:locale" content={$lang === 'zh' ? 'zh_CN' : $lang === 'ms' ? 'ms_MY' : 'en_SG'} />
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
