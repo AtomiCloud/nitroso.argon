@@ -1,0 +1,28 @@
+{
+  "common": {
+    "appName": "BunnyBooker"
+  },
+  "nav": {
+    "bookNow": "Book Now"
+  },
+  "account": {
+    "costs": "Costs",
+    "discounts": "Discounts",
+    "wallets": "Wallets",
+    "users": "Users",
+    "balance": "BALANCE: SGD {amount}",
+    "manageBookings": "Manage Bookings",
+    "passengers": "Passengers",
+    "withdrawals": "Withdrawals",
+    "transactions": "Transactions",
+    "profile": "Profile",
+    "logout": "Log out",
+    "signIn": "Sign in"
+  },
+  "theme": {
+    "toggle": "Toggle theme"
+  },
+  "language": {
+    "label": "Language"
+  }
+}

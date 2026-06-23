@@ -1,0 +1,28 @@
+{
+  "common": {
+    "appName": "BunnyBooker"
+  },
+  "nav": {
+    "bookNow": "Tempah Sekarang"
+  },
+  "account": {
+    "costs": "Kos",
+    "discounts": "Diskaun",
+    "wallets": "Dompet",
+    "users": "Pengguna",
+    "balance": "BAKI: SGD {amount}",
+    "manageBookings": "Urus Tempahan",
+    "passengers": "Penumpang",
+    "withdrawals": "Pengeluaran",
+    "transactions": "Transaksi",
+    "profile": "Profil",
+    "logout": "Log keluar",
+    "signIn": "Log masuk"
+  },
+  "theme": {
+    "toggle": "Tukar tema"
+  },
+  "language": {
+    "label": "Bahasa"
+  }
+}

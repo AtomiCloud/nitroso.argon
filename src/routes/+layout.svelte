@@ -17,6 +17,9 @@
     import * as Avatar from "$lib/components/ui/avatar";
     import { Badge } from "$lib/components/ui/badge/index.js";
     import mascot from "$lib/assets/nitroso-mascot-fs8.png";
+    import LanguagePicker from "$lib/components/custom/LanguagePicker.svelte";
+    import {_} from "svelte-i18n";
+    import {lang} from "$lib/i18n";
     beforeNavigate(({from, to}) => {
         if (from.route.id !== to.route.id) loading.set(true);
     });
@@ -48,16 +51,17 @@
                 </div>
 
 <!--                <img src="{logo}" alt="CyanPrint" class="h-12 w-12">-->
-                <span class="hidden text-foreground sm:inline-block font-bold">BunnyBooker</span>
+                <span class="hidden text-foreground sm:inline-block font-bold">{$_('common.appName', { locale: $lang })}</span>
             </a>
 
 
             <div class="flex items-center space-x-4 lg:space-x-6">
                 {#if $page.data.session}
                     <Button href="/schedules">
-                        Book Now
+                        {$_('nav.bookNow', { locale: $lang })}
                     </Button>
                 {/if}
+                <LanguagePicker/>
                 <LightSwitch/>
                 <Account></Account>
             </div>
