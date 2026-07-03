@@ -150,9 +150,6 @@
       "statusOn": "{status} 于 {datetime}"
     },
     "row": {
-      "revertSuccess": "已成功将购买状态还原为待处理",
-      "revertError": "将购买状态还原为待处理失败",
-      "clickToRevert": "{status}（点击还原）",
       "viewDetails": "查看详情"
     },
     "cancel": {
@@ -988,7 +985,10 @@
       "Completed": "已完成",
       "Cancelled": "已取消",
       "Refunded": "已退款",
-      "Terminated": "已终止"
+      "Terminated": "已终止",
+      "Recovering": "恢复中",
+      "Duplicate": "重复",
+      "RequireManualIntervention": "需要人工处理"
     },
     "transactionType": {
       "BookingRequest": "预订请求",
@@ -1002,7 +1002,8 @@
       "WithdrawCancelled": "提款取消",
       "WithdrawRejected": "提款被拒",
       "Promotional": "促销",
-      "Transfer": "转账"
+      "Transfer": "转账",
+      "BookingDuplicate": "预订重复"
     },
     "discountType": {
       "Percentage": "百分比",
