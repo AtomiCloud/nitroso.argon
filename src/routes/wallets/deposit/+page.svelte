@@ -13,6 +13,8 @@
     import {toast} from "svelte-sonner";
     import {config} from "../../../config/client";
     import {LucideLoader} from "lucide-svelte";
+    import {_} from "svelte-i18n";
+    import {lang, formatMoney} from "$lib/i18n";
 
 
     let errors: ZodIssue[] = [];
@@ -25,17 +27,21 @@
         })
     })
 
-    const topUpSchema = z.object({
+    // Localized validation schema — rebuilt when the active locale changes so the
+    // rendered Zod messages follow the language (AC5). Sourced from the
+    // `validation.topup.*` catalog keys, SSR-safe via the explicit `{ locale }`,
+    // mirroring the in-component pattern in CreateWithdrawal.svelte.
+    $: topUpSchema = z.object({
         amount: z
             .coerce
             .number()
-            .gte(5, "Top up amount must be greater than 5")
-            .finite("Top up amount be a finite number")
+            .gte(5, $_('validation.topup.min', { locale: $lang, values: { min: 5 } }))
+            .finite($_('validation.topup.finite', { locale: $lang }))
             .refine(x => {
                 const r = x.toString().split(".")
                 if (r.length == 2) return r[1].length <= 2
                 return true;
-            }, "Maximum precision of 2")
+            }, $_('validation.topup.precision', { locale: $lang, values: { max: 2 } }))
     });
     type TopUpModel = z.infer<typeof topUpSchema>;
 
@@ -46,6 +52,10 @@
     const onChange = (path: string) => async () => {
         await tick();
         taints[path] = true;
+        validate();
+    }
+
+    function validate() {
         const r = topUpSchema.safeParse(value);
         if (!r.success) {
             const e = r as SafeParseError<TopUpModel>;
@@ -53,6 +63,19 @@
         } else {
             errors = [];
         }
+    }
+
+    // Re-run validation whenever the locale-rebuilt schema changes, so an error
+    // already on screen re-renders in the new language after a no-reload language
+    // switch (AC5). `errors` stores the localized ZodIssue.message captured at
+    // parse time, so without this the visible message would stay stale until the
+    // field is edited. Guarded on taints so it never surfaces errors before the
+    // user has interacted.
+    $: revalidateOnLocale(topUpSchema);
+
+    function revalidateOnLocale(_schema: typeof topUpSchema) {
+        if (Object.keys(taints).length === 0) return;
+        validate();
     }
 
     async function submit() {
@@ -67,7 +90,7 @@
                 currency: "SGD",
             }, {
                 userId: uId,
-            }), "Failed to initialize payment")
+            }), $_('wallets.deposit.initError', { locale: $lang }))
                 .match({
                     err: e => {
                         console.error(e);
@@ -96,12 +119,12 @@
 
 <div class="flex flex-col h-full items-center justify-center w-11/12 h-full max-w-[1200px] mx-auto my-4">
     <div class="flex flex-col gap-2 items-center my-12 md:my-48">
-        <h1 class="text-4xl">Deposit</h1>
-        <h4 class="text-muted-foreground">Deposit to BunnyBooker</h4>
+        <h1 class="text-4xl">{$_('wallets.deposit.title', { locale: $lang })}</h1>
+        <h4 class="text-muted-foreground">{$_('wallets.deposit.subtitle', { locale: $lang })}</h4>
     </div>
 
     <div class="text-2xl font-light">
-        Balance: S${($page.data.user?.wallet?.usable ?? 0).toFixed(2)}
+        {$_('wallets.deposit.balance', { locale: $lang, values: { amount: formatMoney($page.data.user?.wallet?.usable ?? 0, $lang) } })}
     </div>
     <div class="flex flex-col gap-2 items-center">
         <Validation {errors} {taints} path="amount">
@@ -117,14 +140,14 @@
 
 
     <div class="my-12 px-8 text-center">
-        How much in SGD would you like to deposit?
+        {$_('wallets.deposit.prompt', { locale: $lang })}
     </div>
 
     <Button class="text-2xl py-8 px-12 my-12 font-light" on:click={submit} disabled={submitting || !isValid}>
         {#if submitting}
             <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
         {/if}
-        Deposit
+        {$_('wallets.deposit.title', { locale: $lang })}
     </Button>
 
 </div>

@@ -9,6 +9,8 @@
     //@ts-ignore
     import * as Avatar from "$lib/components/ui/avatar";
     import {LucideLoader, User} from "lucide-svelte";
+    import {_} from "svelte-i18n";
+    import {lang, formatMoney} from "$lib/i18n";
 
 
     let loading = false;
@@ -58,60 +60,60 @@
             <DropdownMenu.Separator/>
             <a href="/costs">
                 <DropdownMenu.Item>
-                    Costs
+                    {$_('account.costs', { locale: $lang })}
                 </DropdownMenu.Item>
             </a>
             <a href="/discounts">
                 <DropdownMenu.Item>
-                    Discounts
+                    {$_('account.discounts', { locale: $lang })}
                 </DropdownMenu.Item>
             </a>
             <a href="/wallets">
                 <DropdownMenu.Item>
-                    Wallets
+                    {$_('account.wallets', { locale: $lang })}
                 </DropdownMenu.Item>
             </a>
             <a href="/users">
                 <DropdownMenu.Item>
-                    Users
+                    {$_('account.users', { locale: $lang })}
                 </DropdownMenu.Item>
             </a>
             {/if}
             <DropdownMenu.Separator/>
             <a href="/wallets/{$page.data.user.wallet.id}">
                 <DropdownMenu.Item>
-                    BALANCE: SGD {$page.data.user?.wallet?.usable?.toFixed(2) ?? "0.00" }
+                    {$_('account.balance', { locale: $lang, values: { amount: formatMoney($page.data.user?.wallet?.usable ?? 0, $lang) } })}
                 </DropdownMenu.Item>
             </a>
             <DropdownMenu.Separator/>
             <a href="{session?.roles?.includes('admin') ? '/bookings' : `/bookings?userId=${$page.data.user.principal.id}`}">
                 <DropdownMenu.Item>
-                    Manage Bookings
+                    {$_('account.manageBookings', { locale: $lang })}
                 </DropdownMenu.Item>
             </a>
             <a href="{session?.roles?.includes('admin') ? '/passengers' : `/passengers?userId=${$page.data.user.principal.id}`}">
                 <DropdownMenu.Item>
-                    Passengers
+                    {$_('account.passengers', { locale: $lang })}
                 </DropdownMenu.Item>
             </a>
             <a href="{session?.roles?.includes('admin') ? '/withdrawals' : `/withdrawals?userId=${$page.data.user.principal.id}`}">
                 <DropdownMenu.Item>
-                    Withdrawals
+                    {$_('account.withdrawals', { locale: $lang })}
                 </DropdownMenu.Item>
             </a>
             <a href="{session?.roles?.includes('admin') ? '/transactions' : `/transactions?userId=${$page.data.user.principal.id}`}">
                 <DropdownMenu.Item>
-                    Transactions
+                    {$_('account.transactions', { locale: $lang })}
                 </DropdownMenu.Item>
             </a>
 
             <a href="/profile">
                 <DropdownMenu.Item>
-                    Profile
+                    {$_('account.profile', { locale: $lang })}
                 </DropdownMenu.Item>
             </a>
             <DropdownMenu.Item on:click={logout}>
-                Log out
+                {$_('account.logout', { locale: $lang })}
             </DropdownMenu.Item>
         </DropdownMenu.Content>
     </DropdownMenu.Root>
@@ -122,6 +124,6 @@
         {:else}
             <User class="mr-2 h-4 w-4"/>
         {/if}
-        Sign in
+        {$_('account.signIn', { locale: $lang })}
     </Button>
 {/if}

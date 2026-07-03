@@ -31,4 +31,19 @@ export const BOOKING_STATUS: Record<string, Selected<string> & { color: string }
     label: 'Terminated',
     color: 'bg-red-500',
   },
+  Recovering: {
+    value: 'Recovering',
+    label: 'Recovering',
+    color: 'bg-orange-500',
+  },
+  Duplicate: {
+    value: 'Duplicate',
+    label: 'Duplicate',
+    color: 'bg-purple-500',
+  },
+  RequireManualIntervention: {
+    value: 'RequireManualIntervention',
+    label: 'RequireManualIntervention',
+    color: 'bg-rose-600',
+  },
 };

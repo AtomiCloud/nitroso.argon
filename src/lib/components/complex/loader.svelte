@@ -1,7 +1,10 @@
 <script>
     import {animations} from "$lib/design";
     import Lottie from "$lib/components/complex/lottie.svelte";
-    export let loadingText = "Loading, please wait...";
+    import {_} from "svelte-i18n";
+    import {lang} from "$lib/i18n";
+    /** @type {string | undefined} */
+    export let loadingText = undefined;
 
 </script>
 
@@ -18,6 +21,6 @@
     <div class="loading-container">
     <Lottie autoplay={true} loop={true} speed={3.5} lottieJson={animations.corgi}/>
 </div>
-<h3 class="text-foreground">{loadingText}</h3>
+<h3 class="text-foreground">{loadingText ?? $_('loader.default', {locale: $lang})}</h3>
 </div>
 </div>

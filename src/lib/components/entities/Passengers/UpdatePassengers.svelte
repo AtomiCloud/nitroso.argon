@@ -19,25 +19,27 @@
     import {Input} from "$lib/components/ui/input";
     import Validation from "$lib/components/core/Validation.svelte";
     import {tick} from "svelte";
-    import {DateFormatter, type DateValue, getLocalTimeZone, parseDate} from "@internationalized/date";
+    import {type DateValue, getLocalTimeZone, parseDate} from "@internationalized/date";
     import {addMonths, format, parse} from "date-fns";
     import {cn} from "$lib/utils";
     import AdvanceCalendar from "$lib/components/custom/calendar/AdvanceCalendar.svelte";
+    import {_} from "svelte-i18n";
+    import {lang, formatCalendarDate} from "$lib/i18n";
 
     let dialogOpen = false;
 
-    const updatePassengerSchema = z.object({
+    $: updatePassengerSchema = z.object({
         fullName: z.string()
-            .min(1, "Full name must be at least 1 character long")
-            .max(512, "Full name must be at most 512 characters long")
-            .regex(/^[a-zA-Z @./',\-`*]+$/, "Full name must only contain letters and special characters @ . / ' , - ` *"),
+            .min(1, $_('passengers.create.validation.fullNameMin', { locale: $lang }))
+            .max(512, $_('passengers.create.validation.fullNameMax', { locale: $lang }))
+            .regex(/^[a-zA-Z @./',\-`*]+$/, $_('passengers.create.validation.fullNameRegex', { locale: $lang })),
         gender: z.enum(['M', 'F']),
         passportNumber: z.string()
-            .regex(/^([a-zA-Z0-9]+)$/, "Passport number must only contain letters and numbers")
-            .min(1, "Passport number must be at least 1 character long")
-            .max(20, "Passport number must be at most 20 characters long"),
+            .regex(/^([a-zA-Z0-9]+)$/, $_('passengers.create.validation.passportNumberRegex', { locale: $lang }))
+            .min(1, $_('passengers.create.validation.passportNumberMin', { locale: $lang }))
+            .max(20, $_('passengers.create.validation.passportNumberMax', { locale: $lang })),
         passportExpiry: z.date()
-            .min(addMonths(new Date(), 6), "Passport expiry must at least 6 months from now")
+            .min(addMonths(new Date(), 6), $_('passengers.create.validation.passportExpiryMin', { locale: $lang }))
     }).required();
 
 
@@ -60,9 +62,6 @@
 
     let taints: Record<string, boolean> = {}
 
-    const df = new DateFormatter("en-US", {
-        dateStyle: "long"
-    });
 
     let bindDate: DateValue = parseDate(format(val.passportExpiry, 'yyyy-MM-dd'))
 
@@ -76,6 +75,10 @@
     const onChange = (path: string) => async () => {
         await tick();
         taints[path] = true;
+        validate();
+    }
+
+    function validate() {
         const r = updatePassengerSchema.safeParse(val);
         if (!r.success) {
             const e = r as SafeParseError<CreateDiscountReq>;
@@ -83,6 +86,17 @@
         } else {
             errors = [];
         }
+    }
+
+    // Re-run validation whenever the locale-rebuilt schema changes, so an error
+    // already on screen re-renders in the new language after a no-reload language
+    // switch (AC5). Guarded on taints so it never surfaces errors before the user
+    // has interacted.
+    $: revalidateOnLocale(updatePassengerSchema);
+
+    function revalidateOnLocale(_schema: typeof updatePassengerSchema) {
+        if (Object.keys(taints).length === 0) return;
+        validate();
     }
 
 
@@ -101,9 +115,9 @@
     async function updatePassenger(c: UpdatePassengerReq) {
         submitting = true;
         await toResult(() => $api.vPassengerUpdate(passenger.id, "1.0", c, {userId}),
-            "Failed to update passenger").match({
+            $_('passengers.update.errorToast', { locale: $lang })).match({
             ok: ok => {
-                toast.info(`Successfully updated passenger '${ok.fullName}'`);
+                toast.info($_('passengers.update.successToast', { locale: $lang, values: { name: ok.fullName } }));
                 dialogOpen = false;
                 invalidateAll();
             },
@@ -128,32 +142,30 @@
     </Dialog.Trigger>
     <Dialog.Content>
         <Dialog.Header>
-            <Dialog.Title>Updating a passenger</Dialog.Title>
+            <Dialog.Title>{$_('passengers.update.title', { locale: $lang })}</Dialog.Title>
             <Dialog.Description>
                 <div class="flex flex-col gap-4">
                     <p class="text-justify py-2">
-                        Updating an existing Passenger.
+                        {$_('passengers.update.subtitle', { locale: $lang })}
                     </p>
                     <Alert.Root>
                         <AlertTriangle class="h-4 w-4"/>
-                        <Alert.Title>Take Note!</Alert.Title>
+                        <Alert.Title>{$_('passengers.alert.takeNote', { locale: $lang })}</Alert.Title>
                         <Alert.Description>
-                            Please ensure and check the passport details creating.
-                            Our system does not have the ability to validate your details.
-                            All incorrect tickets purchased with incorrect details will
-                            <span class="underline">NOT</span> be refunded.
+                            {$_('passengers.alert.detailsLead', { locale: $lang })}
+                            <span class="underline">{$_('passengers.alert.not', { locale: $lang })}</span> {$_('passengers.alert.refundedTrail', { locale: $lang })}
                         </Alert.Description>
                     </Alert.Root>
                     <Validation {errors} {taints} path="fullName">
                         <Input
-                                placeholder="Fullname as per Passport"
+                                placeholder={$_('passengers.create.fullNamePlaceholder', { locale: $lang })}
                                 bind:value={val.fullName}
                                 on:input={onChange("fullName")}
                         />
                     </Validation>
                     <Validation {errors} {taints} path="passportNumber">
                         <Input
-                                placeholder="Passport Number"
+                                placeholder={$_('fields.passportNumber', { locale: $lang })}
                                 bind:value={val.passportNumber}
                                 on:input={onChange("passportNumber")}
                         />
@@ -170,7 +182,7 @@
                                             builders={[builder]}
                                     >
                                         <CalendarIcon class="mr-2 h-4 w-4"/>
-                                        {bindDate ? df.format(bindDate.toDate(getLocalTimeZone())) : "Passport Expiry Date"}
+                                        {bindDate ? formatCalendarDate(bindDate.toDate(getLocalTimeZone()), $lang, {dateStyle: "long"}) : $_('passengers.passportExpiryLabel', { locale: $lang })}
                                     </Button>
                                 </Popover.Trigger>
                                 <Popover.Content class="w-auto p-0" align="start">
@@ -183,8 +195,8 @@
 
                             <ToggleGroup.Root type="single" bind:value={val.gender}
                                               onValueChange={onChange("gender")}>
-                                <ToggleGroup.Item value='M' aria-label="Male">M</ToggleGroup.Item>
-                                <ToggleGroup.Item value='F' aria-label="Female">F</ToggleGroup.Item>
+                                <ToggleGroup.Item value='M' aria-label={$_('passengers.gender.male', { locale: $lang })}>M</ToggleGroup.Item>
+                                <ToggleGroup.Item value='F' aria-label={$_('passengers.gender.female', { locale: $lang })}>F</ToggleGroup.Item>
                             </ToggleGroup.Root>
                         </Validation>
                     </div>
@@ -193,7 +205,7 @@
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                         {/if}
-                        Update Passenger
+                        {$_('passengers.update.submit', { locale: $lang })}
                     </Button>
                 </div>
             </Dialog.Description>

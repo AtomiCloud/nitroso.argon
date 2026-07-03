@@ -10,6 +10,8 @@
     import {problem} from "../../../store";
     import Loader from "$lib/components/complex/loader.svelte";
     import TransactionComponent from "$lib/components/entities/Transaction.svelte";
+    import {_} from "svelte-i18n";
+    import {lang} from "$lib/i18n";
     import type {PageData} from "./$types";
 
     export let data: PageData;
@@ -28,10 +30,10 @@
         }) satisfies Promise<TransactionRes>)
 </script>
 
-<Page notFoundMessage="Wallet cannot be found">
+<Page notFoundMessage={$_('transactions.detail.notFound', { locale: $lang })}>
     <div class="border-b border-b-muted">
         <h2 class="py-10 text-3xl lg:text-4xl text-foreground max-w-[1200px] w-11/12 mx-auto">
-            Transaction
+            {$_('transactions.detail.title', { locale: $lang })}
         </h2>
     </div>
     <div class="w-full min-h-[80vh] bg-muted dark:bg-background">

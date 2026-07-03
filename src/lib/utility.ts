@@ -9,6 +9,11 @@ import type { ProblemDetails } from '../errors/problem_details';
 import { toDetail } from '../errors/error_utility';
 import { jwtDecode } from 'jwt-decode';
 import { formatDistanceToNow, format, parseISO, isValid } from 'date-fns';
+import { enUS, zhCN, ms as msLocale } from 'date-fns/locale';
+
+// date-fns locale objects keyed by the app's supported locales (FR12): relative
+// dates ("2 months ago") render in the active language rather than always English.
+const DATE_FNS_LOCALES = { en: enUS, zh: zhCN, ms: msLocale } as const;
 
 const isResponse = <T>(value: unknown): value is HttpResponse<T> => {
   return typeof value === 'object' && value !== null && 'error' in value && 'ok' in value && 'data' in value;
@@ -108,14 +113,14 @@ function compare(a?: string | null, b?: string | null): boolean {
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
 
-function formatRelativeDate(date: string | Date): string {
+function formatRelativeDate(date: string | Date, locale: keyof typeof DATE_FNS_LOCALES = 'en'): string {
   const dateObj = typeof date === 'string' ? parseISO(date) : date;
 
   if (!isValid(dateObj)) {
     return 'Invalid date';
   }
 
-  return formatDistanceToNow(dateObj, { addSuffix: true });
+  return formatDistanceToNow(dateObj, { addSuffix: true, locale: DATE_FNS_LOCALES[locale] ?? enUS });
 }
 
 function formatDateTime(date: string | Date, formatStr: string = 'dd MMM yyyy, hh:mm a'): string {

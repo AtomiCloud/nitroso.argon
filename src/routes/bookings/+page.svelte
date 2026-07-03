@@ -18,7 +18,7 @@
     //@ts-ignore
     import * as Card from "$lib/components/ui/card";
     import type {Selected} from "bits-ui";
-    import {CalendarDate, DateFormatter, type DateValue, getLocalTimeZone} from "@internationalized/date";
+    import {CalendarDate, type DateValue, getLocalTimeZone} from "@internationalized/date";
 
     import {CalendarIcon, FilePieChart} from "lucide-svelte";
     import type {PageData} from "./$types";
@@ -29,6 +29,8 @@
     import {BOOKING_STATUS} from "./book_status";
     import BookingRow from "$lib/components/entities/Bookings/BookingRow.svelte";
     import {format, parse} from "date-fns";
+    import {_} from "svelte-i18n";
+    import {lang, formatMoney, formatCalendarDate} from "$lib/i18n";
 
     export let data: PageData;
 
@@ -68,12 +70,18 @@
 
     let bookingStatus: Selected<string> | undefined = BOOKING_STATUS[status || ""];
 
+    // The dropdown items render translated text, but the closed trigger shows
+    // `Selected.label`, which for a deep-linked initial value (e.g.
+    // `?status=Completed`) comes from the English constant. Keep that label in
+    // sync with the active locale so non-English locales never leak English.
+    $: if (bookingStatus?.value) {
+        const translated = $_(`status.booking.${bookingStatus.value}`, { locale: $lang });
+        if (bookingStatus.label !== translated) bookingStatus = { ...bookingStatus, label: translated };
+    }
+
     let bindDirection: string = direction;
     let bindDate: DateValue = toCalDate(date);
 
-    const df = new DateFormatter("en-US", {
-        dateStyle: "long"
-    });
 
     function bookingStatusChange(t: Selected<string> | undefined) {
         bookingStatus = t;
@@ -112,12 +120,12 @@
         <div class="flex justify-center sm:justify-between gap-4 flex-wrap py-8 items-center text-foreground max-w-[1200px] w-11/12 mx-auto">
 
             <div class="text-3xl lg:text-4xl">
-                Bookings
+                {$_('bookings.list.title', { locale: $lang })}
 
             </div>
             <div class="flex flex-col justify-center items-center font-light">
-                <div class="text-2xl">S${$page.data.user?.wallet?.usable?.toFixed(2) ?? "0.00" }</div>
-                <div>Balance</div>
+                <div class="text-2xl">{formatMoney($page.data.user?.wallet?.usable ?? 0, $lang)}</div>
+                <div>{$_('fields.balance', { locale: $lang })}</div>
             </div>
         </div>
 
@@ -126,7 +134,7 @@
 
         {#if session?.roles?.includes("admin")}
             <Input class="w-full"
-                   placeholder="Filter by user ID..." bind:value={userId} on:input={triggerSearch}/>
+                   placeholder={$_('bookings.list.filterByUserId', { locale: $lang })} bind:value={userId} on:input={triggerSearch}/>
         {/if}
         <div class="flex gap-4 flex-wrap justify-start">
             <Popover.Root>
@@ -135,7 +143,7 @@
                             class={cn("w-full lg:max-w-60 justify-start text-left font-normal",!bindDate && "text-muted-foreground")}
                             builders={[builder]}>
                         <CalendarIcon class="mr-2 h-4 w-4"/>
-                        {bindDate ? df.format(bindDate.toDate(getLocalTimeZone())) : "Select a date"}
+                        {bindDate ? formatCalendarDate(bindDate.toDate(getLocalTimeZone()), $lang, {dateStyle: "long"}) : $_('bookings.list.selectDate', { locale: $lang })}
                     </Button>
                 </Popover.Trigger>
                 <Popover.Content class="w-auto p-0" align="start">
@@ -145,22 +153,22 @@
             <Select.Root bind:selected={bookingStatus} onSelectedChange={bookingStatusChange}>
                 <Select.Trigger class="w-full lg:max-w-60">
                     <FilePieChart class="mr-2 h-4 w-4"/>
-                    <Select.Value placeholder="Status"/>
+                    <Select.Value placeholder={$_('fields.status', { locale: $lang })}/>
                 </Select.Trigger>
                 <Select.Content>
-                    <Select.Item value="">None</Select.Item>
+                    <Select.Item value="">{$_('bookings.list.none', { locale: $lang })}</Select.Item>
                     {#each Object.entries(BOOKING_STATUS) as [, val]}
-                        <Select.Item value={val.value}>{val.label}</Select.Item>
+                        <Select.Item value={val.value}>{$_(`status.booking.${val.value}`, { locale: $lang })}</Select.Item>
                     {/each}
                 </Select.Content>
             </Select.Root>
             <ToggleGroup.Root type="single" bind:value={bindDirection} class="w-full lg:max-w-80"
                               onValueChange={directionChange}>
-                <ToggleGroup.Item value="WToJ" aria-label="Woodlands to JB Sentral">
-                    Woodlands to JB
+                <ToggleGroup.Item value="WToJ" aria-label={$_('bookings.list.woodlandsToJbSentral', { locale: $lang })}>
+                    {$_('bookings.list.woodlandsToJb', { locale: $lang })}
                 </ToggleGroup.Item>
-                <ToggleGroup.Item value="JToW" aria-label="JB Sentral to Woodlands">
-                    JB to Woodlands
+                <ToggleGroup.Item value="JToW" aria-label={$_('bookings.list.jbSentralToWoodlands', { locale: $lang })}>
+                    {$_('bookings.list.jbToWoodlands', { locale: $lang })}
                 </ToggleGroup.Item>
             </ToggleGroup.Root>
         </div>
@@ -168,7 +176,7 @@
         {#await bookings}
             <Loader/>
         {:then bs}
-            <Page notFoundMessage="Not bookings found" empty={bs.length === 0}>
+            <Page notFoundMessage={$_('bookings.list.empty', { locale: $lang })} empty={bs.length === 0}>
                 {#each bs as b}
                     <BookingRow {b}/>
                 {/each}
