@@ -15,7 +15,8 @@
     import {tick} from "svelte";
     import Validation from "$lib/components/core/Validation.svelte";
     import {Input} from "$lib/components/ui/input";
-    import {transferObjectSchema} from "$lib/components/entities/Wallets/transfer";
+    import {_} from "svelte-i18n";
+    import {lang, formatMoney} from "$lib/i18n";
 
     export let userId: string;
 
@@ -28,20 +29,20 @@
     let taints: Record<string, boolean> = {}
 
     // form validations
-    const createWithdrawalSchema = z.object({
+    $: createWithdrawalSchema = z.object({
         amount: z
             .coerce
             .number()
-            .gt(0, "Amount must be greater than 0")
-            .max(wallet.usable, "Amount must be less than or equal to your usable balance")
-            .finite("Amount must be a finite number"),
+            .gt(0, $_('withdrawals.create.amountGreaterThanZero', { locale: $lang }))
+            .max(wallet.usable, $_('withdrawals.create.amountExceedsBalance', { locale: $lang }))
+            .finite($_('withdrawals.create.amountFinite', { locale: $lang })),
         payNowNumber: z.string()
-            .min(8, "Not a valid PayNow number")
-            .max(12, "Not a valid PayNow number")
+            .min(8, $_('withdrawals.create.invalidPayNow', { locale: $lang }))
+            .max(12, $_('withdrawals.create.invalidPayNow', { locale: $lang }))
             .optional()
     }).required();
 
-    type Withdrawal = z.infer<typeof createWithdrawalSchema>;
+    type Withdrawal = { amount: number; payNowNumber?: string };
 
     const val: Withdrawal = {
         amount: 0,
@@ -76,10 +77,10 @@
     async function makeWithdrawal(w: CreateWithdrawalReq) {
         submitting = true;
         await toResult(() => $api.vWithdrawalCreate(
-            userId, "1.0", w), "Failed to make withdrawal")
+            userId, "1.0", w), $_('withdrawals.create.failed', { locale: $lang }))
             .match({
                 ok: () => {
-                    toast.info(`Successfully requested withdrawal of SGD ${w.amount.toFixed(2)} from your USABLE balance.`);
+                    toast.info($_('withdrawals.create.success', { locale: $lang, values: { amount: formatMoney(w.amount, $lang) } }));
                     dialogOpen = false;
                     invalidateAll();
                 },
@@ -97,45 +98,45 @@
 
 <Dialog.Root bind:open={dialogOpen}>
     <Dialog.Trigger class="w-full max-w-80  {buttonVariants({ variant: 'default' })}">
-        Make a Withdrawal
+        {$_('withdrawals.create.trigger', { locale: $lang })}
     </Dialog.Trigger>
     <Dialog.Content class="max-h-full overflow-scroll">
         <Dialog.Header>
-            <Dialog.Title>Make a withdrawal</Dialog.Title>
+            <Dialog.Title>{$_('withdrawals.create.title', { locale: $lang })}</Dialog.Title>
             <Dialog.Description>
                 <div class="flex flex-col gap-4">
                     <p class="text-justify py-2">
-                        You will be withdrawing from your usable balance in your wallet.
+                        {$_('withdrawals.create.intro', { locale: $lang })}
                     </p>
                     <Alert.Root>
                         <AlertTriangle class="h-4 w-4"/>
-                        <Alert.Title>Important!</Alert.Title>
+                        <Alert.Title>{$_('withdrawals.create.importantTitle', { locale: $lang })}</Alert.Title>
                         <Alert.Description
-                        >Please ensure you PayNow number is correct before proceeding.
-                            <span class="underline"> No compensations </span>
-                            will be provided for incorrect PayNow numbers.
+                        >{$_('withdrawals.create.payNowWarningPrefix', { locale: $lang })}
+                            <span class="underline"> {$_('withdrawals.create.payNowWarningEmphasis', { locale: $lang })} </span>
+                            {$_('withdrawals.create.payNowWarningSuffix', { locale: $lang })}
                         </Alert.Description
                         >
                     </Alert.Root>
                     <Alert.Root>
                         <AlertTriangle class="h-4 w-4"/>
-                        <Alert.Title>Withdrawal Duration</Alert.Title>
+                        <Alert.Title>{$_('withdrawals.create.durationTitle', { locale: $lang })}</Alert.Title>
                         <Alert.Description
-                        >Withdrawal is not instant. It will take up to
-                            <span class="underline"> 2 working days </span>
-                            to be processed.
+                        >{$_('withdrawals.create.durationPrefix', { locale: $lang })}
+                            <span class="underline"> {$_('withdrawals.create.durationEmphasis', { locale: $lang })} </span>
+                            {$_('withdrawals.create.durationSuffix', { locale: $lang })}
                         </Alert.Description
                         >
                     </Alert.Root>
                     <Validation {errors} {taints} path="amount">
                         <div class="flex flex-col gap-2 mt-4">
                             <div>
-                                Balance: S${wallet.usable.toFixed(2)}
+                                {$_('withdrawals.create.balanceLabel', { locale: $lang, values: { amount: formatMoney(wallet.usable, $lang) } })}
                             </div>
                             <div class="flex gap-2 justify-between items-center">
                                 <div class="text-lg">S$</div>
                                  <Input
-                                    placeholder="Amount"
+                                    placeholder={$_('fields.amount', { locale: $lang })}
                                     inputmode="numeric"
                                     bind:value={val.amount}
                                     on:input={onChange("amount")}/>
@@ -144,7 +145,7 @@
                     </Validation>
                     <Validation {errors} {taints} path="payNowNumber">
                         <Input
-                                placeholder="PayNow Number to withdraw to"
+                                placeholder={$_('withdrawals.create.payNowPlaceholder', { locale: $lang })}
                                 bind:value={val.payNowNumber}
                                 on:input={onChange("payNowNumber")}
                         />
@@ -153,7 +154,7 @@
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                         {/if}
-                        Request Withdrawal
+                        {$_('withdrawals.create.submit', { locale: $lang })}
                     </Button>
                 </div>
             </Dialog.Description>

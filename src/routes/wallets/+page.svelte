@@ -14,6 +14,8 @@
     import {Separator} from "$lib/components/ui/separator";
     import type {PageData} from "./$types";
     import {Button} from "$lib/components/ui/button";
+    import {_} from "svelte-i18n";
+    import {lang, formatMoney} from "$lib/i18n";
 
 
     export let data: PageData;
@@ -45,11 +47,11 @@
 
 <div class="flex flex-col">
     <div class="flex flex-col w-11/12 max-w-[1200px] mx-auto my-12">
-        <Input placeholder="Search for wallets..." bind:value={searchTerm} on:input={triggerSearch}/>
+        <Input placeholder={$_('wallets.list.searchPlaceholder', { locale: $lang })} bind:value={searchTerm} on:input={triggerSearch}/>
         {#await wallets}
             <Loader/>
         {:then w}
-            <Page notFoundMessage="Wallets not found" empty={w.length === 0}>
+            <Page notFoundMessage={$_('wallets.list.notFound', { locale: $lang })} empty={w.length === 0}>
                 <div class="flex flex-col gap-4 my-4">
                     {#each w as wallet}
                         <div>
@@ -64,15 +66,15 @@
                                     <div class="flex gap-8 justify-between items-center flex-wrap">
 
                                         <div class="flex h-5 items-center space-x-4 text-sm">
-                                            <div>USABLE: SGD {wallet.usable.toFixed(2)}</div>
+                                            <div>{$_('wallets.card.usable', { locale: $lang })}: {formatMoney(wallet.usable, $lang)}</div>
                                             <Separator orientation="vertical"/>
-                                            <div>WITHDRAW RESERVE: SGD {wallet.withdrawReserve.toFixed(2)}</div>
+                                            <div>{$_('wallets.card.withdrawReserve', { locale: $lang })}: {formatMoney(wallet.withdrawReserve, $lang)}</div>
                                             <Separator orientation="vertical"/>
-                                            <div>BOOKING RESERVE: SGD {wallet.bookingReserve.toFixed(2)}</div>
+                                            <div>{$_('wallets.card.bookingReserve', { locale: $lang })}: {formatMoney(wallet.bookingReserve, $lang)}</div>
                                         </div>
                                         <Button href="/wallets/{wallet.id}"
                                                 class="max-w-80 lg:max-w-40 w-full">
-                                            View Details
+                                            {$_('wallets.list.viewDetails', { locale: $lang })}
                                         </Button>
                                     </div>
                                 </Card.Content>

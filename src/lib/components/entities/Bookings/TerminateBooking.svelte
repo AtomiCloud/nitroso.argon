@@ -15,6 +15,8 @@
     import {Input} from "$lib/components/ui/input";
     import {page} from "$app/stores";
     import type {Session} from "@auth/core/types";
+    import {_} from "svelte-i18n";
+    import {lang} from "$lib/i18n";
 
     let dialogOpen = false;
     export let booking: BookingPrincipalRes;
@@ -32,9 +34,9 @@
             ? {}
             : {userId: $page.data.user.principal.id}
         await toResult(() => $api.vBookingTerminateCreate(booking.id, "1.0", user),
-            "Failed to terminate booking").match({
+            $_('bookingActions.terminate.error', { locale: $lang })).match({
             ok: ok => {
-                toast.info(`Successfully terminated booking`);
+                toast.info($_('bookingActions.terminate.success', { locale: $lang }));
                 dialogOpen = false;
                 invalidateAll();
             },
@@ -54,41 +56,39 @@
 <Dialog.Root bind:open={dialogOpen}>
     <Dialog.Trigger class="{buttonVariants({ variant: 'destructive' })} w-full sm:max-w-40">
         <LucideTrash2 class="mr-2 h-4 w-4"/>
-        Terminate
+        {$_('bookingActions.terminate.trigger', { locale: $lang })}
     </Dialog.Trigger>
     <Dialog.Content>
         <Dialog.Header>
-            <Dialog.Title>Terminate Booking</Dialog.Title>
+            <Dialog.Title>{$_('bookingActions.terminate.title', { locale: $lang })}</Dialog.Title>
             <Dialog.Description>
                 <div class="flex flex-col gap-4">
                     <p class="text-justify py-2">
-                        Our bunnies have already managed to secure your ticket on KITS! Terminating
-                        this ticket release the your ticket back to KITS.
+                        {$_('bookingActions.terminate.intro', { locale: $lang })}
                     </p>
                     <Alert.Root>
                         <AlertTriangle class="h-4 w-4"/>
-                        <Alert.Title>Take Note!</Alert.Title>
+                        <Alert.Title>{$_('bookingActions.terminate.takeNoteTitle', { locale: $lang })}</Alert.Title>
                         <Alert.Description>
-                            Terminating a booking will only refund
-                            <span class="underline">50%</span> of the
-                            ticket price you paid for. This is to prevent
-                            abuse of the system.
+                            {$_('bookingActions.terminate.takeNoteBefore', { locale: $lang })}
+                            <span class="underline">{$_('bookingActions.terminate.refundPercent', { locale: $lang })}</span>
+                            {$_('bookingActions.terminate.takeNoteAfter', { locale: $lang })}
                         </Alert.Description>
                     </Alert.Root>
 
                     <p class="text-justify py-2">
-                        Please type the name of the passenger, <code
+                        {$_('bookingActions.terminate.typeNameBefore', { locale: $lang })} <code
                             class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
                         {booking.passenger.fullName}
-                    </code> to proceed.
+                    </code> {$_('bookingActions.terminate.typeNameAfter', { locale: $lang })}
                     </p>
 
                     <div class="flex flex-col">
-                        <Input placeholder="Name"
+                        <Input placeholder={$_('fields.name', { locale: $lang })}
                                bind:value={confirm}
                         />
                         <div class="text-sm text-destructive {valid ? 'opacity-0' : 'opacity-1'}">
-                            Please type the name of the passenger of the booking to proceed.
+                            {$_('bookingActions.terminate.typeNameError', { locale: $lang })}
                         </div>
                     </div>
 
@@ -97,7 +97,7 @@
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                         {/if}
-                        Terminate Booking
+                        {$_('bookingActions.terminate.confirmButton', { locale: $lang })}
                     </Button>
                 </div>
             </Dialog.Description>

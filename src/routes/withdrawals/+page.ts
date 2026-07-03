@@ -2,17 +2,19 @@ import type { ProblemDetails } from '../../errors/problem_details';
 import type { WithdrawalPrincipalRes } from '$lib/api/core/data-contracts';
 import { NewApi } from '../../store';
 import { toResult } from '$lib/utility';
+import { loadError } from '$lib/i18n';
 import type { PageLoad } from './$types';
 
 export const load = (async ({
   parent,
   url,
+  fetch,
 }): Promise<{
   result: ['err', ProblemDetails] | ['ok', WithdrawalPrincipalRes[]];
 }> => {
-  const { session } = await parent();
+  const { session, locale } = await parent();
 
-  const api = NewApi({ data: { session } });
+  const api = NewApi({ data: { session }, fetch });
 
   const userId = url.searchParams.get('userId') ?? '';
   const completerId = url.searchParams.get('completerId') ?? '';
@@ -35,7 +37,7 @@ export const load = (async ({
         Id: id,
         CompleterId: completerId,
       }),
-    'Fail to get withdrawal',
+    await loadError(locale, 'errors.load.withdrawals'),
   ).serial();
   return {
     result: r,

@@ -4,6 +4,8 @@
     import {AlertOctagon} from 'lucide-svelte';
     import Lottie from "$lib/components/complex/lottie.svelte";
     import * as Accordion from "$lib/components/ui/accordion";
+    import {_} from "svelte-i18n";
+    import {lang} from "$lib/i18n";
 
     export let prob: ProblemDetails;
 
@@ -44,33 +46,33 @@
 
         switch (prob.status) {
             case 400:
-                return "Error - Alien Invasion"
+                return $_('errorState.alienInvasion', {locale: $lang})
             case 401:
-                return "Error - Doggy Can't Swim"
+                return $_('errorState.doggyCantSwim', {locale: $lang})
             case 403:
-                return "Error - Lost in Space"
+                return $_('errorState.lostInSpace', {locale: $lang})
             case 404:
-                return "Error - Chemical Explosion"
+                return $_('errorState.chemicalExplosion', {locale: $lang})
             case 405:
-                return "Error - Coffee Spilt"
+                return $_('errorState.coffeeSpilt', {locale: $lang})
             case 406:
-                return "Error - Doggy Can't Smell"
+                return $_('errorState.doggyCantSmell', {locale: $lang})
             case 409:
-                return "Error - Dog Eats News Paper"
+                return $_('errorState.dogEatsNewsPaper', {locale: $lang})
             case 415:
-                return "Error - Doggy Can't Swim"
+                return $_('errorState.doggyCantSwim', {locale: $lang})
             case 422:
-                return "Error - Icecream Melted"
+                return $_('errorState.icecreamMelted', {locale: $lang})
             case 500:
-                return "Error - Laptop Broken"
+                return $_('errorState.laptopBroken', {locale: $lang})
             case 502:
-                return "Error - Lochness Monster Exist?"
+                return $_('errorState.lochnessMonster', {locale: $lang})
             case 503:
-                return "Error - Missing Piece"
+                return $_('errorState.missingPiece', {locale: $lang})
             case 504:
-                return "Error - No Tissue"
+                return $_('errorState.noTissue', {locale: $lang})
             default:
-                return "Error - Doggy Can't Swim"
+                return $_('errorState.doggyCantSwim', {locale: $lang})
         }
     })()
 
@@ -89,7 +91,7 @@
                 <Accordion.Item value="item-1">
                     <Accordion.Trigger class="px-6 py-2 bg-red-400">
                         <AlertOctagon class="h-4 w-4"/>
-                        Error Details
+                        {$_('errorState.errorDetails', {locale: $lang})}
                     </Accordion.Trigger>
                     <Accordion.Content>
                         <div class="p-4 bg-muted overflow-auto">

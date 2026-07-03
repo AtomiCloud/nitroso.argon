@@ -3,6 +3,9 @@ import { jwtDecode } from 'jwt-decode';
 import { config } from './config/server';
 import type { JWT } from '@auth/core/jwt';
 import type { Session } from '@auth/core/types';
+import type { Handle } from '@sveltejs/kit';
+import { sequence } from '@sveltejs/kit/hooks';
+import { negotiateLocale, LOCALE_COOKIE } from '$lib/i18n/resolve';
 
 function expired(token?: string, now?: Date): boolean {
   if (now == null) now = new Date();
@@ -11,7 +14,21 @@ function expired(token?: string, now?: Date): boolean {
   return d.exp * 1000 < now.getTime();
 }
 
-export const handle = SvelteKitAuth({
+// Request-scoped locale negotiation. Stores the resolved locale on
+// `event.locals` (consumed by +layout.server.ts) and rewrites the `%lang%`
+// placeholder in app.html. Never touches any process-global locale state.
+const handleLocale: Handle = async ({ event, resolve }) => {
+  const cookie = event.cookies.get(LOCALE_COOKIE);
+  const acceptLanguage = event.request.headers.get('accept-language');
+  const locale = negotiateLocale({ cookie, acceptLanguage });
+  event.locals.locale = locale;
+
+  return resolve(event, {
+    transformPageChunk: ({ html }) => html.replace('%lang%', locale),
+  });
+};
+
+const authHandle = SvelteKitAuth({
   providers: [
     {
       id: 'descope',
@@ -72,3 +89,5 @@ export const handle = SvelteKitAuth({
   trustHost: true,
   secret: config.auth.secret,
 });
+
+export const handle = sequence(handleLocale, authHandle);

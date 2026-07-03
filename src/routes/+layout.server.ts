@@ -18,11 +18,11 @@ export const load: LayoutServerLoad = async ({ locals, route }) => {
   if (route.id === '/register' && session?.user == null) throw redirect(307, '/');
 
   // ask FE to re-authenticate
-  if (session?.user == null || signIn) return { session, auth: { signIn } };
+  if (session?.user == null || signIn) return { session, auth: { signIn }, locale: locals.locale };
 
   // full public pages accessible during registering
 
-  if (['/terms', '/privacy'].includes(route?.id ?? '')) return { session, auth: { signIn } };
+  if (['/terms', '/privacy'].includes(route?.id ?? '')) return { session, auth: { signIn }, locale: locals.locale };
 
   // load user
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -54,7 +54,7 @@ export const load: LayoutServerLoad = async ({ locals, route }) => {
     if (ok) {
       throw redirect(307, '/');
     } else {
-      return { session, auth: { signIn } };
+      return { session, auth: { signIn }, locale: locals.locale };
     }
   } else {
     if (ok) {
@@ -102,6 +102,7 @@ export const load: LayoutServerLoad = async ({ locals, route }) => {
         session,
         user: u,
         auth: { signIn },
+        locale: locals.locale,
       };
     } else {
       throw redirect(307, '/register');

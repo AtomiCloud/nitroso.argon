@@ -12,6 +12,8 @@
     import type {WithdrawalPrincipalRes} from "$lib/api/core/data-contracts";
     import {Input} from "$lib/components/ui/input";
     import {LucideLoader} from "lucide-svelte";
+    import {_} from "svelte-i18n";
+    import {lang, formatMoney} from "$lib/i18n";
 
     export let withdrawal: WithdrawalPrincipalRes;
 
@@ -24,9 +26,9 @@
     async function approveWithdrawal(file: File) {
         submitting = true;
         await toResult(() => $api.vWithdrawalCompleteCreate(withdrawal.id, "1.0", {file}
-        ), "Failed to approve withdrawal").match({
+        ), $_('withdrawals.approve.failed', { locale: $lang })).match({
             ok: () => {
-                toast.info(`Successfully completed the withdrawal SGD ${withdrawal.record?.amount.toFixed(2)}.`);
+                toast.info($_('withdrawals.approve.success', { locale: $lang, values: { amount: formatMoney(withdrawal.record?.amount ?? 0, $lang) } }));
                 dialogOpen = false;
                 invalidateAll();
             },
@@ -40,16 +42,15 @@
 </script>
 <Dialog.Root bind:open={dialogOpen}>
     <Dialog.Trigger class="w-full lg:max-w-40  {buttonVariants({ variant: 'default' })}">
-        Approve
+        {$_('actions.approve', { locale: $lang })}
     </Dialog.Trigger>
     <Dialog.Content>
         <Dialog.Header>
-            <Dialog.Title>Make a withdrawal</Dialog.Title>
+            <Dialog.Title>{$_('withdrawals.approve.title', { locale: $lang })}</Dialog.Title>
             <Dialog.Description>
                 <div class="flex flex-col gap-4">
                     <p class="text-justify py-2">
-                        Please transfer the S$ {withdrawal.record.amount} to PayNow {withdrawal.record.payNowNumber},
-                        screenshot, and upload the receipt, and click complete.
+                        {$_('withdrawals.approve.instructions', { locale: $lang, values: { amount: formatMoney(withdrawal.record.amount, $lang), payNowNumber: withdrawal.record.payNowNumber } })}
                     </p>
                     <Button variant="outline">
                         <input  bind:files type="file"/>
@@ -58,7 +59,7 @@
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin" />
                         {/if}
-                        Complete
+                        {$_('withdrawals.approve.complete', { locale: $lang })}
                     </Button>
                 </div>
             </Dialog.Description>

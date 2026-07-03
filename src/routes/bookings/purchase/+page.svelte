@@ -15,7 +15,7 @@
     import {Badge} from "$lib/components/ui/badge";
     import Validation from "$lib/components/core/Validation.svelte";
     import {cn} from "$lib/utils";
-    import {DateFormatter, type DateValue, getLocalTimeZone, parseDate} from "@internationalized/date";
+    import {type DateValue, getLocalTimeZone, parseDate} from "@internationalized/date";
     import AdvanceCalendar from "$lib/components/custom/calendar/AdvanceCalendar.svelte";
     import {ArrowLeftRight, CalendarIcon} from "lucide-svelte";
     import {Button} from "$lib/components/ui/button";
@@ -28,6 +28,8 @@
     import {Label} from "$lib/components/ui/label";
     import {Separator} from "$lib/components/ui/separator";
     import PurchaseBooking from "$lib/components/entities/Bookings/PurchaseBooking.svelte";
+    import {_} from "svelte-i18n";
+    import {lang, formatMoney, formatNumber, formatClockTime, formatCalendarDate} from "$lib/i18n";
 
     export let data: PageData;
 
@@ -43,14 +45,6 @@
     function toNativeDate(date: string) {
         return parse(date, "dd-MM-yyyy", new Date());
     }
-
-    function toDisplayDate(date: string) {
-        return format(toNativeDate(date), "dd MMM yyyy");
-    }
-
-    const df = new DateFormatter("en-US", {
-        dateStyle: "medium"
-    });
 
     let date = $page.url.searchParams.get("date");
     let direction = $page.url.searchParams.get("direction");
@@ -77,18 +71,18 @@
         passportExpiry: new Date(),
     }
 
-    const passengerSchema = z.object({
+    $: passengerSchema = z.object({
         fullName: z.string()
-            .min(1, "Full name must be at least 1 character long")
-            .max(512, "Full name must be at most 512 characters long")
-            .regex(/^[a-zA-Z @./',\-`*]+$/, "Full name must only contain letters and special characters @ . / ' , - ` *"),
+            .min(1, $_('bookings.purchase.fullNameMin', { locale: $lang }))
+            .max(512, $_('bookings.purchase.fullNameMax', { locale: $lang }))
+            .regex(/^[a-zA-Z @./',\-`*]+$/, $_('bookings.purchase.fullNameRegex', { locale: $lang })),
         gender: z.enum(['M', 'F']),
         passportNumber: z.string()
-            .regex(/^([a-zA-Z0-9]+)$/, "Passport number must only contain letters and numbers")
-            .min(1, "Passport number must be at least 1 character long")
-            .max(20, "Passport number must be at most 20 characters long"),
+            .regex(/^([a-zA-Z0-9]+)$/, $_('bookings.purchase.passportNumberRegex', { locale: $lang }))
+            .min(1, $_('bookings.purchase.passportNumberMin', { locale: $lang }))
+            .max(20, $_('bookings.purchase.passportNumberMax', { locale: $lang })),
         passportExpiry: z.date()
-            .min(addMonths(toNativeDate(date), 6), "Passport expiry must at least 6 months from ticket date")
+            .min(addMonths(toNativeDate(date), 6), $_('bookings.purchase.passportExpiryMin', { locale: $lang }))
     }).required();
 
     let bindDate: DateValue | undefined = undefined;
@@ -105,6 +99,10 @@
     const onChange = (path: string) => async () => {
         await tick();
         taints[path] = true;
+        validate();
+    }
+
+    function validate() {
         const r = passengerSchema.safeParse(passenger);
 
         if (!r.success) {
@@ -113,6 +111,17 @@
         } else {
             errors = [];
         }
+    }
+
+    // Re-run validation whenever the locale-rebuilt schema changes, so an error
+    // already on screen re-renders in the new language after a no-reload language
+    // switch (AC5). Guarded on taints so it never surfaces errors before the user
+    // has interacted.
+    $: revalidateOnLocale(passengerSchema);
+
+    function revalidateOnLocale(_schema: typeof passengerSchema) {
+        if (Object.keys(taints).length === 0) return;
+        validate();
     }
 
     let submitting = false;
@@ -150,18 +159,17 @@
         return ps.every(x => x.passportNumber !== p.passportNumber);
     }
 
-    $: displayDate = toDisplayDate(date);
-    $: displayTime = new Date(`1970-01-01T${time}`).toLocaleTimeString(undefined, {
-        hourCycle: "h12",
-        timeStyle: "short",
-    });
-    $: displayDirection = direction === "JToW" ? "JB Sentral to Woodlands" : "Woodlands to JB Sental";
+    $: displayDate = formatCalendarDate(toNativeDate(date), $lang);
+    $: displayTime = formatClockTime(time, $lang);
+    $: displayDirection = direction === "JToW"
+        ? $_('bookings.purchase.directionJToW', { locale: $lang })
+        : $_('bookings.purchase.directionWToJ', { locale: $lang });
 </script>
 
 <div class="flex flex-col">
     <div class="flex flex-col gap-4 w-11/12 max-w-[1200px] mx-auto my-12">
         <div class="flex flex-col gap-4 mb-12">
-            <h1 class="text-2xl text-center md:text-start">Purchase Booking</h1>
+            <h1 class="text-2xl text-center md:text-start">{$_('bookings.purchase.title', { locale: $lang })}</h1>
             <div class="flex gap-4 items-center flex-wrap justify-center md:justify-start">
                 <h2 class="text-md text-muted-foreground">{displayDate}</h2>
                 <h2 class="text-md text-muted-foreground">{displayTime}</h2>
@@ -172,14 +180,14 @@
         {#await passengerAndCost then [ps, cost]}
             {#if ps.length > 0}
                 <div class="flex flex-col gap-1.5 my-4">
-                    <h1 class="my-4 text-lg">Select Existing Passenger</h1>
+                    <h1 class="my-4 text-lg">{$_('bookings.purchase.selectExistingPassenger', { locale: $lang })}</h1>
                     <Select.Root onSelectedChange={passengerChange}>
                         <Select.Trigger class="w-full lg:max-w-60">
                             <ArrowLeftRight class="mr-2 h-4 w-4"/>
-                            <Select.Value placeholder="Passenger"/>
+                            <Select.Value placeholder={$_('bookings.purchase.passenger', { locale: $lang })}/>
                         </Select.Trigger>
                         <Select.Content>
-                            <Select.Item value={emptyPassenger}>None</Select.Item>
+                            <Select.Item value={emptyPassenger}>{$_('bookings.purchase.none', { locale: $lang })}</Select.Item>
                             {#each ps as p}
                                 <Select.Item value={p}>{p.fullName}</Select.Item>
                             {/each}
@@ -189,17 +197,17 @@
             {/if}
 
             <div class="flex flex-col gap-1.5">
-                <h1 class="my-4 text-lg">Passenger Details</h1>
+                <h1 class="my-4 text-lg">{$_('bookings.purchase.passengerDetails', { locale: $lang })}</h1>
                 <Validation {errors} {taints} path="fullName">
                     <Input
-                            placeholder="Fullname as per Passport"
+                            placeholder={$_('bookings.purchase.fullNamePlaceholder', { locale: $lang })}
                             bind:value={passenger.fullName}
                             on:input={onChange("fullName")}
                     />
                 </Validation>
                 <Validation {errors} {taints} path="passportNumber">
                     <Input
-                            placeholder="Passport Number"
+                            placeholder={$_('bookings.purchase.passportNumberPlaceholder', { locale: $lang })}
                             bind:value={passenger.passportNumber}
                             on:input={onChange("passportNumber")}
                     />
@@ -216,7 +224,7 @@
                                         builders={[builder]}
                                 >
                                     <CalendarIcon class="mr-2 h-4 w-4"/>
-                                    {bindDate ? df.format(bindDate.toDate(getLocalTimeZone())) : "Passport Expiry"}
+                                    {bindDate ? formatCalendarDate(bindDate.toDate(getLocalTimeZone()), $lang) : $_('bookings.purchase.passportExpiry', { locale: $lang })}
                                 </Button>
                             </Popover.Trigger>
                             <Popover.Content class="w-auto p-0" align="start">
@@ -228,8 +236,8 @@
                     <Validation {errors} {taints} path="gender">
                         <ToggleGroup.Root type="single" bind:value={passenger.gender}
                                           onValueChange={onChange("gender")}>
-                            <ToggleGroup.Item value='M' aria-label="Male">M</ToggleGroup.Item>
-                            <ToggleGroup.Item value='F' aria-label="Female">F</ToggleGroup.Item>
+                            <ToggleGroup.Item value='M' aria-label={$_('bookings.purchase.male', { locale: $lang })}>M</ToggleGroup.Item>
+                            <ToggleGroup.Item value='F' aria-label={$_('bookings.purchase.female', { locale: $lang })}>F</ToggleGroup.Item>
                         </ToggleGroup.Root>
                     </Validation>
                 </div>
@@ -240,15 +248,15 @@
                                 for="terms"
                                 class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                         >
-                            Save this passenger
+                            {$_('bookings.purchase.savePassenger', { locale: $lang })}
                         </Label>
                     </div>
                 {/if}
                 <Separator class="my-8"/>
                 <div class="flex justify-between items-center">
-                    <div class="font-bold text-lg">Booking Cost</div>
+                    <div class="font-bold text-lg">{$_('bookings.purchase.bookingCost', { locale: $lang })}</div>
                     <div class="font-bold text-lg">
-                        S${cost.cost.toFixed(2)}
+                        {formatMoney(cost.cost, $lang)}
                     </div>
                 </div>
                 <Separator class="my-2"/>
@@ -260,9 +268,9 @@
                         </div>
                         <div class="font-light text-lg">
                             {#if d.type === "Flat"}
-                                -S${d.amount.toFixed(2)}
+                                -{formatMoney(d.amount, $lang)}
                             {:else}
-                                -{d.amount * 100}%
+                                -{formatNumber(d.amount * 100, $lang)}%
                             {/if}
                         </div>
                     </div>
@@ -272,7 +280,7 @@
                 {/if}
                 <div class="flex justify-end items-center">
                     <div class="font-bold text-lg">
-                        S${cost.final.toFixed(2)}
+                        {formatMoney(cost.final, $lang)}
                     </div>
                 </div>
                 <div class="my-6 w-full flex justify-between ">
@@ -285,18 +293,18 @@
                                 cost={cost.final}
                         />
                         <div class="{($page.data.user?.wallet?.usable ?? 0) >= cost.final ? 'opacity-0': '' } text-left">
-                            <div class="text-sm text-red-500">Insufficient balance</div>
+                            <div class="text-sm text-red-500">{$_('bookings.purchase.insufficientBalance', { locale: $lang })}</div>
                         </div>
                     </div>
 
                     <div class="flex flex-col items-center">
                         <div class="text-lg font-semibold">
-                            S$ {$page.data.user?.wallet?.usable?.toFixed(2) ?? "0.00"}</div>
-                        <div class="text-sm font-light">Your Balance</div>
+                            {formatMoney($page.data.user?.wallet?.usable ?? 0, $lang)}</div>
+                        <div class="text-sm font-light">{$_('bookings.purchase.yourBalance', { locale: $lang })}</div>
                         <div class="text-sm font-light {($page.data.user?.wallet?.usable ?? 0) >= cost.final ? 'hidden': '' }">
 
                             <a id="deposit-link" class="underline text-blue-500 hover:text-sky-500"
-                               href="/wallets/deposit">Deposit Now</a>
+                               href="/wallets/deposit">{$_('bookings.purchase.depositNow', { locale: $lang })}</a>
                             <script>
                                 window.addEventListener('load', (event) => {
                                     document.getElementById('deposit-link').addEventListener('click', () => {

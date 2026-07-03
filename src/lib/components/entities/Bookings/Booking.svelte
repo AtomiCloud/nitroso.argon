@@ -12,6 +12,8 @@
 
     import moment from "moment-timezone";
     import {page} from "$app/stores";
+    import {_} from "svelte-i18n";
+    import {lang, formatCalendarDate, formatClockTime, formatDateTime} from "$lib/i18n";
 
     export let booking: BookingRes;
 
@@ -37,27 +39,27 @@
                 <div>
                     <Card.Title>
                         <div class="flex flex-wrap gap-1 items-center">
-                            <div>{b.direction == "WToJ" ? "Woodlands" : "JB Sentral"}</div>
+                            <div>{b.direction == "WToJ" ? $_('bookingActions.card.woodlands', { locale: $lang }) : $_('bookingActions.card.jbSentral', { locale: $lang })}</div>
                             <ArrowRight class="h-4 w-4"/>
-                            <div>{b.direction == "WToJ" ? "JB Sentral" : "Woodlands"}</div>
+                            <div>{b.direction == "WToJ" ? $_('bookingActions.card.jbSentral', { locale: $lang }) : $_('bookingActions.card.woodlands', { locale: $lang })}</div>
                         </div>
                     </Card.Title>
                     <Card.Description>
                         <div class="flex flex-col gap-2 my-4">
                             <Badge class="flex justify-center flex-wrap gap-2">
                                 <div>
-                                    {format(parse(b.date, "dd-MM-yyyy", new Date()), "dd MMM yyyy")}
+                                    {formatCalendarDate(parse(b.date, "dd-MM-yyyy", new Date()), $lang)}
                                 </div>
                                 <div>
-                                    {format(parse(b.time, "HH:mm:ss", new Date()), "HH:mm a")}
+                                    {formatClockTime(b.time, $lang)}
                                 </div>
                             </Badge>
-                            <div>Started {format(new Date(b.createdAt), "dd MMM yyyy, hh:mm a")}</div>
+                            <div>{$_('bookingActions.card.started', { locale: $lang, values: { datetime: formatDateTime(new Date(b.createdAt), $lang) } })}</div>
                         </div>
                     </Card.Description>
                 </div>
                 <div class="flex flex-col gap-1.5 text-center">
-                    <Badge class="{BOOKING_STATUS[b.status].color} text-md">{b.status}</Badge>
+                    <Badge class="{BOOKING_STATUS[b.status].color} text-md">{$_(`status.booking.${b.status}`, { locale: $lang })}</Badge>
                 </div>
             </div>
         </Card.Header>
@@ -66,7 +68,7 @@
         <Card.Root class="flex-1">
             <Card.Header>
                 <Card.Title>
-                    Actions
+                    {$_('bookingActions.card.actions', { locale: $lang })}
                 </Card.Title>
             </Card.Header>
             <Card.Description>
@@ -74,7 +76,7 @@
                     {#if b.status === "Pending"}
                         <CancelBooking booking={b}/>
                     {:else if b.status === "Completed" && canTerminate(b.date, b.time)}
-                        <Button class="w-full sm:max-w-40" href="{b.ticketLink}">View Ticket</Button>
+                        <Button class="w-full sm:max-w-40" href="{b.ticketLink}">{$_('bookingActions.card.viewTicket', { locale: $lang })}</Button>
                         <TerminateBooking booking={b}/>
                     {/if}
                 </div>
@@ -94,7 +96,7 @@
                         <div>{booking.principal.passenger.passportNumber}</div>
                         {#if session?.roles?.includes("admin") && booking.user}
                             <div class="text-xs text-muted-foreground mt-2">
-                                <strong>Owner:</strong> 
+                                <strong>{$_('bookingActions.card.owner', { locale: $lang })}</strong>
                                 <a href="/users/{booking.user.id}" class="text-blue-600 hover:text-blue-800 underline">
                                     {booking.user.username || booking.user.id}
                                 </a>
@@ -112,9 +114,9 @@
         <Card.Content class="bg-muted">
             <div class="flex flex-col justify-center gap-1.5 pt-4">
                 <div class="text-md text-center sm:text-start text-muted-foreground">
-                    Passport expires on
+                    {$_('bookingActions.card.passportExpiresOn', { locale: $lang })}
                     <span class="underline">
-                        {format(parse(booking.principal.passenger.passportExpiry, "dd-MM-yyyy", new Date()), "dd MMM yyyy")}
+                        {formatCalendarDate(parse(booking.principal.passenger.passportExpiry, "dd-MM-yyyy", new Date()), $lang)}
                     </span>
                 </div>
             </div>
@@ -124,32 +126,31 @@
         <Card.Root class="flex-1">
             <Card.Header>
                 <Card.Title>
-                    Ticket Information
+                    {$_('bookingActions.card.ticketInformation', { locale: $lang })}
                 </Card.Title>
                 <Card.Description>
                     <div class="flex flex-col">
-                        <div>Ticket No: {booking.principal.ticketNo}</div>
-                        <div>Booking No: {booking.principal.bookingNo}</div>
+                        <div>{$_('bookingActions.card.ticketNo', { locale: $lang, values: { value: booking.principal.ticketNo } })}</div>
+                        <div>{$_('bookingActions.card.bookingNo', { locale: $lang, values: { value: booking.principal.bookingNo } })}</div>
                     </div>
                 </Card.Description>
             </Card.Header>
             <Card.Content>
                 <div class="flex flex-col">
                     <Button class="w-full sm:max-w-40" href={booking.principal.ticketLink}>
-                        View Ticket
+                        {$_('bookingActions.card.viewTicket', { locale: $lang })}
                     </Button>
                     <div class="text-muted-foreground text-sm">
-                        Completed on {format(new Date(booking.principal.completedAt), "dd MMM yyyy, HH:mm a")}
+                        {$_('bookingActions.card.completedOn', { locale: $lang, values: { datetime: formatDateTime(new Date(booking.principal.completedAt), $lang) } })}
                     </div>
                 </div>
 
             </Card.Content>
         </Card.Root>
-    {:else if ["Cancelled", "Refunded", "Terminated"].includes(booking.principal.status)}
+    {:else if ["Cancelled", "Refunded", "Terminated", "Duplicate"].includes(booking.principal.status)}
         <Card.Root class="flex-1 flex justify-center items-center min-w-fit p-8">
             <Card.Title class="text-center">
-                {booking.principal.status}
-                on {format(new Date(booking.principal.completedAt), "dd MMM yyyy, HH:mm a")}
+                {$_('bookingActions.card.statusOn', { locale: $lang, values: { status: $_(`status.booking.${booking.principal.status}`, { locale: $lang }), datetime: formatDateTime(new Date(booking.principal.completedAt), $lang) } })}
             </Card.Title>
         </Card.Root>
     {/if}

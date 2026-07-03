@@ -126,6 +126,7 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
       Status?: string;
       Time?: string;
       UserId?: string;
+      PassportNumber?: string;
       /** @format int32 */
       Limit?: number;
       /** @format int32 */
@@ -161,13 +162,45 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
    * No description
    *
    * @tags Booking
-   * @name VBookingRevertCreate
-   * @request POST:/api/v{version}/Booking/revert/{id}
+   * @name VBookingRecoveringCreate
+   * @request POST:/api/v{version}/Booking/recovering/{id}
    * @secure
    */
-  vBookingRevertCreate = (id: string, version: string, params: RequestParams = {}) =>
+  vBookingRecoveringCreate = (id: string, version: string, params: RequestParams = {}) =>
     this.request<BookingPrincipalRes, any>({
-      path: `/api/v${version}/Booking/revert/${id}`,
+      path: `/api/v${version}/Booking/recovering/${id}`,
+      method: 'POST',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
+   * @name VBookingDuplicateCreate
+   * @request POST:/api/v{version}/Booking/duplicate/{id}
+   * @secure
+   */
+  vBookingDuplicateCreate = (id: string, version: string, params: RequestParams = {}) =>
+    this.request<BookingPrincipalRes, any>({
+      path: `/api/v${version}/Booking/duplicate/${id}`,
+      method: 'POST',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
+   * @name VBookingManualInterventionCreate
+   * @request POST:/api/v{version}/Booking/manual-intervention/{id}
+   * @secure
+   */
+  vBookingManualInterventionCreate = (id: string, version: string, params: RequestParams = {}) =>
+    this.request<BookingPrincipalRes, any>({
+      path: `/api/v${version}/Booking/manual-intervention/${id}`,
       method: 'POST',
       secure: true,
       format: 'json',
@@ -1033,6 +1066,7 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
     query?: {
       Id?: string;
       Username?: string;
+      Email?: string;
       /** @format int32 */
       Limit?: number;
       /** @format int32 */

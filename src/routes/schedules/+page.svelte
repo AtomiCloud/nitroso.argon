@@ -12,7 +12,7 @@
     import * as Popover from "$lib/components/ui/popover";
     //@ts-ignore
     import * as ToggleGroup from "$lib/components/ui/toggle-group";
-    import {CalendarDate, DateFormatter, type DateValue, getLocalTimeZone, today} from "@internationalized/date";
+    import {CalendarDate, type DateValue, getLocalTimeZone, today} from "@internationalized/date";
     import type {PageData} from "./$types";
     import type {DiscountRecordRes, MaterializedCostRes} from "$lib/api/core/data-contracts";
     import {tick} from "svelte";
@@ -24,6 +24,8 @@
     import {cn} from "$lib/utils";
     import {Calendar} from "$lib/components/ui/calendar";
     import {format, parse} from "date-fns";
+    import {_} from "svelte-i18n";
+    import {lang, formatMoney, formatCalendarDate, formatClockTime} from "$lib/i18n";
 
     export let data: PageData;
 
@@ -61,14 +63,6 @@
     let bindDate: DateValue = toCalDate(date);
     let bindDirection: string = direction;
 
-    const df = new DateFormatter("en-US", {
-        dateStyle: "long"
-    });
-
-    const dfs = new DateFormatter("en-US", {
-        dateStyle: "medium"
-    });
-
     async function dateChange() {
         await tick();
         triggerSearch();
@@ -97,11 +91,7 @@
     }
 
     function displayTime(time: string): string {
-        return new Date(`2021-01-01T${time}`).toLocaleTimeString(undefined, {
-            timeStyle: 'short',
-            hourCycle: "h12",
-        });
-
+        return formatClockTime(time, $lang, {hourCycle: "h12"});
     }
 
     function countColor(count: number): string {
@@ -110,9 +100,9 @@
         return "bg-red-500";
     }
 
-    function calculateDiscount(cost: number, d: DiscountRecordRes): string {
-        if (d.type === "Flat") return d.amount.toFixed(2);
-        return (cost * d.amount).toFixed(2);
+    function calculateDiscount(cost: number, d: DiscountRecordRes): number {
+        if (d.type === "Flat") return d.amount;
+        return cost * d.amount;
     }
 
     const minDate = today(getLocalTimeZone());
@@ -130,12 +120,12 @@
         <div class="flex justify-center sm:justify-between gap-4 flex-wrap py-8 items-center text-foreground max-w-[1200px] w-11/12 mx-auto">
 
             <div class="text-3xl lg:text-4xl">
-                Purchase Tickets
+                {$_("schedules.pageTitle", { locale: $lang })}
 
             </div>
             <div class="flex flex-col justify-center items-center font-light">
-                <div class="text-2xl">S${$page.data.user?.wallet?.usable?.toFixed(2) ?? "0.00" }</div>
-                <div>Balance</div>
+                <div class="text-2xl">{formatMoney($page.data.user?.wallet?.usable ?? 0, $lang)}</div>
+                <div>{$_("fields.balance", { locale: $lang })}</div>
             </div>
         </div>
 
@@ -150,7 +140,7 @@
                             class={cn("w-full max-w-sm lg:max-w-[240px] justify-start text-left font-normal",!bindDate && "text-muted-foreground")}
                             builders={[builder]}>
                         <CalendarIcon class="mr-2 h-4 w-4"/>
-                        {bindDate ? df.format(bindDate.toDate(getLocalTimeZone())) : "Select a date"}
+                        {bindDate ? formatCalendarDate(bindDate.toDate(getLocalTimeZone()), $lang, {dateStyle: "long"}) : $_("schedules.selectDate", { locale: $lang })}
                     </Button>
                 </Popover.Trigger>
                 <Popover.Content class="w-auto p-0" align="center">
@@ -159,18 +149,18 @@
             </Popover.Root>
             <ToggleGroup.Root type="single" bind:value={bindDirection} class="w-full max-w-80 justify-center"
                               onValueChange={directionChange}>
-                <ToggleGroup.Item value="WToJ" aria-label="Woodlands to JB Sentral">
-                    Woodlands to JB
+                <ToggleGroup.Item value="WToJ" aria-label={$_("schedules.woodlandsToJbSentral", { locale: $lang })}>
+                    {$_("schedules.woodlandsToJb", { locale: $lang })}
                 </ToggleGroup.Item>
-                <ToggleGroup.Item value="JToW" aria-label="JB Sentral to Woodlands">
-                    JB to Woodlands
+                <ToggleGroup.Item value="JToW" aria-label={$_("schedules.jbSentralToWoodlands", { locale: $lang })}>
+                    {$_("schedules.jbToWoodlands", { locale: $lang })}
                 </ToggleGroup.Item>
             </ToggleGroup.Root>
         </div>
         {#await schedules}
             <Loader/>
         {:then [timings, cost]}
-            <Page notFoundMessage="No schedules found" empty={Object.entries(timings).length === 0}>
+            <Page notFoundMessage={$_("schedules.noSchedulesFound", { locale: $lang })} empty={Object.entries(timings).length === 0}>
                 <div class="flex flex-col gap-4 my-4">
                     {#each Object.entries(timings) as [time, count]}
                         <Card.Root>
@@ -180,11 +170,10 @@
                                         <div class="flex flex-wrap gap-2 justify-center items-center">
                                             <div class="flex flex-col gap-2">
                                                 <div class="w-24 text-center">{displayTime(time)}</div>
-                                                <div class="w-24 text-center text-slate-500 text-sm">{bindDate ? dfs.format(bindDate.toDate(getLocalTimeZone())) : ""}</div>
+                                                <div class="w-24 text-center text-slate-500 text-sm">{bindDate ? formatCalendarDate(bindDate.toDate(getLocalTimeZone()), $lang, {dateStyle: "medium"}) : ""}</div>
                                             </div>
                                             <div class="flex flex-col gap-2 items-center">
-                                                <Badge class="text-center {countColor(count)}">{count} tickets in
-                                                    queue
+                                                <Badge class="text-center {countColor(count)}">{$_("schedules.ticketsInQueue", { locale: $lang, values: { count } })}
                                                 </Badge>
                                             </div>
 
@@ -193,11 +182,11 @@
                                     </Card.Title>
                                     <div class="flex gap-4 items-center flex-wrap justify-center">
                                         <div class="flex flex-col">
-                                            <Card.Title>S${cost.final.toFixed(2)}</Card.Title>
+                                            <Card.Title>{formatMoney(cost.final, $lang)}</Card.Title>
                                             {#if cost.final != cost.cost}
                                                 <div class="flex justify-center items-center gap-2">
                                                     <Card.Title class="line-through">
-                                                        S${cost.cost.toFixed(2)}</Card.Title>
+                                                        {formatMoney(cost.cost, $lang)}</Card.Title>
                                                     <Popover.Root>
                                                         <Popover.Trigger>
                                                             <LucideInfo class="w-4 h-4 hover:text-blue-500"/>
@@ -209,7 +198,7 @@
                                                                         <div class="font-semibold">{dd.name}</div>
                                                                         <div class="text-muted-foreground">{dd.description}</div>
                                                                     </div>
-                                                                    <div>S${calculateDiscount(cost.cost, dd)}</div>
+                                                                    <div>{formatMoney(calculateDiscount(cost.cost, dd), $lang)}</div>
                                                                 </div>
                                                             {/each}
                                                         </Popover.Content>
@@ -220,7 +209,7 @@
                                         <hr>
                                         <Button on:click={track} class="w-full max-w-24"
                                                 href="/bookings/purchase?date={currDate}&direction={bindDirection}&time={time}&userId={$page.data.user.principal.id}">
-                                            Buy
+                                            {$_("schedules.buy", { locale: $lang })}
                                         </Button>
                                     </div>
 

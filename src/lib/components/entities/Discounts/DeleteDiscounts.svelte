@@ -13,6 +13,8 @@
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
     import {Input} from "$lib/components/ui/input";
+    import {_} from "svelte-i18n";
+    import {lang} from "$lib/i18n";
 
     let dialogOpen = false;
     export let discount: DiscountPrincipalRes;
@@ -26,9 +28,9 @@
     async function deleteDiscount() {
         submitting = true;
         await toResult(() => $api.vDiscountDelete(discount.id, "1.0"),
-            "Failed to delete discount").match({
+            $_('discounts.delete.deleteError', { locale: $lang })).match({
             ok: ok => {
-                toast.info(`Successfully deleted discount '${discount.record.name}'`);
+                toast.info($_('discounts.delete.deletedToast', { locale: $lang, values: { name: discount.record.name } }));
                 dialogOpen = false;
                 invalidateAll();
             },
@@ -52,34 +54,34 @@
     </Dialog.Trigger>
     <Dialog.Content>
         <Dialog.Header>
-            <Dialog.Title>Delete a discount</Dialog.Title>
+            <Dialog.Title>{$_('discounts.delete.title', { locale: $lang })}</Dialog.Title>
             <Dialog.Description>
                 <div class="flex flex-col gap-4">
                     <p class="text-justify py-2">
-                        Delete a discount. This action is irreversible.
+                        {$_('discounts.delete.intro', { locale: $lang })}
                     </p>
                     <Alert.Root>
                         <AlertTriangle class="h-4 w-4"/>
-                        <Alert.Title>Take Note!</Alert.Title>
+                        <Alert.Title>{$_('discounts.delete.takeNote', { locale: $lang })}</Alert.Title>
                         <Alert.Description
-                        >Discounts are effective the moment they are delete. This action cannot be undone.
+                        >{$_('discounts.delete.noteBody', { locale: $lang })}
 
                         </Alert.Description>
                     </Alert.Root>
 
                     <p class="text-justify py-2">
-                        Please type the name of the discount, <code
+                        {$_('discounts.delete.confirmPrefix', { locale: $lang })} <code
                             class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
                         {discount.record.name}
-                    </code> to proceed.
+                    </code> {$_('discounts.delete.confirmSuffix', { locale: $lang })}
                     </p>
 
                     <div class="flex flex-col">
-                        <Input placeholder="Name"
+                        <Input placeholder={$_('fields.name', { locale: $lang })}
                                bind:value={confirm}
                         />
                         <div class="text-sm text-destructive {valid ? 'opacity-0' : 'opacity-1'}">
-                            Please type the name of the discount to proceed.
+                            {$_('discounts.delete.typeNameHint', { locale: $lang })}
                         </div>
                     </div>
 
@@ -88,7 +90,7 @@
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                         {/if}
-                        Delete Discount
+                        {$_('discounts.delete.trigger', { locale: $lang })}
                     </Button>
                 </div>
             </Dialog.Description>

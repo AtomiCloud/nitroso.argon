@@ -11,6 +11,8 @@
     import CancelWithdrawal from "$lib/components/entities/Withdrawals/CancelWithdrawal.svelte";
     import RejectWithdrawal from "$lib/components/entities/Withdrawals/RejectWithdrawal.svelte";
     import ApproveWithdrawal from "$lib/components/entities/Withdrawals/ApproveWithdrawal.svelte";
+    import {_} from "svelte-i18n";
+    import {lang, formatMoney, formatDate, formatTime, formatDateTime} from "$lib/i18n";
 
     export let withdrawal: WithdrawalRes;
     export let admin: boolean;
@@ -24,19 +26,18 @@
         <Card.Header>
             <div class="flex flex-wrap justify-between">
                 <div>
-                    <Card.Title>S${withdrawal.principal.record.amount} to
-                        PayNow {withdrawal.principal.record.payNowNumber}</Card.Title>
+                    <Card.Title>{$_('withdrawals.card.amountToPayNow', { locale: $lang, values: { amount: formatMoney(withdrawal.principal.record.amount, $lang), payNowNumber: withdrawal.principal.record.payNowNumber } })}</Card.Title>
                     <Card.Description>{withdrawal.principal.id}</Card.Description>
                 </div>
                 <div>
-                    <Badge class="{WITHDRAWAL_STATUS_BADGE[withdrawal.principal.status.status ?? ''].color}">{WITHDRAWAL_STATUS_BADGE[withdrawal.principal.status.status ?? ''].display}</Badge>
+                    <Badge class="{WITHDRAWAL_STATUS_BADGE[withdrawal.principal.status.status ?? ''].color}">{$_(`withdrawals.status.${withdrawal.principal.status.status ?? ''}`, { locale: $lang })}</Badge>
                 </div>
             </div>
         </Card.Header>
         <Card.Content>
             <div class="flex flex-wrap justify-between">
                 <div>
-                    By
+                    {$_('withdrawals.card.by', { locale: $lang })}
                     <HoverCard.Root>
                         <HoverCard.Trigger
                                 class="hover:underline underline-offset-4 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-black">
@@ -50,7 +51,7 @@
                                     <h4 class="text-sm font-semibold">@{withdrawal.user.username}</h4>
                                     <p class="text-sm">{withdrawal.user.id}</p>
                                     <a href="/users/{withdrawal.user.id}" class="text-xs text-primary hover:underline">
-                                        View user profile →
+                                        {$_('withdrawals.card.viewUserProfile', { locale: $lang })}
                                     </a>
                                 </div>
                             </div>
@@ -63,9 +64,9 @@
     <Card.Root class="flex w-full lg:flex-1 flex-full justify-center items-center">
         <Card.Header>
             <Card.Title
-                    class="text-3xl">{new Date(withdrawal?.principal?.createAt).toLocaleDateString(undefined, {dateStyle: "medium"})}</Card.Title>
+                    class="text-3xl">{formatDate(withdrawal?.principal?.createAt, $lang)}</Card.Title>
             <Card.Description
-                    class="text-center">{new Date(withdrawal?.principal?.createAt).toLocaleTimeString(undefined, {timeStyle: "medium"})}</Card.Description>
+                    class="text-center">{formatTime(withdrawal?.principal?.createAt, $lang)}</Card.Description>
         </Card.Header>
     </Card.Root>
 </div>
@@ -73,7 +74,7 @@
 <div>
     <Card.Root>
         <Card.Header>
-            <Card.Title>Actions</Card.Title>
+            <Card.Title>{$_('fields.actions', { locale: $lang })}</Card.Title>
         </Card.Header>
         <Card.Content>
             <div class="flex flex-1 flex-wrap gap-4">
@@ -95,14 +96,11 @@
             <Card.Header>
                 <div class="flex justify-between">
                     <div>
-                        <Card.Title>{WITHDRAWAL_STATUS_BADGE[withdrawal.principal.status.status ?? ""].display}</Card.Title>
-                        <Card.Description>{new Date(withdrawal.principal.complete.completedAt).toLocaleString(undefined, {
-                            dateStyle: "medium",
-                            timeStyle: "medium"
-                        })}</Card.Description>
+                        <Card.Title>{$_(`withdrawals.status.${withdrawal.principal.status.status ?? ''}`, { locale: $lang })}</Card.Title>
+                        <Card.Description>{formatDateTime(withdrawal.principal.complete.completedAt, $lang)}</Card.Description>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        Completer
+                        {$_('withdrawals.card.completer', { locale: $lang })}
                         <HoverCard.Root>
                             <HoverCard.Trigger
                                     class="hover:underline underline-offset-4 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-black">
@@ -116,7 +114,7 @@
                                         <h4 class="text-sm font-semibold">@{withdrawal.completer.username}</h4>
                                         <p class="text-sm">{withdrawal.completer.id}</p>
                                         <a href="/users/{withdrawal.completer.id}" class="text-xs text-primary hover:underline">
-                                            View user profile →
+                                            {$_('withdrawals.card.viewUserProfile', { locale: $lang })}
                                         </a>
                                     </div>
                                 </div>
@@ -129,9 +127,9 @@
             </Card.Header>
             <Card.Content>
                 <div class="flex flex-col justify-center gap-4">
-                    <p>{withdrawal.principal?.complete?.note ?? "No Note"}</p>
+                    <p>{withdrawal.principal?.complete?.note ?? $_('withdrawals.card.noNote', { locale: $lang })}</p>
                     {#if withdrawal.principal?.complete?.receipt != null}
-                        <img src="{withdrawal.principal.complete.receipt}" alt="receipt" class="w-full">
+                        <img src="{withdrawal.principal.complete.receipt}" alt={$_('withdrawals.card.receiptAlt', { locale: $lang })} class="w-full">
                     {/if}
                 </div>
 
