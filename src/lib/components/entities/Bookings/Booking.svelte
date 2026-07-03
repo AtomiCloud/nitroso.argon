@@ -147,7 +147,7 @@
 
             </Card.Content>
         </Card.Root>
-    {:else if ["Cancelled", "Refunded", "Terminated"].includes(booking.principal.status)}
+    {:else if ["Cancelled", "Refunded", "Terminated", "Duplicate"].includes(booking.principal.status)}
         <Card.Root class="flex-1 flex justify-center items-center min-w-fit p-8">
             <Card.Title class="text-center">
                 {$_('bookingActions.card.statusOn', { locale: $lang, values: { status: $_(`status.booking.${booking.principal.status}`, { locale: $lang }), datetime: formatDateTime(new Date(booking.principal.completedAt), $lang) } })}

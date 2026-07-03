@@ -10,11 +10,6 @@
     import TerminateBooking from "$lib/components/entities/Bookings/TerminateBooking.svelte";
     import CancelBooking from "$lib/components/entities/Bookings/CancelBooking.svelte";
     import moment from "moment-timezone";
-    import {page} from "$app/stores";
-    import {toResult} from "$lib/utility";
-    import {api} from "../../../../store";
-    import {toast} from "svelte-sonner";
-    import {invalidateAll} from "$app/navigation";
     import {_} from "svelte-i18n";
     import {lang, formatCalendarDate, formatClockTime} from "$lib/i18n";
 
@@ -31,27 +26,6 @@
         const now = new Date();
         return !isAfter(now, d);
     }
-
-    let reverting = false;
-
-    async function revertBuying() {
-        reverting = true;
-        console.log("reverting...");
-        await toResult(() => $api.vBookingRevertCreate(b.id, "1.0"),
-            $_('bookingActions.row.revertError', { locale: $lang })).match({
-            ok: ok => {
-                toast.info($_('bookingActions.row.revertSuccess', { locale: $lang }));
-                invalidateAll();
-            },
-            err: (e) => {
-                console.error(e);
-                toast.error(e.detail ?? e.type);
-            }
-        })
-        reverting = false;
-    }
-
-    const session: any = $page.data.session;
 
 </script>
 
@@ -75,13 +49,7 @@
                 </Card.Description>
             </div>
             <div class="flex gap-1.5 text-center">
-                {#if b.status === "Buying" && session?.roles?.includes("admin")}
-                    <button on:click={revertBuying}>
-                        <Badge class="{BOOKING_STATUS[b.status].color}">{$_('bookingActions.row.clickToRevert', { locale: $lang, values: { status: $_(`status.booking.${b.status}`, { locale: $lang }) } })}</Badge>
-                    </button>
-                {:else}
-                    <Badge class="{BOOKING_STATUS[b.status].color}">{$_(`status.booking.${b.status}`, { locale: $lang })}</Badge>
-                {/if}
+                <Badge class="{BOOKING_STATUS[b.status].color}">{$_(`status.booking.${b.status}`, { locale: $lang })}</Badge>
             </div>
         </div>
     </Card.Header>

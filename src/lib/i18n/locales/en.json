@@ -150,9 +150,6 @@
       "statusOn": "{status} on {datetime}"
     },
     "row": {
-      "revertSuccess": "Successfully reverted buying state to pending",
-      "revertError": "Failed to revert buying state to pending",
-      "clickToRevert": "{status} (Click to revert)",
       "viewDetails": "View Details"
     },
     "cancel": {
@@ -988,7 +985,10 @@
       "Completed": "Completed",
       "Cancelled": "Cancelled",
       "Refunded": "Refunded",
-      "Terminated": "Terminated"
+      "Terminated": "Terminated",
+      "Recovering": "Recovering",
+      "Duplicate": "Duplicate",
+      "RequireManualIntervention": "Requires Manual Intervention"
     },
     "transactionType": {
       "BookingRequest": "Booking Request",
@@ -1002,7 +1002,8 @@
       "WithdrawCancelled": "Withdraw Cancelled",
       "WithdrawRejected": "Withdraw Rejected",
       "Promotional": "Promotional",
-      "Transfer": "Transfer"
+      "Transfer": "Transfer",
+      "BookingDuplicate": "Booking Duplicate"
     },
     "discountType": {
       "Percentage": "Percentage",

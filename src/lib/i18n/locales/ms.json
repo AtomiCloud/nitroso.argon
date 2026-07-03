@@ -150,9 +150,6 @@
       "statusOn": "{status} pada {datetime}"
     },
     "row": {
-      "revertSuccess": "Berjaya mengembalikan keadaan pembelian kepada belum selesai",
-      "revertError": "Gagal mengembalikan keadaan pembelian kepada belum selesai",
-      "clickToRevert": "{status} (Klik untuk kembali)",
       "viewDetails": "Lihat Butiran"
     },
     "cancel": {
@@ -988,7 +985,10 @@
       "Completed": "Selesai",
       "Cancelled": "Dibatalkan",
       "Refunded": "Dikembalikan",
-      "Terminated": "Ditamatkan"
+      "Terminated": "Ditamatkan",
+      "Recovering": "Dalam Pemulihan",
+      "Duplicate": "Pendua",
+      "RequireManualIntervention": "Memerlukan Campur Tangan Manual"
     },
     "transactionType": {
       "BookingRequest": "Permintaan Tempahan",
@@ -1002,7 +1002,8 @@
       "WithdrawCancelled": "Pengeluaran Dibatalkan",
       "WithdrawRejected": "Pengeluaran Ditolak",
       "Promotional": "Promosi",
-      "Transfer": "Pemindahan"
+      "Transfer": "Pemindahan",
+      "BookingDuplicate": "Pendua Tempahan"
     },
     "discountType": {
       "Percentage": "Peratusan",
