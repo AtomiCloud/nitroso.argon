@@ -150,7 +150,10 @@
       "statusOn": "{status} on {datetime}"
     },
     "row": {
-      "viewDetails": "View Details"
+      "viewDetails": "View Details",
+      "revert": "Revert to Pending",
+      "revertSuccess": "Reverted booking to pending",
+      "revertError": "Failed to revert booking to pending"
     },
     "cancel": {
       "stayToast": "Great choice! Your booking is still active. Most tickets become available 1-2 days before departure.",
