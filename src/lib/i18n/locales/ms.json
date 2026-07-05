@@ -150,7 +150,10 @@
       "statusOn": "{status} pada {datetime}"
     },
     "row": {
-      "viewDetails": "Lihat Butiran"
+      "viewDetails": "Lihat Butiran",
+      "revert": "Kembalikan ke Belum Selesai",
+      "revertSuccess": "Tempahan dikembalikan ke Belum Selesai",
+      "revertError": "Gagal mengembalikan tempahan ke Belum Selesai"
     },
     "cancel": {
       "stayToast": "Pilihan yang bagus! Tempahan anda masih aktif. Kebanyakan tiket tersedia 1-2 hari sebelum berlepas.",

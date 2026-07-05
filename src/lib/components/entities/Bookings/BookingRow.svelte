@@ -12,8 +12,39 @@
     import moment from "moment-timezone";
     import {_} from "svelte-i18n";
     import {lang, formatCalendarDate, formatClockTime} from "$lib/i18n";
+    import {LucideLoader, RotateCcw} from "lucide-svelte";
+    import {toResult} from "$lib/utility";
+    import {api} from "../../../../store";
+    import {toast} from "svelte-sonner";
+    import {invalidateAll} from "$app/navigation";
+    import {page} from "$app/stores";
 
     export let b: BookingPrincipalRes;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    $: session = $page.data.session as any;
+    $: isAdmin = session?.roles?.includes("admin") ?? false;
+
+    let reverting = false;
+
+    // Admin-only manual revert of a stuck Buying booking back to Pending so it
+    // retries (e.g. after a transient KTMB failure like an insufficient wallet).
+    // zinc's Revert is guarded (Buying-only + uncaptured), so this is safe.
+    async function revertBuying() {
+        reverting = true;
+        await toResult(() => $api.vBookingRevertCreate(b.id, "1.0"),
+            $_('bookingActions.row.revertError', { locale: $lang })).match({
+            ok: () => {
+                toast.info($_('bookingActions.row.revertSuccess', { locale: $lang }));
+                invalidateAll();
+            },
+            err: (e) => {
+                console.error(e);
+                toast.error(e.detail ?? e.type);
+            }
+        });
+        reverting = false;
+    }
 
     function canTerminate(date: string, time: string): boolean {
 
@@ -61,6 +92,16 @@
             {:else if b.status === "Completed" && canTerminate(b.date, b.time)}
                 <Button class="w-full sm:max-w-40" href="{b.ticketLink}">{$_('bookingActions.card.viewTicket', { locale: $lang })}</Button>
                 <TerminateBooking booking={b}/>
+            {/if}
+            {#if b.status === "Buying" && isAdmin}
+                <Button variant="outline" class="w-full sm:max-w-40" disabled={reverting} on:click={revertBuying}>
+                    {#if reverting}
+                        <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
+                    {:else}
+                        <RotateCcw class="mr-2 h-4 w-4"/>
+                    {/if}
+                    {$_('bookingActions.row.revert', { locale: $lang })}
+                </Button>
             {/if}
             <Button class="w-full sm:max-w-40" href="/bookings/{b.id}">
                 {$_('bookingActions.row.viewDetails', { locale: $lang })}
