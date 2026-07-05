@@ -289,6 +289,37 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
    * No description
    *
    * @tags Booking
+   * @name VBookingCompleteNoCollectCreate
+   * @request POST:/api/v{version}/Booking/complete-no-collect/{id}
+   * @secure
+   */
+  vBookingCompleteNoCollectCreate = (
+    id: string,
+    version: string,
+    data: {
+      /** @format binary */
+      file?: File;
+    },
+    query?: {
+      bookingNo?: string;
+      ticketNo?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<BookingPrincipalRes, any>({
+      path: `/api/v${version}/Booking/complete-no-collect/${id}`,
+      method: 'POST',
+      query: query,
+      body: data,
+      secure: true,
+      type: ContentType.FormData,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
    * @name VBookingCountsDetail
    * @request GET:/api/v{version}/Booking/counts
    * @secure
