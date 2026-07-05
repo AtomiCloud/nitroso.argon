@@ -9,6 +9,7 @@
     import {Button} from "$lib/components/ui/button";
     import TerminateBooking from "$lib/components/entities/Bookings/TerminateBooking.svelte";
     import CancelBooking from "$lib/components/entities/Bookings/CancelBooking.svelte";
+    import ManualInterventionActions from "$lib/components/entities/Bookings/ManualInterventionActions.svelte";
     import moment from "moment-timezone";
     import {_} from "svelte-i18n";
     import {lang, formatCalendarDate, formatClockTime} from "$lib/i18n";
@@ -102,6 +103,9 @@
                     {/if}
                     {$_('bookingActions.row.revert', { locale: $lang })}
                 </Button>
+            {/if}
+            {#if b.status === "RequireManualIntervention"}
+                <ManualInterventionActions {b}/>
             {/if}
             <Button class="w-full sm:max-w-40" href="/bookings/{b.id}">
                 {$_('bookingActions.row.viewDetails', { locale: $lang })}
