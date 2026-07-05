@@ -150,7 +150,10 @@
       "statusOn": "{status} 于 {datetime}"
     },
     "row": {
-      "viewDetails": "查看详情"
+      "viewDetails": "查看详情",
+      "revert": "还原为待处理",
+      "revertSuccess": "已将预订还原为待处理",
+      "revertError": "无法将预订还原为待处理"
     },
     "cancel": {
       "stayToast": "好选择！您的预订仍然有效。大多数车票会在出发前1-2天可用。",

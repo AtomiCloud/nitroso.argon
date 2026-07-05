@@ -339,6 +339,22 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
    * No description
    *
    * @tags Booking
+   * @name VBookingRevertCreate
+   * @request POST:/api/v{version}/Booking/revert/{id}
+   * @secure
+   */
+  vBookingRevertCreate = (id: string, version: string, params: RequestParams = {}) =>
+    this.request<BookingPrincipalRes, any>({
+      path: `/api/v${version}/Booking/revert/${id}`,
+      method: 'POST',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
    * @name VBookingRefundCreate
    * @request POST:/api/v{version}/Booking/refund/{id}
    * @secure
