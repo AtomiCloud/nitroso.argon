@@ -26,7 +26,7 @@ function getTiming(
   const t: string[] = timings.principal.timings ?? [];
   const f = t.filter(t => !excluded.includes(t)) ?? [];
   if (after) {
-    const b = addMinutes(new Date(`2024-01-01T${after}`), 16 * 60);
+    const b = addMinutes(new Date(`2024-01-01T${after}`), 4 * 60);
     return f.filter(t => isAfter(new Date(`2024-01-01T${t}`), b));
   }
   return f;
