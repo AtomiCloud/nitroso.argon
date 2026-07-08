@@ -18,43 +18,44 @@
 
     let submitting = false;
 
-    // Triggers the automated Airwallex PayNow payout for the net amount
-    // (amount − fee). The withdrawal moves to "Processing" and completes
-    // automatically once Airwallex confirms via webhook.
-    async function approveWithdrawal() {
+    // Retries the automated Airwallex payout from scratch. DANGEROUS if the
+    // original transfer actually went through — the user would be paid
+    // twice — hence the explicit confirmation dialog with a double-pay
+    // warning. Only for cases verified in Airwallex as "no money left".
+    async function requeueWithdrawal() {
         submitting = true;
-        await toResult(() => $api.vWithdrawalApproveCreate(withdrawal.id, "1.0"
-        ), $_('withdrawals.approve.failed', { locale: $lang })).match({
+        await toResult(() => $api.vWithdrawalRequeueCreate(withdrawal.id, "1.0"
+        ), $_('withdrawals.rmi.requeue.failed', { locale: $lang })).match({
             ok: () => {
-                toast.info($_('withdrawals.approve.success', { locale: $lang, values: { amount: formatMoney(withdrawal.record?.amount ?? 0, $lang) } }));
+                toast.info($_('withdrawals.rmi.requeue.success', { locale: $lang, values: { amount: formatMoney(withdrawal.record?.amount ?? 0, $lang) } }));
                 dialogOpen = false;
                 invalidateAll();
             },
             err: (e) => {
                 console.error(e);
-                toast.error(e.detail);
+                toast.error(e.detail ?? e.type);
             }
         })
         submitting = false;
     }
 </script>
 <Dialog.Root bind:open={dialogOpen}>
-    <Dialog.Trigger class="w-full lg:max-w-56  {buttonVariants({ variant: 'default' })}">
-        {$_('withdrawals.approve.trigger', { locale: $lang })}
+    <Dialog.Trigger class="w-full lg:max-w-40  {buttonVariants({ variant: 'outline' })}">
+        {$_('withdrawals.rmi.requeue.trigger', { locale: $lang })}
     </Dialog.Trigger>
     <Dialog.Content>
         <Dialog.Header>
-            <Dialog.Title>{$_('withdrawals.approve.title', { locale: $lang })}</Dialog.Title>
+            <Dialog.Title>{$_('withdrawals.rmi.requeue.title', { locale: $lang })}</Dialog.Title>
             <Dialog.Description>
                 <div class="flex flex-col gap-4">
-                    <p class="text-justify py-2">
-                        {$_('withdrawals.approve.instructions', { locale: $lang, values: { amount: formatMoney(withdrawal.record.amount, $lang), payNowNumber: withdrawal.record.payNowNumber } })}
+                    <p class="text-justify py-2 text-destructive font-medium">
+                        {$_('withdrawals.rmi.requeue.warning', { locale: $lang, values: { amount: formatMoney(withdrawal.record.amount, $lang), payNowNumber: withdrawal.record.payNowNumber } })}
                     </p>
-                    <Button on:click={approveWithdrawal} disabled={submitting === true}>
+                    <Button variant="destructive" on:click={requeueWithdrawal} disabled={submitting === true}>
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin" />
                         {/if}
-                        {$_('actions.approve', { locale: $lang })}
+                        {$_('withdrawals.rmi.requeue.confirm', { locale: $lang })}
                     </Button>
                 </div>
             </Dialog.Description>

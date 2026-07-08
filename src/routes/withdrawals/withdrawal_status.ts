@@ -21,6 +21,10 @@ export const WITHDRAWAL_STATUS: Record<string, Selected<string>> = {
     value: 'Rejected',
     label: 'Rejected',
   },
+  RequireManualIntervention: {
+    value: 'RequireManualIntervention',
+    label: 'Requires Manual Intervention',
+  },
 };
 
 export const WITHDRAWAL_STATUS_BADGE: Record<string, { color: string; display: string }> = {
@@ -43,5 +47,9 @@ export const WITHDRAWAL_STATUS_BADGE: Record<string, { color: string; display: s
   Rejected: {
     color: 'bg-red-500',
     display: 'Rejected',
+  },
+  RequireManualIntervention: {
+    color: 'bg-rose-600',
+    display: 'Requires Manual Intervention',
   },
 };
