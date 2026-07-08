@@ -26,7 +26,8 @@
     let submitting = false;
 
     // withdrawal fee rate (e.g. 0.04 = 4%), shown in the "deposits are free"
-    // notice. Falls back to the static 4% copy if the endpoint fails.
+    // notice. While loading or if the endpoint fails, a generic notice without
+    // the percentage is shown instead — the rate is never hardcoded client-side.
     let feeRate: number | null = null;
 
     onMount(() => {
@@ -49,7 +50,7 @@
             });
     }
 
-    $: feeRatePercent = formatNumber((feeRate ?? 0.04) * 100, $lang, {maximumFractionDigits: 2});
+    $: feeRatePercent = feeRate != null ? formatNumber(feeRate * 100, $lang, {maximumFractionDigits: 2}) : null;
 
     // Localized validation schema — rebuilt when the active locale changes so the
     // rendered Zod messages follow the language (AC5). Sourced from the
@@ -189,13 +190,25 @@
                 </div>
 
                 <div class="flex items-center justify-center gap-1 text-sm text-muted-foreground">
-                    <span>{$_('wallets.deposit.feeNotice', { locale: $lang, values: { rate: feeRatePercent } })}</span>
+                    <span>
+                        {#if feeRatePercent != null}
+                            {$_('wallets.deposit.feeNotice', { locale: $lang, values: { rate: feeRatePercent } })}
+                        {:else}
+                            {$_('wallets.deposit.feeNoticeGeneric', { locale: $lang })}
+                        {/if}
+                    </span>
                     <Tooltip.Root>
                         <Tooltip.Trigger>
                             <Info class="h-4 w-4"/>
                         </Tooltip.Trigger>
                         <Tooltip.Content class="max-w-72">
-                            <p class="text-justify">{$_('wallets.deposit.feeTooltip', { locale: $lang, values: { rate: feeRatePercent } })}</p>
+                            <p class="text-justify">
+                                {#if feeRatePercent != null}
+                                    {$_('wallets.deposit.feeTooltip', { locale: $lang, values: { rate: feeRatePercent } })}
+                                {:else}
+                                    {$_('wallets.deposit.feeTooltipGeneric', { locale: $lang })}
+                                {/if}
+                            </p>
                         </Tooltip.Content>
                     </Tooltip.Root>
                 </div>

@@ -889,7 +889,9 @@
       },
       "initError": "Failed to initialize payment",
       "feeNotice": "Deposits are free. A {rate}% fee applies to withdrawals only.",
+      "feeNoticeGeneric": "Deposits are free. A fee applies to withdrawals only.",
       "feeTooltip": "Why a fee? Some users have been abusing the wallet system by repeatedly depositing and withdrawing large sums. The {rate}% withdrawal fee discourages this abuse and keeps BunnyBooker sustainable. Deposits remain free.",
+      "feeTooltipGeneric": "Why a fee? Some users have been abusing the wallet system by repeatedly depositing and withdrawing large sums. The withdrawal fee discourages this abuse and keeps BunnyBooker sustainable. Deposits remain free.",
       "feeLoadFailed": "Failed to load withdrawal fee rate"
     },
     "adminIn": {

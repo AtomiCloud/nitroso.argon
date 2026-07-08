@@ -31,6 +31,7 @@
     import CompleteWithdrawalManual from "$lib/components/entities/Withdrawals/CompleteWithdrawalManual.svelte";
     import RejectWithdrawal from "$lib/components/entities/Withdrawals/RejectWithdrawal.svelte";
     import CancelWithdrawal from "$lib/components/entities/Withdrawals/CancelWithdrawal.svelte";
+    import WithdrawalPayoutDetails from "$lib/components/entities/Withdrawals/WithdrawalPayoutDetails.svelte";
     import type {PageData} from "./$types";
     import {format, parse} from "date-fns";
     import {_} from "svelte-i18n";
@@ -172,11 +173,8 @@
                                     <Card.Description>{formatDateTime(w.createAt, $lang)}</Card.Description>
                                     <Badge class="{WITHDRAWAL_STATUS_BADGE[w.status.status ?? ''].color}">{$_(`withdrawals.status.${w.status.status ?? ''}`, { locale: $lang })}</Badge>
                                 </div>
-                                {#if w.payout?.confirmationNumber}
-                                    <Card.Description>
-                                        {$_('withdrawals.card.confirmationNo', { locale: $lang })}
-                                        <span class="font-mono">{w.payout.confirmationNumber}</span>
-                                    </Card.Description>
+                                {#if w.payout}
+                                    <WithdrawalPayoutDetails payout={w.payout} compact/>
                                 {/if}
 
                             </Card.Header>

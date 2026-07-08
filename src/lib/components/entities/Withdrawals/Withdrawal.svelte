@@ -12,6 +12,7 @@
     import RejectWithdrawal from "$lib/components/entities/Withdrawals/RejectWithdrawal.svelte";
     import ApproveWithdrawal from "$lib/components/entities/Withdrawals/ApproveWithdrawal.svelte";
     import CompleteWithdrawalManual from "$lib/components/entities/Withdrawals/CompleteWithdrawalManual.svelte";
+    import WithdrawalPayoutDetails from "$lib/components/entities/Withdrawals/WithdrawalPayoutDetails.svelte";
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatDate, formatTime, formatDateTime} from "$lib/i18n";
 
@@ -37,17 +38,8 @@
         </Card.Header>
         <Card.Content>
             {#if withdrawal.principal.payout != null}
-                <div class="flex flex-col gap-1 pb-4">
-                    {#if withdrawal.principal.payout.confirmationNumber}
-                        <div>
-                            {$_('withdrawals.card.confirmationNo', { locale: $lang })}
-                            <span class="font-mono">{withdrawal.principal.payout.confirmationNumber}</span>
-                        </div>
-                    {/if}
-                    <div>
-                        {$_('withdrawals.card.fee', { locale: $lang })}
-                        {formatMoney(withdrawal.principal.payout.fee, $lang)}
-                    </div>
+                <div class="pb-4">
+                    <WithdrawalPayoutDetails payout={withdrawal.principal.payout}/>
                 </div>
             {/if}
             <div class="flex flex-wrap justify-between">
@@ -144,18 +136,7 @@
             <Card.Content>
                 <div class="flex flex-col justify-center gap-4">
                     {#if withdrawal.principal.payout != null}
-                        <div class="flex flex-col gap-1">
-                            {#if withdrawal.principal.payout.confirmationNumber}
-                                <div>
-                                    {$_('withdrawals.card.confirmationNo', { locale: $lang })}
-                                    <span class="font-mono">{withdrawal.principal.payout.confirmationNumber}</span>
-                                </div>
-                            {/if}
-                            <div>
-                                {$_('withdrawals.card.fee', { locale: $lang })}
-                                {formatMoney(withdrawal.principal.payout.fee, $lang)}
-                            </div>
-                        </div>
+                        <WithdrawalPayoutDetails payout={withdrawal.principal.payout}/>
                     {/if}
                     <p>{withdrawal.principal?.complete?.note ?? $_('withdrawals.card.noNote', { locale: $lang })}</p>
                     {#if withdrawal.principal?.complete?.receipt != null}
