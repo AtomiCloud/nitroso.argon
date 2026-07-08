@@ -1,7 +1,6 @@
 <script lang="ts">
     //@ts-ignore
     import Icon from 'svelte-icons-pack/Icon.svelte';
-    import {Input} from "$lib/components/ui/input";
     import {page} from "$app/stores";
     import {Button} from "$lib/components/ui/button";
     //@ts-ignore
@@ -17,9 +16,10 @@
     import {api} from "../../../store";
     import {toast} from "svelte-sonner";
     import {config} from "../../../config/client";
-    import {Delete, Info, LucideLoader} from "lucide-svelte";
+    import {Info, LucideLoader} from "lucide-svelte";
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatNumber} from "$lib/i18n";
+    import DepositAmountSheet from "$lib/components/entities/Wallets/DepositAmountSheet.svelte";
 
 
     let errors: ZodIssue[] = [];
@@ -30,6 +30,14 @@
     // notice. While loading or if the endpoint fails, a generic notice without
     // the percentage is shown instead — the rate is never hardcoded client-side.
     let feeRate: number | null = null;
+    let feeTipOpen = false;
+
+    // tap toggles the fee tooltip on touch devices: hover-only tooltips are
+    // unreachable on mobile; desktop keeps the native hover behavior
+    function feeTipPointerDown(e: PointerEvent & { originalEvent?: PointerEvent }) {
+        const pe = e.originalEvent ?? e;
+        if (pe.pointerType === 'touch') feeTipOpen = !feeTipOpen;
+    }
 
     onMount(() => {
         Airwallex.loadAirwallex({
@@ -82,43 +90,26 @@
         }
     }
 
-    // Quick-amount chips: add to whatever is already typed (an empty or
-    // non-numeric field counts as 0), then run the normal validation path.
-    const QUICK_AMOUNTS = [10, 50, 100];
+    // Amount entry happens exclusively in the bottom-sheet keypad
+    // (DepositAmountSheet). The page-level readout is a plain button, so the
+    // device keyboard can never open here.
+    let sheetOpen = false;
 
-    function addAmount(n: number) {
-        const current = Number(value.amount);
-        const base = Number.isFinite(current) ? current : 0;
-        value.amount = String(Math.round((base + n) * 100) / 100);
-        taints["amount"] = true;
-        validate();
-    }
-
-    // In-page PIN-pad-style keypad — the amount input is readonly with
-    // inputmode="none" so the device keyboard never opens; all edits go
-    // through these keys and then re-enter the exact same onChange/taint
-    // validation path the input's on:input handler used.
-    const KEYPAD_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'back'] as const;
-
-    function appendDigit(current: string, digit: string): string | null {
-        const dot = current.indexOf('.');
-        // respect the 2-decimal precision rule at entry time
-        if (dot >= 0 && current.length - dot - 1 >= 2) return null;
-        // single leading zero: "0" + "0" stays "0"; "0" + digit replaces it
-        if (current === '0') return digit === '0' ? null : digit;
-        return current + digit;
-    }
-
-    function pressKey(key: string) {
-        const current = value.amount;
-        let next: string | null;
-        if (key === 'back') next = current === '' ? null : current.slice(0, -1);
-        else if (key === '.') next = current.includes('.') ? null : (current === '' ? '0.' : current + '.');
-        else next = appendDigit(current, key);
-        if (next == null) return;
-        value.amount = next;
+    // Confirm from the sheet writes the plain decimal string (e.g. "12.50")
+    // into the model and re-enters the exact same onChange/taint/zod path the
+    // old inline input used. Cancel/backdrop/X/Escape never reach this.
+    function confirmAmount(e: CustomEvent<string>) {
+        value.amount = e.detail;
+        sheetOpen = false;
         onChange('amount')();
     }
+
+    // Locale-aware page readout of the confirmed amount, always 2 decimals.
+    $: displayAmount = formatNumber(
+        Number.isFinite(Number(value.amount)) ? Number(value.amount || 0) : 0,
+        $lang,
+        {minimumFractionDigits: 2, maximumFractionDigits: 2},
+    );
 
     // Re-run validation whenever the locale-rebuilt schema changes, so an error
     // already on screen re-renders in the new language after a no-reload language
@@ -190,64 +181,45 @@
                 </div>
 
                 <Validation {errors} {taints} path="amount" classNames="items-center">
-                    <div class="flex gap-2 items-center text-4xl">
-                        <div>S$</div>
-                        <!-- readonly + inputmode="none" + tabindex -1: tapping the
-                             readout must never open the device keyboard — the
-                             keypad below is the only way to edit the amount. -->
-                        <Input inputmode="none" readonly tabindex={-1}
-                               aria-label={$_('wallets.deposit.amountLabel', { locale: $lang })}
-                               placeholder="0.00" bind:value={value.amount}
-                               class="w-40 text-4xl text-center cursor-default focus-visible:ring-0 focus-visible:ring-offset-0"/>
-                    </div>
+                    <!-- A plain button (not an input) — tapping opens the keypad
+                         sheet and can never summon the device keyboard. -->
+                    <button type="button"
+                            class="group flex flex-col items-center gap-1"
+                            aria-label={$_('wallets.deposit.amountLabel', { locale: $lang })}
+                            on:click={() => sheetOpen = true}>
+                        <span class="flex gap-2 items-baseline text-4xl {value.amount === '' ? 'text-muted-foreground' : ''}">
+                            <span>S$</span>
+                            <span class="tabular-nums">{displayAmount}</span>
+                        </span>
+                        <span class="text-sm text-primary group-hover:underline">
+                            {$_('wallets.deposit.enterAmount', { locale: $lang })}
+                        </span>
+                    </button>
                 </Validation>
 
-                <div class="flex justify-center gap-2">
-                    {#each QUICK_AMOUNTS as q}
-                        <Button variant="outline" size="sm" on:click={() => addAmount(q)}>
-                            +{formatMoney(q, $lang, {maximumFractionDigits: 0})}
-                        </Button>
-                    {/each}
-                </div>
-
-                <div class="grid grid-cols-3 gap-2 w-full max-w-xs mx-auto">
-                    {#each KEYPAD_KEYS as key}
-                        {#if key === 'back'}
-                            <Button variant="outline" class="h-12 text-xl"
-                                    aria-label={$_('wallets.deposit.keypadBackspace', { locale: $lang })}
-                                    on:click={() => pressKey('back')}>
-                                <Delete class="h-5 w-5"/>
-                            </Button>
-                        {:else}
-                            <Button variant="outline" class="h-12 text-xl" on:click={() => pressKey(key)}>
-                                {key}
-                            </Button>
-                        {/if}
-                    {/each}
-                </div>
-
-                <div class="flex items-center justify-center gap-1 text-sm text-muted-foreground">
-                    <span>
+                <div class="flex flex-col items-center gap-0.5 text-sm text-muted-foreground">
+                    <span>{$_('wallets.deposit.feeNoticeFree', { locale: $lang })}</span>
+                    <span class="flex items-center gap-1">
                         {#if feeRatePercent != null}
-                            {$_('wallets.deposit.feeNotice', { locale: $lang, values: { rate: feeRatePercent } })}
+                            {$_('wallets.deposit.feeNoticeWithdraw', { locale: $lang, values: { rate: feeRatePercent } })}
                         {:else}
-                            {$_('wallets.deposit.feeNoticeGeneric', { locale: $lang })}
+                            {$_('wallets.deposit.feeNoticeWithdrawGeneric', { locale: $lang })}
                         {/if}
+                        <Tooltip.Root bind:open={feeTipOpen}>
+                            <Tooltip.Trigger on:pointerdown={feeTipPointerDown}>
+                                <Info class="h-4 w-4"/>
+                            </Tooltip.Trigger>
+                            <Tooltip.Content class="max-w-72">
+                                <p class="text-justify">
+                                    {#if feeRatePercent != null}
+                                        {$_('wallets.deposit.feeTooltip', { locale: $lang, values: { rate: feeRatePercent } })}
+                                    {:else}
+                                        {$_('wallets.deposit.feeTooltipGeneric', { locale: $lang })}
+                                    {/if}
+                                </p>
+                            </Tooltip.Content>
+                        </Tooltip.Root>
                     </span>
-                    <Tooltip.Root>
-                        <Tooltip.Trigger>
-                            <Info class="h-4 w-4"/>
-                        </Tooltip.Trigger>
-                        <Tooltip.Content class="max-w-72">
-                            <p class="text-justify">
-                                {#if feeRatePercent != null}
-                                    {$_('wallets.deposit.feeTooltip', { locale: $lang, values: { rate: feeRatePercent } })}
-                                {:else}
-                                    {$_('wallets.deposit.feeTooltipGeneric', { locale: $lang })}
-                                {/if}
-                            </p>
-                        </Tooltip.Content>
-                    </Tooltip.Root>
                 </div>
             </div>
         </Card.Content>
@@ -261,3 +233,8 @@
         </Card.Footer>
     </Card.Root>
 </div>
+
+<DepositAmountSheet open={sheetOpen}
+                    amount={value.amount}
+                    on:confirm={confirmAmount}
+                    on:close={() => sheetOpen = false}/>
