@@ -19,6 +19,9 @@
     import {lang, formatMoney} from "$lib/i18n";
 
     export let withdrawal: WithdrawalPrincipalRes;
+    // Optional trigger copy override — the RequireManualIntervention alert
+    // reuses this flow but labels the action "Reject & refund".
+    export let triggerLabel: string | null = null;
 
     let dialogOpen = false;
     let submitting = false;
@@ -80,7 +83,7 @@
 </script>
 <Dialog.Root bind:open={dialogOpen}>
     <Dialog.Trigger class="w-full lg:max-w-40  {buttonVariants({ variant: 'destructive' })}">
-        {$_('actions.reject', { locale: $lang })}
+        {triggerLabel ?? $_('actions.reject', { locale: $lang })}
     </Dialog.Trigger>
     <Dialog.Content>
         <Dialog.Header>

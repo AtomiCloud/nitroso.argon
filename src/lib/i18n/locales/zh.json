@@ -892,7 +892,9 @@
       "feeNoticeGeneric": "存款免费。提款将收取手续费。",
       "feeTooltip": "为什么收取手续费？部分用户滥用钱包系统，反复存入和提取大额资金。{rate}% 的提款手续费旨在遏制这种滥用行为，保持 BunnyBooker 的可持续运营。存款仍然免费。",
       "feeTooltipGeneric": "为什么收取手续费？部分用户滥用钱包系统，反复存入和提取大额资金。提款手续费旨在遏制这种滥用行为，保持 BunnyBooker 的可持续运营。存款仍然免费。",
-      "feeLoadFailed": "无法加载提款手续费率"
+      "feeLoadFailed": "无法加载提款手续费率",
+      "amountLabel": "充值金额",
+      "keypadBackspace": "删除最后一位"
     },
     "adminIn": {
       "trigger": "增加可用余额",
@@ -925,7 +927,8 @@
       "Completed": "已完成",
       "Cancel": "已取消",
       "Rejected": "已拒绝",
-      "Processing": "处理中"
+      "Processing": "处理中",
+      "RequireManualIntervention": "需要人工处理"
     },
     "list": {
       "title": "提款",
@@ -945,13 +948,15 @@
       "noNote": "无备注",
       "receiptAlt": "收据",
       "confirmationNo": "确认编号",
-      "fee": "手续费："
+      "fee": "手续费：",
+      "reconcileAttempts": "对账次数：{count}"
     },
     "detail": {
       "title": "提款",
       "notFound": "找不到该提款记录"
     },
     "approve": {
+      "trigger": "自动批准（Airwallex）",
       "title": "批准提款",
       "instructions": "批准后将通过 Airwallex 向 {payNowNumber} 发起自动 PayNow 付款，金额为净额（{amount} 减去提款手续费）。提款将进入“处理中”状态，并在 Airwallex 确认转账后自动完成。",
       "success": "已为 {amount} 的提款启动付款，Airwallex 确认后将自动完成。",
@@ -1012,6 +1017,35 @@
       "complete": "完成",
       "success": "已成功完成提款 {amount}。",
       "failed": "完成提款失败"
+    },
+    "reconcile": {
+      "trigger": "立即对账",
+      "success": "对账检查已完成，提款状态已刷新。",
+      "failed": "提款对账失败"
+    },
+    "rmi": {
+      "title": "需要人工处理",
+      "description": "自动付款经过多次检查（{attempts} 次对账）仍无法确认。请先在 Airwallex 控制台核实转账，再执行任何操作。",
+      "confirmationLine": "Airwallex 确认编号：",
+      "noConfirmation": "未记录确认编号——付款很可能从未离开 Airwallex。",
+      "chooseAction": "如果款项已从 Airwallex 转出，请强制完成；如果不存在转账，请拒绝并退款给用户，或重新排队以重试自动付款。",
+      "reject": "拒绝并退款",
+      "forceComplete": {
+        "trigger": "强制完成",
+        "title": "强制完成提款",
+        "instructions": "此操作会将这笔 {amount} 至 PayNow {payNowNumber} 的提款标记为已完成，且不会转出任何款项。仅在 Airwallex 控制台确认转账 {confirmationNumber} 已经成功后使用。",
+        "disabledHint": "没有确认编号，无法强制完成。",
+        "success": "已将 {amount} 的提款标记为已完成。",
+        "failed": "强制完成提款失败"
+      },
+      "requeue": {
+        "trigger": "重新排队",
+        "title": "重新排队自动付款",
+        "warning": "重新排队会向 PayNow {payNowNumber} 发起一笔全新的自动净额付款。如果原转账实际已经成功，用户将被重复支付。请务必先在 Airwallex 控制台确认没有任何款项转出，再重新排队。",
+        "confirm": "重新排队付款",
+        "success": "已将 {amount} 的提款重新排队等待自动付款。",
+        "failed": "重新排队提款失败"
+      }
     }
   },
   "status": {

@@ -17,7 +17,7 @@
     import {api} from "../../../store";
     import {toast} from "svelte-sonner";
     import {config} from "../../../config/client";
-    import {Info, LucideLoader} from "lucide-svelte";
+    import {Delete, Info, LucideLoader} from "lucide-svelte";
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatNumber} from "$lib/i18n";
 
@@ -94,6 +94,32 @@
         validate();
     }
 
+    // In-page PIN-pad-style keypad — the amount input is readonly with
+    // inputmode="none" so the device keyboard never opens; all edits go
+    // through these keys and then re-enter the exact same onChange/taint
+    // validation path the input's on:input handler used.
+    const KEYPAD_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'back'] as const;
+
+    function appendDigit(current: string, digit: string): string | null {
+        const dot = current.indexOf('.');
+        // respect the 2-decimal precision rule at entry time
+        if (dot >= 0 && current.length - dot - 1 >= 2) return null;
+        // single leading zero: "0" + "0" stays "0"; "0" + digit replaces it
+        if (current === '0') return digit === '0' ? null : digit;
+        return current + digit;
+    }
+
+    function pressKey(key: string) {
+        const current = value.amount;
+        let next: string | null;
+        if (key === 'back') next = current === '' ? null : current.slice(0, -1);
+        else if (key === '.') next = current.includes('.') ? null : (current === '' ? '0.' : current + '.');
+        else next = appendDigit(current, key);
+        if (next == null) return;
+        value.amount = next;
+        onChange('amount')();
+    }
+
     // Re-run validation whenever the locale-rebuilt schema changes, so an error
     // already on screen re-renders in the new language after a no-reload language
     // switch (AC5). `errors` stores the localized ZodIssue.message captured at
@@ -166,10 +192,13 @@
                 <Validation {errors} {taints} path="amount" classNames="items-center">
                     <div class="flex gap-2 items-center text-4xl">
                         <div>S$</div>
-                        <Input inputmode="numeric"
-                               on:input={onChange("amount")}
+                        <!-- readonly + inputmode="none" + tabindex -1: tapping the
+                             readout must never open the device keyboard — the
+                             keypad below is the only way to edit the amount. -->
+                        <Input inputmode="none" readonly tabindex={-1}
+                               aria-label={$_('wallets.deposit.amountLabel', { locale: $lang })}
                                placeholder="0.00" bind:value={value.amount}
-                               class="w-40 text-4xl text-center"/>
+                               class="w-40 text-4xl text-center cursor-default focus-visible:ring-0 focus-visible:ring-offset-0"/>
                     </div>
                 </Validation>
 
@@ -178,6 +207,22 @@
                         <Button variant="outline" size="sm" on:click={() => addAmount(q)}>
                             +{formatMoney(q, $lang, {maximumFractionDigits: 0})}
                         </Button>
+                    {/each}
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 w-full max-w-xs mx-auto">
+                    {#each KEYPAD_KEYS as key}
+                        {#if key === 'back'}
+                            <Button variant="outline" class="h-12 text-xl"
+                                    aria-label={$_('wallets.deposit.keypadBackspace', { locale: $lang })}
+                                    on:click={() => pressKey('back')}>
+                                <Delete class="h-5 w-5"/>
+                            </Button>
+                        {:else}
+                            <Button variant="outline" class="h-12 text-xl" on:click={() => pressKey(key)}>
+                                {key}
+                            </Button>
+                        {/if}
                     {/each}
                 </div>
 

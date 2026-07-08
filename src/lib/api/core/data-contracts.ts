@@ -405,6 +405,8 @@ export interface WithdrawalPayoutRes {
   confirmationNumber?: string | null;
   /** @format double */
   fee: number;
+  /** @format int32 */
+  reconcileAttempts: number;
 }
 
 export interface WithdrawalPrincipalRes {

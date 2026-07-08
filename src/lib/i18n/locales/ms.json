@@ -892,7 +892,9 @@
       "feeNoticeGeneric": "Deposit adalah percuma. Yuran dikenakan pada pengeluaran sahaja.",
       "feeTooltip": "Mengapa ada yuran? Sesetengah pengguna menyalahgunakan sistem dompet dengan berulang kali mendeposit dan mengeluarkan jumlah yang besar. Yuran pengeluaran {rate}% menghalang penyalahgunaan ini dan memastikan BunnyBooker kekal mampan. Deposit kekal percuma.",
       "feeTooltipGeneric": "Mengapa ada yuran? Sesetengah pengguna menyalahgunakan sistem dompet dengan berulang kali mendeposit dan mengeluarkan jumlah yang besar. Yuran pengeluaran menghalang penyalahgunaan ini dan memastikan BunnyBooker kekal mampan. Deposit kekal percuma.",
-      "feeLoadFailed": "Gagal memuatkan kadar yuran pengeluaran"
+      "feeLoadFailed": "Gagal memuatkan kadar yuran pengeluaran",
+      "amountLabel": "Jumlah deposit",
+      "keypadBackspace": "Padam digit terakhir"
     },
     "adminIn": {
       "trigger": "Tambah Baki Boleh Guna",
@@ -925,7 +927,8 @@
       "Completed": "Selesai",
       "Cancel": "Dibatalkan",
       "Rejected": "Ditolak",
-      "Processing": "Sedang Diproses"
+      "Processing": "Sedang Diproses",
+      "RequireManualIntervention": "Memerlukan Campur Tangan Manual"
     },
     "list": {
       "title": "Pengeluaran",
@@ -945,13 +948,15 @@
       "noNote": "Tiada Nota",
       "receiptAlt": "resit",
       "confirmationNo": "No. Pengesahan:",
-      "fee": "Yuran:"
+      "fee": "Yuran:",
+      "reconcileAttempts": "Percubaan penyesuaian: {count}"
     },
     "detail": {
       "title": "Pengeluaran",
       "notFound": "Pengeluaran tidak dapat dijumpai"
     },
     "approve": {
+      "trigger": "Lulus automatik (Airwallex)",
       "title": "Luluskan pengeluaran",
       "instructions": "Kelulusan akan memulakan pembayaran PayNow automatik melalui Airwallex ke {payNowNumber} untuk jumlah bersih ({amount} ditolak yuran pengeluaran). Pengeluaran akan bertukar ke status \"Sedang Diproses\" dan selesai secara automatik selepas Airwallex mengesahkan pemindahan.",
       "success": "Pembayaran untuk pengeluaran {amount} telah dimulakan. Ia akan selesai secara automatik selepas pengesahan Airwallex.",
@@ -1012,6 +1017,35 @@
       "complete": "Selesai",
       "success": "Berjaya menyelesaikan pengeluaran {amount}.",
       "failed": "Gagal menyelesaikan pengeluaran"
+    },
+    "reconcile": {
+      "trigger": "Sesuaikan sekarang",
+      "success": "Semakan penyesuaian selesai. Status pengeluaran telah dikemas kini.",
+      "failed": "Gagal menyesuaikan pengeluaran"
+    },
+    "rmi": {
+      "title": "Campur tangan manual diperlukan",
+      "description": "Pembayaran automatik tidak dapat disahkan selepas semakan berulang ({attempts} percubaan penyesuaian). Sila sahkan pemindahan di papan pemuka Airwallex sebelum mengambil sebarang tindakan.",
+      "confirmationLine": "No. pengesahan Airwallex:",
+      "noConfirmation": "Tiada nombor pengesahan direkodkan — pembayaran berkemungkinan besar tidak pernah keluar dari Airwallex.",
+      "chooseAction": "Jika wang telah keluar dari Airwallex, selesaikan secara paksa. Jika tiada pemindahan wujud, tolak & pulangkan wang kepada pengguna, atau beratur semula untuk mencuba semula pembayaran automatik.",
+      "reject": "Tolak & pulangkan wang",
+      "forceComplete": {
+        "trigger": "Selesaikan secara paksa",
+        "title": "Selesaikan pengeluaran secara paksa",
+        "instructions": "Tindakan ini menandakan pengeluaran {amount} ke PayNow {payNowNumber} sebagai selesai tanpa menghantar sebarang wang. Gunakan hanya selepas papan pemuka Airwallex mengesahkan pemindahan {confirmationNumber} telah berjaya.",
+        "disabledHint": "Tidak boleh selesaikan secara paksa kerana tiada nombor pengesahan.",
+        "success": "Pengeluaran {amount} telah ditandakan sebagai selesai.",
+        "failed": "Gagal menyelesaikan pengeluaran secara paksa"
+      },
+      "requeue": {
+        "trigger": "Beratur semula",
+        "title": "Beratur semula pembayaran automatik",
+        "warning": "Beratur semula akan memulakan pembayaran automatik baharu untuk jumlah bersih ke PayNow {payNowNumber}. Jika pemindahan asal sebenarnya telah berjaya, pengguna akan dibayar dua kali. Hanya beratur semula selepas mengesahkan di papan pemuka Airwallex bahawa tiada wang keluar.",
+        "confirm": "Beratur semula pembayaran",
+        "success": "Pengeluaran {amount} telah diatur semula untuk pembayaran automatik.",
+        "failed": "Gagal mengatur semula pengeluaran"
+      }
     }
   },
   "status": {

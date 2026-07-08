@@ -1574,4 +1574,52 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
       format: 'json',
       ...params,
     });
+  /**
+   * No description
+   *
+   * @tags Withdrawal
+   * @name VWithdrawalCompletePayoutCreate
+   * @request POST:/api/v{version}/Withdrawal/{id}/complete-payout
+   * @secure
+   */
+  vWithdrawalCompletePayoutCreate = (id: string, version: string, params: RequestParams = {}) =>
+    this.request<WithdrawalPrincipalRes, any>({
+      path: `/api/v${version}/Withdrawal/${id}/complete-payout`,
+      method: 'POST',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Withdrawal
+   * @name VWithdrawalReconcileCreate
+   * @request POST:/api/v{version}/Withdrawal/{id}/reconcile
+   * @secure
+   */
+  vWithdrawalReconcileCreate = (id: string, version: string, params: RequestParams = {}) =>
+    this.request<WithdrawalPrincipalRes, any>({
+      path: `/api/v${version}/Withdrawal/${id}/reconcile`,
+      method: 'POST',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Withdrawal
+   * @name VWithdrawalRequeueCreate
+   * @request POST:/api/v{version}/Withdrawal/{id}/requeue
+   * @secure
+   */
+  vWithdrawalRequeueCreate = (id: string, version: string, params: RequestParams = {}) =>
+    this.request<WithdrawalPrincipalRes, any>({
+      path: `/api/v${version}/Withdrawal/${id}/requeue`,
+      method: 'POST',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
 }

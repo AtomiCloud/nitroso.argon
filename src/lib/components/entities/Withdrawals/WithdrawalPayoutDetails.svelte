@@ -19,4 +19,9 @@
         {$_('withdrawals.card.fee', { locale: $lang })}
         {formatMoney(payout.fee, $lang)}
     </div>
+    {#if payout.reconcileAttempts > 0}
+        <div class="text-sm text-muted-foreground">
+            {$_('withdrawals.card.reconcileAttempts', { locale: $lang, values: { count: payout.reconcileAttempts } })}
+        </div>
+    {/if}
 </div>
