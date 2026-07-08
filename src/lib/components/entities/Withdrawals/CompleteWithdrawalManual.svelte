@@ -4,7 +4,7 @@
     //@ts-ignore
     import * as Dialog from "$lib/components/ui/dialog";
     import {toResult} from "$lib/utility";
-    import {loadWithdrawFeeRate} from "$lib/api/fee";
+    import {loadWithdrawFeeRate, roundToEvenCents} from "$lib/api/fee";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
@@ -17,7 +17,7 @@
 
     let dialogOpen = false;
 
-    let files: FileList;
+    let files: FileList | null = null;
 
     let submitting = false;
 
@@ -30,7 +30,7 @@
     let feeRequested = false;
     let feeLoadFailed = false;
 
-    const round2 = (x: number) => Math.round(x * 100) / 100;
+    $: file = files?.[0] ?? null;
 
     $: snapshotFee = withdrawal.payout?.fee ?? null;
 
@@ -45,9 +45,11 @@
         feeLoadFailed = feeRate == null;
     }
 
+    // banker's rounding to match zinc's FeeCalculator cent-for-cent — a
+    // half-up fee could differ by one cent and overpay the user
     $: amount = withdrawal.record.amount;
-    $: fee = snapshotFee ?? (feeRate != null ? round2(amount * feeRate) : null);
-    $: net = fee != null ? round2(amount - fee) : null;
+    $: fee = snapshotFee ?? (feeRate != null ? roundToEvenCents(amount * feeRate) : null);
+    $: net = fee != null ? roundToEvenCents(amount - fee) : null;
 
     // Manual fallback when Airwallex payouts are unavailable: the admin
     // transfers via PayNow themselves and uploads the receipt screenshot.
@@ -100,7 +102,7 @@
                     <Button variant="outline">
                         <input  bind:files type="file"/>
                     </Button>
-                    <Button on:click={() => completeWithdrawal(files[0])} disabled={submitting || net == null}>
+                    <Button on:click={() => file && completeWithdrawal(file)} disabled={submitting || net == null || !file}>
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin" />
                         {/if}

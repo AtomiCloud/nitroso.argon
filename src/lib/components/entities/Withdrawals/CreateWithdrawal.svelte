@@ -9,7 +9,7 @@
     import * as Tooltip from "$lib/components/ui/tooltip";
     import {type SafeParseError, z, type ZodIssue} from "zod";
     import {toResult} from "$lib/utility";
-    import {loadWithdrawFeeRate} from "$lib/api/fee";
+    import {loadWithdrawFeeRate, roundToEvenCents} from "$lib/api/fee";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
@@ -111,12 +111,12 @@
 
     $: isValid = errors.length === 0 && Object.entries(taints).length > 0;
 
-    // live fee breakdown (display only — the server computes the authoritative
-    // fee with banker's rounding on approval)
+    // live fee breakdown (display only — banker's rounding matches the
+    // server's authoritative FeeCalculator cent-for-cent)
     $: amountNum = Number(val.amount);
     $: showFeeBreakdown = feeRate != null && Number.isFinite(amountNum) && amountNum > 0 && amountNum <= wallet.usable;
-    $: feeAmount = Math.round(amountNum * (feeRate ?? 0) * 100) / 100;
-    $: netAmount = Math.round((amountNum - feeAmount) * 100) / 100;
+    $: feeAmount = roundToEvenCents(amountNum * (feeRate ?? 0));
+    $: netAmount = roundToEvenCents(amountNum - feeAmount);
     $: feeRatePercent = formatNumber((feeRate ?? 0) * 100, $lang, {maximumFractionDigits: 2});
 </script>
 
