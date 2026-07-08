@@ -894,7 +894,12 @@
       "feeTooltipGeneric": "为什么收取手续费？部分用户滥用钱包系统，反复存入和提取大额资金。提款手续费旨在遏制这种滥用行为，保持 BunnyBooker 的可持续运营。存款仍然免费。",
       "feeLoadFailed": "无法加载提款手续费率",
       "amountLabel": "充值金额",
-      "keypadBackspace": "删除最后一位"
+      "keypadBackspace": "删除最后一位",
+      "enterAmount": "输入金额",
+      "keypad": {
+        "title": "输入充值金额（SGD $）",
+        "clear": "清除"
+      }
     },
     "adminIn": {
       "trigger": "增加可用余额",

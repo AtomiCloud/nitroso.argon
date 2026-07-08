@@ -894,7 +894,12 @@
       "feeTooltipGeneric": "Why a fee? Some users have been abusing the wallet system by repeatedly depositing and withdrawing large sums. The withdrawal fee discourages this abuse and keeps BunnyBooker sustainable. Deposits remain free.",
       "feeLoadFailed": "Failed to load withdrawal fee rate",
       "amountLabel": "Deposit amount",
-      "keypadBackspace": "Delete last digit"
+      "keypadBackspace": "Delete last digit",
+      "enterAmount": "Enter amount",
+      "keypad": {
+        "title": "Enter deposit (SGD $)",
+        "clear": "Clear"
+      }
     },
     "adminIn": {
       "trigger": "Add Usable Balance",
