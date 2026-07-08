@@ -69,6 +69,7 @@ export interface BookingPassengerRes {
 export interface BookingPrincipalRes {
   /** @format uuid */
   id: string;
+  userId?: string | null;
   date?: string | null;
   time?: string | null;
   direction?: string | null;
@@ -218,6 +219,11 @@ export interface ErrorInfo {
   id?: string | null;
   title?: string | null;
   version?: string | null;
+}
+
+export interface FeeRes {
+  /** @format double */
+  withdrawFeeRate: number;
 }
 
 export interface LatestScheduleRes {
@@ -395,6 +401,12 @@ export interface WithdrawalCompleteRes {
   receipt?: string | null;
 }
 
+export interface WithdrawalPayoutRes {
+  confirmationNumber?: string | null;
+  /** @format double */
+  fee: number;
+}
+
 export interface WithdrawalPrincipalRes {
   /** @format uuid */
   id: string;
@@ -403,6 +415,7 @@ export interface WithdrawalPrincipalRes {
   status: WithdrawalStatusRes;
   record: WithdrawalRecordRes;
   complete: WithdrawalCompleteRes;
+  payout?: WithdrawalPayoutRes | null;
 }
 
 export interface WithdrawalRecordRes {

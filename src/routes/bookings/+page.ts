@@ -5,12 +5,17 @@ import { toResult } from '$lib/utility';
 import { loadError } from '$lib/i18n';
 import type { PageLoad } from './$types';
 
+const PAGE_SIZE = 20;
+
 export const load = (async ({
   parent,
   url,
   fetch,
 }): Promise<{
   result: ['err', ProblemDetails] | ['ok', BookingPrincipalRes[]];
+  page: number;
+  sortBy: string;
+  hasMore: boolean;
 }> => {
   const { session, locale } = await parent();
 
@@ -22,6 +27,10 @@ export const load = (async ({
   const direction = url.searchParams.get('direction') ?? '';
   const status = url.searchParams.get('status') ?? '';
   const time = url.searchParams.get('time') ?? '';
+  const sortBy = url.searchParams.get('sortBy') ?? '';
+
+  const rawPage = parseInt(url.searchParams.get('page') ?? '1', 10);
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
 
   const r = await toResult(
     () =>
@@ -31,11 +40,19 @@ export const load = (async ({
         Direction: direction,
         Status: status,
         Time: time,
-        Limit: 100,
+        ...(sortBy === '' ? {} : { SortBy: sortBy }),
+        Limit: PAGE_SIZE,
+        Skip: (page - 1) * PAGE_SIZE,
       }),
     await loadError(locale, 'errors.load.bookings'),
   ).serial();
+
+  // A full page suggests more results after this one; a short page is the end.
+  const hasMore = r[0] === 'ok' && r[1].length === PAGE_SIZE;
   return {
     result: r,
+    page,
+    sortBy,
+    hasMore,
   };
 }) satisfies PageLoad;

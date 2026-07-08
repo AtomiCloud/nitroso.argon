@@ -5,6 +5,10 @@ export const WITHDRAWAL_STATUS: Record<string, Selected<string>> = {
     value: 'Pending',
     label: 'Pending',
   },
+  Processing: {
+    value: 'Processing',
+    label: 'Processing',
+  },
   Completed: {
     value: 'Completed',
     label: 'Completed',
@@ -23,6 +27,10 @@ export const WITHDRAWAL_STATUS_BADGE: Record<string, { color: string; display: s
   Pending: {
     color: 'bg-yellow-500',
     display: 'Pending',
+  },
+  Processing: {
+    color: 'bg-blue-500',
+    display: 'Processing',
   },
   Completed: {
     color: 'bg-green-500',

@@ -225,7 +225,14 @@
       "woodlandsToJbSentral": "Woodlands ke JB Sentral",
       "jbToWoodlands": "JB ke Woodlands",
       "jbSentralToWoodlands": "JB Sentral ke Woodlands",
-      "empty": "Tiada tempahan ditemui"
+      "empty": "Tiada tempahan ditemui",
+      "sortNewest": "Tarikh perjalanan terkini",
+      "sortTiming": "Masa perjalanan",
+      "sortPassengerName": "Nama penumpang",
+      "sortPassportNumber": "Nombor pasport",
+      "previous": "Sebelumnya",
+      "next": "Seterusnya",
+      "pageLabel": "Halaman {page}"
     },
     "detail": {
       "title": "Tempahan",
@@ -599,7 +606,8 @@
       "interestsItem4": "Mengambil sebarang tindakan terhadap anda atas sebarang pelanggaran dasar ini.",
       "interestsItem5": "Menamatkan akaun anda pada bila-bila masa tanpa notis.",
       "interestsItem6": "Menahan dana dalam akaun anda pada bila-bila masa, tanpa notis.",
-      "interestsItem7": "Mengeskalasikan sebarang pelanggaran dasar ini kepada pihak berkuasa yang berkaitan, tanpa notis."
+      "interestsItem7": "Mengeskalasikan sebarang pelanggaran dasar ini kepada pihak berkuasa yang berkaitan, tanpa notis.",
+      "deliveryItem8": "Pengeluaran daripada dompet BunnyBooker anda dikenakan yuran pemprosesan 4% yang ditolak daripada jumlah pengeluaran; deposit adalah percuma. Yuran ini diperkenalkan untuk mencegah penyalahgunaan sistem dompet, dan kadarnya boleh disemak semula dengan notis."
     },
     "privacy": {
       "heading": "Dasar Privasi",
@@ -879,7 +887,12 @@
         "message": "Berjaya membuat deposit ke BunnyBooker",
         "currentBalance": "Baki Semasa: {amount}"
       },
-      "initError": "Gagal memulakan pembayaran"
+      "initError": "Gagal memulakan pembayaran",
+      "feeNotice": "Deposit adalah percuma. Yuran {rate}% hanya dikenakan pada pengeluaran.",
+      "feeNoticeGeneric": "Deposit adalah percuma. Yuran dikenakan pada pengeluaran sahaja.",
+      "feeTooltip": "Mengapa ada yuran? Sesetengah pengguna menyalahgunakan sistem dompet dengan berulang kali mendeposit dan mengeluarkan jumlah yang besar. Yuran pengeluaran {rate}% menghalang penyalahgunaan ini dan memastikan BunnyBooker kekal mampan. Deposit kekal percuma.",
+      "feeTooltipGeneric": "Mengapa ada yuran? Sesetengah pengguna menyalahgunakan sistem dompet dengan berulang kali mendeposit dan mengeluarkan jumlah yang besar. Yuran pengeluaran menghalang penyalahgunaan ini dan memastikan BunnyBooker kekal mampan. Deposit kekal percuma.",
+      "feeLoadFailed": "Gagal memuatkan kadar yuran pengeluaran"
     },
     "adminIn": {
       "trigger": "Tambah Baki Boleh Guna",
@@ -911,7 +924,8 @@
       "Pending": "Menunggu",
       "Completed": "Selesai",
       "Cancel": "Dibatalkan",
-      "Rejected": "Ditolak"
+      "Rejected": "Ditolak",
+      "Processing": "Sedang Diproses"
     },
     "list": {
       "title": "Pengeluaran",
@@ -929,17 +943,18 @@
       "completer": "Penyelesai",
       "viewUserProfile": "Lihat profil pengguna →",
       "noNote": "Tiada Nota",
-      "receiptAlt": "resit"
+      "receiptAlt": "resit",
+      "confirmationNo": "No. Pengesahan:",
+      "fee": "Yuran:"
     },
     "detail": {
       "title": "Pengeluaran",
       "notFound": "Pengeluaran tidak dapat dijumpai"
     },
     "approve": {
-      "title": "Buat pengeluaran",
-      "instructions": "Sila pindahkan {amount} ke PayNow {payNowNumber}, ambil tangkapan skrin, muat naik resit, dan klik selesai.",
-      "complete": "Selesai",
-      "success": "Berjaya menyelesaikan pengeluaran {amount}.",
+      "title": "Luluskan pengeluaran",
+      "instructions": "Kelulusan akan memulakan pembayaran PayNow automatik melalui Airwallex ke {payNowNumber} untuk jumlah bersih ({amount} ditolak yuran pengeluaran). Pengeluaran akan bertukar ke status \"Sedang Diproses\" dan selesai secara automatik selepas Airwallex mengesahkan pemindahan.",
+      "success": "Pembayaran untuk pengeluaran {amount} telah dimulakan. Ia akan selesai secara automatik selepas pengesahan Airwallex.",
       "failed": "Gagal meluluskan pengeluaran"
     },
     "cancel": {
@@ -971,14 +986,32 @@
       "durationEmphasis": "2 hari bekerja",
       "durationSuffix": "untuk diproses.",
       "balanceLabel": "Baki: {amount}",
-      "payNowPlaceholder": "Nombor PayNow untuk pengeluaran",
+      "payNowPlaceholder": "Nombor telefon bimbit PayNow 8 digit",
       "submit": "Mohon Pengeluaran",
       "amountGreaterThanZero": "Jumlah mesti lebih besar daripada 0",
       "amountExceedsBalance": "Jumlah mesti kurang daripada atau sama dengan baki boleh guna anda",
       "amountFinite": "Jumlah mesti nombor terhingga",
-      "invalidPayNow": "Bukan nombor PayNow yang sah",
+      "invalidPayNow": "Nombor PayNow mestilah tepat 8 digit",
       "success": "Berjaya memohon pengeluaran {amount} daripada baki BOLEH GUNA anda.",
-      "failed": "Gagal membuat pengeluaran"
+      "failed": "Gagal membuat pengeluaran",
+      "feeLine": "Yuran pengeluaran ({rate}%): −{fee}",
+      "youReceive": "Anda akan menerima: {net}",
+      "feeTooltip": "Mengapa ada yuran? Sesetengah pengguna menyalahgunakan sistem dompet dengan berulang kali mendeposit dan mengeluarkan jumlah yang besar. Yuran pengeluaran {rate}% menghalang penyalahgunaan ini dan memastikan BunnyBooker kekal mampan. Deposit kekal percuma.",
+      "feeLoadFailed": "Gagal memuatkan kadar yuran pengeluaran"
+    },
+    "completeManual": {
+      "trigger": "Selesaikan secara manual (muat naik resit)",
+      "title": "Selesaikan pengeluaran secara manual",
+      "instructions": "Pengguna menerima jumlah bersih (jumlah pengeluaran ditolak yuran); yuran disimpan oleh BunnyBooker. Pindahkan jumlah bersih yang tepat di bawah melalui PayNow, ambil tangkapan skrin, muat naik resit, dan klik selesai.",
+      "amountLine": "Jumlah pengeluaran: {amount}",
+      "feeLine": "Yuran pengeluaran: −{fee}",
+      "transferExactly": "Pindahkan tepat: {net} ke PayNow {payNowNumber}",
+      "feeLoading": "Memuatkan kadar yuran pengeluaran…",
+      "feeUnavailable": "Tidak dapat menentukan jumlah pemindahan bersih kerana kadar yuran pengeluaran gagal dimuatkan. Jangan pindahkan jumlah kasar — cuba muatkan semula kadar yuran dahulu.",
+      "feeLoadFailed": "Gagal memuatkan kadar yuran pengeluaran",
+      "complete": "Selesai",
+      "success": "Berjaya menyelesaikan pengeluaran {amount}.",
+      "failed": "Gagal menyelesaikan pengeluaran"
     }
   },
   "status": {

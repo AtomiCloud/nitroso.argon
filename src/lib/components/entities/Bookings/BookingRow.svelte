@@ -33,7 +33,7 @@
     // zinc's Revert is guarded (Buying-only + uncaptured), so this is safe.
     async function revertBuying() {
         reverting = true;
-        await toResult(() => $api.vBookingRevertCreate(b.id, "1.0"),
+        await toResult(() => $api.vBookingRevertCreate(b.id, "1.0", {force: true}),
             $_('bookingActions.row.revertError', { locale: $lang })).match({
             ok: () => {
                 toast.info($_('bookingActions.row.revertSuccess', { locale: $lang }));
@@ -76,7 +76,11 @@
                 <Card.Description>
                     <div class="flex flex-col gap-2 my-4 items-center md:items-start">
                         <Badge class="flex justify-center">{formatCalendarDate(parse(b.date, "dd-MM-yyyy", new Date()), $lang)}, {formatClockTime(b.time, $lang)}</Badge>
-                        <div>{b.passenger.fullName} ({b.passenger.passportNumber})</div>
+                        {#if isAdmin && b.userId}
+                            <a href="/users/{b.userId}" class="hover:underline">{b.passenger.fullName} ({b.passenger.passportNumber})</a>
+                        {:else}
+                            <div>{b.passenger.fullName} ({b.passenger.passportNumber})</div>
+                        {/if}
                     </div>
                 </Card.Description>
             </div>

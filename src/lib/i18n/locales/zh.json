@@ -225,7 +225,14 @@
       "woodlandsToJbSentral": "兀兰前往新山中央",
       "jbToWoodlands": "新山前往兀兰",
       "jbSentralToWoodlands": "新山中央前往兀兰",
-      "empty": "未找到预订"
+      "empty": "未找到预订",
+      "sortNewest": "最新出行日期",
+      "sortTiming": "出行时间",
+      "sortPassengerName": "乘客姓名",
+      "sortPassportNumber": "护照号码",
+      "previous": "上一页",
+      "next": "下一页",
+      "pageLabel": "第 {page} 页"
     },
     "detail": {
       "title": "预订",
@@ -599,7 +606,8 @@
       "interestsItem4": "对于您违反本政策的任何行为采取任何行动。",
       "interestsItem5": "随时终止您的账户，恕不另行通知。",
       "interestsItem6": "随时扣留您账户内的资金，恕不另行通知。",
-      "interestsItem7": "将任何违反本政策的行为上报相关当局，恕不另行通知。"
+      "interestsItem7": "将任何违反本政策的行为上报相关当局，恕不另行通知。",
+      "deliveryItem8": "从 BunnyBooker 钱包提款将收取 4% 的手续费，从提款金额中扣除；存款免费。该手续费旨在防止钱包系统被滥用，费率可能在另行通知后调整。"
     },
     "privacy": {
       "heading": "隐私政策",
@@ -879,7 +887,12 @@
         "message": "已成功充值到 BunnyBooker",
         "currentBalance": "当前余额：{amount}"
       },
-      "initError": "初始化付款失败"
+      "initError": "初始化付款失败",
+      "feeNotice": "存款免费。{rate}% 的手续费仅适用于提款。",
+      "feeNoticeGeneric": "存款免费。提款将收取手续费。",
+      "feeTooltip": "为什么收取手续费？部分用户滥用钱包系统，反复存入和提取大额资金。{rate}% 的提款手续费旨在遏制这种滥用行为，保持 BunnyBooker 的可持续运营。存款仍然免费。",
+      "feeTooltipGeneric": "为什么收取手续费？部分用户滥用钱包系统，反复存入和提取大额资金。提款手续费旨在遏制这种滥用行为，保持 BunnyBooker 的可持续运营。存款仍然免费。",
+      "feeLoadFailed": "无法加载提款手续费率"
     },
     "adminIn": {
       "trigger": "增加可用余额",
@@ -911,7 +924,8 @@
       "Pending": "待处理",
       "Completed": "已完成",
       "Cancel": "已取消",
-      "Rejected": "已拒绝"
+      "Rejected": "已拒绝",
+      "Processing": "处理中"
     },
     "list": {
       "title": "提款",
@@ -929,17 +943,18 @@
       "completer": "处理人",
       "viewUserProfile": "查看用户资料 →",
       "noNote": "无备注",
-      "receiptAlt": "收据"
+      "receiptAlt": "收据",
+      "confirmationNo": "确认编号",
+      "fee": "手续费："
     },
     "detail": {
       "title": "提款",
       "notFound": "找不到该提款记录"
     },
     "approve": {
-      "title": "进行提款",
-      "instructions": "请将 {amount} 转账至 PayNow {payNowNumber}，截图并上传收据，然后点击完成。",
-      "complete": "完成",
-      "success": "已成功完成提款 {amount}。",
+      "title": "批准提款",
+      "instructions": "批准后将通过 Airwallex 向 {payNowNumber} 发起自动 PayNow 付款，金额为净额（{amount} 减去提款手续费）。提款将进入“处理中”状态，并在 Airwallex 确认转账后自动完成。",
+      "success": "已为 {amount} 的提款启动付款，Airwallex 确认后将自动完成。",
       "failed": "批准提款失败"
     },
     "cancel": {
@@ -971,14 +986,32 @@
       "durationEmphasis": "2 个工作日",
       "durationSuffix": "才能处理完成。",
       "balanceLabel": "余额：{amount}",
-      "payNowPlaceholder": "用于提款的 PayNow 号码",
+      "payNowPlaceholder": "8 位 PayNow 手机号码",
       "submit": "申请提款",
       "amountGreaterThanZero": "金额必须大于 0",
       "amountExceedsBalance": "金额必须小于或等于您的可用余额",
       "amountFinite": "金额必须是有限的数字",
-      "invalidPayNow": "不是有效的 PayNow 号码",
+      "invalidPayNow": "PayNow 号码必须是 8 位数字",
       "success": "已成功从您的可用余额申请提款 {amount}。",
-      "failed": "申请提款失败"
+      "failed": "申请提款失败",
+      "feeLine": "提款手续费（{rate}%）：−{fee}",
+      "youReceive": "您将收到：{net}",
+      "feeTooltip": "为什么收取手续费？部分用户滥用钱包系统，反复存入和提取大额资金。{rate}% 的提款手续费旨在遏制这种滥用行为，保持 BunnyBooker 的可持续运营。存款仍然免费。",
+      "feeLoadFailed": "无法加载提款手续费率"
+    },
+    "completeManual": {
+      "trigger": "手动完成（上传收据）",
+      "title": "手动完成提款",
+      "instructions": "用户将收到净额（提款金额减去手续费），手续费由 BunnyBooker 保留。请通过 PayNow 转账下方的确切净额，截图并上传收据，然后点击完成。",
+      "amountLine": "提款金额：{amount}",
+      "feeLine": "提款手续费：−{fee}",
+      "transferExactly": "请准确转账：{net} 至 PayNow {payNowNumber}",
+      "feeLoading": "正在加载提款手续费率…",
+      "feeUnavailable": "提款手续费率加载失败，无法确定净转账金额。请勿转账全额——请先重试加载手续费率。",
+      "feeLoadFailed": "无法加载提款手续费率",
+      "complete": "完成",
+      "success": "已成功完成提款 {amount}。",
+      "failed": "完成提款失败"
     }
   },
   "status": {
