@@ -241,6 +241,7 @@ export interface MaterializedCostRes {
 export interface PassengerPrincipalRes {
   /** @format uuid */
   id: string;
+  userId?: string | null;
   fullName?: string | null;
   gender?: string | null;
   passportExpiry?: string | null;

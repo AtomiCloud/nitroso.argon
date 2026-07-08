@@ -78,6 +78,8 @@
         Timing: "sortTiming",
         PassengerName: "sortPassengerName",
         PassportNumber: "sortPassportNumber",
+        BuyTime: "sortBuyTime",
+        FulfilTime: "sortFulfilTime",
     };
 
     let bookingSort: Selected<string> | undefined = sortBy === "" ? undefined : {value: sortBy, label: sortBy};

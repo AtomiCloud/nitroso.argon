@@ -232,7 +232,9 @@
       "sortPassportNumber": "护照号码",
       "previous": "上一页",
       "next": "下一页",
-      "pageLabel": "第 {page} 页"
+      "pageLabel": "第 {page} 页",
+      "sortBuyTime": "购买时间（最新）",
+      "sortFulfilTime": "完成时间（最新）"
     },
     "detail": {
       "title": "预订",
@@ -888,8 +890,6 @@
         "currentBalance": "当前余额：{amount}"
       },
       "initError": "初始化付款失败",
-      "feeNotice": "存款免费。{rate}% 的手续费仅适用于提款。",
-      "feeNoticeGeneric": "存款免费。提款将收取手续费。",
       "feeTooltip": "为什么收取手续费？部分用户滥用钱包系统，反复存入和提取大额资金。{rate}% 的提款手续费旨在遏制这种滥用行为，保持 BunnyBooker 的可持续运营。存款仍然免费。",
       "feeTooltipGeneric": "为什么收取手续费？部分用户滥用钱包系统，反复存入和提取大额资金。提款手续费旨在遏制这种滥用行为，保持 BunnyBooker 的可持续运营。存款仍然免费。",
       "feeLoadFailed": "无法加载提款手续费率",
@@ -899,7 +899,10 @@
       "keypad": {
         "title": "输入充值金额（SGD $）",
         "clear": "清除"
-      }
+      },
+      "feeNoticeFree": "存款免费。",
+      "feeNoticeWithdraw": "{rate}% 的手续费仅适用于提款。",
+      "feeNoticeWithdrawGeneric": "提款将收取手续费。"
     },
     "adminIn": {
       "trigger": "增加可用余额",

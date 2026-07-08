@@ -232,7 +232,9 @@
       "sortPassportNumber": "Passport number",
       "previous": "Previous",
       "next": "Next",
-      "pageLabel": "Page {page}"
+      "pageLabel": "Page {page}",
+      "sortBuyTime": "Buy time (newest)",
+      "sortFulfilTime": "Fulfilled time (newest)"
     },
     "detail": {
       "title": "Booking",
@@ -888,8 +890,6 @@
         "currentBalance": "Current Balance: {amount}"
       },
       "initError": "Failed to initialize payment",
-      "feeNotice": "Deposits are free. A {rate}% fee applies to withdrawals only.",
-      "feeNoticeGeneric": "Deposits are free. A fee applies to withdrawals only.",
       "feeTooltip": "Why a fee? Some users have been abusing the wallet system by repeatedly depositing and withdrawing large sums. The {rate}% withdrawal fee discourages this abuse and keeps BunnyBooker sustainable. Deposits remain free.",
       "feeTooltipGeneric": "Why a fee? Some users have been abusing the wallet system by repeatedly depositing and withdrawing large sums. The withdrawal fee discourages this abuse and keeps BunnyBooker sustainable. Deposits remain free.",
       "feeLoadFailed": "Failed to load withdrawal fee rate",
@@ -899,7 +899,10 @@
       "keypad": {
         "title": "Enter deposit (SGD $)",
         "clear": "Clear"
-      }
+      },
+      "feeNoticeFree": "Deposits are free.",
+      "feeNoticeWithdraw": "A {rate}% fee applies to withdrawals only.",
+      "feeNoticeWithdrawGeneric": "A fee applies to withdrawals only."
     },
     "adminIn": {
       "trigger": "Add Usable Balance",
