@@ -5,18 +5,21 @@
     import * as Dialog from "$lib/components/ui/dialog";
     //@ts-ignore
     import * as Alert from "$lib/components/ui/alert";
+    //@ts-ignore
+    import * as Tooltip from "$lib/components/ui/tooltip";
     import {type SafeParseError, z, type ZodIssue} from "zod";
     import {toResult} from "$lib/utility";
+    import {loadWithdrawFeeRate, roundToEvenCents} from "$lib/api/fee";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
     import type {CreateDiscountReq, CreateWithdrawalReq, WalletPrincipalRes} from "$lib/api/core/data-contracts";
-    import {AlertTriangle, LucideLoader} from "lucide-svelte";
+    import {AlertTriangle, Info, LucideLoader} from "lucide-svelte";
     import {tick} from "svelte";
     import Validation from "$lib/components/core/Validation.svelte";
     import {Input} from "$lib/components/ui/input";
     import {_} from "svelte-i18n";
-    import {lang, formatMoney} from "$lib/i18n";
+    import {lang, formatMoney, formatNumber} from "$lib/i18n";
 
     export let userId: string;
 
@@ -28,6 +31,20 @@
     let errors: ZodIssue[] = [];
     let taints: Record<string, boolean> = {}
 
+    // withdrawal fee rate (e.g. 0.04 = 4%). Loaded lazily when the dialog
+    // opens; on failure the fee breakdown is simply hidden.
+    let feeRate: number | null = null;
+    let feeRequested = false;
+
+    $: if (dialogOpen && !feeRequested) {
+        feeRequested = true;
+        loadFeeRate();
+    }
+
+    async function loadFeeRate() {
+        feeRate = await loadWithdrawFeeRate($api, $_('withdrawals.create.feeLoadFailed', { locale: $lang }));
+    }
+
     // form validations
     $: createWithdrawalSchema = z.object({
         amount: z
@@ -37,8 +54,7 @@
             .max(wallet.usable, $_('withdrawals.create.amountExceedsBalance', { locale: $lang }))
             .finite($_('withdrawals.create.amountFinite', { locale: $lang })),
         payNowNumber: z.string()
-            .min(8, $_('withdrawals.create.invalidPayNow', { locale: $lang }))
-            .max(12, $_('withdrawals.create.invalidPayNow', { locale: $lang }))
+            .regex(/^\d{8}$/, $_('withdrawals.create.invalidPayNow', { locale: $lang }))
             .optional()
     }).required();
 
@@ -94,6 +110,14 @@
 
 
     $: isValid = errors.length === 0 && Object.entries(taints).length > 0;
+
+    // live fee breakdown (display only — banker's rounding matches the
+    // server's authoritative FeeCalculator cent-for-cent)
+    $: amountNum = Number(val.amount);
+    $: showFeeBreakdown = feeRate != null && Number.isFinite(amountNum) && amountNum > 0 && amountNum <= wallet.usable;
+    $: feeAmount = roundToEvenCents(amountNum * (feeRate ?? 0));
+    $: netAmount = roundToEvenCents(amountNum - feeAmount);
+    $: feeRatePercent = formatNumber((feeRate ?? 0) * 100, $lang, {maximumFractionDigits: 2});
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
@@ -143,6 +167,22 @@
                             </div>
                         </div>
                     </Validation>
+                    {#if showFeeBreakdown}
+                        <div class="flex flex-col gap-1 text-sm">
+                            <div class="flex items-center gap-1 text-muted-foreground">
+                                <span>{$_('withdrawals.create.feeLine', { locale: $lang, values: { rate: feeRatePercent, fee: formatMoney(feeAmount, $lang) } })}</span>
+                                <Tooltip.Root>
+                                    <Tooltip.Trigger>
+                                        <Info class="h-4 w-4"/>
+                                    </Tooltip.Trigger>
+                                    <Tooltip.Content class="max-w-72">
+                                        <p class="text-justify">{$_('withdrawals.create.feeTooltip', { locale: $lang, values: { rate: feeRatePercent } })}</p>
+                                    </Tooltip.Content>
+                                </Tooltip.Root>
+                            </div>
+                            <div class="font-semibold">{$_('withdrawals.create.youReceive', { locale: $lang, values: { net: formatMoney(netAmount, $lang) } })}</div>
+                        </div>
+                    {/if}
                     <Validation {errors} {taints} path="payNowNumber">
                         <Input
                                 placeholder={$_('withdrawals.create.payNowPlaceholder', { locale: $lang })}

@@ -46,7 +46,7 @@
             "Booking cancelled and refunded", "Failed to cancel booking");
 
     const revert = () =>
-        run(() => $api.vBookingRevertCreate(b.id, "1.0"),
+        run(() => $api.vBookingRevertCreate(b.id, "1.0", {force: true}),
             "Booking reverted to pending", "Failed to revert booking");
 
     const completeConsume = () =>

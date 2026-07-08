@@ -4,28 +4,45 @@
     import {Input} from "$lib/components/ui/input";
     import {page} from "$app/stores";
     import {Button} from "$lib/components/ui/button";
+    //@ts-ignore
+    import * as Card from "$lib/components/ui/card";
+    //@ts-ignore
+    import * as Tooltip from "$lib/components/ui/tooltip";
     import {type SafeParseError, z, type ZodIssue} from "zod";
     import {onMount, tick} from "svelte";
     import Validation from "$lib/components/core/Validation.svelte";
     import Airwallex from 'airwallex-payment-elements';
     import {toResult} from "$lib/utility";
+    import {loadWithdrawFeeRate} from "$lib/api/fee";
     import {api} from "../../../store";
     import {toast} from "svelte-sonner";
     import {config} from "../../../config/client";
-    import {LucideLoader} from "lucide-svelte";
+    import {Info, LucideLoader} from "lucide-svelte";
     import {_} from "svelte-i18n";
-    import {lang, formatMoney} from "$lib/i18n";
+    import {lang, formatMoney, formatNumber} from "$lib/i18n";
 
 
     let errors: ZodIssue[] = [];
     let taints: Record<string, boolean> = {}
     let submitting = false;
 
+    // withdrawal fee rate (e.g. 0.04 = 4%), shown in the "deposits are free"
+    // notice. While loading or if the endpoint fails, a generic notice without
+    // the percentage is shown instead — the rate is never hardcoded client-side.
+    let feeRate: number | null = null;
+
     onMount(() => {
         Airwallex.loadAirwallex({
             env: 'prod'
         })
+        loadFeeRate();
     })
+
+    async function loadFeeRate() {
+        feeRate = await loadWithdrawFeeRate($api, $_('wallets.deposit.feeLoadFailed', { locale: $lang }));
+    }
+
+    $: feeRatePercent = feeRate != null ? formatNumber(feeRate * 100, $lang, {maximumFractionDigits: 2}) : null;
 
     // Localized validation schema — rebuilt when the active locale changes so the
     // rendered Zod messages follow the language (AC5). Sourced from the
@@ -63,6 +80,18 @@
         } else {
             errors = [];
         }
+    }
+
+    // Quick-amount chips: add to whatever is already typed (an empty or
+    // non-numeric field counts as 0), then run the normal validation path.
+    const QUICK_AMOUNTS = [10, 50, 100];
+
+    function addAmount(n: number) {
+        const current = Number(value.amount);
+        const base = Number.isFinite(current) ? current : 0;
+        value.amount = String(Math.round((base + n) * 100) / 100);
+        taints["amount"] = true;
+        validate();
     }
 
     // Re-run validation whenever the locale-rebuilt schema changes, so an error
@@ -117,37 +146,73 @@
 
 </script>
 
-<div class="flex flex-col h-full items-center justify-center w-11/12 h-full max-w-[1200px] mx-auto my-4">
-    <div class="flex flex-col gap-2 items-center my-12 md:my-48">
-        <h1 class="text-4xl">{$_('wallets.deposit.title', { locale: $lang })}</h1>
-        <h4 class="text-muted-foreground">{$_('wallets.deposit.subtitle', { locale: $lang })}</h4>
-    </div>
+<div class="flex flex-col items-center w-11/12 max-w-[1200px] mx-auto my-12 md:my-24">
+    <Card.Root class="w-full max-w-lg">
+        <Card.Header>
+            <Card.Title class="text-3xl">{$_('wallets.deposit.title', { locale: $lang })}</Card.Title>
+            <Card.Description>{$_('wallets.deposit.subtitle', { locale: $lang })}</Card.Description>
+        </Card.Header>
+        <Card.Content>
+            <div class="flex flex-col gap-6">
+                <div class="flex flex-col items-center gap-1 rounded-lg bg-muted py-6">
+                    <div class="text-3xl font-light">{formatMoney($page.data.user?.wallet?.usable ?? 0, $lang)}</div>
+                    <div class="text-sm text-muted-foreground">{$_('fields.balance', { locale: $lang })}</div>
+                </div>
 
-    <div class="text-2xl font-light">
-        {$_('wallets.deposit.balance', { locale: $lang, values: { amount: formatMoney($page.data.user?.wallet?.usable ?? 0, $lang) } })}
-    </div>
-    <div class="flex flex-col gap-2 items-center">
-        <Validation {errors} {taints} path="amount">
-            <div class="flex gap-2 items-center text-4xl my-8">
-                <div>S$</div>
-                <Input inputmode="numeric"
-                       on:input={onChange("amount")}
-                       placeholder="0.00" bind:value={value.amount}
-                       class="w-40 text-4xl text-center"/>
+                <div class="text-center text-sm text-muted-foreground">
+                    {$_('wallets.deposit.prompt', { locale: $lang })}
+                </div>
+
+                <Validation {errors} {taints} path="amount" classNames="items-center">
+                    <div class="flex gap-2 items-center text-4xl">
+                        <div>S$</div>
+                        <Input inputmode="numeric"
+                               on:input={onChange("amount")}
+                               placeholder="0.00" bind:value={value.amount}
+                               class="w-40 text-4xl text-center"/>
+                    </div>
+                </Validation>
+
+                <div class="flex justify-center gap-2">
+                    {#each QUICK_AMOUNTS as q}
+                        <Button variant="outline" size="sm" on:click={() => addAmount(q)}>
+                            +{formatMoney(q, $lang, {maximumFractionDigits: 0})}
+                        </Button>
+                    {/each}
+                </div>
+
+                <div class="flex items-center justify-center gap-1 text-sm text-muted-foreground">
+                    <span>
+                        {#if feeRatePercent != null}
+                            {$_('wallets.deposit.feeNotice', { locale: $lang, values: { rate: feeRatePercent } })}
+                        {:else}
+                            {$_('wallets.deposit.feeNoticeGeneric', { locale: $lang })}
+                        {/if}
+                    </span>
+                    <Tooltip.Root>
+                        <Tooltip.Trigger>
+                            <Info class="h-4 w-4"/>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content class="max-w-72">
+                            <p class="text-justify">
+                                {#if feeRatePercent != null}
+                                    {$_('wallets.deposit.feeTooltip', { locale: $lang, values: { rate: feeRatePercent } })}
+                                {:else}
+                                    {$_('wallets.deposit.feeTooltipGeneric', { locale: $lang })}
+                                {/if}
+                            </p>
+                        </Tooltip.Content>
+                    </Tooltip.Root>
+                </div>
             </div>
-        </Validation>
-    </div>
-
-
-    <div class="my-12 px-8 text-center">
-        {$_('wallets.deposit.prompt', { locale: $lang })}
-    </div>
-
-    <Button class="text-2xl py-8 px-12 my-12 font-light" on:click={submit} disabled={submitting || !isValid}>
-        {#if submitting}
-            <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
-        {/if}
-        {$_('wallets.deposit.title', { locale: $lang })}
-    </Button>
-
+        </Card.Content>
+        <Card.Footer>
+            <Button class="w-full text-lg py-6" on:click={submit} disabled={submitting || !isValid}>
+                {#if submitting}
+                    <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
+                {/if}
+                {$_('wallets.deposit.title', { locale: $lang })}
+            </Button>
+        </Card.Footer>
+    </Card.Root>
 </div>

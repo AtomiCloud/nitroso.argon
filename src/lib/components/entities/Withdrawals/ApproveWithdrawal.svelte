@@ -3,14 +3,11 @@
 
     //@ts-ignore
     import * as Dialog from "$lib/components/ui/dialog";
-    //@ts-ignore
-    import * as Alert from "$lib/components/ui/alert";
     import {toResult} from "$lib/utility";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
     import type {WithdrawalPrincipalRes} from "$lib/api/core/data-contracts";
-    import {Input} from "$lib/components/ui/input";
     import {LucideLoader} from "lucide-svelte";
     import {_} from "svelte-i18n";
     import {lang, formatMoney} from "$lib/i18n";
@@ -19,13 +16,14 @@
 
     let dialogOpen = false;
 
-    let files: FileList;
-
     let submitting = false;
 
-    async function approveWithdrawal(file: File) {
+    // Triggers the automated Airwallex PayNow payout for the net amount
+    // (amount − fee). The withdrawal moves to "Processing" and completes
+    // automatically once Airwallex confirms via webhook.
+    async function approveWithdrawal() {
         submitting = true;
-        await toResult(() => $api.vWithdrawalCompleteCreate(withdrawal.id, "1.0", {file}
+        await toResult(() => $api.vWithdrawalApproveCreate(withdrawal.id, "1.0"
         ), $_('withdrawals.approve.failed', { locale: $lang })).match({
             ok: () => {
                 toast.info($_('withdrawals.approve.success', { locale: $lang, values: { amount: formatMoney(withdrawal.record?.amount ?? 0, $lang) } }));
@@ -52,14 +50,11 @@
                     <p class="text-justify py-2">
                         {$_('withdrawals.approve.instructions', { locale: $lang, values: { amount: formatMoney(withdrawal.record.amount, $lang), payNowNumber: withdrawal.record.payNowNumber } })}
                     </p>
-                    <Button variant="outline">
-                        <input  bind:files type="file"/>
-                    </Button>
-                    <Button on:click={() => approveWithdrawal(files[0])} disabled={submitting === true}>
+                    <Button on:click={approveWithdrawal} disabled={submitting === true}>
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin" />
                         {/if}
-                        {$_('withdrawals.approve.complete', { locale: $lang })}
+                        {$_('actions.approve', { locale: $lang })}
                     </Button>
                 </div>
             </Dialog.Description>
