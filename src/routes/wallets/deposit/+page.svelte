@@ -30,6 +30,14 @@
     // notice. While loading or if the endpoint fails, a generic notice without
     // the percentage is shown instead — the rate is never hardcoded client-side.
     let feeRate: number | null = null;
+    let feeTipOpen = false;
+
+    // tap toggles the fee tooltip on touch devices: hover-only tooltips are
+    // unreachable on mobile; desktop keeps the native hover behavior
+    function feeTipPointerDown(e: PointerEvent & { originalEvent?: PointerEvent }) {
+        const pe = e.originalEvent ?? e;
+        if (pe.pointerType === 'touch') feeTipOpen = !feeTipOpen;
+    }
 
     onMount(() => {
         Airwallex.loadAirwallex({
@@ -189,28 +197,29 @@
                     </button>
                 </Validation>
 
-                <div class="flex items-center justify-center gap-1 text-sm text-muted-foreground">
-                    <span>
+                <div class="flex flex-col items-center gap-0.5 text-sm text-muted-foreground">
+                    <span>{$_('wallets.deposit.feeNoticeFree', { locale: $lang })}</span>
+                    <span class="flex items-center gap-1">
                         {#if feeRatePercent != null}
-                            {$_('wallets.deposit.feeNotice', { locale: $lang, values: { rate: feeRatePercent } })}
+                            {$_('wallets.deposit.feeNoticeWithdraw', { locale: $lang, values: { rate: feeRatePercent } })}
                         {:else}
-                            {$_('wallets.deposit.feeNoticeGeneric', { locale: $lang })}
+                            {$_('wallets.deposit.feeNoticeWithdrawGeneric', { locale: $lang })}
                         {/if}
+                        <Tooltip.Root bind:open={feeTipOpen}>
+                            <Tooltip.Trigger on:pointerdown={feeTipPointerDown}>
+                                <Info class="h-4 w-4"/>
+                            </Tooltip.Trigger>
+                            <Tooltip.Content class="max-w-72">
+                                <p class="text-justify">
+                                    {#if feeRatePercent != null}
+                                        {$_('wallets.deposit.feeTooltip', { locale: $lang, values: { rate: feeRatePercent } })}
+                                    {:else}
+                                        {$_('wallets.deposit.feeTooltipGeneric', { locale: $lang })}
+                                    {/if}
+                                </p>
+                            </Tooltip.Content>
+                        </Tooltip.Root>
                     </span>
-                    <Tooltip.Root>
-                        <Tooltip.Trigger>
-                            <Info class="h-4 w-4"/>
-                        </Tooltip.Trigger>
-                        <Tooltip.Content class="max-w-72">
-                            <p class="text-justify">
-                                {#if feeRatePercent != null}
-                                    {$_('wallets.deposit.feeTooltip', { locale: $lang, values: { rate: feeRatePercent } })}
-                                {:else}
-                                    {$_('wallets.deposit.feeTooltipGeneric', { locale: $lang })}
-                                {/if}
-                            </p>
-                        </Tooltip.Content>
-                    </Tooltip.Root>
                 </div>
             </div>
         </Card.Content>

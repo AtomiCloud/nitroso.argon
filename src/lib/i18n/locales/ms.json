@@ -232,7 +232,9 @@
       "sortPassportNumber": "Nombor pasport",
       "previous": "Sebelumnya",
       "next": "Seterusnya",
-      "pageLabel": "Halaman {page}"
+      "pageLabel": "Halaman {page}",
+      "sortBuyTime": "Masa belian (terkini)",
+      "sortFulfilTime": "Masa selesai (terkini)"
     },
     "detail": {
       "title": "Tempahan",
@@ -888,8 +890,6 @@
         "currentBalance": "Baki Semasa: {amount}"
       },
       "initError": "Gagal memulakan pembayaran",
-      "feeNotice": "Deposit adalah percuma. Yuran {rate}% hanya dikenakan pada pengeluaran.",
-      "feeNoticeGeneric": "Deposit adalah percuma. Yuran dikenakan pada pengeluaran sahaja.",
       "feeTooltip": "Mengapa ada yuran? Sesetengah pengguna menyalahgunakan sistem dompet dengan berulang kali mendeposit dan mengeluarkan jumlah yang besar. Yuran pengeluaran {rate}% menghalang penyalahgunaan ini dan memastikan BunnyBooker kekal mampan. Deposit kekal percuma.",
       "feeTooltipGeneric": "Mengapa ada yuran? Sesetengah pengguna menyalahgunakan sistem dompet dengan berulang kali mendeposit dan mengeluarkan jumlah yang besar. Yuran pengeluaran menghalang penyalahgunaan ini dan memastikan BunnyBooker kekal mampan. Deposit kekal percuma.",
       "feeLoadFailed": "Gagal memuatkan kadar yuran pengeluaran",
@@ -899,7 +899,10 @@
       "keypad": {
         "title": "Masukkan deposit (SGD $)",
         "clear": "Kosongkan"
-      }
+      },
+      "feeNoticeFree": "Deposit adalah percuma.",
+      "feeNoticeWithdraw": "Yuran {rate}% hanya dikenakan pada pengeluaran.",
+      "feeNoticeWithdrawGeneric": "Yuran dikenakan pada pengeluaran sahaja."
     },
     "adminIn": {
       "trigger": "Tambah Baki Boleh Guna",

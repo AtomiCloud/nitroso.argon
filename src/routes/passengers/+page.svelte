@@ -51,6 +51,7 @@
     }
 
     const session: any = $page.data.session;
+    const isAdmin: boolean = session?.roles?.includes("admin") ?? false;
 </script>
 
 <div class="flex flex-col">
@@ -81,7 +82,13 @@
                             <div class="flex justify-between">
                                 <div class="flex items-center gap-4">
                                     <div>
-                                        <Card.Title>{p.fullName}</Card.Title>
+                                        {#if isAdmin && p.userId}
+                                            <a href="/users/{p.userId}" class="hover:underline">
+                                                <Card.Title>{p.fullName}</Card.Title>
+                                            </a>
+                                        {:else}
+                                            <Card.Title>{p.fullName}</Card.Title>
+                                        {/if}
                                         <Card.Description>{p.passportNumber}</Card.Description>
                                     </div>
                                     <Badge>{p.gender}</Badge>
