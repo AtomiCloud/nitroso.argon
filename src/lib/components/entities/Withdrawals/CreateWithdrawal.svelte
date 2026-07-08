@@ -9,6 +9,7 @@
     import * as Tooltip from "$lib/components/ui/tooltip";
     import {type SafeParseError, z, type ZodIssue} from "zod";
     import {toResult} from "$lib/utility";
+    import {loadWithdrawFeeRate} from "$lib/api/fee";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
@@ -41,16 +42,7 @@
     }
 
     async function loadFeeRate() {
-        await toResult(() => $api.vWithdrawalFeeList("1.0"), $_('withdrawals.create.feeLoadFailed', { locale: $lang }))
-            .match({
-                ok: (f) => {
-                    feeRate = f.withdrawFeeRate;
-                },
-                err: (e) => {
-                    console.error(e);
-                    feeRate = null;
-                }
-            });
+        feeRate = await loadWithdrawFeeRate($api, $_('withdrawals.create.feeLoadFailed', { locale: $lang }));
     }
 
     // form validations

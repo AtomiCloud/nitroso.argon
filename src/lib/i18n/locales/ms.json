@@ -1002,7 +1002,13 @@
     "completeManual": {
       "trigger": "Selesaikan secara manual (muat naik resit)",
       "title": "Selesaikan pengeluaran secara manual",
-      "instructions": "Sila pindahkan {amount} ke PayNow {payNowNumber}, ambil tangkapan skrin, muat naik resit, dan klik selesai.",
+      "instructions": "Pengguna menerima jumlah bersih (jumlah pengeluaran ditolak yuran); yuran disimpan oleh BunnyBooker. Pindahkan jumlah bersih yang tepat di bawah melalui PayNow, ambil tangkapan skrin, muat naik resit, dan klik selesai.",
+      "amountLine": "Jumlah pengeluaran: {amount}",
+      "feeLine": "Yuran pengeluaran: −{fee}",
+      "transferExactly": "Pindahkan tepat: {net} ke PayNow {payNowNumber}",
+      "feeLoading": "Memuatkan kadar yuran pengeluaran…",
+      "feeUnavailable": "Tidak dapat menentukan jumlah pemindahan bersih kerana kadar yuran pengeluaran gagal dimuatkan. Jangan pindahkan jumlah kasar — cuba muatkan semula kadar yuran dahulu.",
+      "feeLoadFailed": "Gagal memuatkan kadar yuran pengeluaran",
       "complete": "Selesai",
       "success": "Berjaya menyelesaikan pengeluaran {amount}.",
       "failed": "Gagal menyelesaikan pengeluaran"

@@ -13,6 +13,7 @@
     import Validation from "$lib/components/core/Validation.svelte";
     import Airwallex from 'airwallex-payment-elements';
     import {toResult} from "$lib/utility";
+    import {loadWithdrawFeeRate} from "$lib/api/fee";
     import {api} from "../../../store";
     import {toast} from "svelte-sonner";
     import {config} from "../../../config/client";
@@ -38,16 +39,7 @@
     })
 
     async function loadFeeRate() {
-        await toResult(() => $api.vWithdrawalFeeList("1.0"), $_('wallets.deposit.feeLoadFailed', { locale: $lang }))
-            .match({
-                ok: (f) => {
-                    feeRate = f.withdrawFeeRate;
-                },
-                err: (e) => {
-                    console.error(e);
-                    feeRate = null;
-                }
-            });
+        feeRate = await loadWithdrawFeeRate($api, $_('wallets.deposit.feeLoadFailed', { locale: $lang }));
     }
 
     $: feeRatePercent = feeRate != null ? formatNumber(feeRate * 100, $lang, {maximumFractionDigits: 2}) : null;

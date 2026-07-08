@@ -1002,7 +1002,13 @@
     "completeManual": {
       "trigger": "Complete manually (receipt upload)",
       "title": "Complete withdrawal manually",
-      "instructions": "Please transfer the {amount} to PayNow {payNowNumber}, screenshot, and upload the receipt, and click complete.",
+      "instructions": "The user receives the net amount (withdrawal amount minus the fee); the fee stays with BunnyBooker. Transfer the exact net amount below via PayNow, screenshot, and upload the receipt, and click complete.",
+      "amountLine": "Withdrawal amount: {amount}",
+      "feeLine": "Withdrawal fee: −{fee}",
+      "transferExactly": "Transfer exactly: {net} to PayNow {payNowNumber}",
+      "feeLoading": "Loading withdrawal fee rate…",
+      "feeUnavailable": "Cannot determine the net transfer amount because the withdrawal fee rate failed to load. Do not transfer the gross amount — retry loading the fee rate first.",
+      "feeLoadFailed": "Failed to load withdrawal fee rate",
       "complete": "Complete",
       "success": "Successfully completed the withdrawal {amount}.",
       "failed": "Failed to complete withdrawal"

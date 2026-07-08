@@ -4,6 +4,7 @@
     //@ts-ignore
     import * as Dialog from "$lib/components/ui/dialog";
     import {toResult} from "$lib/utility";
+    import {loadWithdrawFeeRate} from "$lib/api/fee";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
@@ -19,6 +20,34 @@
     let files: FileList;
 
     let submitting = false;
+
+    // The backend books every completion as net + fee (net paid out, fee kept),
+    // so the admin must PayNow the NET amount — never the gross record amount.
+    // Prefer the exact fee snapshotted on the withdrawal by a prior approval;
+    // otherwise compute it from the live fee rate. If neither is available the
+    // net is unknown and submission is blocked to prevent overpaying the user.
+    let feeRate: number | null = null;
+    let feeRequested = false;
+    let feeLoadFailed = false;
+
+    const round2 = (x: number) => Math.round(x * 100) / 100;
+
+    $: snapshotFee = withdrawal.payout?.fee ?? null;
+
+    $: if (dialogOpen && !feeRequested && snapshotFee == null) {
+        feeRequested = true;
+        loadFeeRate();
+    }
+
+    async function loadFeeRate() {
+        feeLoadFailed = false;
+        feeRate = await loadWithdrawFeeRate($api, $_('withdrawals.completeManual.feeLoadFailed', { locale: $lang }));
+        feeLoadFailed = feeRate == null;
+    }
+
+    $: amount = withdrawal.record.amount;
+    $: fee = snapshotFee ?? (feeRate != null ? round2(amount * feeRate) : null);
+    $: net = fee != null ? round2(amount - fee) : null;
 
     // Manual fallback when Airwallex payouts are unavailable: the admin
     // transfers via PayNow themselves and uploads the receipt screenshot.
@@ -49,12 +78,29 @@
             <Dialog.Description>
                 <div class="flex flex-col gap-4">
                     <p class="text-justify py-2">
-                        {$_('withdrawals.completeManual.instructions', { locale: $lang, values: { amount: formatMoney(withdrawal.record.amount, $lang), payNowNumber: withdrawal.record.payNowNumber } })}
+                        {$_('withdrawals.completeManual.instructions', { locale: $lang })}
                     </p>
+                    <div class="flex flex-col gap-1 text-sm">
+                        <div>{$_('withdrawals.completeManual.amountLine', { locale: $lang, values: { amount: formatMoney(amount, $lang) } })}</div>
+                        {#if fee != null && net != null}
+                            <div>{$_('withdrawals.completeManual.feeLine', { locale: $lang, values: { fee: formatMoney(fee, $lang) } })}</div>
+                            <div class="font-bold">{$_('withdrawals.completeManual.transferExactly', { locale: $lang, values: { net: formatMoney(net, $lang), payNowNumber: withdrawal.record.payNowNumber } })}</div>
+                        {:else if feeLoadFailed}
+                            <div class="text-destructive">{$_('withdrawals.completeManual.feeUnavailable', { locale: $lang })}</div>
+                            <Button variant="outline" size="sm" class="self-start" on:click={loadFeeRate}>
+                                {$_('actions.retry', { locale: $lang })}
+                            </Button>
+                        {:else}
+                            <div class="flex items-center gap-2 text-muted-foreground">
+                                <LucideLoader class="h-4 w-4 animate-spin"/>
+                                {$_('withdrawals.completeManual.feeLoading', { locale: $lang })}
+                            </div>
+                        {/if}
+                    </div>
                     <Button variant="outline">
                         <input  bind:files type="file"/>
                     </Button>
-                    <Button on:click={() => completeWithdrawal(files[0])} disabled={submitting === true}>
+                    <Button on:click={() => completeWithdrawal(files[0])} disabled={submitting || net == null}>
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin" />
                         {/if}

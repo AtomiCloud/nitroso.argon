@@ -1002,7 +1002,13 @@
     "completeManual": {
       "trigger": "手动完成（上传收据）",
       "title": "手动完成提款",
-      "instructions": "请将 {amount} 转账至 PayNow {payNowNumber}，截图并上传收据，然后点击完成。",
+      "instructions": "用户将收到净额（提款金额减去手续费），手续费由 BunnyBooker 保留。请通过 PayNow 转账下方的确切净额，截图并上传收据，然后点击完成。",
+      "amountLine": "提款金额：{amount}",
+      "feeLine": "提款手续费：−{fee}",
+      "transferExactly": "请准确转账：{net} 至 PayNow {payNowNumber}",
+      "feeLoading": "正在加载提款手续费率…",
+      "feeUnavailable": "提款手续费率加载失败，无法确定净转账金额。请勿转账全额——请先重试加载手续费率。",
+      "feeLoadFailed": "无法加载提款手续费率",
       "complete": "完成",
       "success": "已成功完成提款 {amount}。",
       "failed": "完成提款失败"
