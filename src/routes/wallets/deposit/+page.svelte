@@ -32,6 +32,13 @@
     let feeRate: number | null = null;
     let feeTipOpen = false;
 
+    // tap toggles the fee tooltip on touch devices: hover-only tooltips are
+    // unreachable on mobile; desktop keeps the native hover behavior
+    function feeTipPointerDown(e: CustomEvent) {
+        const pe = (e.detail?.originalEvent ?? e) as PointerEvent;
+        if (pe.pointerType === 'touch') feeTipOpen = !feeTipOpen;
+    }
+
     onMount(() => {
         Airwallex.loadAirwallex({
             env: 'prod'
@@ -199,12 +206,7 @@
                             {$_('wallets.deposit.feeNoticeWithdrawGeneric', { locale: $lang })}
                         {/if}
                         <Tooltip.Root bind:open={feeTipOpen}>
-                            <!-- tap toggles on touch devices: hover-only tooltips
-                                 are unreachable on mobile; desktop keeps hover -->
-                            <Tooltip.Trigger on:pointerdown={(e) => {
-                                const pe = ((e as any).detail?.originalEvent ?? e) as PointerEvent;
-                                if (pe.pointerType === 'touch') feeTipOpen = !feeTipOpen;
-                            }}>
+                            <Tooltip.Trigger on:pointerdown={feeTipPointerDown}>
                                 <Info class="h-4 w-4"/>
                             </Tooltip.Trigger>
                             <Tooltip.Content class="max-w-72">
