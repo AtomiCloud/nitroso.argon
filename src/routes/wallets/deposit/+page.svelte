@@ -34,8 +34,8 @@
 
     // tap toggles the fee tooltip on touch devices: hover-only tooltips are
     // unreachable on mobile; desktop keeps the native hover behavior
-    function feeTipPointerDown(e: CustomEvent) {
-        const pe = (e.detail?.originalEvent ?? e) as PointerEvent;
+    function feeTipPointerDown(e: PointerEvent & { originalEvent?: PointerEvent }) {
+        const pe = e.originalEvent ?? e;
         if (pe.pointerType === 'touch') feeTipOpen = !feeTipOpen;
     }
 
