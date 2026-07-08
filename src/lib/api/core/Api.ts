@@ -26,6 +26,7 @@ import type {
   CreateWithdrawalReq,
   DiscountPrincipalRes,
   ErrorInfo,
+  FeeRes,
   LatestScheduleRes,
   MaterializedCostRes,
   PassengerPrincipalRes,
@@ -127,6 +128,7 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
       Time?: string;
       UserId?: string;
       PassportNumber?: string;
+      SortBy?: string;
       /** @format int32 */
       Limit?: number;
       /** @format int32 */
@@ -374,10 +376,18 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
    * @request POST:/api/v{version}/Booking/revert/{id}
    * @secure
    */
-  vBookingRevertCreate = (id: string, version: string, params: RequestParams = {}) =>
+  vBookingRevertCreate = (
+    id: string,
+    version: string,
+    query?: {
+      force?: boolean;
+    },
+    params: RequestParams = {},
+  ) =>
     this.request<BookingPrincipalRes, any>({
       path: `/api/v${version}/Booking/revert/${id}`,
       method: 'POST',
+      query: query,
       secure: true,
       format: 'json',
       ...params,
@@ -1408,6 +1418,22 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
    * No description
    *
    * @tags Withdrawal
+   * @name VWithdrawalFeeList
+   * @request GET:/api/v{version}/Withdrawal/fee
+   * @secure
+   */
+  vWithdrawalFeeList = (version: string, params: RequestParams = {}) =>
+    this.request<FeeRes, any>({
+      path: `/api/v${version}/Withdrawal/fee`,
+      method: 'GET',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Withdrawal
    * @name VWithdrawalDetail2
    * @request GET:/api/v{version}/Withdrawal/{id}
    * @originalName vWithdrawalDetail
@@ -1485,6 +1511,22 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
       body: data,
       secure: true,
       type: ContentType.Json,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Withdrawal
+   * @name VWithdrawalApproveCreate
+   * @request POST:/api/v{version}/Withdrawal/{id}/approve
+   * @secure
+   */
+  vWithdrawalApproveCreate = (id: string, version: string, params: RequestParams = {}) =>
+    this.request<WithdrawalPrincipalRes, any>({
+      path: `/api/v${version}/Withdrawal/${id}/approve`,
+      method: 'POST',
+      secure: true,
       format: 'json',
       ...params,
     });

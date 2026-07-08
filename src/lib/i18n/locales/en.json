@@ -225,7 +225,14 @@
       "woodlandsToJbSentral": "Woodlands to JB Sentral",
       "jbToWoodlands": "JB to Woodlands",
       "jbSentralToWoodlands": "JB Sentral to Woodlands",
-      "empty": "No bookings found"
+      "empty": "No bookings found",
+      "sortNewest": "Newest",
+      "sortTiming": "Travel timing",
+      "sortPassengerName": "Passenger name",
+      "sortPassportNumber": "Passport number",
+      "previous": "Previous",
+      "next": "Next",
+      "pageLabel": "Page {page}"
     },
     "detail": {
       "title": "Booking",
@@ -599,7 +606,8 @@
       "interestsItem4": "Take any action against you for any violation of this policy.",
       "interestsItem5": "Terminate your account at any time without notice.",
       "interestsItem6": "Withhold funds within your account at any time, without notice.",
-      "interestsItem7": "Escalate any violation of this policy to the relevant authorities, without notice."
+      "interestsItem7": "Escalate any violation of this policy to the relevant authorities, without notice.",
+      "deliveryItem8": "Withdrawals from your BunnyBooker wallet incur a 4% processing fee, deducted from the withdrawn amount; deposits are free. This fee was introduced to prevent abuse of the wallet system, and the rate may be revised with notice."
     },
     "privacy": {
       "heading": "Privacy Policy",
@@ -879,7 +887,10 @@
         "message": "Successfully deposited into BunnyBooker",
         "currentBalance": "Current Balance: {amount}"
       },
-      "initError": "Failed to initialize payment"
+      "initError": "Failed to initialize payment",
+      "feeNotice": "Deposits are free. A {rate}% fee applies to withdrawals only.",
+      "feeTooltip": "Why a fee? Some users have been abusing the wallet system by repeatedly depositing and withdrawing large sums. The {rate}% withdrawal fee discourages this abuse and keeps BunnyBooker sustainable. Deposits remain free.",
+      "feeLoadFailed": "Failed to load withdrawal fee rate"
     },
     "adminIn": {
       "trigger": "Add Usable Balance",
@@ -911,7 +922,8 @@
       "Pending": "Pending",
       "Completed": "Completed",
       "Cancel": "Cancelled",
-      "Rejected": "Rejected"
+      "Rejected": "Rejected",
+      "Processing": "Processing"
     },
     "list": {
       "title": "Withdrawal",
@@ -929,17 +941,18 @@
       "completer": "Completer",
       "viewUserProfile": "View user profile →",
       "noNote": "No Note",
-      "receiptAlt": "receipt"
+      "receiptAlt": "receipt",
+      "confirmationNo": "Confirmation No.",
+      "fee": "Fee:"
     },
     "detail": {
       "title": "Withdrawal",
       "notFound": "Withdrawal cannot be found"
     },
     "approve": {
-      "title": "Make a withdrawal",
-      "instructions": "Please transfer the {amount} to PayNow {payNowNumber}, screenshot, and upload the receipt, and click complete.",
-      "complete": "Complete",
-      "success": "Successfully completed the withdrawal {amount}.",
+      "title": "Approve withdrawal",
+      "instructions": "Approving will initiate an automated PayNow payout via Airwallex to {payNowNumber} for the net amount ({amount} minus the withdrawal fee). The withdrawal will move to \"Processing\" and complete automatically once Airwallex confirms the transfer.",
+      "success": "Payout initiated for the withdrawal of {amount}. It will complete automatically once Airwallex confirms.",
       "failed": "Failed to approve withdrawal"
     },
     "cancel": {
@@ -971,14 +984,26 @@
       "durationEmphasis": "2 working days",
       "durationSuffix": "to be processed.",
       "balanceLabel": "Balance: {amount}",
-      "payNowPlaceholder": "PayNow Number to withdraw to",
+      "payNowPlaceholder": "8-digit PayNow mobile number",
       "submit": "Request Withdrawal",
       "amountGreaterThanZero": "Amount must be greater than 0",
       "amountExceedsBalance": "Amount must be less than or equal to your usable balance",
       "amountFinite": "Amount must be a finite number",
-      "invalidPayNow": "Not a valid PayNow number",
+      "invalidPayNow": "PayNow number must be exactly 8 digits",
       "success": "Successfully requested withdrawal of {amount} from your USABLE balance.",
-      "failed": "Failed to make withdrawal"
+      "failed": "Failed to make withdrawal",
+      "feeLine": "Withdrawal fee ({rate}%): −{fee}",
+      "youReceive": "You'll receive: {net}",
+      "feeTooltip": "Why a fee? Some users have been abusing the wallet system by repeatedly depositing and withdrawing large sums. The {rate}% withdrawal fee discourages this abuse and keeps BunnyBooker sustainable. Deposits remain free.",
+      "feeLoadFailed": "Failed to load withdrawal fee rate"
+    },
+    "completeManual": {
+      "trigger": "Complete manually (receipt upload)",
+      "title": "Complete withdrawal manually",
+      "instructions": "Please transfer the {amount} to PayNow {payNowNumber}, screenshot, and upload the receipt, and click complete.",
+      "complete": "Complete",
+      "success": "Successfully completed the withdrawal {amount}.",
+      "failed": "Failed to complete withdrawal"
     }
   },
   "status": {

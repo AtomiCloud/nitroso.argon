@@ -11,6 +11,7 @@
     import CancelWithdrawal from "$lib/components/entities/Withdrawals/CancelWithdrawal.svelte";
     import RejectWithdrawal from "$lib/components/entities/Withdrawals/RejectWithdrawal.svelte";
     import ApproveWithdrawal from "$lib/components/entities/Withdrawals/ApproveWithdrawal.svelte";
+    import CompleteWithdrawalManual from "$lib/components/entities/Withdrawals/CompleteWithdrawalManual.svelte";
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatDate, formatTime, formatDateTime} from "$lib/i18n";
 
@@ -35,6 +36,20 @@
             </div>
         </Card.Header>
         <Card.Content>
+            {#if withdrawal.principal.payout != null}
+                <div class="flex flex-col gap-1 pb-4">
+                    {#if withdrawal.principal.payout.confirmationNumber}
+                        <div>
+                            {$_('withdrawals.card.confirmationNo', { locale: $lang })}
+                            <span class="font-mono">{withdrawal.principal.payout.confirmationNumber}</span>
+                        </div>
+                    {/if}
+                    <div>
+                        {$_('withdrawals.card.fee', { locale: $lang })}
+                        {formatMoney(withdrawal.principal.payout.fee, $lang)}
+                    </div>
+                </div>
+            {/if}
             <div class="flex flex-wrap justify-between">
                 <div>
                     {$_('withdrawals.card.by', { locale: $lang })}
@@ -70,7 +85,7 @@
         </Card.Header>
     </Card.Root>
 </div>
-{#if withdrawal.principal.complete == null}
+{#if withdrawal.principal.status.status === "Pending"}
 <div>
     <Card.Root>
         <Card.Header>
@@ -80,6 +95,7 @@
             <div class="flex flex-1 flex-wrap gap-4">
                 {#if admin}
                     <ApproveWithdrawal withdrawal={withdrawal.principal}/>
+                    <CompleteWithdrawalManual withdrawal={withdrawal.principal}/>
                     <RejectWithdrawal withdrawal={withdrawal.principal}/>
                 {/if}
                 <CancelWithdrawal withdrawal={withdrawal.principal} userId={withdrawal?.user?.id ?? ''}/>
@@ -127,6 +143,20 @@
             </Card.Header>
             <Card.Content>
                 <div class="flex flex-col justify-center gap-4">
+                    {#if withdrawal.principal.payout != null}
+                        <div class="flex flex-col gap-1">
+                            {#if withdrawal.principal.payout.confirmationNumber}
+                                <div>
+                                    {$_('withdrawals.card.confirmationNo', { locale: $lang })}
+                                    <span class="font-mono">{withdrawal.principal.payout.confirmationNumber}</span>
+                                </div>
+                            {/if}
+                            <div>
+                                {$_('withdrawals.card.fee', { locale: $lang })}
+                                {formatMoney(withdrawal.principal.payout.fee, $lang)}
+                            </div>
+                        </div>
+                    {/if}
                     <p>{withdrawal.principal?.complete?.note ?? $_('withdrawals.card.noNote', { locale: $lang })}</p>
                     {#if withdrawal.principal?.complete?.receipt != null}
                         <img src="{withdrawal.principal.complete.receipt}" alt={$_('withdrawals.card.receiptAlt', { locale: $lang })} class="w-full">

@@ -28,6 +28,7 @@
     import CreateWithdrawal from "$lib/components/entities/Withdrawals/CreateWithdrawal.svelte";
     import {Badge} from "$lib/components/ui/badge";
     import ApproveWithdrawal from "$lib/components/entities/Withdrawals/ApproveWithdrawal.svelte";
+    import CompleteWithdrawalManual from "$lib/components/entities/Withdrawals/CompleteWithdrawalManual.svelte";
     import RejectWithdrawal from "$lib/components/entities/Withdrawals/RejectWithdrawal.svelte";
     import CancelWithdrawal from "$lib/components/entities/Withdrawals/CancelWithdrawal.svelte";
     import type {PageData} from "./$types";
@@ -171,6 +172,12 @@
                                     <Card.Description>{formatDateTime(w.createAt, $lang)}</Card.Description>
                                     <Badge class="{WITHDRAWAL_STATUS_BADGE[w.status.status ?? ''].color}">{$_(`withdrawals.status.${w.status.status ?? ''}`, { locale: $lang })}</Badge>
                                 </div>
+                                {#if w.payout?.confirmationNumber}
+                                    <Card.Description>
+                                        {$_('withdrawals.card.confirmationNo', { locale: $lang })}
+                                        <span class="font-mono">{w.payout.confirmationNumber}</span>
+                                    </Card.Description>
+                                {/if}
 
                             </Card.Header>
                             <Card.Content>
@@ -180,6 +187,7 @@
                                         {#if w.status.status?.toLowerCase() == "pending"}
                                             {#if session?.roles?.includes("admin") ?? false}
                                                 <ApproveWithdrawal withdrawal={w}/>
+                                                <CompleteWithdrawalManual withdrawal={w}/>
                                                 <RejectWithdrawal withdrawal={w}/>
                                             {/if}
                                             <CancelWithdrawal withdrawal={w}

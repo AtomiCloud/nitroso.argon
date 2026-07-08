@@ -101,6 +101,7 @@
                 <li>{$_('legal.terms.deliveryItem5', { locale: $lang })}</li>
                 <li>{$_('legal.terms.deliveryItem6', { locale: $lang })}</li>
                 <li>{$_('legal.terms.deliveryItem7', { locale: $lang })}</li>
+                <li>{$_('legal.terms.deliveryItem8', { locale: $lang })}</li>
             </ul>
 
             <h2 class="py-2 text-3xl">{$_('legal.terms.fairUseHeading', { locale: $lang })}</h2>
