@@ -16,7 +16,10 @@ import type {
   AnnouncementSendRes,
   BookingCountRes,
   BookingPrincipalRes,
+  BookingQueueRes,
   BookingRes,
+  BookingSearchCountRes,
+  BookingStatRes,
   CancelWithdrawalReq,
   CostPrincipalRes,
   CreateBookingReq,
@@ -171,6 +174,7 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
       Time?: string;
       UserId?: string;
       PassportNumber?: string;
+      PassengerName?: string;
       SortBy?: string;
       /** @format int32 */
       Limit?: number;
@@ -181,6 +185,64 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
   ) =>
     this.request<BookingPrincipalRes[], any>({
       path: `/api/v${version}/Booking`,
+      method: 'GET',
+      query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
+   * @name VBookingSearchCountDetail
+   * @request GET:/api/v{version}/Booking/search/count
+   * @secure
+   */
+  vBookingSearchCountDetail = (
+    version: string,
+    query?: {
+      Date?: string;
+      Direction?: string;
+      Status?: string;
+      Time?: string;
+      UserId?: string;
+      PassportNumber?: string;
+      PassengerName?: string;
+      SortBy?: string;
+      /** @format int32 */
+      Limit?: number;
+      /** @format int32 */
+      Skip?: number;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<BookingSearchCountRes, any>({
+      path: `/api/v${version}/Booking/search/count`,
+      method: 'GET',
+      query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
+   * @name VBookingStatsDetail
+   * @request GET:/api/v{version}/Booking/stats
+   * @secure
+   */
+  vBookingStatsDetail = (
+    version: string,
+    query?: {
+      after?: string;
+      before?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<BookingStatRes[], any>({
+      path: `/api/v${version}/Booking/stats`,
       method: 'GET',
       query: query,
       secure: true,
@@ -293,6 +355,30 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
   ) =>
     this.request<BookingRes, any>({
       path: `/api/v${version}/Booking/${id}`,
+      method: 'GET',
+      query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
+   * @name VBookingQueueDetail
+   * @request GET:/api/v{version}/Booking/{id}/queue
+   * @secure
+   */
+  vBookingQueueDetail = (
+    id: string,
+    version: string,
+    query?: {
+      userId?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<BookingQueueRes, any>({
+      path: `/api/v${version}/Booking/${id}/queue`,
       method: 'GET',
       query: query,
       secure: true,

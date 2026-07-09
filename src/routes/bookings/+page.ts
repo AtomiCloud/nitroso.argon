@@ -28,6 +28,8 @@ export const load = (async ({
   const status = url.searchParams.get('status') ?? '';
   const time = url.searchParams.get('time') ?? '';
   const sortBy = url.searchParams.get('sortBy') ?? '';
+  const passengerName = url.searchParams.get('passengerName') ?? '';
+  const passportNumber = url.searchParams.get('passportNumber') ?? '';
 
   const rawPage = parseInt(url.searchParams.get('page') ?? '1', 10);
   const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
@@ -40,6 +42,8 @@ export const load = (async ({
         Direction: direction,
         Status: status,
         Time: time,
+        PassengerName: passengerName,
+        PassportNumber: passportNumber,
         ...(sortBy === '' ? {} : { SortBy: sortBy }),
         Limit: PAGE_SIZE,
         Skip: (page - 1) * PAGE_SIZE,
