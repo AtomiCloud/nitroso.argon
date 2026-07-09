@@ -828,8 +828,8 @@
     "refundPolicy": "配送、取消及退款政策",
     "privacyPolicy": "隐私政策",
     "termsOfUse": "使用条款",
-    "supportSgt": "新加坡时间客服 (SGT)",
-    "supportUs": "加州时间客服 (PT)"
+    "supportSgt": "上午9点 – 午夜（新加坡时间）",
+    "supportUs": "加州时间"
   },
   "loader": {
     "default": "正在加载，请稍候……",

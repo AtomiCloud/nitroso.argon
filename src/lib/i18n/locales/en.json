@@ -828,8 +828,8 @@
     "refundPolicy": "Delivery, Cancellation & Refund Policy",
     "privacyPolicy": "Privacy Policy",
     "termsOfUse": "Terms of Use",
-    "supportSgt": "Singapore-hours support (SGT)",
-    "supportUs": "California-hours support (PT)"
+    "supportSgt": "9 AM – midnight (SGT)",
+    "supportUs": "California time"
   },
   "loader": {
     "default": "Loading, please wait...",
