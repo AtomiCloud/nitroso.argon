@@ -583,8 +583,8 @@
       "deliveryHeading": "Delivery, Refunds & Exchange Policy",
       "deliveryIntro": "You accept the following terms for delivery, refund and exchange of tickets:",
       "deliveryItem1": "Full refunds will be provided for tickets that have not been successfully secured by the BunnyBooker system on the KTMB website.",
-      "deliveryItem2": "Tickets that have been secured on KTMB's website successfully are not eligible for refunds or exchanges.",
-      "deliveryItem3": "Cancellations can be initiated once a ticket is booked. However, please note that no refunds will be provided for cancelled tickets after the BunnyBooker system successfully secures the ticket on the KTMB website.",
+      "deliveryItem2": "Tickets that have been secured on KTMB's website successfully are not eligible for free refunds or exchanges. Such bookings may be terminated instead, subject to a termination fee of 50% of the ticket price; the remaining 50% is refunded as credit to your BunnyBooker wallet.",
+      "deliveryItem3": "Cancellations can be initiated once a ticket is booked and are free of charge while the ticket has not yet been secured. After the BunnyBooker system successfully secures the ticket on the KTMB website, cancellation is no longer available — only termination, which carries the 50% termination fee described above.",
       "deliveryItem4": "Once a ticket is ordered and our booking service is engaged, our bunnies will actively attempt to secure your ticket.",
       "deliveryItem5": "Booking efforts will continue up until 30 minutes before the scheduled departure time in the chosen train direction.",
       "deliveryItem6": "If successful, you will be promptly notified of your confirmed booking details.",
@@ -808,7 +808,9 @@
     "contactHelp": "Need help? Contact Us!",
     "refundPolicy": "Delivery, Cancellation & Refund Policy",
     "privacyPolicy": "Privacy Policy",
-    "termsOfUse": "Terms of Use"
+    "termsOfUse": "Terms of Use",
+    "supportSgt": "Singapore-hours support (SGT)",
+    "supportUs": "California-hours support (PT)"
   },
   "loader": {
     "default": "Loading, please wait...",

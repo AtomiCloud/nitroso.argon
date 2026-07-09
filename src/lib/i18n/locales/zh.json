@@ -583,8 +583,8 @@
       "deliveryHeading": "交付、退款与换票政策",
       "deliveryIntro": "您接受以下关于车票交付、退款和换票的条款：",
       "deliveryItem1": "对于 BunnyBooker 系统未能在 KTMB 网站上成功锁定的车票，将提供全额退款。",
-      "deliveryItem2": "已在 KTMB 网站上成功锁定的车票不符合退款或换票条件。",
-      "deliveryItem3": "车票预订后可发起取消。但请注意，在 BunnyBooker 系统于 KTMB 网站上成功锁定车票之后，已取消的车票将不予退款。",
+      "deliveryItem2": "已在 KTMB 网站上成功锁定的车票不可免费退款或换票。此类订单可选择终止，但需支付票价 50% 的终止费；其余 50% 将以余额形式退还至您的 BunnyBooker 钱包。",
+      "deliveryItem3": "车票预订后即可发起取消；在车票尚未锁定前，取消是免费的。当 BunnyBooker 系统在 KTMB 网站上成功锁定车票后，将无法再取消，只能终止订单，并按上述规定收取 50% 的终止费。",
       "deliveryItem4": "车票一经订购并启用我们的预订服务，我们的小兔子将积极尝试锁定您的车票。",
       "deliveryItem5": "预订工作将持续到所选列车方向预定出发时间前 30 分钟。",
       "deliveryItem6": "如果成功，您将及时收到确认的预订详情通知。",
@@ -808,7 +808,9 @@
     "contactHelp": "需要帮助？联系我们！",
     "refundPolicy": "配送、取消及退款政策",
     "privacyPolicy": "隐私政策",
-    "termsOfUse": "使用条款"
+    "termsOfUse": "使用条款",
+    "supportSgt": "新加坡时间客服 (SGT)",
+    "supportUs": "加州时间客服 (PT)"
   },
   "loader": {
     "default": "正在加载，请稍候……",
