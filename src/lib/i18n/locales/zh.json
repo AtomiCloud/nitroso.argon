@@ -1380,9 +1380,10 @@
     },
     "matrix": {
       "title": "星期 × 出发时间",
-      "description": "按星期与出发时间的成功率；每列按其时刻的方向着色（颜色见上方图例）。",
+      "description": "每个时段（行，按方向着色）与星期（列）的成功率",
       "day": "星期",
-      "rateLegend": "成功率"
+      "rateLegend": "成功率",
+      "time": "时间"
     },
     "filters": {
       "day": "星期",
