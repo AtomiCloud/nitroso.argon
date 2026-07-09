@@ -1370,14 +1370,17 @@
     },
     "bucketMode": {
       "per": "Per bucket",
-      "cumulative": "Cumulative",
+      "cumulativeLe": "Cumulative ≤",
+      "cumulativeGe": "Cumulative ≥",
       "helpPer": "Each lead-time bucket is counted on its own.",
-      "helpCumulative": "Each lead-time row includes every booking at or under that bucket.",
-      "upTo": "≤ {bucket}"
+      "helpCumulativeLe": "Each row counts every booking made within that lead time of departure (that bucket and shorter).",
+      "helpCumulativeGe": "Each row counts every booking made at least that long before departure (that bucket and longer).",
+      "upTo": "≤ {bucket}",
+      "atLeast": "≥ {bucket}"
     },
     "matrix": {
       "title": "Day × departure time",
-      "description": "Success rate per day of week and departure time; each cell splits per direction (colors above).",
+      "description": "Success rate per day of week and departure time; each column is tinted by its time's direction (colors above).",
       "day": "Day",
       "rateLegend": "success rate"
     },

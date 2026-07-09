@@ -1370,14 +1370,17 @@
     },
     "bucketMode": {
       "per": "按区间",
-      "cumulative": "累计",
+      "cumulativeLe": "累计 ≤",
+      "cumulativeGe": "累计 ≥",
       "helpPer": "每个提前时长区间单独统计。",
-      "helpCumulative": "每行包含提前时长不超过该区间的所有预订。",
-      "upTo": "≤ {bucket}"
+      "helpCumulativeLe": "每行统计在出发前该时长内（该区间及更短）购买的所有预订。",
+      "helpCumulativeGe": "每行统计至少提前该时长（该区间及更长）购买的所有预订。",
+      "upTo": "≤ {bucket}",
+      "atLeast": "≥ {bucket}"
     },
     "matrix": {
       "title": "星期 × 出发时间",
-      "description": "按星期与出发时间的成功率；每格按方向拆分（颜色见上方图例）。",
+      "description": "按星期与出发时间的成功率；每列按其时刻的方向着色（颜色见上方图例）。",
       "day": "星期",
       "rateLegend": "成功率"
     },

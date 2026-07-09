@@ -1370,14 +1370,17 @@
     },
     "bucketMode": {
       "per": "Ikut selang",
-      "cumulative": "Kumulatif",
+      "cumulativeLe": "Kumulatif ≤",
+      "cumulativeGe": "Kumulatif ≥",
       "helpPer": "Setiap selang masa pendahuluan dikira berasingan.",
-      "helpCumulative": "Setiap baris merangkumi semua tempahan pada atau di bawah selang itu.",
-      "upTo": "≤ {bucket}"
+      "helpCumulativeLe": "Setiap baris mengira semua tempahan yang dibuat dalam tempoh itu sebelum berlepas (selang itu dan lebih pendek).",
+      "helpCumulativeGe": "Setiap baris mengira semua tempahan yang dibuat sekurang-kurangnya selang itu sebelum berlepas (selang itu dan lebih panjang).",
+      "upTo": "≤ {bucket}",
+      "atLeast": "≥ {bucket}"
     },
     "matrix": {
       "title": "Hari × masa berlepas",
-      "description": "Kadar kejayaan mengikut hari dan masa berlepas; setiap sel dipecah mengikut arah (warna di atas).",
+      "description": "Kadar kejayaan mengikut hari dan masa berlepas; setiap lajur diwarnakan mengikut arah masanya (warna di atas).",
       "day": "Hari",
       "rateLegend": "kadar kejayaan"
     },
