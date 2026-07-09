@@ -40,6 +40,12 @@
     export let wallet: number;
     export let cost: number;
 
+    // priority queue opt-in: when true, POST Booking/{id}/prioritize right
+    // after a successful purchase; the fee is part of the balance gate so the
+    // follow-up call cannot fail on funds
+    export let priority = false;
+    export let priorityFee = 0;
+
     let dialogOpen = false;
 
     let submitting = false;
@@ -49,7 +55,22 @@
     }
 
 
-    $: isValid = errors.length === 0 && Object.entries(taints).length > 0 && wallet >= cost;
+    $: isValid = errors.length === 0 && Object.entries(taints).length > 0 && wallet >= cost + (priority ? priorityFee : 0);
+
+    // The booking exists even when the prioritize call fails — tell the user
+    // they keep their spot and can upgrade later from the booking page.
+    async function prioritize(bookingId: string) {
+        await toResult(() => $api.vBookingPrioritizeCreate(bookingId, "1", {userId}),
+            $_('bookingActions.priority.error', { locale: $lang })).match({
+            ok: () => {
+                toast.success($_('bookingActions.priority.success', { locale: $lang }));
+            },
+            err: (e) => {
+                console.error(e);
+                toast.error($_('bookingActions.priority.failedAfterPurchase', { locale: $lang }));
+            }
+        });
+    }
 
     function toNativeDate(date: string) {
         return parse(date, "dd-MM-yyyy", new Date());
@@ -84,8 +105,9 @@
                     }
                 }), $_('bookingActions.purchase.error', { locale: $lang })))
                 .match({
-                    ok: ok => {
+                    ok: async (b) => {
                         toast.info($_('bookingActions.purchase.success', { locale: $lang }));
+                        if (priority) await prioritize(b.id);
                         redirectSuccess();
                     },
                     err: (e) => {
@@ -102,8 +124,9 @@
                 }
             }), $_('bookingActions.purchase.error', { locale: $lang }))
                 .match({
-                    ok: ok => {
+                    ok: async (b) => {
                         toast.info($_('bookingActions.purchase.success', { locale: $lang }));
+                        if (priority) await prioritize(b.id);
                         redirectSuccess();
                     },
                     err: (e) => {

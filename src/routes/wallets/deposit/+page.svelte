@@ -5,8 +5,7 @@
     import {Button} from "$lib/components/ui/button";
     //@ts-ignore
     import * as Card from "$lib/components/ui/card";
-    //@ts-ignore
-    import * as Tooltip from "$lib/components/ui/tooltip";
+    import InfoTip from "$lib/components/core/InfoTip.svelte";
     import {type SafeParseError, z, type ZodIssue} from "zod";
     import {onMount, tick} from "svelte";
     import Validation from "$lib/components/core/Validation.svelte";
@@ -17,7 +16,7 @@
     import {api} from "../../../store";
     import {toast} from "svelte-sonner";
     import {config} from "../../../config/client";
-    import {Info, LucideLoader} from "lucide-svelte";
+    import {LucideLoader} from "lucide-svelte";
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatNumber} from "$lib/i18n";
     import DepositAmountSheet from "$lib/components/entities/Wallets/DepositAmountSheet.svelte";
@@ -35,14 +34,6 @@
     // notice (lines + tooltip) is hidden.
     let depositFee: FeeRes | null = null;
     let withdrawFee: FeeRes | null = null;
-    let feeTipOpen = false;
-
-    // tap toggles the fee tooltip on touch devices: hover-only tooltips are
-    // unreachable on mobile; desktop keeps the native hover behavior
-    function feeTipPointerDown(e: PointerEvent & { originalEvent?: PointerEvent }) {
-        const pe = e.originalEvent ?? e;
-        if (pe.pointerType === 'touch') feeTipOpen = !feeTipOpen;
-    }
 
     onMount(() => {
         Airwallex.loadAirwallex({
@@ -220,16 +211,9 @@
                                 {$_('wallets.deposit.feeNoticeFree', { locale: $lang })}
                             {/if}
                             {#if depDesc != null && !showWithdrawLine}
-                                <Tooltip.Root bind:open={feeTipOpen}>
-                                    <Tooltip.Trigger on:pointerdown={feeTipPointerDown}>
-                                        <Info class="h-4 w-4"/>
-                                    </Tooltip.Trigger>
-                                    <Tooltip.Content class="max-w-72">
-                                        <p class="text-justify">
-                                            {$_('wallets.deposit.feeTooltipDeposit', { locale: $lang, values: { desc: depDesc } })}
-                                        </p>
-                                    </Tooltip.Content>
-                                </Tooltip.Root>
+                                <InfoTip label={$_('wallets.deposit.feeTooltipDeposit', { locale: $lang, values: { desc: depDesc } })}>
+                                    {$_('wallets.deposit.feeTooltipDeposit', { locale: $lang, values: { desc: depDesc } })}
+                                </InfoTip>
                             {/if}
                         </span>
                         {#if showWithdrawLine}
@@ -241,20 +225,15 @@
                                 {:else}
                                     {$_('wallets.deposit.feeNoticeWithdrawGeneric', { locale: $lang })}
                                 {/if}
-                                <Tooltip.Root bind:open={feeTipOpen}>
-                                    <Tooltip.Trigger on:pointerdown={feeTipPointerDown}>
-                                        <Info class="h-4 w-4"/>
-                                    </Tooltip.Trigger>
-                                    <Tooltip.Content class="max-w-72">
-                                        <p class="text-justify">
-                                            {#if wdDesc != null}
-                                                {$_('wallets.deposit.feeTooltip', { locale: $lang, values: { desc: wdDesc } })}
-                                            {:else}
-                                                {$_('wallets.deposit.feeTooltipGeneric', { locale: $lang })}
-                                            {/if}
-                                        </p>
-                                    </Tooltip.Content>
-                                </Tooltip.Root>
+                                <InfoTip label={wdDesc != null
+                                    ? $_('wallets.deposit.feeTooltip', { locale: $lang, values: { desc: wdDesc } })
+                                    : $_('wallets.deposit.feeTooltipGeneric', { locale: $lang })}>
+                                    {#if wdDesc != null}
+                                        {$_('wallets.deposit.feeTooltip', { locale: $lang, values: { desc: wdDesc } })}
+                                    {:else}
+                                        {$_('wallets.deposit.feeTooltipGeneric', { locale: $lang })}
+                                    {/if}
+                                </InfoTip>
                             </span>
                         {/if}
                     </div>
