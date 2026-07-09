@@ -1380,9 +1380,10 @@
     },
     "matrix": {
       "title": "Hari × masa berlepas",
-      "description": "Kadar kejayaan mengikut hari dan masa berlepas; setiap lajur diwarnakan mengikut arah masanya (warna di atas).",
+      "description": "Kadar kejayaan mengikut slot masa (baris, diwarnakan mengikut arah) dan hari (lajur)",
       "day": "Hari",
-      "rateLegend": "kadar kejayaan"
+      "rateLegend": "kadar kejayaan",
+      "time": "Masa"
     },
     "filters": {
       "day": "Hari dalam minggu",
