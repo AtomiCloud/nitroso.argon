@@ -8,7 +8,7 @@
     //@ts-ignore
     import * as ToggleGroup from "$lib/components/ui/toggle-group";
     import {problem} from "../../../store";
-    import type {CreateDiscountReq, MaterializedCostRes, PassengerPrincipalRes} from "$lib/api/core/data-contracts";
+    import type {CostSummaryRes, CreateDiscountReq, PassengerPrincipalRes} from "$lib/api/core/data-contracts";
     import {type SafeParseError, z, type ZodIssue} from "zod";
     import {tick} from "svelte";
     import {addMonths, format, parse} from "date-fns";
@@ -27,6 +27,10 @@
     import {Checkbox} from "$lib/components/ui/checkbox";
     import {Label} from "$lib/components/ui/label";
     import {Separator} from "$lib/components/ui/separator";
+    import {Switch} from "$lib/components/ui/switch";
+    //@ts-ignore
+    import * as Card from "$lib/components/ui/card";
+    import {Zap} from "lucide-svelte";
     import PurchaseBooking from "$lib/components/entities/Bookings/PurchaseBooking.svelte";
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatNumber, formatClockTime, formatCalendarDate} from "$lib/i18n";
@@ -51,9 +55,9 @@
     let time = $page.url.searchParams.get("time");
     let userId = $page.url.searchParams.get("userId");
 
-    $: passengerAndCost = (Res.fromSerial<[PassengerPrincipalRes[], MaterializedCostRes], ProblemDetails[]>(data.result)
+    $: passengerAndCost = (Res.fromSerial<[PassengerPrincipalRes[], CostSummaryRes], ProblemDetails[]>(data.result)
         .match({
-            ok: (a: [PassengerPrincipalRes[], MaterializedCostRes]): [PassengerPrincipalRes[], MaterializedCostRes] => {
+            ok: (a: [PassengerPrincipalRes[], CostSummaryRes]): [PassengerPrincipalRes[], CostSummaryRes] => {
                 problem.set(null)
                 return a;
             },
@@ -62,7 +66,19 @@
                 problem.set(e[0]);
                 return null as never;
             }
-        }) satisfies Promise<[PassengerPrincipalRes[], MaterializedCostRes]>)
+        }) satisfies Promise<[PassengerPrincipalRes[], CostSummaryRes]>)
+
+    // ---- priority queue opt-in (only offered when zinc says we're eligible) ----
+    $: eligibility = data.eligibility;
+    let priorityOptIn = false;
+    // gate the purchase on covering the priority fee too, so the follow-up
+    // prioritize call can never fail on balance right after a purchase
+    $: priorityFee = priorityOptIn && eligibility.eligible ? eligibility.fee : 0;
+
+    function signedDelta(delta: number): string {
+        const sign = delta >= 0 ? "+" : "−";
+        return `${sign}${formatMoney(Math.abs(delta), $lang)}`;
+    }
 
     let passenger = {
         fullName: "",
@@ -253,14 +269,29 @@
                     </div>
                 {/if}
                 <Separator class="my-8"/>
+                <!-- itemized breakdown from GET Cost/summary for THIS booking
+                     spec — shown price always matches the charged price -->
                 <div class="flex justify-between items-center">
                     <div class="font-bold text-lg">{$_('bookings.purchase.bookingCost', { locale: $lang })}</div>
                     <div class="font-bold text-lg">
-                        {formatMoney(cost.cost, $lang)}
+                        {formatMoney(cost.baseCost, $lang)}
                     </div>
                 </div>
+                {#each cost.policyLines ?? [] as line}
+                    <div class="flex justify-between items-center my-1 text-sm">
+                        <div class="font-light">{line.name}</div>
+                        <div class="font-light">{signedDelta(line.delta)}</div>
+                    </div>
+                {/each}
+                {#if (cost.policyLines ?? []).length > 0}
+                    <Separator class="my-2"/>
+                    <div class="flex justify-between items-center">
+                        <div class="font-semibold">{$_('bookings.purchase.subtotal', { locale: $lang })}</div>
+                        <div class="font-semibold">{formatMoney(cost.subtotal, $lang)}</div>
+                    </div>
+                {/if}
                 <Separator class="my-2"/>
-                {#each cost.discounts as d}
+                {#each cost.discounts ?? [] as d}
                     <div class="flex justify-between items-center my-2">
                         <div class="flex flex-col">
                             <div class="font-semibold">{d.name}</div>
@@ -275,7 +306,7 @@
                         </div>
                     </div>
                 {/each}
-                {#if cost.discounts.length > 0 }
+                {#if (cost.discounts ?? []).length > 0 }
                     <Separator class="my-4"/>
                 {/if}
                 <div class="flex justify-end items-center">
@@ -283,6 +314,38 @@
                         {formatMoney(cost.final, $lang)}
                     </div>
                 </div>
+
+                {#if eligibility.eligible}
+                    <!-- priority queue opt-in -->
+                    <Card.Root class="my-4">
+                        <Card.Content class="pt-6">
+                            <div class="flex items-center justify-between gap-4">
+                                <div class="flex items-start gap-3">
+                                    <Zap class="h-5 w-5 mt-0.5 text-amber-500 shrink-0"/>
+                                    <div class="flex flex-col gap-1">
+                                        <div class="font-semibold">{$_('bookings.purchase.priorityTitle', { locale: $lang })}</div>
+                                        <div class="text-sm text-muted-foreground">
+                                            {$_('bookings.purchase.priorityBody', { locale: $lang, values: { fee: formatMoney(eligibility.fee, $lang) } })}
+                                        </div>
+                                    </div>
+                                </div>
+                                <Switch bind:checked={priorityOptIn}
+                                        aria-label={$_('bookings.purchase.priorityTitle', { locale: $lang })}/>
+                            </div>
+                            {#if priorityOptIn}
+                                <div class="flex justify-between items-center mt-4 text-sm">
+                                    <div>{$_('bookings.purchase.priorityLine', { locale: $lang })}</div>
+                                    <div>+{formatMoney(eligibility.fee, $lang)}</div>
+                                </div>
+                                <div class="flex justify-between items-center mt-1 font-semibold">
+                                    <div>{$_('bookings.purchase.totalWithPriority', { locale: $lang })}</div>
+                                    <div>{formatMoney(cost.final + eligibility.fee, $lang)}</div>
+                                </div>
+                            {/if}
+                        </Card.Content>
+                    </Card.Root>
+                {/if}
+
                 <div class="my-6 w-full flex justify-between ">
                     <div class="flex flex-col gap-2">
                         <PurchaseBooking
@@ -291,8 +354,10 @@
                                 {checked} {passenger} {direction} {userId} {date} {time}
                                 wallet={$page.data.user?.wallet?.usable ?? 0}
                                 cost={cost.final}
+                                priority={priorityOptIn && eligibility.eligible}
+                                priorityFee={priorityFee}
                         />
-                        <div class="{($page.data.user?.wallet?.usable ?? 0) >= cost.final ? 'opacity-0': '' } text-left">
+                        <div class="{($page.data.user?.wallet?.usable ?? 0) >= cost.final + priorityFee ? 'opacity-0': '' } text-left">
                             <div class="text-sm text-red-500">{$_('bookings.purchase.insufficientBalance', { locale: $lang })}</div>
                         </div>
                     </div>
@@ -301,7 +366,7 @@
                         <div class="text-lg font-semibold">
                             {formatMoney($page.data.user?.wallet?.usable ?? 0, $lang)}</div>
                         <div class="text-sm font-light">{$_('bookings.purchase.yourBalance', { locale: $lang })}</div>
-                        <div class="text-sm font-light {($page.data.user?.wallet?.usable ?? 0) >= cost.final ? 'hidden': '' }">
+                        <div class="text-sm font-light {($page.data.user?.wallet?.usable ?? 0) >= cost.final + priorityFee ? 'hidden': '' }">
 
                             <a id="deposit-link" class="underline text-blue-500 hover:text-sky-500"
                                href="/wallets/deposit">{$_('bookings.purchase.depositNow', { locale: $lang })}</a>

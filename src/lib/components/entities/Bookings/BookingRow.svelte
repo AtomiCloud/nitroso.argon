@@ -91,6 +91,9 @@
                 </Card.Description>
             </div>
             <div class="flex gap-1.5 text-center">
+                {#if b.priority}
+                    <Badge class="bg-amber-500 text-amber-950">{$_('bookingActions.priority.badge', { locale: $lang })}</Badge>
+                {/if}
                 <Badge class="{BOOKING_STATUS[b.status].color}">{$_(`status.booking.${b.status}`, { locale: $lang })}</Badge>
             </div>
         </div>

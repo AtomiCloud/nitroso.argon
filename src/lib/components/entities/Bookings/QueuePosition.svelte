@@ -6,9 +6,8 @@
     import type {BookingQueueRes} from "$lib/api/core/data-contracts";
     import {Button} from "$lib/components/ui/button";
 
-    //@ts-ignore
-    import * as Tooltip from "$lib/components/ui/tooltip";
-    import {Info, LucideLoader, PartyPopper, RotateCw, Users} from "lucide-svelte";
+    import InfoTip from "$lib/components/core/InfoTip.svelte";
+    import {LucideLoader, PartyPopper, RotateCw, Users} from "lucide-svelte";
     import {_} from "svelte-i18n";
     import {lang} from "$lib/i18n";
 
@@ -25,15 +24,6 @@
     let queue: BookingQueueRes | null = null;
     let loading = false;
     let failed = false;
-
-    // tap toggles the help tooltip on touch devices: hover-only tooltips are
-    // unreachable on mobile; desktop keeps the native hover behavior
-    let tipOpen = false;
-
-    function tipPointerDown(e: PointerEvent & { originalEvent?: PointerEvent }) {
-        const pe = e.originalEvent ?? e;
-        if (pe.pointerType === 'touch') tipOpen = !tipOpen;
-    }
 
     async function refresh() {
         loading = true;
@@ -90,16 +80,9 @@
                 {$_('bookingActions.queue.position', { locale: $lang, values: { position: queue.position, total: queue.total } })}
             </span>
         {/if}
-        <Tooltip.Root bind:open={tipOpen}>
-            <Tooltip.Trigger on:pointerdown={tipPointerDown}>
-                <Info class="h-4 w-4 text-muted-foreground"/>
-            </Tooltip.Trigger>
-            <Tooltip.Content class="max-w-72">
-                <p class="text-justify">
-                    {$_('bookingActions.queue.tooltip', { locale: $lang })}
-                </p>
-            </Tooltip.Content>
-        </Tooltip.Root>
+        <InfoTip label={$_('bookingActions.queue.tooltip', { locale: $lang })}>
+            {$_('bookingActions.queue.tooltip', { locale: $lang })}
+        </InfoTip>
         <Button variant="ghost" size="icon" class="h-6 w-6" disabled={loading} on:click={refresh}
                 aria-label={$_('bookingActions.queue.refresh', { locale: $lang })}>
             {#if loading}

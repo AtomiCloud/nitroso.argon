@@ -21,7 +21,10 @@ import type {
   BookingSearchCountRes,
   BookingStatRes,
   CancelWithdrawalReq,
+  CostPolicyPrincipalRes,
+  CostPolicyReq,
   CostPrincipalRes,
+  CostSummaryRes,
   CreateBookingReq,
   CreateCostReq,
   CreateDiscountReq,
@@ -40,11 +43,15 @@ import type {
   PassengerRes,
   PaymentPrincipalRes,
   PaymentRes,
+  PriorityAccessRes,
+  PriorityEligibilityRes,
+  PrioritySettingsRes,
   RejectWithdrawalReq,
   ScheduleBulkUpdateReq,
   SchedulePrincipalRes,
   ScheduleRecordReq,
   SetFeeReq,
+  SetPrioritySettingsReq,
   TimingPrincipalRes,
   TimingReq,
   TimingRes,
@@ -606,6 +613,127 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
   /**
    * No description
    *
+   * @tags Booking
+   * @name VBookingPriorityEligibilityDetail
+   * @request GET:/api/v{version}/Booking/priority/eligibility
+   * @secure
+   */
+  vBookingPriorityEligibilityDetail = (version: string, params: RequestParams = {}) =>
+    this.request<PriorityEligibilityRes, any>({
+      path: `/api/v${version}/Booking/priority/eligibility`,
+      method: 'GET',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
+   * @name VBookingPrioritySettingsDetail
+   * @request GET:/api/v{version}/Booking/priority/settings
+   * @secure
+   */
+  vBookingPrioritySettingsDetail = (version: string, params: RequestParams = {}) =>
+    this.request<PrioritySettingsRes, any>({
+      path: `/api/v${version}/Booking/priority/settings`,
+      method: 'GET',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
+   * @name VBookingPrioritySettingsCreate
+   * @request POST:/api/v{version}/Booking/priority/settings
+   * @secure
+   */
+  vBookingPrioritySettingsCreate = (version: string, data: SetPrioritySettingsReq, params: RequestParams = {}) =>
+    this.request<PrioritySettingsRes, any>({
+      path: `/api/v${version}/Booking/priority/settings`,
+      method: 'POST',
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
+   * @name VBookingPriorityAccessDetail
+   * @request GET:/api/v{version}/Booking/priority/access
+   * @secure
+   */
+  vBookingPriorityAccessDetail = (version: string, params: RequestParams = {}) =>
+    this.request<PriorityAccessRes[], any>({
+      path: `/api/v${version}/Booking/priority/access`,
+      method: 'GET',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
+   * @name VBookingPriorityAccessCreate
+   * @request POST:/api/v{version}/Booking/priority/access/{userId}
+   * @secure
+   */
+  vBookingPriorityAccessCreate = (userId: string, version: string, params: RequestParams = {}) =>
+    this.request<PriorityAccessRes, any>({
+      path: `/api/v${version}/Booking/priority/access/${userId}`,
+      method: 'POST',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
+   * @name VBookingPriorityAccessDelete
+   * @request DELETE:/api/v{version}/Booking/priority/access/{userId}
+   * @secure
+   */
+  vBookingPriorityAccessDelete = (userId: string, version: string, params: RequestParams = {}) =>
+    this.request<void, any>({
+      path: `/api/v${version}/Booking/priority/access/${userId}`,
+      method: 'DELETE',
+      secure: true,
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
+   * @name VBookingPrioritizeCreate
+   * @request POST:/api/v{version}/Booking/{id}/prioritize
+   * @secure
+   */
+  vBookingPrioritizeCreate = (
+    id: string,
+    version: string,
+    query?: {
+      userId?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<BookingPrincipalRes, any>({
+      path: `/api/v${version}/Booking/${id}/prioritize`,
+      method: 'POST',
+      query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
    * @tags Cost
    * @name VCostDetail
    * @request GET:/api/v{version}/Cost
@@ -667,6 +795,98 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
       method: 'GET',
       secure: true,
       format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Cost
+   * @name VCostSummaryDetail
+   * @request GET:/api/v{version}/Cost/summary
+   * @secure
+   */
+  vCostSummaryDetail = (
+    version: string,
+    query?: {
+      Date?: string;
+      Time?: string;
+      Direction?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<CostSummaryRes, any>({
+      path: `/api/v${version}/Cost/summary`,
+      method: 'GET',
+      query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Cost
+   * @name VCostPoliciesDetail
+   * @request GET:/api/v{version}/Cost/policies
+   * @secure
+   */
+  vCostPoliciesDetail = (version: string, params: RequestParams = {}) =>
+    this.request<CostPolicyPrincipalRes[], any>({
+      path: `/api/v${version}/Cost/policies`,
+      method: 'GET',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Cost
+   * @name VCostPoliciesCreate
+   * @request POST:/api/v{version}/Cost/policies
+   * @secure
+   */
+  vCostPoliciesCreate = (version: string, data: CostPolicyReq, params: RequestParams = {}) =>
+    this.request<CostPolicyPrincipalRes, any>({
+      path: `/api/v${version}/Cost/policies`,
+      method: 'POST',
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Cost
+   * @name VCostPoliciesUpdate
+   * @request PUT:/api/v{version}/Cost/policies/{id}
+   * @secure
+   */
+  vCostPoliciesUpdate = (id: string, version: string, data: CostPolicyReq, params: RequestParams = {}) =>
+    this.request<CostPolicyPrincipalRes, any>({
+      path: `/api/v${version}/Cost/policies/${id}`,
+      method: 'PUT',
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Cost
+   * @name VCostPoliciesDelete
+   * @request DELETE:/api/v{version}/Cost/policies/{id}
+   * @secure
+   */
+  vCostPoliciesDelete = (id: string, version: string, params: RequestParams = {}) =>
+    this.request<void, any>({
+      path: `/api/v${version}/Cost/policies/${id}`,
+      method: 'DELETE',
+      secure: true,
       ...params,
     });
   /**
