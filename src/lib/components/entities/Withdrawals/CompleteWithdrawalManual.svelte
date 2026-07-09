@@ -85,7 +85,13 @@
                     <div class="flex flex-col gap-1 text-sm">
                         <div>{$_('withdrawals.completeManual.amountLine', { locale: $lang, values: { amount: formatMoney(amount, $lang) } })}</div>
                         {#if fee != null && net != null}
-                            <div>{$_('withdrawals.completeManual.feeLine', { locale: $lang, values: { fee: formatMoney(fee, $lang) } })}</div>
+                            <!-- a resolved fee of exactly 0 (snapshot 0 or rate 0) means the
+                                 fee is disabled: net == gross, so the fee line is skipped and
+                                 the admin transfers the full amount; submission stays enabled
+                                 because the net IS known -->
+                            {#if fee !== 0}
+                                <div>{$_('withdrawals.completeManual.feeLine', { locale: $lang, values: { fee: formatMoney(fee, $lang) } })}</div>
+                            {/if}
                             <div class="font-bold">{$_('withdrawals.completeManual.transferExactly', { locale: $lang, values: { net: formatMoney(net, $lang), payNowNumber: withdrawal.record.payNowNumber } })}</div>
                         {:else if feeLoadFailed}
                             <div class="text-destructive">{$_('withdrawals.completeManual.feeUnavailable', { locale: $lang })}</div>

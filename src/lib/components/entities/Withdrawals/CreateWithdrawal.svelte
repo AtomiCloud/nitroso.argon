@@ -112,9 +112,12 @@
     $: isValid = errors.length === 0 && Object.entries(taints).length > 0;
 
     // live fee breakdown (display only — banker's rounding matches the
-    // server's authoritative FeeCalculator cent-for-cent)
+    // server's authoritative FeeCalculator cent-for-cent). A rate of exactly 0
+    // means the fee is disabled: net == gross, so the whole breakdown
+    // (including the "you'll receive" line) is hidden; null means the rate
+    // failed to load and the breakdown is hidden too.
     $: amountNum = Number(val.amount);
-    $: showFeeBreakdown = feeRate != null && Number.isFinite(amountNum) && amountNum > 0 && amountNum <= wallet.usable;
+    $: showFeeBreakdown = feeRate != null && feeRate !== 0 && Number.isFinite(amountNum) && amountNum > 0 && amountNum <= wallet.usable;
     $: feeAmount = roundToEvenCents(amountNum * (feeRate ?? 0));
     $: netAmount = roundToEvenCents(amountNum - feeAmount);
     $: feeRatePercent = formatNumber((feeRate ?? 0) * 100, $lang, {maximumFractionDigits: 2});

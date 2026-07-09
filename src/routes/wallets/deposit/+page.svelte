@@ -27,8 +27,10 @@
     let submitting = false;
 
     // withdrawal fee rate (e.g. 0.04 = 4%), shown in the "deposits are free"
-    // notice. While loading or if the endpoint fails, a generic notice without
-    // the percentage is shown instead — the rate is never hardcoded client-side.
+    // notice. While loading or if the endpoint fails (null), a generic notice
+    // without the percentage is shown instead — the rate is never hardcoded
+    // client-side. A rate of exactly 0 means the fee is disabled and the whole
+    // notice (both lines + tooltip) is hidden.
     let feeRate: number | null = null;
     let feeTipOpen = false;
 
@@ -197,30 +199,32 @@
                     </button>
                 </Validation>
 
-                <div class="flex flex-col items-center gap-0.5 text-sm text-muted-foreground">
-                    <span>{$_('wallets.deposit.feeNoticeFree', { locale: $lang })}</span>
-                    <span class="flex items-center gap-1">
-                        {#if feeRatePercent != null}
-                            {$_('wallets.deposit.feeNoticeWithdraw', { locale: $lang, values: { rate: feeRatePercent } })}
-                        {:else}
-                            {$_('wallets.deposit.feeNoticeWithdrawGeneric', { locale: $lang })}
-                        {/if}
-                        <Tooltip.Root bind:open={feeTipOpen}>
-                            <Tooltip.Trigger on:pointerdown={feeTipPointerDown}>
-                                <Info class="h-4 w-4"/>
-                            </Tooltip.Trigger>
-                            <Tooltip.Content class="max-w-72">
-                                <p class="text-justify">
-                                    {#if feeRatePercent != null}
-                                        {$_('wallets.deposit.feeTooltip', { locale: $lang, values: { rate: feeRatePercent } })}
-                                    {:else}
-                                        {$_('wallets.deposit.feeTooltipGeneric', { locale: $lang })}
-                                    {/if}
-                                </p>
-                            </Tooltip.Content>
-                        </Tooltip.Root>
-                    </span>
-                </div>
+                {#if feeRate !== 0}
+                    <div class="flex flex-col items-center gap-0.5 text-sm text-muted-foreground">
+                        <span>{$_('wallets.deposit.feeNoticeFree', { locale: $lang })}</span>
+                        <span class="flex items-center gap-1">
+                            {#if feeRatePercent != null}
+                                {$_('wallets.deposit.feeNoticeWithdraw', { locale: $lang, values: { rate: feeRatePercent } })}
+                            {:else}
+                                {$_('wallets.deposit.feeNoticeWithdrawGeneric', { locale: $lang })}
+                            {/if}
+                            <Tooltip.Root bind:open={feeTipOpen}>
+                                <Tooltip.Trigger on:pointerdown={feeTipPointerDown}>
+                                    <Info class="h-4 w-4"/>
+                                </Tooltip.Trigger>
+                                <Tooltip.Content class="max-w-72">
+                                    <p class="text-justify">
+                                        {#if feeRatePercent != null}
+                                            {$_('wallets.deposit.feeTooltip', { locale: $lang, values: { rate: feeRatePercent } })}
+                                        {:else}
+                                            {$_('wallets.deposit.feeTooltipGeneric', { locale: $lang })}
+                                        {/if}
+                                    </p>
+                                </Tooltip.Content>
+                            </Tooltip.Root>
+                        </span>
+                    </div>
+                {/if}
             </div>
         </Card.Content>
         <Card.Footer>
