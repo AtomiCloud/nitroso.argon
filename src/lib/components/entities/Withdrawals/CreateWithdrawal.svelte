@@ -5,8 +5,7 @@
     import * as Dialog from "$lib/components/ui/dialog";
     //@ts-ignore
     import * as Alert from "$lib/components/ui/alert";
-    //@ts-ignore
-    import * as Tooltip from "$lib/components/ui/tooltip";
+    import InfoTip from "$lib/components/core/InfoTip.svelte";
     import {type SafeParseError, z, type ZodIssue} from "zod";
     import {toResult} from "$lib/utility";
     import {calcFee, describeFee, isZeroFee, loadFee, roundToEvenCents} from "$lib/api/fee";
@@ -14,7 +13,7 @@
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
     import type {CreateDiscountReq, CreateWithdrawalReq, FeeRes, WalletPrincipalRes} from "$lib/api/core/data-contracts";
-    import {AlertTriangle, Info, LucideLoader} from "lucide-svelte";
+    import {AlertTriangle, LucideLoader} from "lucide-svelte";
     import {tick} from "svelte";
     import Validation from "$lib/components/core/Validation.svelte";
     import {Input} from "$lib/components/ui/input";
@@ -175,14 +174,9 @@
                         <div class="flex flex-col gap-1 text-sm">
                             <div class="flex items-center gap-1 text-muted-foreground">
                                 <span>{$_('withdrawals.create.feeLine', { locale: $lang, values: { desc: feeDesc, fee: formatMoney(feeAmount, $lang) } })}</span>
-                                <Tooltip.Root>
-                                    <Tooltip.Trigger>
-                                        <Info class="h-4 w-4"/>
-                                    </Tooltip.Trigger>
-                                    <Tooltip.Content class="max-w-72">
-                                        <p class="text-justify">{$_('withdrawals.create.feeTooltip', { locale: $lang, values: { desc: feeDesc } })}</p>
-                                    </Tooltip.Content>
-                                </Tooltip.Root>
+                                <InfoTip label={$_('withdrawals.create.feeTooltip', { locale: $lang, values: { desc: feeDesc } })}>
+                                    {$_('withdrawals.create.feeTooltip', { locale: $lang, values: { desc: feeDesc } })}
+                                </InfoTip>
                             </div>
                             <div class="font-semibold">{$_('withdrawals.create.youReceive', { locale: $lang, values: { net: formatMoney(netAmount, $lang) } })}</div>
                         </div>

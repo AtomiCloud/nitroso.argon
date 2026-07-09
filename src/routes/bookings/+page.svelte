@@ -18,6 +18,8 @@
     import * as ToggleGroup from "$lib/components/ui/toggle-group";
     //@ts-ignore
     import * as Card from "$lib/components/ui/card";
+    //@ts-ignore
+    import * as Dialog from "$lib/components/ui/dialog";
     import type {Selected} from "bits-ui";
     import {CalendarDate, type DateValue, getLocalTimeZone} from "@internationalized/date";
 
@@ -267,19 +269,17 @@
     $: pages = totalPages == null ? [] : pageItems(data.page, totalPages);
     $: nextDisabled = totalPages == null ? !data.hasMore : data.page >= totalPages;
 
-    // "go to page" direct jump
-    let jumpPage = "";
+    // Tap-only page picker (owner mandate: no typing inputs — the on-screen
+    // keyboard must never pop up). Tapping the current-page indicator or an
+    // ellipsis opens a modal with a tappable grid of every page number.
+    let pagePickerOpen = false;
 
-    function jumpToPage() {
-        const p = parseInt(jumpPage, 10);
-        if (!Number.isFinite(p) || p < 1) return;
-        gotoPage(totalPages == null ? p : Math.min(p, totalPages));
-        jumpPage = "";
+    function pickPage(p: number) {
+        pagePickerOpen = false;
+        gotoPage(p);
     }
 
-    function jumpKeydown(e: KeyboardEvent) {
-        if (e.key === "Enter") jumpToPage();
-    }
+    $: allPages = totalPages == null ? [] : Array.from({length: totalPages}, (_ignored, i) => i + 1);
 
     const session: any = $page.data.session;
     const isAdmin: boolean = session?.roles?.includes("admin") ?? false;
@@ -396,7 +396,11 @@
                     </Button>
                     {#each pages as p}
                         {#if p === ELLIPSIS}
-                            <span class="px-1 text-muted-foreground select-none">…</span>
+                            <Button variant="ghost" size="sm" class="w-8 px-0 text-muted-foreground"
+                                    aria-label={$_('bookings.list.pickPage', { locale: $lang })}
+                                    on:click={() => pagePickerOpen = true}>
+                                …
+                            </Button>
                         {:else}
                             <Button variant={p === data.page ? "default" : "outline"} size="sm" class="w-10 px-0"
                                     on:click={() => gotoPage(p)}>
@@ -411,24 +415,33 @@
                 </div>
                 <div class="text-sm text-muted-foreground">
                     {#if totalPages != null && total != null}
-                        {$_('bookings.list.pageOf', { locale: $lang, values: { page: data.page, total: totalPages } })}
+                        <!-- tapping the indicator opens the page-picker grid -->
+                        <button type="button" class="underline decoration-dotted underline-offset-4 hover:text-foreground"
+                                on:click={() => pagePickerOpen = true}>
+                            {$_('bookings.list.pageOf', { locale: $lang, values: { page: data.page, total: totalPages } })}
+                        </button>
                         ·
                         {$_('bookings.list.totalResults', { locale: $lang, values: { count: formatNumber(total, $lang) } })}
                     {:else}
                         {$_('bookings.list.pageLabel', { locale: $lang, values: { page: data.page } })}
                     {/if}
                 </div>
-                <div class="flex items-center gap-2">
-                    <label class="text-sm text-muted-foreground" for="booking-page-jump">
-                        {$_('bookings.list.goToPage', { locale: $lang })}
-                    </label>
-                    <Input id="booking-page-jump" type="number" min="1" max={totalPages ?? undefined} class="w-20 h-8"
-                           bind:value={jumpPage} on:keydown={jumpKeydown}/>
-                    <Button variant="outline" size="sm" on:click={jumpToPage}>
-                        {$_('bookings.list.go', { locale: $lang })}
-                    </Button>
-                </div>
             </div>
+            <Dialog.Root bind:open={pagePickerOpen}>
+                <Dialog.Content class="max-w-sm">
+                    <Dialog.Header>
+                        <Dialog.Title>{$_('bookings.list.pickPage', { locale: $lang })}</Dialog.Title>
+                    </Dialog.Header>
+                    <div class="grid grid-cols-5 gap-2 max-h-72 overflow-y-auto p-1">
+                        {#each allPages as p (p)}
+                            <Button variant={p === data.page ? "default" : "outline"} size="sm" class="w-full px-0"
+                                    on:click={() => pickPage(p)}>
+                                {p}
+                            </Button>
+                        {/each}
+                    </div>
+                </Dialog.Content>
+            </Dialog.Root>
         {/await}
     </div>
 </div>
