@@ -15,10 +15,14 @@
             <span class="font-mono">{payout.confirmationNumber}</span>
         </div>
     {/if}
-    <div>
-        {$_('withdrawals.card.fee', { locale: $lang })}
-        {formatMoney(payout.fee, $lang)}
-    </div>
+    <!-- a fee of exactly 0 means the fee was disabled for this payout — hide
+         the line; confirmation number and reconcile attempts still render -->
+    {#if payout.fee !== 0}
+        <div>
+            {$_('withdrawals.card.fee', { locale: $lang })}
+            {formatMoney(payout.fee, $lang)}
+        </div>
+    {/if}
     {#if payout.reconcileAttempts > 0}
         <div class="text-sm text-muted-foreground">
             {$_('withdrawals.card.reconcileAttempts', { locale: $lang, values: { count: payout.reconcileAttempts } })}
