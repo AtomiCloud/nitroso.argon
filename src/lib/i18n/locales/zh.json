@@ -18,7 +18,8 @@
     "profile": "个人资料",
     "logout": "登出",
     "signIn": "登录",
-    "fees": "手续费"
+    "fees": "手续费",
+    "stats": "统计"
   },
   "theme": {
     "toggle": "切换主题"
@@ -214,6 +215,13 @@
       "typeNameAfter": "以继续。",
       "typeNameError": "请输入该预订乘客的姓名以继续。",
       "confirmButton": "终止预订"
+    },
+    "queue": {
+      "position": "排队位置：第 {position} 位，共 {total} 位",
+      "next": "下一位就是您！",
+      "refresh": "刷新排队位置",
+      "tooltip": "当您前面的预订完成或取消时，您的排队位置会更新——前面的车票被买走后，您就会向前移动。",
+      "loadError": "无法加载排队位置"
     }
   },
   "bookings": {
@@ -235,7 +243,18 @@
       "next": "下一页",
       "pageLabel": "第 {page} 页",
       "sortBuyTime": "购买时间（最新）",
-      "sortFulfilTime": "完成时间（最新）"
+      "sortFulfilTime": "完成时间（最新）",
+      "filterByPassengerName": "按乘客姓名筛选…",
+      "filterByPassportNumber": "按护照号码筛选…",
+      "selectTime": "出发时间",
+      "anyTime": "任何时间",
+      "timesLoadError": "无法加载出发时间",
+      "countLoadError": "无法加载结果总数",
+      "pageOf": "第 {page} 页，共 {total} 页",
+      "totalResults": "{count} 条结果",
+      "goToPage": "跳至页码",
+      "go": "前往",
+      "queueHint": "提示：按方向、日期和出发时间筛选，再按购买时间排序，列表即为该时段的排队顺序。"
     },
     "detail": {
       "title": "预订",
@@ -797,7 +816,7 @@
     "jbToWoodlands": "新山前往兀兰",
     "jbSentralToWoodlands": "新山中央车站前往兀兰",
     "noSchedulesFound": "未找到班次",
-    "ticketsInQueue": "排队中有 {count} 张车票",
+    "ticketsInQueue": "排队中有 {count} 人",
     "buy": "购买"
   },
   "calendar": {
@@ -1202,6 +1221,55 @@
       "broadcastConfirm": "确认发送给所有用户",
       "broadcastSuccess": "已发送 {sent} 封，失败 {failed} 封",
       "broadcastError": "群发手续费公告失败"
+    }
+  },
+  "stats": {
+    "title": "预订统计",
+    "reload": "重新加载",
+    "loadError": "无法加载预订统计",
+    "empty": "当前筛选条件下没有预订",
+    "range": {
+      "after": "出行日期从",
+      "before": "出行日期至",
+      "hint": "出行日期范围（默认：最近 90 天）"
+    },
+    "definition": {
+      "refundOnly": "仅退款",
+      "refundCancel": "退款 + 取消",
+      "helpRefundOnly": "成功率 = 已完成 / （已完成 + 已退款）。",
+      "helpRefundCancel": "成功率 = 已完成 / （已完成 + 已退款 + 已取消）。"
+    },
+    "filters": {
+      "day": "星期",
+      "direction": "方向",
+      "time": "出发时间",
+      "bucket": "提前时长",
+      "all": "全部"
+    },
+    "summary": {
+      "title": "当前切片",
+      "total": "预订总数",
+      "successRefundOnly": "成功率（仅退款）",
+      "successRefundCancel": "成功率（退款 + 取消）"
+    },
+    "table": {
+      "byDay": "按星期",
+      "byTime": "按出发时间",
+      "byBucket": "按提前时长（购买 → 出发）",
+      "group": "分组",
+      "total": "总数",
+      "completed": "已完成",
+      "failed": "失败",
+      "rate": "成功率"
+    },
+    "days": {
+      "monday": "周一",
+      "tuesday": "周二",
+      "wednesday": "周三",
+      "thursday": "周四",
+      "friday": "周五",
+      "saturday": "周六",
+      "sunday": "周日"
     }
   }
 }
