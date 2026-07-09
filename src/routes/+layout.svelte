@@ -20,8 +20,18 @@
     import LanguagePicker from "$lib/components/custom/LanguagePicker.svelte";
     import {_} from "svelte-i18n";
     import {lang} from "$lib/i18n";
-    beforeNavigate(({from, to}) => {
-        if (from.route.id !== to.route.id) loading.set(true);
+    import {updated} from "$app/stores";
+
+    beforeNavigate(({from, to, willUnload}) => {
+        // A new build was deployed: this tab's hashed chunk URLs no longer
+        // exist, so client-side navigation would die with "Failed to fetch
+        // dynamically imported module". Turn the navigation into a full page
+        // load to pick up the new build instead.
+        if ($updated && !willUnload && to?.url) {
+            location.href = to.url.href;
+            return;
+        }
+        if (from?.route.id !== to?.route.id) loading.set(true);
     });
 
     afterNavigate(() => {
@@ -32,6 +42,21 @@
         if ($page.data.auth.signIn) {
             signIn("descope");
         }
+
+        // Last resort for stale-build chunk failures: if a dynamic import
+        // still slips through (deploy landed between version polls), reload
+        // once to pick up the new build. Timestamp guard prevents a reload
+        // loop if the failure is anything other than a stale build.
+        const onRejection = (e: PromiseRejectionEvent) => {
+            const msg = String((e.reason as Error | undefined)?.message ?? e.reason ?? "");
+            if (!msg.includes("dynamically imported module")) return;
+            const last = Number(sessionStorage.getItem("chunk-reload-at") ?? "0");
+            if (Date.now() - last < 60_000) return;
+            sessionStorage.setItem("chunk-reload-at", String(Date.now()));
+            location.reload();
+        };
+        window.addEventListener("unhandledrejection", onRejection);
+        return () => window.removeEventListener("unhandledrejection", onRejection);
     });
 
 </script>
