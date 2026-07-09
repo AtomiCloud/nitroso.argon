@@ -17,7 +17,8 @@
     "transactions": "交易记录",
     "profile": "个人资料",
     "logout": "登出",
-    "signIn": "登录"
+    "signIn": "登录",
+    "fees": "手续费"
   },
   "theme": {
     "toggle": "切换主题"
@@ -321,44 +322,6 @@
       "typeNameHint": "请输入折扣的名称以继续。",
       "deletedToast": "已成功删除折扣 '{name}'",
       "deleteError": "删除折扣失败"
-    },
-    "fee": {
-      "title": "提款手续费",
-      "description": "适用于所有提款的平台手续费。",
-      "hint": "设为 0% 将停用手续费，并对用户隐藏。",
-      "edit": "编辑手续费",
-      "dialogTitle": "编辑提款手续费",
-      "dialogIntro": "设置全平台提款手续费百分比。更改立即生效，除非设置了生效日期。",
-      "placeholder": "手续费百分比",
-      "save": "保存",
-      "success": "已成功将提款手续费更新为 {rate}%",
-      "updateError": "更新提款手续费失败",
-      "loadFailed": "无法加载提款手续费率",
-      "range": "手续费必须介于 0 至 100 之间",
-      "precision": "手续费最多保留 2 位小数",
-      "finite": "手续费必须是有限数字",
-      "effectiveFrom": "生效时间",
-      "effectiveHint": "留空表示立即生效。",
-      "effectiveInvalid": "生效时间必须是有效的日期和时间",
-      "effectivePast": "生效时间必须是将来的时间",
-      "scheduledSuccess": "已成功安排提款手续费于 {date} 更改为 {rate}%",
-      "upcomingLine": "{rate}%，自 {date} 起",
-      "upcomingLoadFailed": "无法加载已安排的手续费更改"
-    },
-    "announcement": {
-      "title": "提款手续费公告",
-      "description": "向用户发送提款手续费公告邮件。",
-      "userIdPlaceholder": "用户 ID",
-      "sendTest": "向指定用户发送测试",
-      "sendSuccess": "已向 {email} 发送提款手续费公告",
-      "sendError": "发送提款手续费公告失败",
-      "broadcast": "发送给所有用户",
-      "broadcastTitle": "发送给所有用户？",
-      "broadcastWarningTitle": "请注意！",
-      "broadcastWarning": "这将向所有已填写邮箱的用户发送邮件；此操作无法撤销。",
-      "broadcastConfirm": "确认发送给所有用户",
-      "broadcastSuccess": "已发送 {sent} 封，失败 {failed} 封",
-      "broadcastError": "群发提款手续费公告失败"
     }
   },
   "landing": {
@@ -928,9 +891,9 @@
         "currentBalance": "当前余额：{amount}"
       },
       "initError": "初始化付款失败",
-      "feeTooltip": "为什么收取手续费？部分用户滥用钱包系统，反复存入和提取大额资金。{rate}% 的提款手续费旨在遏制这种滥用行为，保持 BunnyBooker 的可持续运营。存款仍然免费。",
-      "feeTooltipGeneric": "为什么收取手续费？部分用户滥用钱包系统，反复存入和提取大额资金。提款手续费旨在遏制这种滥用行为，保持 BunnyBooker 的可持续运营。存款仍然免费。",
-      "feeLoadFailed": "无法加载提款手续费率",
+      "feeTooltip": "为什么收取手续费？部分用户滥用钱包系统，反复存入和提取大额资金。{desc} 的提款手续费旨在遏制这种滥用行为，保持 BunnyBooker 的可持续运营。",
+      "feeTooltipGeneric": "为什么收取手续费？部分用户滥用钱包系统，反复存入和提取大额资金。提款手续费旨在遏制这种滥用行为，保持 BunnyBooker 的可持续运营。",
+      "feeLoadFailed": "无法加载手续费信息",
       "amountLabel": "充值金额",
       "keypadBackspace": "删除最后一位",
       "enterAmount": "输入金额",
@@ -939,8 +902,11 @@
         "clear": "清除"
       },
       "feeNoticeFree": "存款免费。",
-      "feeNoticeWithdraw": "{rate}% 的手续费仅适用于提款。",
-      "feeNoticeWithdrawGeneric": "提款将收取手续费。"
+      "feeNoticeWithdraw": "{desc} 的手续费仅适用于提款。",
+      "feeNoticeWithdrawGeneric": "提款将收取手续费。",
+      "feeNoticeWithdrawAlso": "提款还将收取 {desc} 的手续费。",
+      "feeNoticeDeposit": "充值将收取 {desc} 的手续费。",
+      "feeTooltipDeposit": "为什么收取手续费？部分用户滥用钱包系统，反复存入和提取大额资金。{desc} 的充值手续费旨在遏制这种滥用行为，保持 BunnyBooker 的可持续运营。"
     },
     "adminIn": {
       "trigger": "增加可用余额",
@@ -1045,9 +1011,9 @@
       "invalidPayNow": "PayNow 号码必须是 8 位数字",
       "success": "已成功从您的可用余额申请提款 {amount}。",
       "failed": "申请提款失败",
-      "feeLine": "提款手续费（{rate}%）：−{fee}",
+      "feeLine": "提款手续费（{desc}）：−{fee}",
       "youReceive": "您将收到：{net}",
-      "feeTooltip": "为什么收取手续费？部分用户滥用钱包系统，反复存入和提取大额资金。{rate}% 的提款手续费旨在遏制这种滥用行为，保持 BunnyBooker 的可持续运营。存款仍然免费。",
+      "feeTooltip": "为什么收取手续费？部分用户滥用钱包系统，反复存入和提取大额资金。{desc} 的提款手续费旨在遏制这种滥用行为，保持 BunnyBooker 的可持续运营。",
       "feeLoadFailed": "无法加载提款手续费率"
     },
     "completeManual": {
@@ -1150,6 +1116,90 @@
       "amountFinite": "金额必须是有限数字",
       "descMin": "描述至少需要 {min} 个字符",
       "descMax": "描述必须少于 {max} 个字符"
+    }
+  },
+  "fees": {
+    "types": {
+      "Withdrawal": "提款",
+      "Deposit": "充值"
+    },
+    "display": {
+      "none": "无手续费",
+      "percentOnly": "{rate}%",
+      "flatOnly": "{flat}",
+      "both": "{rate}% + {flat}"
+    },
+    "section": {
+      "Withdrawal": {
+        "title": "提款手续费",
+        "description": "适用于所有提款的平台手续费。"
+      },
+      "Deposit": {
+        "title": "充值手续费",
+        "description": "适用于所有充值的平台手续费。"
+      },
+      "hint": "0% + S$0 表示取消手续费，并对用户隐藏。",
+      "currentLabel": "当前手续费",
+      "loadFailed": "无法加载当前手续费"
+    },
+    "queue": {
+      "title": "已安排的更改",
+      "empty": "暂无已安排的更改。",
+      "from": "自 {date} 起",
+      "line": "{desc}，自 {date} 起",
+      "loadFailed": "无法加载已安排的手续费更改",
+      "selectAria": "选择已安排的更改",
+      "cancelSelected": "取消所选",
+      "cancelTitle": "取消已安排的更改？",
+      "cancelWarningTitle": "请注意！",
+      "cancelWarning": "这将在生效前取消 {count} 项已安排的手续费更改；此操作无法撤销。",
+      "cancelConfirm": "取消所选更改",
+      "cancelSuccess": "已取消 {count} 项已安排的手续费更改",
+      "cancelPartial": "已取消 {count} 项已安排的手续费更改，{failed} 项失败",
+      "cancelError": "取消已安排的手续费更改失败"
+    },
+    "add": {
+      "trigger": "添加更改",
+      "title": "安排{type}手续费更改",
+      "intro": "手续费由固定新元金额加交易金额的百分比组成。除非设置生效时间，否则更改立即生效。",
+      "zeroHint": "两项都设为 0 即可取消手续费，并对用户隐藏。",
+      "percentageLabel": "百分比",
+      "percentagePlaceholder": "手续费百分比",
+      "flatLabel": "固定金额（SGD）",
+      "flatPlaceholder": "固定手续费金额",
+      "percentRange": "百分比必须介于 0 至 100 之间",
+      "flatRange": "固定金额必须介于 0 至 10,000 之间",
+      "precision": "数值最多保留 2 位小数",
+      "finite": "数值必须是有限数字",
+      "effectiveFrom": "生效时间",
+      "effectiveHint": "留空表示立即生效。时间按您的本地时区输入，并以 UTC 发送到服务器。",
+      "effectiveInvalid": "生效时间必须是有效的日期和时间",
+      "effectivePast": "生效时间必须是将来的时间",
+      "save": "保存",
+      "success": "手续费已设为 {desc}",
+      "scheduledSuccess": "已安排手续费于 {date} 更改为 {desc}",
+      "updateError": "保存手续费更改失败"
+    },
+    "announcement": {
+      "title": "手续费公告",
+      "description": "向用户发送手续费公告邮件。",
+      "typeLabel": "手续费类型",
+      "eventLabel": "要公告的更改",
+      "eventDefault": "下一个即将生效的更改／当前手续费",
+      "reasoningLabel": "原因说明",
+      "reasoningPlaceholder": "向用户说明手续费为何更改……",
+      "reasoningHint": "留空则使用默认的防滥用说明。",
+      "userIdPlaceholder": "用户 ID",
+      "sendTest": "向指定用户发送测试",
+      "sendSuccess": "已向 {email} 发送手续费公告",
+      "sendError": "发送手续费公告失败",
+      "broadcast": "发送给所有用户",
+      "broadcastTitle": "发送给所有用户？",
+      "broadcastWarningTitle": "请注意！",
+      "broadcastWarning": "这将向所有已填写邮箱的用户发送邮件；此操作无法撤销。",
+      "broadcastConfirm": "确认发送给所有用户",
+      "broadcastSuccess": "已发送 {sent} 封，失败 {failed} 封",
+      "broadcastError": "群发手续费公告失败"
     }
   }
 }

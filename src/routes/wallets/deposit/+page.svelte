@@ -12,7 +12,8 @@
     import Validation from "$lib/components/core/Validation.svelte";
     import Airwallex from 'airwallex-payment-elements';
     import {toResult} from "$lib/utility";
-    import {loadWithdrawFeeRate} from "$lib/api/fee";
+    import {describeFee, isZeroFee, loadFee} from "$lib/api/fee";
+    import type {FeeRes} from "$lib/api/core/data-contracts";
     import {api} from "../../../store";
     import {toast} from "svelte-sonner";
     import {config} from "../../../config/client";
@@ -26,12 +27,14 @@
     let taints: Record<string, boolean> = {}
     let submitting = false;
 
-    // withdrawal fee rate (e.g. 0.04 = 4%), shown in the "deposits are free"
-    // notice. While loading or if the endpoint fails (null), a generic notice
-    // without the percentage is shown instead — the rate is never hardcoded
-    // client-side. A rate of exactly 0 means the fee is disabled and the whole
-    // notice (both lines + tooltip) is hidden.
-    let feeRate: number | null = null;
+    // deposit + withdrawal fees (flat SGD + percentage) for the fee notice.
+    // While loading or if the endpoint fails (null), the deposit line falls
+    // back to "deposits are free" and the withdrawal line to a generic notice
+    // — the fees are never hardcoded client-side. A fee of exactly 0% + $0 is
+    // disabled and its line is hidden; when both are disabled the whole
+    // notice (lines + tooltip) is hidden.
+    let depositFee: FeeRes | null = null;
+    let withdrawFee: FeeRes | null = null;
     let feeTipOpen = false;
 
     // tap toggles the fee tooltip on touch devices: hover-only tooltips are
@@ -45,14 +48,23 @@
         Airwallex.loadAirwallex({
             env: 'prod'
         })
-        loadFeeRate();
+        loadFees();
     })
 
-    async function loadFeeRate() {
-        feeRate = await loadWithdrawFeeRate($api, $_('wallets.deposit.feeLoadFailed', { locale: $lang }));
+    async function loadFees() {
+        const errorMessage = $_('wallets.deposit.feeLoadFailed', { locale: $lang });
+        [depositFee, withdrawFee] = await Promise.all([
+            loadFee($api, "Deposit", errorMessage),
+            loadFee($api, "Withdrawal", errorMessage),
+        ]);
     }
 
-    $: feeRatePercent = feeRate != null ? formatNumber(feeRate * 100, $lang, {maximumFractionDigits: 2}) : null;
+    // localized fee summaries ("4% + S$2.00"); null when the fee is disabled
+    // (0% + $0) or unknown — the corresponding line is then hidden or generic
+    $: depDesc = depositFee != null && !isZeroFee(depositFee) ? describeFee(depositFee, $_, $lang) : null;
+    $: wdDesc = withdrawFee != null && !isZeroFee(withdrawFee) ? describeFee(withdrawFee, $_, $lang) : null;
+    // generic while unknown (null), hidden only once the fee is known-zero
+    $: showWithdrawLine = !isZeroFee(withdrawFee);
 
     // Localized validation schema — rebuilt when the active locale changes so the
     // rendered Zod messages follow the language (AC5). Sourced from the
@@ -199,30 +211,52 @@
                     </button>
                 </Validation>
 
-                {#if feeRate !== 0}
+                {#if showWithdrawLine || depDesc != null}
                     <div class="flex flex-col items-center gap-0.5 text-sm text-muted-foreground">
-                        <span>{$_('wallets.deposit.feeNoticeFree', { locale: $lang })}</span>
                         <span class="flex items-center gap-1">
-                            {#if feeRatePercent != null}
-                                {$_('wallets.deposit.feeNoticeWithdraw', { locale: $lang, values: { rate: feeRatePercent } })}
+                            {#if depDesc != null}
+                                {$_('wallets.deposit.feeNoticeDeposit', { locale: $lang, values: { desc: depDesc } })}
                             {:else}
-                                {$_('wallets.deposit.feeNoticeWithdrawGeneric', { locale: $lang })}
+                                {$_('wallets.deposit.feeNoticeFree', { locale: $lang })}
                             {/if}
-                            <Tooltip.Root bind:open={feeTipOpen}>
-                                <Tooltip.Trigger on:pointerdown={feeTipPointerDown}>
-                                    <Info class="h-4 w-4"/>
-                                </Tooltip.Trigger>
-                                <Tooltip.Content class="max-w-72">
-                                    <p class="text-justify">
-                                        {#if feeRatePercent != null}
-                                            {$_('wallets.deposit.feeTooltip', { locale: $lang, values: { rate: feeRatePercent } })}
-                                        {:else}
-                                            {$_('wallets.deposit.feeTooltipGeneric', { locale: $lang })}
-                                        {/if}
-                                    </p>
-                                </Tooltip.Content>
-                            </Tooltip.Root>
+                            {#if depDesc != null && !showWithdrawLine}
+                                <Tooltip.Root bind:open={feeTipOpen}>
+                                    <Tooltip.Trigger on:pointerdown={feeTipPointerDown}>
+                                        <Info class="h-4 w-4"/>
+                                    </Tooltip.Trigger>
+                                    <Tooltip.Content class="max-w-72">
+                                        <p class="text-justify">
+                                            {$_('wallets.deposit.feeTooltipDeposit', { locale: $lang, values: { desc: depDesc } })}
+                                        </p>
+                                    </Tooltip.Content>
+                                </Tooltip.Root>
+                            {/if}
                         </span>
+                        {#if showWithdrawLine}
+                            <span class="flex items-center gap-1">
+                                {#if wdDesc != null && depDesc != null}
+                                    {$_('wallets.deposit.feeNoticeWithdrawAlso', { locale: $lang, values: { desc: wdDesc } })}
+                                {:else if wdDesc != null}
+                                    {$_('wallets.deposit.feeNoticeWithdraw', { locale: $lang, values: { desc: wdDesc } })}
+                                {:else}
+                                    {$_('wallets.deposit.feeNoticeWithdrawGeneric', { locale: $lang })}
+                                {/if}
+                                <Tooltip.Root bind:open={feeTipOpen}>
+                                    <Tooltip.Trigger on:pointerdown={feeTipPointerDown}>
+                                        <Info class="h-4 w-4"/>
+                                    </Tooltip.Trigger>
+                                    <Tooltip.Content class="max-w-72">
+                                        <p class="text-justify">
+                                            {#if wdDesc != null}
+                                                {$_('wallets.deposit.feeTooltip', { locale: $lang, values: { desc: wdDesc } })}
+                                            {:else}
+                                                {$_('wallets.deposit.feeTooltipGeneric', { locale: $lang })}
+                                            {/if}
+                                        </p>
+                                    </Tooltip.Content>
+                                </Tooltip.Root>
+                            </span>
+                        {/if}
                     </div>
                 {/if}
             </div>

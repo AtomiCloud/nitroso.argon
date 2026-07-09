@@ -57,6 +57,13 @@ export interface AnnouncementSendRes {
   email?: string | null;
 }
 
+export interface AnnounceFeeReq {
+  type: string;
+  /** @format uuid */
+  changeId?: string | null;
+  reasoning?: string | null;
+}
+
 export interface BookingCountRes {
   date?: string | null;
   time?: string | null;
@@ -235,15 +242,22 @@ export interface ErrorInfo {
 }
 
 export interface FeeChangeRes {
+  /** @format uuid */
+  id: string;
+  type?: string | null;
   /** @format double */
-  withdrawFeePercentage: number;
+  percentage: number;
+  /** @format double */
+  flatAmount: number;
   /** @format date-time */
   effectiveAt: string;
 }
 
 export interface FeeRes {
   /** @format double */
-  withdrawFeeRate: number;
+  percentage: number;
+  /** @format double */
+  flatAmount: number;
 }
 
 export interface LatestScheduleRes {
@@ -330,7 +344,13 @@ export interface SetFeeReq {
    * @min 0
    * @max 100
    */
-  withdrawFeePercentage: number;
+  percentage: number;
+  /**
+   * @format double
+   * @min 0
+   * @max 10000
+   */
+  flatAmount: number;
   /** @format date-time */
   effectiveAt?: string | null;
 }
