@@ -9,17 +9,17 @@
     import * as Tooltip from "$lib/components/ui/tooltip";
     import {type SafeParseError, z, type ZodIssue} from "zod";
     import {toResult} from "$lib/utility";
-    import {loadWithdrawFeeRate, roundToEvenCents} from "$lib/api/fee";
+    import {calcFee, describeFee, isZeroFee, loadFee, roundToEvenCents} from "$lib/api/fee";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
-    import type {CreateDiscountReq, CreateWithdrawalReq, WalletPrincipalRes} from "$lib/api/core/data-contracts";
+    import type {CreateDiscountReq, CreateWithdrawalReq, FeeRes, WalletPrincipalRes} from "$lib/api/core/data-contracts";
     import {AlertTriangle, Info, LucideLoader} from "lucide-svelte";
     import {tick} from "svelte";
     import Validation from "$lib/components/core/Validation.svelte";
     import {Input} from "$lib/components/ui/input";
     import {_} from "svelte-i18n";
-    import {lang, formatMoney, formatNumber} from "$lib/i18n";
+    import {lang, formatMoney} from "$lib/i18n";
 
     export let userId: string;
 
@@ -31,18 +31,18 @@
     let errors: ZodIssue[] = [];
     let taints: Record<string, boolean> = {}
 
-    // withdrawal fee rate (e.g. 0.04 = 4%). Loaded lazily when the dialog
-    // opens; on failure the fee breakdown is simply hidden.
-    let feeRate: number | null = null;
+    // withdrawal fee (flat SGD + percentage, e.g. 4 = 4%). Loaded lazily when
+    // the dialog opens; on failure the fee breakdown is simply hidden.
+    let feeInfo: FeeRes | null = null;
     let feeRequested = false;
 
     $: if (dialogOpen && !feeRequested) {
         feeRequested = true;
-        loadFeeRate();
+        loadFeeInfo();
     }
 
-    async function loadFeeRate() {
-        feeRate = await loadWithdrawFeeRate($api, $_('withdrawals.create.feeLoadFailed', { locale: $lang }));
+    async function loadFeeInfo() {
+        feeInfo = await loadFee($api, "Withdrawal", $_('withdrawals.create.feeLoadFailed', { locale: $lang }));
     }
 
     // form validations
@@ -111,16 +111,17 @@
 
     $: isValid = errors.length === 0 && Object.entries(taints).length > 0;
 
-    // live fee breakdown (display only — banker's rounding matches the
-    // server's authoritative FeeCalculator cent-for-cent). A rate of exactly 0
-    // means the fee is disabled: net == gross, so the whole breakdown
-    // (including the "you'll receive" line) is hidden; null means the rate
-    // failed to load and the breakdown is hidden too.
+    // live fee breakdown (display only — flat + percentage with banker's
+    // rounding, capped at the amount, matching the server's authoritative
+    // FeeCalculator cent-for-cent). A fee of exactly 0% + $0 means the fee is
+    // disabled: net == gross, so the whole breakdown (including the "you'll
+    // receive" line) is hidden; null means the fee failed to load and the
+    // breakdown is hidden too.
     $: amountNum = Number(val.amount);
-    $: showFeeBreakdown = feeRate != null && feeRate !== 0 && Number.isFinite(amountNum) && amountNum > 0 && amountNum <= wallet.usable;
-    $: feeAmount = roundToEvenCents(amountNum * (feeRate ?? 0));
+    $: showFeeBreakdown = feeInfo != null && !isZeroFee(feeInfo) && Number.isFinite(amountNum) && amountNum > 0 && amountNum <= wallet.usable;
+    $: feeAmount = feeInfo != null && Number.isFinite(amountNum) ? calcFee(feeInfo, amountNum) : 0;
     $: netAmount = roundToEvenCents(amountNum - feeAmount);
-    $: feeRatePercent = formatNumber((feeRate ?? 0) * 100, $lang, {maximumFractionDigits: 2});
+    $: feeDesc = feeInfo != null ? describeFee(feeInfo, $_, $lang) : "";
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
@@ -173,13 +174,13 @@
                     {#if showFeeBreakdown}
                         <div class="flex flex-col gap-1 text-sm">
                             <div class="flex items-center gap-1 text-muted-foreground">
-                                <span>{$_('withdrawals.create.feeLine', { locale: $lang, values: { rate: feeRatePercent, fee: formatMoney(feeAmount, $lang) } })}</span>
+                                <span>{$_('withdrawals.create.feeLine', { locale: $lang, values: { desc: feeDesc, fee: formatMoney(feeAmount, $lang) } })}</span>
                                 <Tooltip.Root>
                                     <Tooltip.Trigger>
                                         <Info class="h-4 w-4"/>
                                     </Tooltip.Trigger>
                                     <Tooltip.Content class="max-w-72">
-                                        <p class="text-justify">{$_('withdrawals.create.feeTooltip', { locale: $lang, values: { rate: feeRatePercent } })}</p>
+                                        <p class="text-justify">{$_('withdrawals.create.feeTooltip', { locale: $lang, values: { desc: feeDesc } })}</p>
                                     </Tooltip.Content>
                                 </Tooltip.Root>
                             </div>

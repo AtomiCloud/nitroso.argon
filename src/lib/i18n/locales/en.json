@@ -17,7 +17,8 @@
     "transactions": "Transactions",
     "profile": "Profile",
     "logout": "Log out",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "fees": "Fees"
   },
   "theme": {
     "toggle": "Toggle theme"
@@ -321,44 +322,6 @@
       "typeNameHint": "Please type the name of the discount to proceed.",
       "deletedToast": "Successfully deleted discount '{name}'",
       "deleteError": "Failed to delete discount"
-    },
-    "fee": {
-      "title": "Withdrawal fee",
-      "description": "The platform-wide fee charged on every withdrawal.",
-      "hint": "0% disables the fee and hides it from users.",
-      "edit": "Edit fee",
-      "dialogTitle": "Edit withdrawal fee",
-      "dialogIntro": "Set the platform-wide withdrawal fee percentage. Changes apply immediately unless you schedule an effective date.",
-      "placeholder": "Fee percentage",
-      "save": "Save",
-      "success": "Successfully updated withdrawal fee to {rate}%",
-      "updateError": "Failed to update withdrawal fee",
-      "loadFailed": "Failed to load withdrawal fee rate",
-      "range": "Fee must be between 0 and 100",
-      "precision": "Fee can have at most 2 decimal places",
-      "finite": "Fee must be a finite number",
-      "effectiveFrom": "Effective from",
-      "effectiveHint": "Leave empty to apply immediately.",
-      "effectiveInvalid": "Effective date must be a valid date and time",
-      "effectivePast": "Effective date must be in the future",
-      "scheduledSuccess": "Successfully scheduled withdrawal fee change to {rate}% from {date}",
-      "upcomingLine": "{rate}% from {date}",
-      "upcomingLoadFailed": "Failed to load scheduled fee changes"
-    },
-    "announcement": {
-      "title": "Withdrawal fee announcement",
-      "description": "Sends the withdrawal fee announcement email to users.",
-      "userIdPlaceholder": "User ID",
-      "sendTest": "Send test to user",
-      "sendSuccess": "Sent withdrawal fee announcement to {email}",
-      "sendError": "Failed to send withdrawal fee announcement",
-      "broadcast": "Send to ALL users",
-      "broadcastTitle": "Send to all users?",
-      "broadcastWarningTitle": "Take Note!",
-      "broadcastWarning": "This emails every user with an address; it cannot be undone.",
-      "broadcastConfirm": "Send to all users",
-      "broadcastSuccess": "{sent} sent, {failed} failed",
-      "broadcastError": "Failed to broadcast withdrawal fee announcement"
     }
   },
   "landing": {
@@ -928,9 +891,9 @@
         "currentBalance": "Current Balance: {amount}"
       },
       "initError": "Failed to initialize payment",
-      "feeTooltip": "Why a fee? Some users have been abusing the wallet system by repeatedly depositing and withdrawing large sums. The {rate}% withdrawal fee discourages this abuse and keeps BunnyBooker sustainable. Deposits remain free.",
-      "feeTooltipGeneric": "Why a fee? Some users have been abusing the wallet system by repeatedly depositing and withdrawing large sums. The withdrawal fee discourages this abuse and keeps BunnyBooker sustainable. Deposits remain free.",
-      "feeLoadFailed": "Failed to load withdrawal fee rate",
+      "feeTooltip": "Why a fee? Some users have been abusing the wallet system by repeatedly depositing and withdrawing large sums. The {desc} withdrawal fee discourages this abuse and keeps BunnyBooker sustainable.",
+      "feeTooltipGeneric": "Why a fee? Some users have been abusing the wallet system by repeatedly depositing and withdrawing large sums. The withdrawal fee discourages this abuse and keeps BunnyBooker sustainable.",
+      "feeLoadFailed": "Failed to load fee information",
       "amountLabel": "Deposit amount",
       "keypadBackspace": "Delete last digit",
       "enterAmount": "Enter amount",
@@ -939,8 +902,11 @@
         "clear": "Clear"
       },
       "feeNoticeFree": "Deposits are free.",
-      "feeNoticeWithdraw": "A {rate}% fee applies to withdrawals only.",
-      "feeNoticeWithdrawGeneric": "A fee applies to withdrawals only."
+      "feeNoticeWithdraw": "A {desc} fee applies to withdrawals only.",
+      "feeNoticeWithdrawGeneric": "A fee applies to withdrawals only.",
+      "feeNoticeWithdrawAlso": "A {desc} fee also applies to withdrawals.",
+      "feeNoticeDeposit": "A {desc} fee applies to deposits.",
+      "feeTooltipDeposit": "Why a fee? Some users have been abusing the wallet system by repeatedly depositing and withdrawing large sums. The {desc} deposit fee discourages this abuse and keeps BunnyBooker sustainable."
     },
     "adminIn": {
       "trigger": "Add Usable Balance",
@@ -1045,9 +1011,9 @@
       "invalidPayNow": "PayNow number must be exactly 8 digits",
       "success": "Successfully requested withdrawal of {amount} from your USABLE balance.",
       "failed": "Failed to make withdrawal",
-      "feeLine": "Withdrawal fee ({rate}%): −{fee}",
+      "feeLine": "Withdrawal fee ({desc}): −{fee}",
       "youReceive": "You'll receive: {net}",
-      "feeTooltip": "Why a fee? Some users have been abusing the wallet system by repeatedly depositing and withdrawing large sums. The {rate}% withdrawal fee discourages this abuse and keeps BunnyBooker sustainable. Deposits remain free.",
+      "feeTooltip": "Why a fee? Some users have been abusing the wallet system by repeatedly depositing and withdrawing large sums. The {desc} withdrawal fee discourages this abuse and keeps BunnyBooker sustainable.",
       "feeLoadFailed": "Failed to load withdrawal fee rate"
     },
     "completeManual": {
@@ -1150,6 +1116,90 @@
       "amountFinite": "Amount must be a finite number",
       "descMin": "Description must be at least {min} characters long",
       "descMax": "Description must be less than {max} characters long"
+    }
+  },
+  "fees": {
+    "types": {
+      "Withdrawal": "Withdrawal",
+      "Deposit": "Deposit"
+    },
+    "display": {
+      "none": "No fee",
+      "percentOnly": "{rate}%",
+      "flatOnly": "{flat}",
+      "both": "{rate}% + {flat}"
+    },
+    "section": {
+      "Withdrawal": {
+        "title": "Withdrawal fee",
+        "description": "The platform-wide fee charged on every withdrawal."
+      },
+      "Deposit": {
+        "title": "Deposit fee",
+        "description": "The platform-wide fee charged on every deposit."
+      },
+      "hint": "0% + S$0 removes the fee and hides it from users.",
+      "currentLabel": "Current fee",
+      "loadFailed": "Failed to load the current fee"
+    },
+    "queue": {
+      "title": "Scheduled changes",
+      "empty": "No scheduled changes.",
+      "from": "from {date}",
+      "line": "{desc} from {date}",
+      "loadFailed": "Failed to load scheduled fee changes",
+      "selectAria": "Select scheduled change",
+      "cancelSelected": "Cancel selected",
+      "cancelTitle": "Cancel scheduled changes?",
+      "cancelWarningTitle": "Take Note!",
+      "cancelWarning": "This cancels {count} scheduled fee change(s) before they take effect; it cannot be undone.",
+      "cancelConfirm": "Cancel selected changes",
+      "cancelSuccess": "Cancelled {count} scheduled fee change(s)",
+      "cancelPartial": "Cancelled {count} scheduled fee change(s); {failed} failed",
+      "cancelError": "Failed to cancel scheduled fee change"
+    },
+    "add": {
+      "trigger": "Add change",
+      "title": "Schedule a {type} fee change",
+      "intro": "Set the fee as a flat SGD amount plus a percentage of the transaction amount. The change applies immediately unless you schedule an effective date.",
+      "zeroHint": "Set both to 0 to remove the fee and hide it from users.",
+      "percentageLabel": "Percentage",
+      "percentagePlaceholder": "Fee percentage",
+      "flatLabel": "Flat amount (SGD)",
+      "flatPlaceholder": "Flat fee amount",
+      "percentRange": "Percentage must be between 0 and 100",
+      "flatRange": "Flat amount must be between 0 and 10,000",
+      "precision": "Value can have at most 2 decimal places",
+      "finite": "Value must be a finite number",
+      "effectiveFrom": "Effective from",
+      "effectiveHint": "Leave empty to apply immediately. The time is entered in your local timezone and sent to the server as UTC.",
+      "effectiveInvalid": "Effective date must be a valid date and time",
+      "effectivePast": "Effective date must be in the future",
+      "save": "Save",
+      "success": "Fee set to {desc}",
+      "scheduledSuccess": "Scheduled fee change to {desc} from {date}",
+      "updateError": "Failed to save the fee change"
+    },
+    "announcement": {
+      "title": "Fee announcement",
+      "description": "Sends a fee announcement email to users.",
+      "typeLabel": "Fee type",
+      "eventLabel": "Change to announce",
+      "eventDefault": "Next upcoming / current fee",
+      "reasoningLabel": "Reasoning",
+      "reasoningPlaceholder": "Explain to users why this fee is changing…",
+      "reasoningHint": "Leave empty to use the default anti-abuse explanation.",
+      "userIdPlaceholder": "User ID",
+      "sendTest": "Send test to user",
+      "sendSuccess": "Sent fee announcement to {email}",
+      "sendError": "Failed to send fee announcement",
+      "broadcast": "Send to ALL users",
+      "broadcastTitle": "Send to all users?",
+      "broadcastWarningTitle": "Take Note!",
+      "broadcastWarning": "This emails every user with an address; it cannot be undone.",
+      "broadcastConfirm": "Send to all users",
+      "broadcastSuccess": "{sent} sent, {failed} failed",
+      "broadcastError": "Failed to broadcast fee announcement"
     }
   }
 }

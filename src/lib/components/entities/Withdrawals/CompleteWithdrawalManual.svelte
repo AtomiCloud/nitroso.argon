@@ -4,11 +4,11 @@
     //@ts-ignore
     import * as Dialog from "$lib/components/ui/dialog";
     import {toResult} from "$lib/utility";
-    import {loadWithdrawFeeRate, roundToEvenCents} from "$lib/api/fee";
+    import {calcFee, loadFee, roundToEvenCents} from "$lib/api/fee";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
-    import type {WithdrawalPrincipalRes} from "$lib/api/core/data-contracts";
+    import type {FeeRes, WithdrawalPrincipalRes} from "$lib/api/core/data-contracts";
     import {LucideLoader} from "lucide-svelte";
     import {_} from "svelte-i18n";
     import {lang, formatMoney} from "$lib/i18n";
@@ -24,9 +24,10 @@
     // The backend books every completion as net + fee (net paid out, fee kept),
     // so the admin must PayNow the NET amount — never the gross record amount.
     // Prefer the exact fee snapshotted on the withdrawal by a prior approval;
-    // otherwise compute it from the live fee rate. If neither is available the
-    // net is unknown and submission is blocked to prevent overpaying the user.
-    let feeRate: number | null = null;
+    // otherwise compute it from the live fee (flat SGD + percentage). If
+    // neither is available the net is unknown and submission is blocked to
+    // prevent overpaying the user.
+    let feeInfo: FeeRes | null = null;
     let feeRequested = false;
     let feeLoadFailed = false;
 
@@ -36,19 +37,19 @@
 
     $: if (dialogOpen && !feeRequested && snapshotFee == null) {
         feeRequested = true;
-        loadFeeRate();
+        loadFeeInfo();
     }
 
-    async function loadFeeRate() {
+    async function loadFeeInfo() {
         feeLoadFailed = false;
-        feeRate = await loadWithdrawFeeRate($api, $_('withdrawals.completeManual.feeLoadFailed', { locale: $lang }));
-        feeLoadFailed = feeRate == null;
+        feeInfo = await loadFee($api, "Withdrawal", $_('withdrawals.completeManual.feeLoadFailed', { locale: $lang }));
+        feeLoadFailed = feeInfo == null;
     }
 
-    // banker's rounding to match zinc's FeeCalculator cent-for-cent — a
-    // half-up fee could differ by one cent and overpay the user
+    // flat + percentage with banker's rounding to match zinc's FeeCalculator
+    // cent-for-cent — a half-up fee could differ by one cent and overpay the user
     $: amount = withdrawal.record.amount;
-    $: fee = snapshotFee ?? (feeRate != null ? roundToEvenCents(amount * feeRate) : null);
+    $: fee = snapshotFee ?? (feeInfo != null ? calcFee(feeInfo, amount) : null);
     $: net = fee != null ? roundToEvenCents(amount - fee) : null;
 
     // Manual fallback when Airwallex payouts are unavailable: the admin
@@ -95,7 +96,7 @@
                             <div class="font-bold">{$_('withdrawals.completeManual.transferExactly', { locale: $lang, values: { net: formatMoney(net, $lang), payNowNumber: withdrawal.record.payNowNumber } })}</div>
                         {:else if feeLoadFailed}
                             <div class="text-destructive">{$_('withdrawals.completeManual.feeUnavailable', { locale: $lang })}</div>
-                            <Button variant="outline" size="sm" class="self-start" on:click={loadFeeRate}>
+                            <Button variant="outline" size="sm" class="self-start" on:click={loadFeeInfo}>
                                 {$_('actions.retry', { locale: $lang })}
                             </Button>
                         {:else}
