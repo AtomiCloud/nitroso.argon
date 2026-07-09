@@ -45,6 +45,14 @@
         return new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
     }
 
+    // zinc's standard API date format, dd-MM-yyyy — CalendarDate.toString()
+    // is ISO and gets rejected with a 400
+    function toApiDate(d: DateValue): string {
+        const dd = String(d.day).padStart(2, "0");
+        const mm = String(d.month).padStart(2, "0");
+        return `${dd}-${mm}-${d.year}`;
+    }
+
     const today = new Date();
     let after: DateValue | undefined = toCalDate(new Date(today.getTime() - 90 * 24 * 3600 * 1000));
     let before: DateValue | undefined = toCalDate(today);
@@ -56,9 +64,8 @@
     async function load() {
         loading = true;
         await toResult(() => $api.vBookingStatsDetail("1", {
-            // CalendarDate.toString() is exactly the "yyyy-MM-dd" zinc expects
-            ...(after == null ? {} : {after: after.toString()}),
-            ...(before == null ? {} : {before: before.toString()}),
+            ...(after == null ? {} : {after: toApiDate(after)}),
+            ...(before == null ? {} : {before: toApiDate(before)}),
         }), $_('stats.loadError', { locale: $lang })).match({
             ok: (r: BookingStatRes[]) => {
                 rows = r;
