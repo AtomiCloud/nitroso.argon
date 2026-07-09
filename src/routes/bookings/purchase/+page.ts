@@ -1,4 +1,4 @@
-import type { MaterializedCostRes, PassengerPrincipalRes } from '$lib/api/core/data-contracts';
+import type { CostSummaryRes, PassengerPrincipalRes, PriorityEligibilityRes } from '$lib/api/core/data-contracts';
 import { toResult } from '$lib/utility';
 import { loadError } from '$lib/i18n';
 import type { PageLoad } from './$types';
@@ -11,7 +11,8 @@ export const load = (async ({
   url,
   fetch,
 }): Promise<{
-  result: ['err', ProblemDetails[]] | ['ok', [PassengerPrincipalRes[], MaterializedCostRes]];
+  result: ['err', ProblemDetails[]] | ['ok', [PassengerPrincipalRes[], CostSummaryRes]];
+  eligibility: PriorityEligibilityRes;
 }> => {
   const { session, user, locale } = await parent();
 
@@ -26,11 +27,35 @@ export const load = (async ({
     await loadError(locale, 'errors.load.passengers'),
   );
 
-  const cost = toResult(() => api.vCostSelfDetail('1'), await loadError(locale, 'errors.load.cost'));
+  // Priced for THIS booking spec (date/time/direction), so the shown price
+  // always matches what zinc will charge once cost policies exist.
+  const cost = toResult(
+    () =>
+      api.vCostSummaryDetail('1', {
+        Date: url.searchParams.get('date') ?? '',
+        Time: url.searchParams.get('time') ?? '',
+        Direction: url.searchParams.get('direction') ?? '',
+      }),
+    await loadError(locale, 'errors.load.cost'),
+  );
+
+  // The priority opt-in is a bonus — if the eligibility read fails, the
+  // purchase flow must still work, so degrade to "not eligible".
+  const eligibility = await toResult(
+    () => api.vBookingPriorityEligibilityDetail('1'),
+    await loadError(locale, 'errors.load.priority'),
+  ).match({
+    ok: (e: PriorityEligibilityRes) => e,
+    err: (e): PriorityEligibilityRes => {
+      console.error(e);
+      return { eligible: false, fee: 0 };
+    },
+  });
 
   const result = await Res.all(passengers, cost).serial();
 
   return {
     result,
+    eligibility,
   };
 }) satisfies PageLoad;

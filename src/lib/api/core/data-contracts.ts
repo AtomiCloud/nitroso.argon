@@ -102,6 +102,7 @@ export interface BookingPrincipalRes {
   ticketNo?: string | null;
   bookingNo?: string | null;
   status?: string | null;
+  priority: boolean;
 }
 
 export interface BookingQueueRes {
@@ -152,6 +153,91 @@ export interface CostPrincipalRes {
   createdAt: string;
   /** @format double */
   cost: number;
+}
+
+export interface CostPolicyReq {
+  name?: string | null;
+  enabled: boolean;
+  matchDate?: string | null;
+  matchTime?: string | null;
+  matchDayOfWeek?: string | null;
+  matchDirection?: string | null;
+  /** @format int32 */
+  leadTimeUnderHours?: number | null;
+  /** @format double */
+  amount: number;
+  isPercentage: boolean;
+  /** @format date-time */
+  effectiveAt?: string | null;
+  /** @format date-time */
+  expiresAt?: string | null;
+}
+
+export interface CostPolicyPrincipalRes {
+  /** @format uuid */
+  id: string;
+  /** @format date-time */
+  createdAt: string;
+  name?: string | null;
+  enabled: boolean;
+  matchDate?: string | null;
+  matchTime?: string | null;
+  matchDayOfWeek?: string | null;
+  matchDirection?: string | null;
+  /** @format int32 */
+  leadTimeUnderHours?: number | null;
+  /** @format double */
+  amount: number;
+  isPercentage: boolean;
+  /** @format date-time */
+  effectiveAt?: string | null;
+  /** @format date-time */
+  expiresAt?: string | null;
+}
+
+export interface CostPolicyLineRes {
+  name?: string | null;
+  /** @format double */
+  delta: number;
+}
+
+export interface CostSummaryRes {
+  /** @format double */
+  baseCost: number;
+  policyLines?: CostPolicyLineRes[] | null;
+  /** @format double */
+  subtotal: number;
+  discounts?: DiscountRecordRes[] | null;
+  /** @format double */
+  final: number;
+}
+
+export interface PriorityEligibilityRes {
+  eligible: boolean;
+  /** @format double */
+  fee: number;
+}
+
+export interface PrioritySettingsRes {
+  /** @format double */
+  fee: number;
+  allowAll: boolean;
+  windowStartSgt?: string | null;
+  windowEndSgt?: string | null;
+}
+
+export interface SetPrioritySettingsReq {
+  /** @format double */
+  fee: number;
+  allowAll: boolean;
+  windowStartSgt?: string | null;
+  windowEndSgt?: string | null;
+}
+
+export interface PriorityAccessRes {
+  userId?: string | null;
+  /** @format date-time */
+  createdAt: string;
 }
 
 export interface CreateBookingReq {
@@ -299,6 +385,9 @@ export interface LatestScheduleRes {
 export interface MaterializedCostRes {
   /** @format double */
   cost: number;
+  policyLines?: CostPolicyLineRes[] | null;
+  /** @format double */
+  subtotal: number;
   /** @format double */
   final: number;
   discounts?: DiscountRecordRes[] | null;

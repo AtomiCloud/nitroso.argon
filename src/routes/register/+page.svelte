@@ -14,8 +14,7 @@
 
     //@ts-ignore
     import * as Card from "$lib/components/ui/card";
-    //@ts-ignore
-    import * as Tooltip from "$lib/components/ui/tooltip";
+    import InfoTip from "$lib/components/core/InfoTip.svelte";
     import {Checkbox} from "$lib/components/ui/checkbox";
 
     let name = "";
@@ -108,23 +107,15 @@
                                 {:then bool}
                                     {update(bool)}
                                     {#if bool}
-                                        <Tooltip.Root>
-                                            <Tooltip.Trigger>
-                                                <X class="w-6 h-6 text-red-400"/>
-                                            </Tooltip.Trigger>
-                                            <Tooltip.Content>
-                                                <p>{$_('auth.usernameTaken', { locale: $lang })}</p>
-                                            </Tooltip.Content>
-                                        </Tooltip.Root>
+                                        <InfoTip label={$_('auth.usernameTaken', { locale: $lang })}>
+                                            <X slot="trigger" class="w-6 h-6 text-red-400"/>
+                                            {$_('auth.usernameTaken', { locale: $lang })}
+                                        </InfoTip>
                                     {:else}
-                                        <Tooltip.Root>
-                                            <Tooltip.Trigger>
-                                                <Check class="w-6 h-6 text-green-400"/>
-                                            </Tooltip.Trigger>
-                                            <Tooltip.Content>
-                                                <p>{$_('auth.usernameAvailable', { locale: $lang })}</p>
-                                            </Tooltip.Content>
-                                        </Tooltip.Root>
+                                        <InfoTip label={$_('auth.usernameAvailable', { locale: $lang })}>
+                                            <Check slot="trigger" class="w-6 h-6 text-green-400"/>
+                                            {$_('auth.usernameAvailable', { locale: $lang })}
+                                        </InfoTip>
                                     {/if}
                                 {/await}
                             </div>
