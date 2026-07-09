@@ -583,8 +583,8 @@
       "deliveryHeading": "Dasar Penghantaran, Bayaran Balik & Pertukaran",
       "deliveryIntro": "Anda menerima terma berikut untuk penghantaran, bayaran balik dan pertukaran tiket:",
       "deliveryItem1": "Bayaran balik penuh akan diberikan untuk tiket yang tidak berjaya diperoleh oleh sistem BunnyBooker di laman web KTMB.",
-      "deliveryItem2": "Tiket yang telah berjaya diperoleh di laman web KTMB tidak layak untuk bayaran balik atau pertukaran.",
-      "deliveryItem3": "Pembatalan boleh dimulakan setelah tiket ditempah. Walau bagaimanapun, sila ambil perhatian bahawa tiada bayaran balik akan diberikan untuk tiket yang dibatalkan selepas sistem BunnyBooker berjaya memperoleh tiket di laman web KTMB.",
+      "deliveryItem2": "Tiket yang telah berjaya diperoleh di laman web KTMB tidak layak untuk bayaran balik atau pertukaran percuma. Tempahan sedemikian boleh ditamatkan, tertakluk kepada fi penamatan sebanyak 50% daripada harga tiket; baki 50% akan dikembalikan sebagai kredit ke dompet BunnyBooker anda.",
+      "deliveryItem3": "Pembatalan boleh dimulakan setelah tiket ditempah dan adalah percuma selagi tiket belum diperoleh. Selepas sistem BunnyBooker berjaya memperoleh tiket di laman web KTMB, pembatalan tidak lagi tersedia — hanya penamatan, yang dikenakan fi penamatan 50% seperti dinyatakan di atas.",
       "deliveryItem4": "Setelah tiket dipesan dan perkhidmatan tempahan kami digunakan, arnab kami akan secara aktif cuba memperoleh tiket anda.",
       "deliveryItem5": "Usaha tempahan akan diteruskan sehingga 30 minit sebelum waktu berlepas yang dijadualkan dalam arah kereta api yang dipilih.",
       "deliveryItem6": "Jika berjaya, anda akan dimaklumkan dengan segera tentang butiran tempahan anda yang disahkan.",
@@ -808,7 +808,9 @@
     "contactHelp": "Perlukan bantuan? Hubungi Kami!",
     "refundPolicy": "Dasar Penghantaran, Pembatalan & Bayaran Balik",
     "privacyPolicy": "Dasar Privasi",
-    "termsOfUse": "Terma Penggunaan"
+    "termsOfUse": "Terma Penggunaan",
+    "supportSgt": "Sokongan waktu Singapura (SGT)",
+    "supportUs": "Sokongan waktu California (PT)"
   },
   "loader": {
     "default": "Sedang memuatkan, sila tunggu...",
