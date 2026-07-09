@@ -10,6 +10,7 @@
     import TerminateBooking from "$lib/components/entities/Bookings/TerminateBooking.svelte";
     import CancelBooking from "$lib/components/entities/Bookings/CancelBooking.svelte";
     import ManualInterventionActions from "$lib/components/entities/Bookings/ManualInterventionActions.svelte";
+    import QueuePosition from "$lib/components/entities/Bookings/QueuePosition.svelte";
     import moment from "moment-timezone";
     import {_} from "svelte-i18n";
     import {lang, formatCalendarDate, formatClockTime} from "$lib/i18n";
@@ -25,6 +26,11 @@
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     $: session = $page.data.session as any;
     $: isAdmin = session?.roles?.includes("admin") ?? false;
+
+    // Show the live queue position on the user's own list rows only — the
+    // admin list can hold 20 rows of other users' bookings, and admins read
+    // queue order from the filtered, buy-time-sorted list instead.
+    $: queued = ["Pending", "Buying", "Recovering"].includes(b.status ?? "");
 
     let reverting = false;
 
@@ -91,7 +97,11 @@
     </Card.Header>
     <Card.Content class="bg-muted">
         <div class="flex flex-wrap justify-end gap-4 pt-4 w-full">
-
+            {#if !isAdmin && queued}
+                <div class="flex items-center mr-auto">
+                    <QueuePosition bookingId={b.id}/>
+                </div>
+            {/if}
             {#if b.status === "Pending"}
                 <CancelBooking booking={b}/>
             {:else if b.status === "Completed" && canTerminate(b.date, b.time)}

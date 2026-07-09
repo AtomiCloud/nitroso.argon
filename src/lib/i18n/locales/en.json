@@ -18,7 +18,8 @@
     "profile": "Profile",
     "logout": "Log out",
     "signIn": "Sign in",
-    "fees": "Fees"
+    "fees": "Fees",
+    "stats": "Statistics"
   },
   "theme": {
     "toggle": "Toggle theme"
@@ -214,6 +215,13 @@
       "typeNameAfter": "to proceed.",
       "typeNameError": "Please type the name of the passenger of the booking to proceed.",
       "confirmButton": "Terminate Booking"
+    },
+    "queue": {
+      "position": "Position in queue: {position} of {total}",
+      "next": "You're next!",
+      "refresh": "Refresh queue position",
+      "tooltip": "Your position updates as bookings ahead of yours are completed or cancelled — you move up as the tickets ahead of you are bought.",
+      "loadError": "Failed to load queue position"
     }
   },
   "bookings": {
@@ -235,7 +243,18 @@
       "next": "Next",
       "pageLabel": "Page {page}",
       "sortBuyTime": "Buy time (newest)",
-      "sortFulfilTime": "Fulfilled time (newest)"
+      "sortFulfilTime": "Fulfilled time (newest)",
+      "filterByPassengerName": "Filter by passenger name...",
+      "filterByPassportNumber": "Filter by passport number...",
+      "selectTime": "Departure time",
+      "anyTime": "Any time",
+      "timesLoadError": "Failed to load departure times",
+      "countLoadError": "Failed to load the result count",
+      "pageOf": "Page {page} of {total}",
+      "totalResults": "{count} results",
+      "goToPage": "Go to page",
+      "go": "Go",
+      "queueHint": "Tip: filter by direction, date and departure time, then sort by buy time — the list shows the queue order for that timeslot."
     },
     "detail": {
       "title": "Booking",
@@ -797,7 +816,7 @@
     "jbToWoodlands": "JB to Woodlands",
     "jbSentralToWoodlands": "JB Sentral to Woodlands",
     "noSchedulesFound": "No schedules found",
-    "ticketsInQueue": "{count} tickets in queue",
+    "ticketsInQueue": "{count} people in queue",
     "buy": "Buy"
   },
   "calendar": {
@@ -1202,6 +1221,55 @@
       "broadcastConfirm": "Send to all users",
       "broadcastSuccess": "{sent} sent, {failed} failed",
       "broadcastError": "Failed to broadcast fee announcement"
+    }
+  },
+  "stats": {
+    "title": "Booking Statistics",
+    "reload": "Reload",
+    "loadError": "Failed to load booking statistics",
+    "empty": "No bookings match the current selection",
+    "range": {
+      "after": "Travel date from",
+      "before": "Travel date to",
+      "hint": "Travel-date range (default: the last 90 days)"
+    },
+    "definition": {
+      "refundOnly": "Refund only",
+      "refundCancel": "Refund + Cancel",
+      "helpRefundOnly": "Success rate = completed / (completed + refunded).",
+      "helpRefundCancel": "Success rate = completed / (completed + refunded + cancelled)."
+    },
+    "filters": {
+      "day": "Day of week",
+      "direction": "Direction",
+      "time": "Departure time",
+      "bucket": "Lead time",
+      "all": "All"
+    },
+    "summary": {
+      "title": "Current slice",
+      "total": "Total bookings",
+      "successRefundOnly": "Success rate (refund only)",
+      "successRefundCancel": "Success rate (refund + cancel)"
+    },
+    "table": {
+      "byDay": "By day of week",
+      "byTime": "By departure time",
+      "byBucket": "By lead time (purchase → departure)",
+      "group": "Group",
+      "total": "Total",
+      "completed": "Completed",
+      "failed": "Failed",
+      "rate": "Success rate"
+    },
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
     }
   }
 }
