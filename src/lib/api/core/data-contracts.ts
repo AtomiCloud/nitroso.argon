@@ -44,6 +44,19 @@ export interface AirwallexEventDataObject {
   updated_at?: string | null;
 }
 
+export interface AnnouncementBroadcastRes {
+  /** @format int32 */
+  sent: number;
+  /** @format int32 */
+  failed: number;
+  failedUserIds?: string[] | null;
+}
+
+export interface AnnouncementSendRes {
+  userId?: string | null;
+  email?: string | null;
+}
+
 export interface BookingCountRes {
   date?: string | null;
   time?: string | null;
@@ -221,6 +234,13 @@ export interface ErrorInfo {
   version?: string | null;
 }
 
+export interface FeeChangeRes {
+  /** @format double */
+  withdrawFeePercentage: number;
+  /** @format date-time */
+  effectiveAt: string;
+}
+
 export interface FeeRes {
   /** @format double */
   withdrawFeeRate: number;
@@ -302,6 +322,17 @@ export interface ScheduleRecordReq {
   confirmed: boolean;
   jToWExcluded?: string[] | null;
   wToJExcluded?: string[] | null;
+}
+
+export interface SetFeeReq {
+  /**
+   * @format double
+   * @min 0
+   * @max 100
+   */
+  withdrawFeePercentage: number;
+  /** @format date-time */
+  effectiveAt?: string | null;
 }
 
 export interface TimingPrincipalRes {
