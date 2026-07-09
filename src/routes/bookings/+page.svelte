@@ -20,7 +20,7 @@
     import type {Selected} from "bits-ui";
     import {CalendarDate, type DateValue, getLocalTimeZone} from "@internationalized/date";
 
-    import {CalendarIcon, FilePieChart} from "lucide-svelte";
+    import {ArrowUpDown, CalendarIcon, ChevronLeft, ChevronRight, FilePieChart} from "lucide-svelte";
     import type {PageData} from "./$types";
     import {tick} from "svelte";
     import {cn} from "$lib/utils";
@@ -66,9 +66,29 @@
     let direction = $page.url.searchParams.get("direction") ?? "";
     let status = $page.url.searchParams.get("status") ?? "";
     let time = $page.url.searchParams.get("time") ?? "";
+    let sortBy = $page.url.searchParams.get("sortBy") ?? "";
 
 
     let bookingStatus: Selected<string> | undefined = BOOKING_STATUS[status || ""];
+
+    // Sort options: '' (newest first, the server default) plus the zinc SortBy
+    // values. Keyed by SortBy value → i18n key suffix.
+    const BOOKING_SORT_KEYS: Record<string, string> = {
+        "": "sortNewest",
+        Timing: "sortTiming",
+        PassengerName: "sortPassengerName",
+        PassportNumber: "sortPassportNumber",
+        BuyTime: "sortBuyTime",
+        FulfilTime: "sortFulfilTime",
+    };
+
+    let bookingSort: Selected<string> | undefined = sortBy === "" ? undefined : {value: sortBy, label: sortBy};
+
+    // Same closed-trigger localization treatment as `bookingStatus` below.
+    $: if (bookingSort?.value) {
+        const translated = $_(`bookings.list.${BOOKING_SORT_KEYS[bookingSort.value] ?? 'sortNewest'}`, { locale: $lang });
+        if (bookingSort.label !== translated) bookingSort = { ...bookingSort, label: translated };
+    }
 
     // The dropdown items render translated text, but the closed trigger shows
     // `Selected.label`, which for a deep-linked initial value (e.g.
@@ -88,6 +108,11 @@
         triggerSearch();
     }
 
+    function bookingSortChange(t: Selected<string> | undefined) {
+        bookingSort = t;
+        triggerSearch();
+    }
+
     async function dateChange() {
         await tick();
         triggerSearch();
@@ -99,16 +124,28 @@
         triggerSearch();
     }
 
+    // Any filter/sort change resets to page 1 (no `page` param).
     function triggerSearch() {
         const status = bookingStatus?.value ?? "";
         const d = toZincDate(bindDate);
         const dir = bindDirection ?? ""
-        goto(`?userId=${userId}&time=${time}&status=${status}&date=${d}&direction=${dir}`,
+        const sort = bookingSort?.value ?? "";
+        goto(`?userId=${userId}&time=${time}&status=${status}&date=${d}&direction=${dir}&sortBy=${sort}`,
             {
                 keepFocus: true,
                 noScroll: true,
             }
         );
+    }
+
+    // Page navigation preserves every other query param as-is.
+    function gotoPage(p: number) {
+        const params = new URLSearchParams($page.url.searchParams);
+        params.set("page", `${p}`);
+        goto(`?${params.toString()}`, {
+            keepFocus: true,
+            noScroll: true,
+        });
     }
 
     const session: any = $page.data.session;
@@ -162,6 +199,17 @@
                     {/each}
                 </Select.Content>
             </Select.Root>
+            <Select.Root bind:selected={bookingSort} onSelectedChange={bookingSortChange}>
+                <Select.Trigger class="w-full lg:max-w-60">
+                    <ArrowUpDown class="mr-2 h-4 w-4"/>
+                    <Select.Value placeholder={$_('bookings.list.sortNewest', { locale: $lang })}/>
+                </Select.Trigger>
+                <Select.Content>
+                    {#each Object.entries(BOOKING_SORT_KEYS) as [val, key]}
+                        <Select.Item value={val}>{$_(`bookings.list.${key}`, { locale: $lang })}</Select.Item>
+                    {/each}
+                </Select.Content>
+            </Select.Root>
             <ToggleGroup.Root type="single" bind:value={bindDirection} class="w-full lg:max-w-80"
                               onValueChange={directionChange}>
                 <ToggleGroup.Item value="WToJ" aria-label={$_('bookings.list.woodlandsToJbSentral', { locale: $lang })}>
@@ -181,6 +229,19 @@
                     <BookingRow {b}/>
                 {/each}
             </Page>
+            <div class="flex justify-center items-center gap-4 my-4">
+                <Button variant="outline" disabled={data.page <= 1} on:click={() => gotoPage(data.page - 1)}>
+                    <ChevronLeft class="mr-2 h-4 w-4"/>
+                    {$_('bookings.list.previous', { locale: $lang })}
+                </Button>
+                <div class="text-sm text-muted-foreground">
+                    {$_('bookings.list.pageLabel', { locale: $lang, values: { page: data.page } })}
+                </div>
+                <Button variant="outline" disabled={!data.hasMore} on:click={() => gotoPage(data.page + 1)}>
+                    {$_('bookings.list.next', { locale: $lang })}
+                    <ChevronRight class="ml-2 h-4 w-4"/>
+                </Button>
+            </div>
         {/await}
     </div>
 </div>

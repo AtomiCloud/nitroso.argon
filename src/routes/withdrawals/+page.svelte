@@ -28,8 +28,10 @@
     import CreateWithdrawal from "$lib/components/entities/Withdrawals/CreateWithdrawal.svelte";
     import {Badge} from "$lib/components/ui/badge";
     import ApproveWithdrawal from "$lib/components/entities/Withdrawals/ApproveWithdrawal.svelte";
+    import CompleteWithdrawalManual from "$lib/components/entities/Withdrawals/CompleteWithdrawalManual.svelte";
     import RejectWithdrawal from "$lib/components/entities/Withdrawals/RejectWithdrawal.svelte";
     import CancelWithdrawal from "$lib/components/entities/Withdrawals/CancelWithdrawal.svelte";
+    import WithdrawalPayoutDetails from "$lib/components/entities/Withdrawals/WithdrawalPayoutDetails.svelte";
     import type {PageData} from "./$types";
     import {format, parse} from "date-fns";
     import {_} from "svelte-i18n";
@@ -171,6 +173,9 @@
                                     <Card.Description>{formatDateTime(w.createAt, $lang)}</Card.Description>
                                     <Badge class="{WITHDRAWAL_STATUS_BADGE[w.status.status ?? ''].color}">{$_(`withdrawals.status.${w.status.status ?? ''}`, { locale: $lang })}</Badge>
                                 </div>
+                                {#if w.payout}
+                                    <WithdrawalPayoutDetails payout={w.payout} compact/>
+                                {/if}
 
                             </Card.Header>
                             <Card.Content>
@@ -180,6 +185,7 @@
                                         {#if w.status.status?.toLowerCase() == "pending"}
                                             {#if session?.roles?.includes("admin") ?? false}
                                                 <ApproveWithdrawal withdrawal={w}/>
+                                                <CompleteWithdrawalManual withdrawal={w}/>
                                                 <RejectWithdrawal withdrawal={w}/>
                                             {/if}
                                             <CancelWithdrawal withdrawal={w}

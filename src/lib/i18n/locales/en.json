@@ -225,7 +225,16 @@
       "woodlandsToJbSentral": "Woodlands to JB Sentral",
       "jbToWoodlands": "JB to Woodlands",
       "jbSentralToWoodlands": "JB Sentral to Woodlands",
-      "empty": "No bookings found"
+      "empty": "No bookings found",
+      "sortNewest": "Latest travel date",
+      "sortTiming": "Travel timing",
+      "sortPassengerName": "Passenger name",
+      "sortPassportNumber": "Passport number",
+      "previous": "Previous",
+      "next": "Next",
+      "pageLabel": "Page {page}",
+      "sortBuyTime": "Buy time (newest)",
+      "sortFulfilTime": "Fulfilled time (newest)"
     },
     "detail": {
       "title": "Booking",
@@ -312,6 +321,44 @@
       "typeNameHint": "Please type the name of the discount to proceed.",
       "deletedToast": "Successfully deleted discount '{name}'",
       "deleteError": "Failed to delete discount"
+    },
+    "fee": {
+      "title": "Withdrawal fee",
+      "description": "The platform-wide fee charged on every withdrawal.",
+      "hint": "0% disables the fee and hides it from users.",
+      "edit": "Edit fee",
+      "dialogTitle": "Edit withdrawal fee",
+      "dialogIntro": "Set the platform-wide withdrawal fee percentage. Changes apply immediately unless you schedule an effective date.",
+      "placeholder": "Fee percentage",
+      "save": "Save",
+      "success": "Successfully updated withdrawal fee to {rate}%",
+      "updateError": "Failed to update withdrawal fee",
+      "loadFailed": "Failed to load withdrawal fee rate",
+      "range": "Fee must be between 0 and 100",
+      "precision": "Fee can have at most 2 decimal places",
+      "finite": "Fee must be a finite number",
+      "effectiveFrom": "Effective from",
+      "effectiveHint": "Leave empty to apply immediately.",
+      "effectiveInvalid": "Effective date must be a valid date and time",
+      "effectivePast": "Effective date must be in the future",
+      "scheduledSuccess": "Successfully scheduled withdrawal fee change to {rate}% from {date}",
+      "upcomingLine": "{rate}% from {date}",
+      "upcomingLoadFailed": "Failed to load scheduled fee changes"
+    },
+    "announcement": {
+      "title": "Withdrawal fee announcement",
+      "description": "Sends the withdrawal fee announcement email to users.",
+      "userIdPlaceholder": "User ID",
+      "sendTest": "Send test to user",
+      "sendSuccess": "Sent withdrawal fee announcement to {email}",
+      "sendError": "Failed to send withdrawal fee announcement",
+      "broadcast": "Send to ALL users",
+      "broadcastTitle": "Send to all users?",
+      "broadcastWarningTitle": "Take Note!",
+      "broadcastWarning": "This emails every user with an address; it cannot be undone.",
+      "broadcastConfirm": "Send to all users",
+      "broadcastSuccess": "{sent} sent, {failed} failed",
+      "broadcastError": "Failed to broadcast withdrawal fee announcement"
     }
   },
   "landing": {
@@ -599,7 +646,8 @@
       "interestsItem4": "Take any action against you for any violation of this policy.",
       "interestsItem5": "Terminate your account at any time without notice.",
       "interestsItem6": "Withhold funds within your account at any time, without notice.",
-      "interestsItem7": "Escalate any violation of this policy to the relevant authorities, without notice."
+      "interestsItem7": "Escalate any violation of this policy to the relevant authorities, without notice.",
+      "deliveryItem8": "Withdrawals from your BunnyBooker wallet incur a 4% processing fee, deducted from the withdrawn amount; deposits are free. This fee was introduced to prevent abuse of the wallet system, and the rate may be revised with notice."
     },
     "privacy": {
       "heading": "Privacy Policy",
@@ -879,7 +927,20 @@
         "message": "Successfully deposited into BunnyBooker",
         "currentBalance": "Current Balance: {amount}"
       },
-      "initError": "Failed to initialize payment"
+      "initError": "Failed to initialize payment",
+      "feeTooltip": "Why a fee? Some users have been abusing the wallet system by repeatedly depositing and withdrawing large sums. The {rate}% withdrawal fee discourages this abuse and keeps BunnyBooker sustainable. Deposits remain free.",
+      "feeTooltipGeneric": "Why a fee? Some users have been abusing the wallet system by repeatedly depositing and withdrawing large sums. The withdrawal fee discourages this abuse and keeps BunnyBooker sustainable. Deposits remain free.",
+      "feeLoadFailed": "Failed to load withdrawal fee rate",
+      "amountLabel": "Deposit amount",
+      "keypadBackspace": "Delete last digit",
+      "enterAmount": "Enter amount",
+      "keypad": {
+        "title": "Enter deposit (SGD $)",
+        "clear": "Clear"
+      },
+      "feeNoticeFree": "Deposits are free.",
+      "feeNoticeWithdraw": "A {rate}% fee applies to withdrawals only.",
+      "feeNoticeWithdrawGeneric": "A fee applies to withdrawals only."
     },
     "adminIn": {
       "trigger": "Add Usable Balance",
@@ -911,7 +972,9 @@
       "Pending": "Pending",
       "Completed": "Completed",
       "Cancel": "Cancelled",
-      "Rejected": "Rejected"
+      "Rejected": "Rejected",
+      "Processing": "Processing",
+      "RequireManualIntervention": "Requires Manual Intervention"
     },
     "list": {
       "title": "Withdrawal",
@@ -929,17 +992,20 @@
       "completer": "Completer",
       "viewUserProfile": "View user profile →",
       "noNote": "No Note",
-      "receiptAlt": "receipt"
+      "receiptAlt": "receipt",
+      "confirmationNo": "Confirmation No.",
+      "fee": "Fee:",
+      "reconcileAttempts": "Reconcile attempts: {count}"
     },
     "detail": {
       "title": "Withdrawal",
       "notFound": "Withdrawal cannot be found"
     },
     "approve": {
-      "title": "Make a withdrawal",
-      "instructions": "Please transfer the {amount} to PayNow {payNowNumber}, screenshot, and upload the receipt, and click complete.",
-      "complete": "Complete",
-      "success": "Successfully completed the withdrawal {amount}.",
+      "trigger": "Auto approve (Airwallex)",
+      "title": "Approve withdrawal",
+      "instructions": "Approving will initiate an automated PayNow payout via Airwallex to {payNowNumber} for the net amount ({amount} minus the withdrawal fee). The withdrawal will move to \"Processing\" and complete automatically once Airwallex confirms the transfer.",
+      "success": "Payout initiated for the withdrawal of {amount}. It will complete automatically once Airwallex confirms.",
       "failed": "Failed to approve withdrawal"
     },
     "cancel": {
@@ -971,14 +1037,61 @@
       "durationEmphasis": "2 working days",
       "durationSuffix": "to be processed.",
       "balanceLabel": "Balance: {amount}",
-      "payNowPlaceholder": "PayNow Number to withdraw to",
+      "payNowPlaceholder": "8-digit PayNow mobile number",
       "submit": "Request Withdrawal",
       "amountGreaterThanZero": "Amount must be greater than 0",
       "amountExceedsBalance": "Amount must be less than or equal to your usable balance",
       "amountFinite": "Amount must be a finite number",
-      "invalidPayNow": "Not a valid PayNow number",
+      "invalidPayNow": "PayNow number must be exactly 8 digits",
       "success": "Successfully requested withdrawal of {amount} from your USABLE balance.",
-      "failed": "Failed to make withdrawal"
+      "failed": "Failed to make withdrawal",
+      "feeLine": "Withdrawal fee ({rate}%): −{fee}",
+      "youReceive": "You'll receive: {net}",
+      "feeTooltip": "Why a fee? Some users have been abusing the wallet system by repeatedly depositing and withdrawing large sums. The {rate}% withdrawal fee discourages this abuse and keeps BunnyBooker sustainable. Deposits remain free.",
+      "feeLoadFailed": "Failed to load withdrawal fee rate"
+    },
+    "completeManual": {
+      "trigger": "Complete manually (receipt upload)",
+      "title": "Complete withdrawal manually",
+      "instructions": "The user receives the net amount (withdrawal amount minus the fee); the fee stays with BunnyBooker. Transfer the exact net amount below via PayNow, screenshot, and upload the receipt, and click complete.",
+      "amountLine": "Withdrawal amount: {amount}",
+      "feeLine": "Withdrawal fee: −{fee}",
+      "transferExactly": "Transfer exactly: {net} to PayNow {payNowNumber}",
+      "feeLoading": "Loading withdrawal fee rate…",
+      "feeUnavailable": "Cannot determine the net transfer amount because the withdrawal fee rate failed to load. Do not transfer the gross amount — retry loading the fee rate first.",
+      "feeLoadFailed": "Failed to load withdrawal fee rate",
+      "complete": "Complete",
+      "success": "Successfully completed the withdrawal {amount}.",
+      "failed": "Failed to complete withdrawal"
+    },
+    "reconcile": {
+      "trigger": "Reconcile now",
+      "success": "Reconcile check completed. The withdrawal status has been refreshed.",
+      "failed": "Failed to reconcile withdrawal"
+    },
+    "rmi": {
+      "title": "Manual intervention required",
+      "description": "The automated payout could not be confirmed after repeated checks ({attempts} reconcile attempts). Verify the transfer in the Airwallex dashboard before taking any action.",
+      "confirmationLine": "Airwallex confirmation no.:",
+      "noConfirmation": "No confirmation number was recorded — the payout most likely never left Airwallex.",
+      "chooseAction": "If the money left Airwallex, force complete. If no transfer exists, reject & refund the user, or requeue to retry the automated payout.",
+      "reject": "Reject & refund",
+      "forceComplete": {
+        "trigger": "Force complete",
+        "title": "Force complete withdrawal",
+        "instructions": "This marks the withdrawal of {amount} to PayNow {payNowNumber} as completed without sending any money. Use it only after the Airwallex dashboard confirms that transfer {confirmationNumber} already went through.",
+        "disabledHint": "Force complete is unavailable because there is no confirmation number.",
+        "success": "Withdrawal of {amount} marked as completed.",
+        "failed": "Failed to force complete withdrawal"
+      },
+      "requeue": {
+        "trigger": "Requeue",
+        "title": "Requeue automated payout",
+        "warning": "Requeueing starts a brand-new automated payout of the net amount to PayNow {payNowNumber}. If the original transfer actually went through, the user will be paid twice. Only requeue after confirming in the Airwallex dashboard that no money left.",
+        "confirm": "Requeue payout",
+        "success": "Withdrawal of {amount} requeued for automated payout.",
+        "failed": "Failed to requeue withdrawal"
+      }
     }
   },
   "status": {

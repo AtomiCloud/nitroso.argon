@@ -44,6 +44,19 @@ export interface AirwallexEventDataObject {
   updated_at?: string | null;
 }
 
+export interface AnnouncementBroadcastRes {
+  /** @format int32 */
+  sent: number;
+  /** @format int32 */
+  failed: number;
+  failedUserIds?: string[] | null;
+}
+
+export interface AnnouncementSendRes {
+  userId?: string | null;
+  email?: string | null;
+}
+
 export interface BookingCountRes {
   date?: string | null;
   time?: string | null;
@@ -69,6 +82,7 @@ export interface BookingPassengerRes {
 export interface BookingPrincipalRes {
   /** @format uuid */
   id: string;
+  userId?: string | null;
   date?: string | null;
   time?: string | null;
   direction?: string | null;
@@ -220,6 +234,18 @@ export interface ErrorInfo {
   version?: string | null;
 }
 
+export interface FeeChangeRes {
+  /** @format double */
+  withdrawFeePercentage: number;
+  /** @format date-time */
+  effectiveAt: string;
+}
+
+export interface FeeRes {
+  /** @format double */
+  withdrawFeeRate: number;
+}
+
 export interface LatestScheduleRes {
   date?: string | null;
 }
@@ -235,6 +261,7 @@ export interface MaterializedCostRes {
 export interface PassengerPrincipalRes {
   /** @format uuid */
   id: string;
+  userId?: string | null;
   fullName?: string | null;
   gender?: string | null;
   passportExpiry?: string | null;
@@ -295,6 +322,17 @@ export interface ScheduleRecordReq {
   confirmed: boolean;
   jToWExcluded?: string[] | null;
   wToJExcluded?: string[] | null;
+}
+
+export interface SetFeeReq {
+  /**
+   * @format double
+   * @min 0
+   * @max 100
+   */
+  withdrawFeePercentage: number;
+  /** @format date-time */
+  effectiveAt?: string | null;
 }
 
 export interface TimingPrincipalRes {
@@ -395,6 +433,14 @@ export interface WithdrawalCompleteRes {
   receipt?: string | null;
 }
 
+export interface WithdrawalPayoutRes {
+  confirmationNumber?: string | null;
+  /** @format double */
+  fee: number;
+  /** @format int32 */
+  reconcileAttempts: number;
+}
+
 export interface WithdrawalPrincipalRes {
   /** @format uuid */
   id: string;
@@ -403,6 +449,7 @@ export interface WithdrawalPrincipalRes {
   status: WithdrawalStatusRes;
   record: WithdrawalRecordRes;
   complete: WithdrawalCompleteRes;
+  payout?: WithdrawalPayoutRes | null;
 }
 
 export interface WithdrawalRecordRes {
