@@ -574,25 +574,31 @@
                     {#if matrixDays.length === 0 || matrixTimes.length === 0}
                         <p class="text-sm text-muted-foreground px-2">{$_('stats.empty', { locale: $lang })}</p>
                     {:else}
+                        <!-- TRANSPOSED for mobile: timeslots are ROWS (the many-item
+                             axis scrolls vertically, which is natural on a phone) and
+                             the 7 days are short fixed COLUMNS that fit any screen —
+                             no horizontal scrolling at all. A row is one timeslot =
+                             exactly one direction, so the whole row carries its
+                             direction tint -->
                         <div class="overflow-x-auto">
                             <Table.Root>
                                 <Table.Header>
                                     <Table.Row>
-                                        <Table.Head class="h-8 px-2">{$_('stats.matrix.day', { locale: $lang })}</Table.Head>
-                                        {#each matrixTimes as tm (tm)}
-                                            <Table.Head class="h-8 px-1 text-center whitespace-nowrap {DIR_TINT[timeDirection.get(tm) ?? ''] ?? ''}">
-                                                {hhmm(tm)}
+                                        <Table.Head class="h-8 px-2">{$_('stats.matrix.time', { locale: $lang })}</Table.Head>
+                                        {#each matrixDays as d (d)}
+                                            <Table.Head class="h-8 px-1 text-center whitespace-nowrap">
+                                                {$_(`stats.daysShort.${d.toLowerCase()}`, { locale: $lang })}
                                             </Table.Head>
                                         {/each}
                                     </Table.Row>
                                 </Table.Header>
                                 <Table.Body>
-                                    {#each matrixDays as d (d)}
-                                        <Table.Row>
-                                            <Table.Cell class="px-2 py-1 font-medium whitespace-nowrap">{$_(`stats.daysShort.${d.toLowerCase()}`, { locale: $lang })}</Table.Cell>
-                                            {#each matrixTimes as tm (tm)}
+                                    {#each matrixTimes as tm (tm)}
+                                        <Table.Row class={DIR_TINT[timeDirection.get(tm) ?? ''] ?? ''}>
+                                            <Table.Cell class="px-2 py-1 font-medium whitespace-nowrap">{hhmm(tm)}</Table.Cell>
+                                            {#each matrixDays as d (d)}
                                                 {@const c = matrix.get(`${d}|${tm}`)}
-                                                <Table.Cell class="px-1 py-1 text-center text-xs min-w-12 {DIR_TINT[timeDirection.get(tm) ?? ''] ?? ''}">
+                                                <Table.Cell class="px-1 py-1 text-center text-xs">
                                                     {#if c != null && c.rate != null}
                                                         <span class="font-medium {rateClass(c.rate)}">{rateText(c.rate)}</span>
                                                     {:else}

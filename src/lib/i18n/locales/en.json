@@ -1380,9 +1380,10 @@
     },
     "matrix": {
       "title": "Day × departure time",
-      "description": "Success rate per day of week and departure time; each column is tinted by its time's direction (colors above).",
+      "description": "Success rate per timeslot (rows, tinted by direction) and day of week (columns)",
       "day": "Day",
-      "rateLegend": "success rate"
+      "rateLegend": "success rate",
+      "time": "Time"
     },
     "filters": {
       "day": "Day of week",
