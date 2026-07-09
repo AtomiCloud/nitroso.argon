@@ -14,9 +14,10 @@
     import * as ToggleGroup from "$lib/components/ui/toggle-group";
     import {CalendarDate, type DateValue, getLocalTimeZone, today} from "@internationalized/date";
     import type {PageData} from "./$types";
-    import type {DiscountRecordRes, MaterializedCostRes} from "$lib/api/core/data-contracts";
+    import type {CostSlotSummaryRes, DiscountRecordRes, MaterializedCostRes} from "$lib/api/core/data-contracts";
     import {tick} from "svelte";
     import {Button} from "$lib/components/ui/button";
+    import {Separator} from "$lib/components/ui/separator";
     import {page} from "$app/stores";
     import type {Timings} from "./typing";
     import {Badge} from "$lib/components/ui/badge";
@@ -24,8 +25,9 @@
     import {cn} from "$lib/utils";
     import {Calendar} from "$lib/components/ui/calendar";
     import {format, parse} from "date-fns";
+    import {discountSteps} from "$lib/api/cost";
     import {_} from "svelte-i18n";
-    import {lang, formatMoney, formatCalendarDate, formatClockTime} from "$lib/i18n";
+    import {lang, formatMoney, formatNumber, formatCalendarDate, formatClockTime} from "$lib/i18n";
 
     export let data: PageData;
 
@@ -105,6 +107,22 @@
         return cost * d.amount;
     }
 
+    // per-slot ACTUAL prices from the batch endpoint; null = batch failed and
+    // every row falls back to the legacy single Cost/self price
+    $: slotMap = new Map<string, CostSlotSummaryRes>(
+        (data.slotSummaries ?? []).map((s) => [s.time ?? "", s]));
+
+    function signedDelta(delta: number): string {
+        const sign = delta >= 0 ? "+" : "−";
+        return `${sign}${formatMoney(Math.abs(delta), $lang)}`;
+    }
+
+    function discountLabel(d: DiscountRecordRes): string {
+        return d.type === "Flat"
+            ? `−${formatMoney(d.amount, $lang)}`
+            : `−${formatNumber(d.amount * 100, $lang)}%`;
+    }
+
     const minDate = today(getLocalTimeZone());
 
     function track() {
@@ -163,6 +181,7 @@
             <Page notFoundMessage={$_("schedules.noSchedulesFound", { locale: $lang })} empty={Object.entries(timings).length === 0}>
                 <div class="flex flex-col gap-4 my-4">
                     {#each Object.entries(timings) as [time, count]}
+                        {@const slot = slotMap.get(time)}
                         <Card.Root>
                             <Card.Header>
                                 <div class="flex justify-between items-center gap-8">
@@ -181,6 +200,70 @@
                                         </div>
                                     </Card.Title>
                                     <div class="flex gap-4 items-center flex-wrap justify-center">
+                                        {#if slot != null}
+                                            <!-- ACTUAL per-slot price: tapping it (or the info icon)
+                                                 opens this slot's line-item breakdown. A struck-through
+                                                 subtotal is the DISCOUNT signature; policy adjustments
+                                                 are simply part of the shown price. -->
+                                            <Popover.Root>
+                                                <Popover.Trigger aria-label={$_("schedules.breakdown.open", { locale: $lang })}>
+                                                    <div class="flex flex-col items-center gap-1">
+                                                        <div class="flex items-center gap-2">
+                                                            <Card.Title>{formatMoney(slot.final, $lang)}</Card.Title>
+                                                            <LucideInfo class="w-4 h-4 hover:text-blue-500"/>
+                                                        </div>
+                                                        {#if slot.final < slot.subtotal}
+                                                            <Card.Title class="line-through text-muted-foreground">
+                                                                {formatMoney(slot.subtotal, $lang)}
+                                                            </Card.Title>
+                                                        {/if}
+                                                    </div>
+                                                </Popover.Trigger>
+                                                <Popover.Content class="w-80 max-w-[90vw]">
+                                                    <div class="flex flex-col gap-1 text-sm">
+                                                        <div class="flex justify-between items-center gap-8">
+                                                            <div class="font-medium">{$_("schedules.breakdown.base", { locale: $lang })}</div>
+                                                            <div>{formatMoney(slot.baseCost, $lang)}</div>
+                                                        </div>
+                                                        {#each slot.policyLines ?? [] as line}
+                                                            <div class="flex justify-between items-center gap-8">
+                                                                <div class="text-muted-foreground text-left">{line.name}</div>
+                                                                <div>{signedDelta(line.delta)}</div>
+                                                            </div>
+                                                        {/each}
+                                                        {#if (slot.policyLines ?? []).length > 0}
+                                                            <Separator class="my-1"/>
+                                                            <div class="flex justify-between items-center gap-8">
+                                                                <div class="font-medium">{$_("schedules.breakdown.subtotal", { locale: $lang })}</div>
+                                                                <div>{formatMoney(slot.subtotal, $lang)}</div>
+                                                            </div>
+                                                        {/if}
+                                                        {#each discountSteps(slot.subtotal, slot.final, slot.discounts) as step}
+                                                            <div class="flex justify-between items-center gap-8">
+                                                                <div class="flex flex-col text-left">
+                                                                    <div class="font-semibold">{step.discount.name}</div>
+                                                                    {#if step.discount.description}
+                                                                        <div class="text-xs text-muted-foreground">{step.discount.description}</div>
+                                                                    {/if}
+                                                                </div>
+                                                                <div class="flex flex-col items-end">
+                                                                    <div class="text-green-600 dark:text-green-400">{discountLabel(step.discount)}</div>
+                                                                    <div>
+                                                                        <span class="line-through text-muted-foreground">{formatMoney(step.before, $lang)}</span>
+                                                                        {formatMoney(step.after, $lang)}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        {/each}
+                                                        <Separator class="my-1"/>
+                                                        <div class="flex justify-between items-center gap-8">
+                                                            <div class="font-bold">{$_("schedules.breakdown.final", { locale: $lang })}</div>
+                                                            <div class="font-bold">{formatMoney(slot.final, $lang)}</div>
+                                                        </div>
+                                                    </div>
+                                                </Popover.Content>
+                                            </Popover.Root>
+                                        {:else}
                                         <div class="flex flex-col">
                                             <Card.Title>{formatMoney(cost.final, $lang)}</Card.Title>
                                             {#if cost.final != cost.cost}
@@ -206,6 +289,7 @@
                                                 </div>
                                             {/if}
                                         </div>
+                                        {/if}
                                         <hr>
                                         <Button on:click={track} class="w-full max-w-24"
                                                 href="/bookings/purchase?date={currDate}&direction={bindDirection}&time={time}&userId={$page.data.user.principal.id}">

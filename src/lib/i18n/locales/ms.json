@@ -120,6 +120,7 @@
       "unverified": "Belum Disahkan",
       "roles": "Peranan",
       "noRoles": "Tiada",
+      "extraRolesTip": "Peranan bergaris luar ialah peranan tambahan yang diberikan pentadbir — ia hanya mempengaruhi penyasaran harga dan diskaun, bukan kebenaran.",
       "viewDetails": "Lihat Butiran",
       "userNotFound": "Pengguna tidak dijumpai",
       "userHeading": "Pengguna",
@@ -128,7 +129,26 @@
       "transactions": "Transaksi",
       "bookings": "Tempahan",
       "passengers": "Penumpang",
-      "withdrawals": "Pengeluaran"
+      "withdrawals": "Pengeluaran",
+      "rolesCard": {
+        "title": "Peranan",
+        "description": "Peranan log masuk datang daripada token pengguna; peranan tambahan diberikan di sini oleh pentadbir.",
+        "legend": "Lencana penuh ialah peranan token (kebenaran). Lencana bergaris luar ialah peranan tambahan — ia hanya mempengaruhi penyasaran harga dan diskaun, bukan kebenaran.",
+        "addTrigger": "Tambah peranan",
+        "addTitle": "Tambah peranan tambahan",
+        "addIntro": "Memberi peranan tambahan untuk penyasaran harga dan diskaun sahaja — ia tidak sekali-kali mengubah apa yang dibenarkan untuk pengguna ini.",
+        "rolePlaceholder": "cth. frequent-traveller",
+        "roleInvalid": "1–64 aksara: huruf kecil, digit, '-' atau '_' sahaja",
+        "addConfirm": "Tambah peranan",
+        "addSuccess": "Berjaya menambah peranan '{role}'",
+        "addError": "Gagal menambah peranan",
+        "removeAria": "Buang peranan {role}",
+        "removeTitle": "Buang peranan tambahan?",
+        "removeBody": "Ini membuang peranan tambahan '{role}' — harga dan diskaun berhenti menyasarkannya serta-merta.",
+        "removeConfirm": "Buang peranan",
+        "removeSuccess": "Berjaya membuang peranan '{role}'",
+        "removeError": "Gagal membuang peranan"
+      }
     },
     "costs": {
       "currentPrice": "Harga Semasa: {price}",
@@ -454,6 +474,9 @@
       "noteBody": "Diskaun berkuat kuasa sebaik sahaja dikemas kini. Anda boleh menyahaktifkannya pada bila-bila masa.",
       "updatedToast": "Berjaya mengemas kini diskaun '{name}'",
       "updateError": "Gagal mengemas kini diskaun"
+    },
+    "matchers": {
+      "hint": "Secara pilihan, hadkan slot tempahan yang layak untuk diskaun ini. Setiap padanan yang dimatikan memadankan semua tempahan."
     },
     "delete": {
       "trigger": "Padam Diskaun",
@@ -942,7 +965,13 @@
     "jbSentralToWoodlands": "JB Sentral ke Woodlands",
     "noSchedulesFound": "Tiada jadual dijumpai",
     "ticketsInQueue": "{count} orang dalam giliran",
-    "buy": "Beli"
+    "buy": "Beli",
+    "breakdown": {
+      "open": "Tunjukkan pecahan harga",
+      "base": "Harga asas",
+      "subtotal": "Jumlah kecil",
+      "final": "Anda bayar"
+    }
   },
   "calendar": {
     "selectMonth": "Pilih bulan",
@@ -1267,13 +1296,15 @@
   "fees": {
     "types": {
       "Withdrawal": "Pengeluaran",
-      "Deposit": "Deposit"
+      "Deposit": "Deposit",
+      "Termination": "Penamatan"
     },
     "display": {
       "none": "Tiada yuran",
       "percentOnly": "{rate}%",
       "flatOnly": "{flat}",
-      "both": "{rate}% + {flat}"
+      "both": "{rate}% + {flat}",
+      "capped": "{desc} dihadkan pada {cap}"
     },
     "section": {
       "Withdrawal": {
@@ -1284,6 +1315,11 @@
         "title": "Yuran deposit",
         "description": "Yuran platform yang dikenakan pada setiap deposit."
       },
+      "Termination": {
+        "title": "Yuran penamatan",
+        "description": "Yuran yang dikenakan apabila pengguna menamatkan tempahan yang telah dijamin."
+      },
+      "terminationNote": "Yuran ini dikenakan apabila pengguna menamatkan tempahan yang telah dijamin — T&C kini menyatakan 50%, jadi pastikan ia konsisten dengan terma yang diterbitkan.",
       "hint": "0% + S$0 membuang yuran dan menyembunyikannya daripada pengguna.",
       "currentLabel": "Yuran semasa",
       "loadFailed": "Gagal memuatkan yuran semasa"
@@ -1317,6 +1353,10 @@
       "flatRange": "Jumlah tetap mesti antara 0 hingga 10,000",
       "precision": "Nilai boleh mempunyai paling banyak 2 tempat perpuluhan",
       "finite": "Nilai mesti nombor terhingga",
+      "capLabel": "Had yuran (SGD)",
+      "capPlaceholder": "Yuran maksimum",
+      "capHint": "Yuran maksimum dalam SGD — biarkan kosong untuk tiada had.",
+      "capRange": "Had mesti lebih besar daripada 0, paling banyak 100,000, dengan paling banyak 2 tempat perpuluhan",
       "effectiveFrom": "Berkuat kuasa dari",
       "effectiveHint": "Biarkan kosong untuk berkuat kuasa serta-merta. Masa dimasukkan dalam zon waktu tempatan anda dan dihantar ke pelayan sebagai UTC.",
       "effectiveInvalid": "Tarikh kuat kuasa mesti tarikh dan masa yang sah",

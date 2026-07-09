@@ -120,6 +120,7 @@
       "unverified": "Unverified",
       "roles": "Roles",
       "noRoles": "None",
+      "extraRolesTip": "Outlined roles are admin-granted extra roles — they only affect pricing and discount targeting, never permissions.",
       "viewDetails": "View Details",
       "userNotFound": "User cannot be found",
       "userHeading": "User",
@@ -128,7 +129,26 @@
       "transactions": "Transactions",
       "bookings": "Bookings",
       "passengers": "Passengers",
-      "withdrawals": "Withdrawals"
+      "withdrawals": "Withdrawals",
+      "rolesCard": {
+        "title": "Roles",
+        "description": "Login roles come from the user's token; extra roles are granted here by admins.",
+        "legend": "Filled badges are token roles (permissions). Outlined badges are extra roles — they only affect pricing and discount targeting, never permissions.",
+        "addTrigger": "Add role",
+        "addTitle": "Add an extra role",
+        "addIntro": "Grants an extra role used for pricing and discount targeting only — it never changes what this user is allowed to do.",
+        "rolePlaceholder": "e.g. frequent-traveller",
+        "roleInvalid": "1–64 characters: lowercase letters, digits, '-' or '_' only",
+        "addConfirm": "Add role",
+        "addSuccess": "Added role '{role}'",
+        "addError": "Failed to add role",
+        "removeAria": "Remove role {role}",
+        "removeTitle": "Remove extra role?",
+        "removeBody": "This removes the extra role '{role}' — pricing and discounts stop targeting it immediately.",
+        "removeConfirm": "Remove role",
+        "removeSuccess": "Removed role '{role}'",
+        "removeError": "Failed to remove role"
+      }
     },
     "costs": {
       "currentPrice": "Current Price: {price}",
@@ -454,6 +474,9 @@
       "noteBody": "Discounts are effective the moment they are updated. You can disable them at any time.",
       "updatedToast": "Successfully updated discount '{name}'",
       "updateError": "Failed to update discount"
+    },
+    "matchers": {
+      "hint": "Optionally limit which booking slots this discount applies to. Every matcher left off matches all bookings."
     },
     "delete": {
       "trigger": "Delete Discount",
@@ -942,7 +965,13 @@
     "jbSentralToWoodlands": "JB Sentral to Woodlands",
     "noSchedulesFound": "No schedules found",
     "ticketsInQueue": "{count} people in queue",
-    "buy": "Buy"
+    "buy": "Buy",
+    "breakdown": {
+      "open": "Show price breakdown",
+      "base": "Base price",
+      "subtotal": "Subtotal",
+      "final": "You pay"
+    }
   },
   "calendar": {
     "selectMonth": "Select month",
@@ -1267,13 +1296,15 @@
   "fees": {
     "types": {
       "Withdrawal": "Withdrawal",
-      "Deposit": "Deposit"
+      "Deposit": "Deposit",
+      "Termination": "Termination"
     },
     "display": {
       "none": "No fee",
       "percentOnly": "{rate}%",
       "flatOnly": "{flat}",
-      "both": "{rate}% + {flat}"
+      "both": "{rate}% + {flat}",
+      "capped": "{desc} capped at {cap}"
     },
     "section": {
       "Withdrawal": {
@@ -1284,6 +1315,11 @@
         "title": "Deposit fee",
         "description": "The platform-wide fee charged on every deposit."
       },
+      "Termination": {
+        "title": "Termination fee",
+        "description": "The fee charged when a user terminates a secured booking."
+      },
+      "terminationNote": "This fee applies when a user terminates a secured booking — the T&C currently states 50%, so keep this consistent with the published terms.",
       "hint": "0% + S$0 removes the fee and hides it from users.",
       "currentLabel": "Current fee",
       "loadFailed": "Failed to load the current fee"
@@ -1317,6 +1353,10 @@
       "flatRange": "Flat amount must be between 0 and 10,000",
       "precision": "Value can have at most 2 decimal places",
       "finite": "Value must be a finite number",
+      "capLabel": "Fee cap (SGD)",
+      "capPlaceholder": "Maximum fee",
+      "capHint": "Maximum fee in SGD — leave empty for no cap.",
+      "capRange": "Cap must be greater than 0, at most 100,000, with at most 2 decimal places",
       "effectiveFrom": "Effective from",
       "effectiveHint": "Leave empty to apply immediately. The time is entered in your local timezone and sent to the server as UTC.",
       "effectiveInvalid": "Effective date must be a valid date and time",
