@@ -17,7 +17,8 @@
     "transactions": "Transaksi",
     "profile": "Profil",
     "logout": "Log keluar",
-    "signIn": "Log masuk"
+    "signIn": "Log masuk",
+    "fees": "Yuran"
   },
   "theme": {
     "toggle": "Tukar tema"
@@ -321,44 +322,6 @@
       "typeNameHint": "Sila taipkan nama diskaun untuk meneruskan.",
       "deletedToast": "Berjaya memadam diskaun '{name}'",
       "deleteError": "Gagal memadam diskaun"
-    },
-    "fee": {
-      "title": "Yuran pengeluaran",
-      "description": "Yuran platform yang dikenakan pada setiap pengeluaran.",
-      "hint": "0% menyahaktifkan yuran dan menyembunyikannya daripada pengguna.",
-      "edit": "Sunting yuran",
-      "dialogTitle": "Sunting yuran pengeluaran",
-      "dialogIntro": "Tetapkan peratusan yuran pengeluaran seluruh platform. Perubahan berkuat kuasa serta-merta melainkan tarikh kuat kuasa dijadualkan.",
-      "placeholder": "Peratusan yuran",
-      "save": "Simpan",
-      "success": "Berjaya mengemas kini yuran pengeluaran kepada {rate}%",
-      "updateError": "Gagal mengemas kini yuran pengeluaran",
-      "loadFailed": "Gagal memuatkan kadar yuran pengeluaran",
-      "range": "Yuran mesti antara 0 hingga 100",
-      "precision": "Yuran boleh mempunyai paling banyak 2 tempat perpuluhan",
-      "finite": "Yuran mesti nombor terhingga",
-      "effectiveFrom": "Berkuat kuasa dari",
-      "effectiveHint": "Biarkan kosong untuk berkuat kuasa serta-merta.",
-      "effectiveInvalid": "Tarikh kuat kuasa mesti tarikh dan masa yang sah",
-      "effectivePast": "Tarikh kuat kuasa mesti pada masa hadapan",
-      "scheduledSuccess": "Berjaya menjadualkan perubahan yuran pengeluaran kepada {rate}% dari {date}",
-      "upcomingLine": "{rate}% dari {date}",
-      "upcomingLoadFailed": "Gagal memuatkan perubahan yuran yang dijadualkan"
-    },
-    "announcement": {
-      "title": "Pengumuman yuran pengeluaran",
-      "description": "Menghantar e-mel pengumuman yuran pengeluaran kepada pengguna.",
-      "userIdPlaceholder": "ID Pengguna",
-      "sendTest": "Hantar ujian kepada pengguna",
-      "sendSuccess": "Pengumuman yuran pengeluaran dihantar ke {email}",
-      "sendError": "Gagal menghantar pengumuman yuran pengeluaran",
-      "broadcast": "Hantar kepada SEMUA pengguna",
-      "broadcastTitle": "Hantar kepada semua pengguna?",
-      "broadcastWarningTitle": "Ambil Perhatian!",
-      "broadcastWarning": "Ini menghantar e-mel kepada setiap pengguna yang mempunyai alamat e-mel; tindakan ini tidak boleh dibatalkan.",
-      "broadcastConfirm": "Hantar kepada semua pengguna",
-      "broadcastSuccess": "{sent} dihantar, {failed} gagal",
-      "broadcastError": "Gagal menyiarkan pengumuman yuran pengeluaran"
     }
   },
   "landing": {
@@ -928,9 +891,9 @@
         "currentBalance": "Baki Semasa: {amount}"
       },
       "initError": "Gagal memulakan pembayaran",
-      "feeTooltip": "Mengapa ada yuran? Sesetengah pengguna menyalahgunakan sistem dompet dengan berulang kali mendeposit dan mengeluarkan jumlah yang besar. Yuran pengeluaran {rate}% menghalang penyalahgunaan ini dan memastikan BunnyBooker kekal mampan. Deposit kekal percuma.",
-      "feeTooltipGeneric": "Mengapa ada yuran? Sesetengah pengguna menyalahgunakan sistem dompet dengan berulang kali mendeposit dan mengeluarkan jumlah yang besar. Yuran pengeluaran menghalang penyalahgunaan ini dan memastikan BunnyBooker kekal mampan. Deposit kekal percuma.",
-      "feeLoadFailed": "Gagal memuatkan kadar yuran pengeluaran",
+      "feeTooltip": "Mengapa ada yuran? Sesetengah pengguna menyalahgunakan sistem dompet dengan berulang kali mendeposit dan mengeluarkan jumlah yang besar. Yuran pengeluaran {desc} menghalang penyalahgunaan ini dan memastikan BunnyBooker kekal mampan.",
+      "feeTooltipGeneric": "Mengapa ada yuran? Sesetengah pengguna menyalahgunakan sistem dompet dengan berulang kali mendeposit dan mengeluarkan jumlah yang besar. Yuran pengeluaran menghalang penyalahgunaan ini dan memastikan BunnyBooker kekal mampan.",
+      "feeLoadFailed": "Gagal memuatkan maklumat yuran",
       "amountLabel": "Jumlah deposit",
       "keypadBackspace": "Padam digit terakhir",
       "enterAmount": "Masukkan jumlah",
@@ -939,8 +902,11 @@
         "clear": "Kosongkan"
       },
       "feeNoticeFree": "Deposit adalah percuma.",
-      "feeNoticeWithdraw": "Yuran {rate}% hanya dikenakan pada pengeluaran.",
-      "feeNoticeWithdrawGeneric": "Yuran dikenakan pada pengeluaran sahaja."
+      "feeNoticeWithdraw": "Yuran {desc} hanya dikenakan pada pengeluaran.",
+      "feeNoticeWithdrawGeneric": "Yuran dikenakan pada pengeluaran sahaja.",
+      "feeNoticeWithdrawAlso": "Yuran {desc} juga dikenakan pada pengeluaran.",
+      "feeNoticeDeposit": "Yuran {desc} dikenakan pada deposit.",
+      "feeTooltipDeposit": "Mengapa ada yuran? Sesetengah pengguna menyalahgunakan sistem dompet dengan berulang kali mendeposit dan mengeluarkan jumlah yang besar. Yuran deposit {desc} menghalang penyalahgunaan ini dan memastikan BunnyBooker kekal mampan."
     },
     "adminIn": {
       "trigger": "Tambah Baki Boleh Guna",
@@ -1045,9 +1011,9 @@
       "invalidPayNow": "Nombor PayNow mestilah tepat 8 digit",
       "success": "Berjaya memohon pengeluaran {amount} daripada baki BOLEH GUNA anda.",
       "failed": "Gagal membuat pengeluaran",
-      "feeLine": "Yuran pengeluaran ({rate}%): −{fee}",
+      "feeLine": "Yuran pengeluaran ({desc}): −{fee}",
       "youReceive": "Anda akan menerima: {net}",
-      "feeTooltip": "Mengapa ada yuran? Sesetengah pengguna menyalahgunakan sistem dompet dengan berulang kali mendeposit dan mengeluarkan jumlah yang besar. Yuran pengeluaran {rate}% menghalang penyalahgunaan ini dan memastikan BunnyBooker kekal mampan. Deposit kekal percuma.",
+      "feeTooltip": "Mengapa ada yuran? Sesetengah pengguna menyalahgunakan sistem dompet dengan berulang kali mendeposit dan mengeluarkan jumlah yang besar. Yuran pengeluaran {desc} menghalang penyalahgunaan ini dan memastikan BunnyBooker kekal mampan.",
       "feeLoadFailed": "Gagal memuatkan kadar yuran pengeluaran"
     },
     "completeManual": {
@@ -1150,6 +1116,90 @@
       "amountFinite": "Jumlah mestilah nombor terhingga",
       "descMin": "Penerangan mestilah sekurang-kurangnya {min} aksara",
       "descMax": "Penerangan mestilah kurang daripada {max} aksara"
+    }
+  },
+  "fees": {
+    "types": {
+      "Withdrawal": "Pengeluaran",
+      "Deposit": "Deposit"
+    },
+    "display": {
+      "none": "Tiada yuran",
+      "percentOnly": "{rate}%",
+      "flatOnly": "{flat}",
+      "both": "{rate}% + {flat}"
+    },
+    "section": {
+      "Withdrawal": {
+        "title": "Yuran pengeluaran",
+        "description": "Yuran platform yang dikenakan pada setiap pengeluaran."
+      },
+      "Deposit": {
+        "title": "Yuran deposit",
+        "description": "Yuran platform yang dikenakan pada setiap deposit."
+      },
+      "hint": "0% + S$0 membuang yuran dan menyembunyikannya daripada pengguna.",
+      "currentLabel": "Yuran semasa",
+      "loadFailed": "Gagal memuatkan yuran semasa"
+    },
+    "queue": {
+      "title": "Perubahan yang dijadualkan",
+      "empty": "Tiada perubahan yang dijadualkan.",
+      "from": "dari {date}",
+      "line": "{desc} dari {date}",
+      "loadFailed": "Gagal memuatkan perubahan yuran yang dijadualkan",
+      "selectAria": "Pilih perubahan yang dijadualkan",
+      "cancelSelected": "Batalkan yang dipilih",
+      "cancelTitle": "Batalkan perubahan yang dijadualkan?",
+      "cancelWarningTitle": "Ambil Perhatian!",
+      "cancelWarning": "Ini membatalkan {count} perubahan yuran yang dijadualkan sebelum ia berkuat kuasa; tindakan ini tidak boleh dibatalkan.",
+      "cancelConfirm": "Batalkan perubahan yang dipilih",
+      "cancelSuccess": "{count} perubahan yuran yang dijadualkan dibatalkan",
+      "cancelPartial": "{count} perubahan yuran yang dijadualkan dibatalkan; {failed} gagal",
+      "cancelError": "Gagal membatalkan perubahan yuran yang dijadualkan"
+    },
+    "add": {
+      "trigger": "Tambah perubahan",
+      "title": "Jadualkan perubahan yuran {type}",
+      "intro": "Tetapkan yuran sebagai jumlah SGD tetap campur peratusan daripada jumlah transaksi. Perubahan berkuat kuasa serta-merta melainkan tarikh kuat kuasa dijadualkan.",
+      "zeroHint": "Tetapkan kedua-duanya kepada 0 untuk membuang yuran dan menyembunyikannya daripada pengguna.",
+      "percentageLabel": "Peratusan",
+      "percentagePlaceholder": "Peratusan yuran",
+      "flatLabel": "Jumlah tetap (SGD)",
+      "flatPlaceholder": "Jumlah yuran tetap",
+      "percentRange": "Peratusan mesti antara 0 hingga 100",
+      "flatRange": "Jumlah tetap mesti antara 0 hingga 10,000",
+      "precision": "Nilai boleh mempunyai paling banyak 2 tempat perpuluhan",
+      "finite": "Nilai mesti nombor terhingga",
+      "effectiveFrom": "Berkuat kuasa dari",
+      "effectiveHint": "Biarkan kosong untuk berkuat kuasa serta-merta. Masa dimasukkan dalam zon waktu tempatan anda dan dihantar ke pelayan sebagai UTC.",
+      "effectiveInvalid": "Tarikh kuat kuasa mesti tarikh dan masa yang sah",
+      "effectivePast": "Tarikh kuat kuasa mesti pada masa hadapan",
+      "save": "Simpan",
+      "success": "Yuran ditetapkan kepada {desc}",
+      "scheduledSuccess": "Perubahan yuran kepada {desc} dijadualkan dari {date}",
+      "updateError": "Gagal menyimpan perubahan yuran"
+    },
+    "announcement": {
+      "title": "Pengumuman yuran",
+      "description": "Menghantar e-mel pengumuman yuran kepada pengguna.",
+      "typeLabel": "Jenis yuran",
+      "eventLabel": "Perubahan untuk diumumkan",
+      "eventDefault": "Perubahan akan datang / yuran semasa",
+      "reasoningLabel": "Sebab",
+      "reasoningPlaceholder": "Terangkan kepada pengguna mengapa yuran ini berubah…",
+      "reasoningHint": "Biarkan kosong untuk menggunakan penjelasan anti-penyalahgunaan lalai.",
+      "userIdPlaceholder": "ID Pengguna",
+      "sendTest": "Hantar ujian kepada pengguna",
+      "sendSuccess": "Pengumuman yuran dihantar ke {email}",
+      "sendError": "Gagal menghantar pengumuman yuran",
+      "broadcast": "Hantar kepada SEMUA pengguna",
+      "broadcastTitle": "Hantar kepada semua pengguna?",
+      "broadcastWarningTitle": "Ambil Perhatian!",
+      "broadcastWarning": "Ini menghantar e-mel kepada setiap pengguna yang mempunyai alamat e-mel; tindakan ini tidak boleh dibatalkan.",
+      "broadcastConfirm": "Hantar kepada semua pengguna",
+      "broadcastSuccess": "{sent} dihantar, {failed} gagal",
+      "broadcastError": "Gagal menyiarkan pengumuman yuran"
     }
   }
 }
