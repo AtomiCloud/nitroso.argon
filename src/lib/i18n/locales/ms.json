@@ -828,8 +828,8 @@
     "refundPolicy": "Dasar Penghantaran, Pembatalan & Bayaran Balik",
     "privacyPolicy": "Dasar Privasi",
     "termsOfUse": "Terma Penggunaan",
-    "supportSgt": "Sokongan waktu Singapura (SGT)",
-    "supportUs": "Sokongan waktu California (PT)"
+    "supportSgt": "9 pagi – tengah malam (SGT)",
+    "supportUs": "Waktu California"
   },
   "loader": {
     "default": "Sedang memuatkan, sila tunggu...",
