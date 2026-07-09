@@ -73,6 +73,11 @@
                     {$_('account.fees', { locale: $lang })}
                 </DropdownMenu.Item>
             </a>
+            <a href="/stats">
+                <DropdownMenu.Item>
+                    {$_('account.stats', { locale: $lang })}
+                </DropdownMenu.Item>
+            </a>
             <a href="/wallets">
                 <DropdownMenu.Item>
                     {$_('account.wallets', { locale: $lang })}

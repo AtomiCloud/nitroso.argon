@@ -104,9 +104,41 @@ export interface BookingPrincipalRes {
   status?: string | null;
 }
 
+export interface BookingQueueRes {
+  status?: string | null;
+  /** @format int32 */
+  position?: number | null;
+  /** @format int32 */
+  total?: number | null;
+}
+
 export interface BookingRes {
   principal: BookingPrincipalRes;
   user: UserPrincipalRes;
+}
+
+export interface BookingSearchCountRes {
+  /** @format int32 */
+  total: number;
+}
+
+export interface BookingStatRes {
+  dayOfWeek?: string | null;
+  time?: string | null;
+  direction?: string | null;
+  bucket?: string | null;
+  /** @format int32 */
+  total: number;
+  /** @format int32 */
+  completed: number;
+  /** @format int32 */
+  refunded: number;
+  /** @format int32 */
+  cancelled: number;
+  /** @format int32 */
+  terminated: number;
+  /** @format int32 */
+  other: number;
 }
 
 export interface CancelWithdrawalReq {

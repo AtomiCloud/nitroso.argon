@@ -18,7 +18,8 @@
     "profile": "Profile",
     "logout": "Log out",
     "signIn": "Sign in",
-    "fees": "Fees"
+    "fees": "Fees",
+    "stats": "Statistics"
   },
   "theme": {
     "toggle": "Toggle theme"
@@ -214,6 +215,13 @@
       "typeNameAfter": "to proceed.",
       "typeNameError": "Please type the name of the passenger of the booking to proceed.",
       "confirmButton": "Terminate Booking"
+    },
+    "queue": {
+      "position": "Position in queue: {position} of {total}",
+      "next": "You're next!",
+      "refresh": "Refresh queue position",
+      "tooltip": "Your position updates as bookings ahead of yours are completed or cancelled — you move up as the tickets ahead of you are bought.",
+      "loadError": "Failed to load queue position"
     }
   },
   "bookings": {
@@ -235,7 +243,18 @@
       "next": "Next",
       "pageLabel": "Page {page}",
       "sortBuyTime": "Buy time (newest)",
-      "sortFulfilTime": "Fulfilled time (newest)"
+      "sortFulfilTime": "Fulfilled time (newest)",
+      "filterByPassengerName": "Filter by passenger name...",
+      "filterByPassportNumber": "Filter by passport number...",
+      "selectTime": "Departure time",
+      "anyTime": "Any time",
+      "timesLoadError": "Failed to load departure times",
+      "countLoadError": "Failed to load the result count",
+      "pageOf": "Page {page} of {total}",
+      "totalResults": "{count} results",
+      "goToPage": "Go to page",
+      "go": "Go",
+      "queueHint": "Tip: filter by direction, date and departure time, then sort by buy time — the list shows the queue order for that timeslot."
     },
     "detail": {
       "title": "Booking",
@@ -583,8 +602,8 @@
       "deliveryHeading": "Delivery, Refunds & Exchange Policy",
       "deliveryIntro": "You accept the following terms for delivery, refund and exchange of tickets:",
       "deliveryItem1": "Full refunds will be provided for tickets that have not been successfully secured by the BunnyBooker system on the KTMB website.",
-      "deliveryItem2": "Tickets that have been secured on KTMB's website successfully are not eligible for refunds or exchanges.",
-      "deliveryItem3": "Cancellations can be initiated once a ticket is booked. However, please note that no refunds will be provided for cancelled tickets after the BunnyBooker system successfully secures the ticket on the KTMB website.",
+      "deliveryItem2": "Tickets that have been secured on KTMB's website successfully are not eligible for free refunds or exchanges. Such bookings may be terminated instead, subject to a termination fee of 50% of the ticket price; the remaining 50% is refunded as credit to your BunnyBooker wallet.",
+      "deliveryItem3": "Cancellations can be initiated once a ticket is booked and are free of charge while the ticket has not yet been secured. After the BunnyBooker system successfully secures the ticket on the KTMB website, cancellation is no longer available — only termination, which carries the 50% termination fee described above.",
       "deliveryItem4": "Once a ticket is ordered and our booking service is engaged, our bunnies will actively attempt to secure your ticket.",
       "deliveryItem5": "Booking efforts will continue up until 30 minutes before the scheduled departure time in the chosen train direction.",
       "deliveryItem6": "If successful, you will be promptly notified of your confirmed booking details.",
@@ -797,7 +816,7 @@
     "jbToWoodlands": "JB to Woodlands",
     "jbSentralToWoodlands": "JB Sentral to Woodlands",
     "noSchedulesFound": "No schedules found",
-    "ticketsInQueue": "{count} tickets in queue",
+    "ticketsInQueue": "{count} people in queue",
     "buy": "Buy"
   },
   "calendar": {
@@ -808,7 +827,9 @@
     "contactHelp": "Need help? Contact Us!",
     "refundPolicy": "Delivery, Cancellation & Refund Policy",
     "privacyPolicy": "Privacy Policy",
-    "termsOfUse": "Terms of Use"
+    "termsOfUse": "Terms of Use",
+    "supportSgt": "Singapore-hours support (SGT)",
+    "supportUs": "California-hours support (PT)"
   },
   "loader": {
     "default": "Loading, please wait...",
@@ -1200,6 +1221,55 @@
       "broadcastConfirm": "Send to all users",
       "broadcastSuccess": "{sent} sent, {failed} failed",
       "broadcastError": "Failed to broadcast fee announcement"
+    }
+  },
+  "stats": {
+    "title": "Booking Statistics",
+    "reload": "Reload",
+    "loadError": "Failed to load booking statistics",
+    "empty": "No bookings match the current selection",
+    "range": {
+      "after": "Travel date from",
+      "before": "Travel date to",
+      "hint": "Travel-date range (default: the last 90 days)"
+    },
+    "definition": {
+      "refundOnly": "Refund only",
+      "refundCancel": "Refund + Cancel",
+      "helpRefundOnly": "Success rate = completed / (completed + refunded).",
+      "helpRefundCancel": "Success rate = completed / (completed + refunded + cancelled)."
+    },
+    "filters": {
+      "day": "Day of week",
+      "direction": "Direction",
+      "time": "Departure time",
+      "bucket": "Lead time",
+      "all": "All"
+    },
+    "summary": {
+      "title": "Current slice",
+      "total": "Total bookings",
+      "successRefundOnly": "Success rate (refund only)",
+      "successRefundCancel": "Success rate (refund + cancel)"
+    },
+    "table": {
+      "byDay": "By day of week",
+      "byTime": "By departure time",
+      "byBucket": "By lead time (purchase → departure)",
+      "group": "Group",
+      "total": "Total",
+      "completed": "Completed",
+      "failed": "Failed",
+      "rate": "Success rate"
+    },
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
     }
   }
 }

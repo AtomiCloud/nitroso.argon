@@ -18,7 +18,8 @@
     "profile": "Profil",
     "logout": "Log keluar",
     "signIn": "Log masuk",
-    "fees": "Yuran"
+    "fees": "Yuran",
+    "stats": "Statistik"
   },
   "theme": {
     "toggle": "Tukar tema"
@@ -214,6 +215,13 @@
       "typeNameAfter": "untuk meneruskan.",
       "typeNameError": "Sila taipkan nama penumpang tempahan untuk meneruskan.",
       "confirmButton": "Tamatkan Tempahan"
+    },
+    "queue": {
+      "position": "Kedudukan dalam giliran: {position} daripada {total}",
+      "next": "Anda seterusnya!",
+      "refresh": "Muat semula kedudukan giliran",
+      "tooltip": "Kedudukan anda dikemas kini apabila tempahan di hadapan anda selesai atau dibatalkan — anda naik apabila tiket di hadapan anda dibeli.",
+      "loadError": "Gagal memuatkan kedudukan giliran"
     }
   },
   "bookings": {
@@ -235,7 +243,18 @@
       "next": "Seterusnya",
       "pageLabel": "Halaman {page}",
       "sortBuyTime": "Masa belian (terkini)",
-      "sortFulfilTime": "Masa selesai (terkini)"
+      "sortFulfilTime": "Masa selesai (terkini)",
+      "filterByPassengerName": "Tapis mengikut nama penumpang...",
+      "filterByPassportNumber": "Tapis mengikut nombor pasport...",
+      "selectTime": "Masa berlepas",
+      "anyTime": "Sebarang masa",
+      "timesLoadError": "Gagal memuatkan masa berlepas",
+      "countLoadError": "Gagal memuatkan jumlah hasil",
+      "pageOf": "Halaman {page} daripada {total}",
+      "totalResults": "{count} hasil",
+      "goToPage": "Pergi ke halaman",
+      "go": "Pergi",
+      "queueHint": "Petua: tapis mengikut arah, tarikh dan masa berlepas, kemudian susun mengikut masa belian — senarai menunjukkan susunan giliran untuk slot masa itu."
     },
     "detail": {
       "title": "Tempahan",
@@ -583,8 +602,8 @@
       "deliveryHeading": "Dasar Penghantaran, Bayaran Balik & Pertukaran",
       "deliveryIntro": "Anda menerima terma berikut untuk penghantaran, bayaran balik dan pertukaran tiket:",
       "deliveryItem1": "Bayaran balik penuh akan diberikan untuk tiket yang tidak berjaya diperoleh oleh sistem BunnyBooker di laman web KTMB.",
-      "deliveryItem2": "Tiket yang telah berjaya diperoleh di laman web KTMB tidak layak untuk bayaran balik atau pertukaran.",
-      "deliveryItem3": "Pembatalan boleh dimulakan setelah tiket ditempah. Walau bagaimanapun, sila ambil perhatian bahawa tiada bayaran balik akan diberikan untuk tiket yang dibatalkan selepas sistem BunnyBooker berjaya memperoleh tiket di laman web KTMB.",
+      "deliveryItem2": "Tiket yang telah berjaya diperoleh di laman web KTMB tidak layak untuk bayaran balik atau pertukaran percuma. Tempahan sedemikian boleh ditamatkan, tertakluk kepada fi penamatan sebanyak 50% daripada harga tiket; baki 50% akan dikembalikan sebagai kredit ke dompet BunnyBooker anda.",
+      "deliveryItem3": "Pembatalan boleh dimulakan setelah tiket ditempah dan adalah percuma selagi tiket belum diperoleh. Selepas sistem BunnyBooker berjaya memperoleh tiket di laman web KTMB, pembatalan tidak lagi tersedia — hanya penamatan, yang dikenakan fi penamatan 50% seperti dinyatakan di atas.",
       "deliveryItem4": "Setelah tiket dipesan dan perkhidmatan tempahan kami digunakan, arnab kami akan secara aktif cuba memperoleh tiket anda.",
       "deliveryItem5": "Usaha tempahan akan diteruskan sehingga 30 minit sebelum waktu berlepas yang dijadualkan dalam arah kereta api yang dipilih.",
       "deliveryItem6": "Jika berjaya, anda akan dimaklumkan dengan segera tentang butiran tempahan anda yang disahkan.",
@@ -797,7 +816,7 @@
     "jbToWoodlands": "JB ke Woodlands",
     "jbSentralToWoodlands": "JB Sentral ke Woodlands",
     "noSchedulesFound": "Tiada jadual dijumpai",
-    "ticketsInQueue": "{count} tiket dalam giliran",
+    "ticketsInQueue": "{count} orang dalam giliran",
     "buy": "Beli"
   },
   "calendar": {
@@ -808,7 +827,9 @@
     "contactHelp": "Perlukan bantuan? Hubungi Kami!",
     "refundPolicy": "Dasar Penghantaran, Pembatalan & Bayaran Balik",
     "privacyPolicy": "Dasar Privasi",
-    "termsOfUse": "Terma Penggunaan"
+    "termsOfUse": "Terma Penggunaan",
+    "supportSgt": "Sokongan waktu Singapura (SGT)",
+    "supportUs": "Sokongan waktu California (PT)"
   },
   "loader": {
     "default": "Sedang memuatkan, sila tunggu...",
@@ -1200,6 +1221,55 @@
       "broadcastConfirm": "Hantar kepada semua pengguna",
       "broadcastSuccess": "{sent} dihantar, {failed} gagal",
       "broadcastError": "Gagal menyiarkan pengumuman yuran"
+    }
+  },
+  "stats": {
+    "title": "Statistik Tempahan",
+    "reload": "Muat semula",
+    "loadError": "Gagal memuatkan statistik tempahan",
+    "empty": "Tiada tempahan sepadan dengan pilihan semasa",
+    "range": {
+      "after": "Tarikh perjalanan dari",
+      "before": "Tarikh perjalanan hingga",
+      "hint": "Julat tarikh perjalanan (lalai: 90 hari terakhir)"
+    },
+    "definition": {
+      "refundOnly": "Bayaran balik sahaja",
+      "refundCancel": "Bayaran balik + Batal",
+      "helpRefundOnly": "Kadar kejayaan = selesai / (selesai + dibayar balik).",
+      "helpRefundCancel": "Kadar kejayaan = selesai / (selesai + dibayar balik + dibatalkan)."
+    },
+    "filters": {
+      "day": "Hari dalam minggu",
+      "direction": "Arah",
+      "time": "Masa berlepas",
+      "bucket": "Masa pendahuluan",
+      "all": "Semua"
+    },
+    "summary": {
+      "title": "Pilihan semasa",
+      "total": "Jumlah tempahan",
+      "successRefundOnly": "Kadar kejayaan (bayaran balik sahaja)",
+      "successRefundCancel": "Kadar kejayaan (bayaran balik + batal)"
+    },
+    "table": {
+      "byDay": "Mengikut hari dalam minggu",
+      "byTime": "Mengikut masa berlepas",
+      "byBucket": "Mengikut masa pendahuluan (beli → berlepas)",
+      "group": "Kumpulan",
+      "total": "Jumlah",
+      "completed": "Selesai",
+      "failed": "Gagal",
+      "rate": "Kadar kejayaan"
+    },
+    "days": {
+      "monday": "Isnin",
+      "tuesday": "Selasa",
+      "wednesday": "Rabu",
+      "thursday": "Khamis",
+      "friday": "Jumaat",
+      "saturday": "Sabtu",
+      "sunday": "Ahad"
     }
   }
 }

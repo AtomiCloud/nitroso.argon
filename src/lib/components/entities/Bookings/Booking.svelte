@@ -9,6 +9,7 @@
     import CancelBooking from "$lib/components/entities/Bookings/CancelBooking.svelte";
     import {Button} from "$lib/components/ui/button";
     import TerminateBooking from "$lib/components/entities/Bookings/TerminateBooking.svelte";
+    import QueuePosition from "$lib/components/entities/Bookings/QueuePosition.svelte";
 
     import moment from "moment-timezone";
     import {page} from "$app/stores";
@@ -30,6 +31,9 @@
 
     const b = booking.principal;
     const session: any = $page.data.session;
+
+    // Only these statuses are still waiting in the purchase queue.
+    const queued = ["Pending", "Buying", "Recovering"].includes(b.status ?? "");
 </script>
 
 <div class="flex flex-wrap w-full gap-4">
@@ -60,6 +64,9 @@
                 </div>
                 <div class="flex flex-col gap-1.5 text-center">
                     <Badge class="{BOOKING_STATUS[b.status].color} text-md">{$_(`status.booking.${b.status}`, { locale: $lang })}</Badge>
+                    {#if queued}
+                        <QueuePosition bookingId={b.id}/>
+                    {/if}
                 </div>
             </div>
         </Card.Header>
