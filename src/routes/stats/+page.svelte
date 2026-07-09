@@ -108,10 +108,13 @@
     $: if (!definition) definition = "refund";
 
     // ---- bucket aggregation mode ----
-    // "per":        each lead-time bucket stands alone (a la carte)
-    // "cumulative": each bucket row aggregates ALL rows with lead time ≤ that
-    //               bucket (running totals); a bucket filter then also means
-    //               "this bucket and everything shorter"
+    // "per": each lead-time bucket stands alone (a la carte)
+    // "le":  cumulative ≤ — each bucket row aggregates ALL rows with lead
+    //        time at or under that bucket ("booked within X of departure")
+    // "ge":  cumulative ≥ — each bucket row aggregates ALL rows with lead
+    //        time at or over that bucket ("booked at least X before")
+    // A bucket FILTER follows the same semantics, so it feeds the matrix and
+    // summary consistently. ≤ and ≥ tell different stories — both exist.
     let bucketMode = "per";
     // ToggleGroup single allows deselecting; never leave the mode undefined
     $: if (!bucketMode) bucketMode = "per";
@@ -140,6 +143,18 @@
         const l = hhmm(selTime.value);
         if (selTime.label !== l) selTime = { ...selTime, label: l };
     }
+    // The bucket trigger mirrors the active mode's semantics ("24h" / "≤ 24h"
+    // / "≥ 24h") so the filter never reads ambiguously.
+    $: if (selBucket?.value) {
+        const l = bucketLabel(selBucket.value, bucketMode, $lang);
+        if (selBucket.label !== l) selBucket = { ...selBucket, label: l };
+    }
+
+    function bucketLabel(bk: string, mode: string, l: typeof $lang): string {
+        if (mode === "le") return $_('stats.bucketMode.upTo', { locale: l, values: { bucket: bk } });
+        if (mode === "ge") return $_('stats.bucketMode.atLeast', { locale: l, values: { bucket: bk } });
+        return bk;
+    }
 
     // Departure-time options come from the data itself, scoped to the selected
     // direction — a direction only serves its own timetable, so the select
@@ -153,9 +168,10 @@
     $: bucketsInData = BUCKETS.filter(bk => rows.some(r => r.bucket === bk));
 
     function bucketMatches(r: BookingStatRes, sel: string, mode: string): boolean {
-        if (mode !== "cumulative") return r.bucket === sel;
+        if (mode === "per") return r.bucket === sel;
         const i = bucketIdx(r.bucket);
-        return i !== -1 && i <= bucketIdx(sel);
+        if (i === -1) return false;
+        return mode === "ge" ? i >= bucketIdx(sel) : i <= bucketIdx(sel);
     }
 
     $: filtered = rows.filter(r =>
@@ -241,17 +257,16 @@
             return toStatRow(k, tm === "" ? "—" : hhmm(tm), dir, rs, definition);
         });
 
-    // breakdown by lead-time bucket (6h → 6m+); cumulative mode turns each
-    // row into a running total over everything at or under that bucket
+    // breakdown by lead-time bucket (6h → 6m+); the cumulative modes turn
+    // each row into a running total: ≤ over everything at-or-under the
+    // bucket, ≥ over everything at-or-over it
     $: presentBuckets = BUCKETS.filter(bk => filtered.some(r => r.bucket === bk));
-    $: byBucket = bucketMode === "cumulative"
-        ? presentBuckets.map(bk => toStatRow(
-            bk,
-            $_('stats.bucketMode.upTo', { locale: $lang, values: { bucket: bk } }),
-            "",
-            filtered.filter(r => bucketIdx(r.bucket) !== -1 && bucketIdx(r.bucket) <= bucketIdx(bk)),
-            definition))
-        : presentBuckets.map(bk => toStatRow(bk, bk, "", filtered.filter(r => r.bucket === bk), definition));
+    $: byBucket = presentBuckets.map(bk => toStatRow(
+        bk,
+        bucketLabel(bk, bucketMode, $lang),
+        "",
+        filtered.filter(r => bucketMatches(r, bk, bucketMode)),
+        definition));
 
     $: tables = [
         {title: $_('stats.table.byDay', { locale: $lang }), rows: byDay},
@@ -259,21 +274,36 @@
         {title: $_('stats.table.byBucket', { locale: $lang }), rows: byBucket},
     ];
 
-    // ---- 2D matrix: day-of-week × time-of-day, split per direction ----
-    // Each cell stacks one tinted sub-cell per direction (blue = W → JB,
-    // purple = JB → W — same scheme as the by-time rows, see page legend).
+    // ---- 2D matrix: day-of-week (rows, Mon→Sun) × time-of-day (columns) ----
+    // The many-item axis (timeslots) is the horizontal one so it can scroll;
+    // the 7 days always fit vertically. Each departure time belongs to
+    // exactly ONE direction (the J→W and W→J timetables are disjoint), so a
+    // (day, time) cell holds a single value — the direction is conveyed by
+    // tinting the whole column (header + cells, see page legend) while the
+    // cell TEXT keeps the green/amber/red success-rate coloring.
     type MatrixCell = { rate: number | null; total: number };
 
     $: matrixTimes = [...new Set(filtered.map(r => r.time ?? ""))].filter(t => t !== "").sort();
     $: matrixDays = DAYS.filter(d => filtered.some(r => r.dayOfWeek === d));
     $: matrix = buildMatrix(filtered, definition);
+    // each time's direction, derived from the data rows (for column tinting)
+    $: timeDirection = deriveTimeDirection(rows);
+
+    function deriveTimeDirection(rs: BookingStatRes[]): Map<string, string> {
+        const m = new Map<string, string>();
+        for (const r of rs) {
+            if (!r.time || !r.direction) continue;
+            if (!m.has(r.time)) m.set(r.time, r.direction);
+        }
+        return m;
+    }
 
     function buildMatrix(rs: BookingStatRes[], def: string): Map<string, MatrixCell> {
-        // group the (already bucket/filter-sliced) rows per (day, time, direction)
+        // group the (already bucket/filter-sliced) rows per (day, time)
         const groups = new Map<string, BookingStatRes[]>();
         for (const r of rs) {
-            if (!r.dayOfWeek || !r.time || !r.direction) continue;
-            const key = `${r.dayOfWeek}|${r.time}|${r.direction}`;
+            if (!r.dayOfWeek || !r.time) continue;
+            const key = `${r.dayOfWeek}|${r.time}`;
             const g = groups.get(key);
             if (g == null) groups.set(key, [r]);
             else g.push(r);
@@ -376,17 +406,22 @@
 
         <!-- lead-time bucket aggregation mode -->
         <div class="flex gap-4 flex-wrap items-center">
-            <ToggleGroup.Root type="single" bind:value={bucketMode} class="justify-start">
+            <ToggleGroup.Root type="single" bind:value={bucketMode} class="justify-start flex-wrap">
                 <ToggleGroup.Item value="per" aria-label={$_('stats.bucketMode.per', { locale: $lang })}>
                     {$_('stats.bucketMode.per', { locale: $lang })}
                 </ToggleGroup.Item>
-                <ToggleGroup.Item value="cumulative" aria-label={$_('stats.bucketMode.cumulative', { locale: $lang })}>
-                    {$_('stats.bucketMode.cumulative', { locale: $lang })}
+                <ToggleGroup.Item value="le" aria-label={$_('stats.bucketMode.cumulativeLe', { locale: $lang })}>
+                    {$_('stats.bucketMode.cumulativeLe', { locale: $lang })}
+                </ToggleGroup.Item>
+                <ToggleGroup.Item value="ge" aria-label={$_('stats.bucketMode.cumulativeGe', { locale: $lang })}>
+                    {$_('stats.bucketMode.cumulativeGe', { locale: $lang })}
                 </ToggleGroup.Item>
             </ToggleGroup.Root>
             <p class="text-sm text-muted-foreground">
-                {#if bucketMode === "cumulative"}
-                    {$_('stats.bucketMode.helpCumulative', { locale: $lang })}
+                {#if bucketMode === "le"}
+                    {$_('stats.bucketMode.helpCumulativeLe', { locale: $lang })}
+                {:else if bucketMode === "ge"}
+                    {$_('stats.bucketMode.helpCumulativeGe', { locale: $lang })}
                 {:else}
                     {$_('stats.bucketMode.helpPer', { locale: $lang })}
                 {/if}
@@ -528,7 +563,8 @@
                 </Card.Root>
             {/each}
 
-            <!-- 2D matrix: day of week × time of day, split per direction -->
+            <!-- 2D matrix: days vertical (Mon→Sun), timeslots horizontal;
+                 columns tinted by their time's one-and-only direction -->
             <Card.Root>
                 <Card.Header class="p-4 sm:p-6">
                     <Card.Title>{$_('stats.matrix.title', { locale: $lang })}</Card.Title>
@@ -544,7 +580,9 @@
                                     <Table.Row>
                                         <Table.Head class="h-8 px-2">{$_('stats.matrix.day', { locale: $lang })}</Table.Head>
                                         {#each matrixTimes as tm (tm)}
-                                            <Table.Head class="h-8 px-1 text-center whitespace-nowrap">{hhmm(tm)}</Table.Head>
+                                            <Table.Head class="h-8 px-1 text-center whitespace-nowrap {DIR_TINT[timeDirection.get(tm) ?? ''] ?? ''}">
+                                                {hhmm(tm)}
+                                            </Table.Head>
                                         {/each}
                                     </Table.Row>
                                 </Table.Header>
@@ -553,19 +591,13 @@
                                         <Table.Row>
                                             <Table.Cell class="px-2 py-1 font-medium whitespace-nowrap">{$_(`stats.daysShort.${d.toLowerCase()}`, { locale: $lang })}</Table.Cell>
                                             {#each matrixTimes as tm (tm)}
-                                                <Table.Cell class="p-0 align-middle">
-                                                    <div class="flex flex-col min-w-12">
-                                                        {#each DIRECTIONS as dir (dir)}
-                                                            {@const c = matrix.get(`${d}|${tm}|${dir}`)}
-                                                            <div class="px-1 py-0.5 text-center text-xs {DIR_TINT[dir]}">
-                                                                {#if c != null && c.rate != null}
-                                                                    <span class="font-medium {rateClass(c.rate)}">{rateText(c.rate)}</span>
-                                                                {:else}
-                                                                    <span class="text-muted-foreground/50 select-none">—</span>
-                                                                {/if}
-                                                            </div>
-                                                        {/each}
-                                                    </div>
+                                                {@const c = matrix.get(`${d}|${tm}`)}
+                                                <Table.Cell class="px-1 py-1 text-center text-xs min-w-12 {DIR_TINT[timeDirection.get(tm) ?? ''] ?? ''}">
+                                                    {#if c != null && c.rate != null}
+                                                        <span class="font-medium {rateClass(c.rate)}">{rateText(c.rate)}</span>
+                                                    {:else}
+                                                        <span class="text-muted-foreground/50 select-none">—</span>
+                                                    {/if}
                                                 </Table.Cell>
                                             {/each}
                                         </Table.Row>
