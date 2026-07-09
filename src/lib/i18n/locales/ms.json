@@ -328,7 +328,7 @@
       "hint": "0% menyahaktifkan yuran dan menyembunyikannya daripada pengguna.",
       "edit": "Sunting yuran",
       "dialogTitle": "Sunting yuran pengeluaran",
-      "dialogIntro": "Tetapkan peratusan yuran pengeluaran seluruh platform. Perubahan berkuat kuasa serta-merta untuk semua pengeluaran baharu.",
+      "dialogIntro": "Tetapkan peratusan yuran pengeluaran seluruh platform. Perubahan berkuat kuasa serta-merta melainkan tarikh kuat kuasa dijadualkan.",
       "placeholder": "Peratusan yuran",
       "save": "Simpan",
       "success": "Berjaya mengemas kini yuran pengeluaran kepada {rate}%",

@@ -328,7 +328,7 @@
       "hint": "0% disables the fee and hides it from users.",
       "edit": "Edit fee",
       "dialogTitle": "Edit withdrawal fee",
-      "dialogIntro": "Set the platform-wide withdrawal fee percentage. Changes take effect immediately for all new withdrawals.",
+      "dialogIntro": "Set the platform-wide withdrawal fee percentage. Changes apply immediately unless you schedule an effective date.",
       "placeholder": "Fee percentage",
       "save": "Save",
       "success": "Successfully updated withdrawal fee to {rate}%",
