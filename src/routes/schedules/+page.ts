@@ -12,7 +12,7 @@ import type { PageLoad } from './$types';
 import { Res } from '$lib/core/result';
 import type { Timings } from './typing';
 import { redirect } from '@sveltejs/kit';
-import { filterTimesAfterBookingCutoff, parseZincDate, singaporeToday, toZincDate } from '$lib/time/singapore';
+import { filterTimesAtOrAfterBookingCutoff, parseZincDate, singaporeToday, toZincDate } from '$lib/time/singapore';
 
 function getTiming(
   direction: 'JToW' | 'WToJ',
@@ -25,7 +25,7 @@ function getTiming(
 
   const t: string[] = timings.principal.timings ?? [];
   const included = t.filter(t => !excluded.includes(t)) ?? [];
-  return filterTimesAfterBookingCutoff(date, included, now);
+  return filterTimesAtOrAfterBookingCutoff(date, included, now);
 }
 
 function stitchTiming(timings: string[], res: BookingCountRes[]): Timings {

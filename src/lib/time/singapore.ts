@@ -25,11 +25,11 @@ function departureInstant(date: CalendarDate, time: string): Date {
 }
 
 /**
- * Keep departures strictly after the booking cutoff. Comparing absolute
+ * Keep departures at or after the booking cutoff. Comparing absolute
  * instants (rather than time-only strings) also handles a cutoff that crosses
  * midnight into the selected date.
  */
-export function filterTimesAfterBookingCutoff(
+export function filterTimesAtOrAfterBookingCutoff(
   date: string,
   times: string[],
   now: Date = new Date(),
@@ -37,5 +37,5 @@ export function filterTimesAfterBookingCutoff(
 ): string[] {
   const scheduleDate = parseZincDate(date);
   const cutoff = now.getTime() + cutoffMinutes * 60_000;
-  return times.filter(time => departureInstant(scheduleDate, time).getTime() > cutoff);
+  return times.filter(time => departureInstant(scheduleDate, time).getTime() >= cutoff);
 }
