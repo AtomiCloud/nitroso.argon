@@ -4,8 +4,8 @@ import { toResult } from '$lib/utility';
 import { formatMoney, formatNumber } from '$lib/i18n';
 import type { SupportedLocale } from '$lib/i18n';
 
-/** The two platform fee types zinc exposes on GET /api/v1/Fee/{type}. */
-type FeeType = 'Withdrawal' | 'Deposit';
+/** The platform fee types zinc exposes on GET /api/v1/Fee/{type}. */
+type FeeType = 'Withdrawal' | 'Deposit' | 'Termination';
 
 /**
  * Loads a platform fee (flat SGD component + percentage, e.g. 4 = 4%) from
@@ -51,12 +51,13 @@ function roundToEvenCents(x: number): number {
 
 /**
  * The fee charged on `amount`: flat component + percentage of the amount,
- * banker's-rounded to cents and capped at the amount itself — mirroring
- * zinc's FeeCalculator so the displayed fee always matches what the ledger
- * books (the cap keeps a large flat fee from producing a negative net).
+ * banker's-rounded to cents, then clamped at the admin-set cap (SGD, null =
+ * uncapped) and at the amount itself — mirroring zinc's FeeCalculator so the
+ * displayed fee always matches what the ledger books (the amount clamp keeps
+ * a large flat fee from producing a negative net).
  */
-function calcFee(fee: Pick<FeeRes, 'percentage' | 'flatAmount'>, amount: number): number {
-  return Math.min(roundToEvenCents(fee.flatAmount + (fee.percentage / 100) * amount), amount);
+function calcFee(fee: Pick<FeeRes, 'percentage' | 'flatAmount' | 'cap'>, amount: number): number {
+  return Math.min(roundToEvenCents(fee.flatAmount + (fee.percentage / 100) * amount), fee.cap ?? Infinity, amount);
 }
 
 /** Minimal shape of svelte-i18n's `$_` needed by {@link describeFee}. */
@@ -65,16 +66,26 @@ type Translate = (id: string, opts?: { locale?: string | null; values?: Record<s
 /**
  * Human-readable fee summary, e.g. "4% + S$2.00", omitting a zero component
  * ("4%", "S$2.00") and falling back to the localized "No fee" when both are
- * zero. Pass the component's `$_` and `$lang` so the string follows the
- * active locale reactively.
+ * zero. A cap (SGD) is appended, e.g. "50% capped at S$20.00" — except on a
+ * zero fee, where a cap changes nothing. Pass the component's `$_` and
+ * `$lang` so the string follows the active locale reactively.
  */
-function describeFee(fee: Pick<FeeRes, 'percentage' | 'flatAmount'>, t: Translate, lang: SupportedLocale): string {
+function describeFee(
+  fee: Pick<FeeRes, 'percentage' | 'flatAmount' | 'cap'>,
+  t: Translate,
+  lang: SupportedLocale,
+): string {
   const rate = formatNumber(fee.percentage, lang, { maximumFractionDigits: 2 });
   const flat = formatMoney(fee.flatAmount, lang);
   if (fee.percentage === 0 && fee.flatAmount === 0) return t('fees.display.none', { locale: lang });
-  if (fee.flatAmount === 0) return t('fees.display.percentOnly', { locale: lang, values: { rate } });
-  if (fee.percentage === 0) return t('fees.display.flatOnly', { locale: lang, values: { flat } });
-  return t('fees.display.both', { locale: lang, values: { rate, flat } });
+  const desc =
+    fee.flatAmount === 0
+      ? t('fees.display.percentOnly', { locale: lang, values: { rate } })
+      : fee.percentage === 0
+        ? t('fees.display.flatOnly', { locale: lang, values: { flat } })
+        : t('fees.display.both', { locale: lang, values: { rate, flat } });
+  if (fee.cap == null) return desc;
+  return t('fees.display.capped', { locale: lang, values: { desc, cap: formatMoney(fee.cap, lang) } });
 }
 
 /** True when the fee is disabled (0% and $0) and all fee UI should be hidden. */

@@ -24,6 +24,7 @@ import type {
   CostPolicyPrincipalRes,
   CostPolicyReq,
   CostPrincipalRes,
+  CostSlotSummaryRes,
   CostSummaryRes,
   CreateBookingReq,
   CreateCostReq,
@@ -826,6 +827,32 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
    * No description
    *
    * @tags Cost
+   * @name VCostSummaryBatchDetail
+   * @request GET:/api/v{version}/Cost/summary/batch
+   * @secure
+   */
+  vCostSummaryBatchDetail = (
+    version: string,
+    query?: {
+      Date?: string;
+      Direction?: string;
+      /** comma-separated HH:mm:ss list, 1-100 entries */
+      Times?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<CostSlotSummaryRes[], any>({
+      path: `/api/v${version}/Cost/summary/batch`,
+      method: 'GET',
+      query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Cost
    * @name VCostPoliciesDetail
    * @request GET:/api/v{version}/Cost/policies
    * @secure
@@ -1587,6 +1614,38 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
       path: `/api/v${version}/User/${id}`,
       method: 'DELETE',
       secure: true,
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags User
+   * @name VUserRolesCreate
+   * @request POST:/api/v{version}/User/{id}/roles/{role}
+   * @secure
+   */
+  vUserRolesCreate = (id: string, role: string, version: string, params: RequestParams = {}) =>
+    this.request<UserPrincipalRes, any>({
+      path: `/api/v${version}/User/${id}/roles/${role}`,
+      method: 'POST',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags User
+   * @name VUserRolesDelete
+   * @request DELETE:/api/v{version}/User/{id}/roles/{role}
+   * @secure
+   */
+  vUserRolesDelete = (id: string, role: string, version: string, params: RequestParams = {}) =>
+    this.request<UserPrincipalRes, any>({
+      path: `/api/v${version}/User/${id}/roles/${role}`,
+      method: 'DELETE',
+      secure: true,
+      format: 'json',
       ...params,
     });
   /**

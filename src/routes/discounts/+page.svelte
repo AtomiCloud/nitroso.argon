@@ -25,8 +25,9 @@
     import {toast} from "svelte-sonner";
     import UpdateDiscounts from "$lib/components/entities/Discounts/UpdateDiscounts.svelte";
     import DeleteDiscounts from "$lib/components/entities/Discounts/DeleteDiscounts.svelte";
+    import {parse} from "date-fns";
     import {_} from "svelte-i18n";
-    import {lang, formatMoney, formatNumber} from "$lib/i18n";
+    import {lang, formatMoney, formatNumber, formatCalendarDate, formatClockTime, formatDateTime} from "$lib/i18n";
 
     export let data: PageData;
 
@@ -94,6 +95,29 @@
                 keepFocus: true,
                 noScroll: true,
             });
+    }
+
+    // compact chips for the slot matchers a discount carries, mirroring the
+    // /costs policy rows; empty = the discount applies to every slot
+    function matcherChips(r: DiscountRecordRes): string[] {
+        const chips: string[] = [];
+        if (r.matchDate) chips.push(formatCalendarDate(parse(r.matchDate, "dd-MM-yyyy", new Date()), $lang));
+        if (r.matchTime) chips.push(formatClockTime(r.matchTime, $lang));
+        if (r.matchDayOfWeek) chips.push($_(`stats.days.${r.matchDayOfWeek.toLowerCase()}`, { locale: $lang }));
+        if (r.matchDirection) {
+            chips.push($_(r.matchDirection === "WToJ" ? 'bookings.list.woodlandsToJb' : 'bookings.list.jbToWoodlands', { locale: $lang }));
+        }
+        if (r.leadTimeUnderHours != null) {
+            chips.push($_('admin.costs.policies.leadUnder', { locale: $lang, values: { hours: r.leadTimeUnderHours } }));
+        }
+        if (r.effectiveAt != null || r.expiresAt != null) {
+            const from = r.effectiveAt == null ? "" : formatDateTime(r.effectiveAt, $lang);
+            const to = r.expiresAt == null ? "" : formatDateTime(r.expiresAt, $lang);
+            if (from !== "" && to !== "") chips.push(`${from} → ${to}`);
+            else if (from !== "") chips.push($_('admin.costs.policies.fromDate', { locale: $lang, values: { date: from } }));
+            else chips.push($_('admin.costs.policies.untilDate', { locale: $lang, values: { date: to } }));
+        }
+        return chips;
     }
 
     function displayDiscount(record: DiscountRecordRes): string {
@@ -204,6 +228,14 @@
                                         <div class="text-lg my-4">
                                             {$_('discounts.list.providesDiscount', { locale: $lang, values: { amount: displayDiscount(d.record) } })}
                                         </div>
+
+                                        {#if matcherChips(d.record).length > 0}
+                                            <div class="flex gap-2 items-center flex-wrap my-2">
+                                                {#each matcherChips(d.record) as chip}
+                                                    <Badge variant="outline">{chip}</Badge>
+                                                {/each}
+                                            </div>
+                                        {/if}
 
                                         <div class="flex gap-4 items-center flex-wrap">
                                             {#each d.target.matches as m, i }

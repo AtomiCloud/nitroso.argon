@@ -32,6 +32,7 @@
     import * as Card from "$lib/components/ui/card";
     import {Zap} from "lucide-svelte";
     import PurchaseBooking from "$lib/components/entities/Bookings/PurchaseBooking.svelte";
+    import {discountSteps} from "$lib/api/cost";
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatNumber, formatClockTime, formatCalendarDate} from "$lib/i18n";
 
@@ -291,18 +292,27 @@
                     </div>
                 {/if}
                 <Separator class="my-2"/>
-                {#each cost.discounts ?? [] as d}
+                <!-- each discount shows the pre-discount amount struck out
+                     next to the discounted result — the strikeout is the
+                     DISCOUNT signature (policy lines above stay plain) -->
+                {#each discountSteps(cost.subtotal, cost.final, cost.discounts) as step}
                     <div class="flex justify-between items-center my-2">
                         <div class="flex flex-col">
-                            <div class="font-semibold">{d.name}</div>
-                            <div class="text-xs font-light">{d.description}</div>
+                            <div class="font-semibold">{step.discount.name}</div>
+                            <div class="text-xs font-light">{step.discount.description}</div>
                         </div>
-                        <div class="font-light text-lg">
-                            {#if d.type === "Flat"}
-                                -{formatMoney(d.amount, $lang)}
-                            {:else}
-                                -{formatNumber(d.amount * 100, $lang)}%
-                            {/if}
+                        <div class="flex flex-col items-end">
+                            <div class="font-light text-lg">
+                                {#if step.discount.type === "Flat"}
+                                    −{formatMoney(step.discount.amount, $lang)}
+                                {:else}
+                                    −{formatNumber(step.discount.amount * 100, $lang)}%
+                                {/if}
+                            </div>
+                            <div class="text-sm">
+                                <span class="line-through text-muted-foreground">{formatMoney(step.before, $lang)}</span>
+                                {formatMoney(step.after, $lang)}
+                            </div>
                         </div>
                     </div>
                 {/each}
