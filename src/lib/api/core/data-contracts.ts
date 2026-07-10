@@ -273,9 +273,9 @@ export interface CreateDiscountReq {
 }
 
 export interface CreateMilestoneReq {
-  date?: string | null;
+  date: string;
   /** @maxLength 256 */
-  label?: string | null;
+  label: string;
 }
 
 export interface CreatePassengerReq {
@@ -438,14 +438,17 @@ export interface MaterializedCostRes {
   discounts?: DiscountRecordRes[] | null;
 }
 
-export interface MilestonePrincipalRes {
+export interface MilestoneRes {
   /** @format uuid */
   id: string;
-  date?: string | null;
-  label?: string | null;
+  date: string;
+  label: string;
   /** @format date-time */
   createdAt: string;
 }
+
+/** @deprecated Zinc names this response MilestoneRes. */
+export type MilestonePrincipalRes = MilestoneRes;
 
 export interface PassengerPrincipalRes {
   /** @format uuid */
