@@ -9,24 +9,20 @@
     import {Calendar} from "$lib/components/ui/calendar";
     import {Input} from "$lib/components/ui/input";
     import {CalendarIcon, Flag, LucideLoader, LucideTrash2} from "lucide-svelte";
-    import {getLocalTimeZone, type DateValue} from "@internationalized/date";
-    import type {MilestoneRes} from "$lib/api/core/data-contracts";
+    import type {DateValue} from "@internationalized/date";
+    import {getLocalTimeZone} from "@internationalized/date";
+    import type {MilestonePrincipalRes} from "$lib/api/core/data-contracts";
     import {toResult} from "$lib/utility";
     import {api} from "../../store";
     import {toast} from "svelte-sonner";
     import {_} from "svelte-i18n";
     import {lang, formatCalendarDate} from "$lib/i18n";
     import {cn} from "$lib/utils";
-    import {parseZincDate} from "./stats";
 
     // Admin-only milestone management, opened off the "From milestone" select.
     // The list endpoint is authed for everyone; create/delete are admin-only on
     // zinc, and the whole affordance is hidden for non-admins by the parent.
-    export let milestones: MilestoneRes[];
-    // Milestones define historical regimes. Future dates cannot describe a
-    // regime that has already produced statistics, so creation stops at the
-    // current SGT calendar date supplied by the parent.
-    export let today: DateValue;
+    export let milestones: MilestonePrincipalRes[];
     // zinc's dd-MM-yyyy formatter, shared with the page
     export let toApiDate: (d: DateValue) => string;
     // re-fetch the milestone list after a create/delete
@@ -47,60 +43,45 @@
         newDate = undefined;
     }
 
-    $: validNewDate = newDate != null && newDate.compare(today) <= 0;
-
-    function displayDate(value: string | null | undefined): string {
-        const date = parseZincDate(value);
-        return date == null
-            ? (value ?? "—")
-            : formatCalendarDate(date.toDate(getLocalTimeZone()), $lang, {dateStyle: "medium"});
-    }
-
     async function create() {
-        if (!validNewDate || newLabel.trim().length === 0) return;
+        if (newDate == null || newLabel.trim().length === 0) return;
         busy = true;
-        try {
-            await toResult(() => $api.vMilestoneCreate("1", {date: toApiDate(newDate!), label: newLabel.trim()}),
-                $_('stats.milestone.createFailed', { locale: $lang })).match({
-                ok: async () => {
-                    toast.info($_('stats.milestone.created', { locale: $lang }));
-                    newLabel = "";
-                    newDate = undefined;
-                    await reload();
-                },
-                err: (e) => {
-                    console.error(e);
-                    toast.error(e.detail ?? e.type);
-                }
-            });
-        } finally {
-            busy = false;
-        }
+        await toResult(() => $api.vMilestoneCreate("1", {date: toApiDate(newDate!), label: newLabel.trim()}),
+            $_('stats.milestone.createFailed', { locale: $lang })).match({
+            ok: async () => {
+                toast.info($_('stats.milestone.created', { locale: $lang }));
+                newLabel = "";
+                newDate = undefined;
+                await reload();
+            },
+            err: (e) => {
+                console.error(e);
+                toast.error(e.detail ?? e.type);
+            }
+        });
+        busy = false;
     }
 
     async function remove(id: string) {
         busy = true;
-        try {
-            await toResult(() => $api.vMilestoneDelete(id, "1"),
-                $_('stats.milestone.deleteFailed', { locale: $lang })).match({
-                ok: async () => {
-                    toast.info($_('stats.milestone.deleted', { locale: $lang }));
-                    armed = null;
-                    await reload();
-                },
-                err: (e) => {
-                    console.error(e);
-                    toast.error(e.detail ?? e.type);
-                }
-            });
-        } finally {
-            busy = false;
-        }
+        await toResult(() => $api.vMilestoneDelete(id, "1"),
+            $_('stats.milestone.deleteFailed', { locale: $lang })).match({
+            ok: async () => {
+                toast.info($_('stats.milestone.deleted', { locale: $lang }));
+                armed = null;
+                await reload();
+            },
+            err: (e) => {
+                console.error(e);
+                toast.error(e.detail ?? e.type);
+            }
+        });
+        busy = false;
     }
 </script>
 
 <Dialog.Root bind:open>
-    <Dialog.Trigger class="{buttonVariants({ variant: 'outline' })} h-11 w-11 p-0 shrink-0"
+    <Dialog.Trigger class="{buttonVariants({ variant: 'outline' })} h-8 px-2 shrink-0"
                     aria-label={$_('stats.milestone.manage', { locale: $lang })}>
         <Flag class="h-4 w-4"/>
     </Dialog.Trigger>
@@ -116,42 +97,43 @@
             <div class="flex flex-col gap-1.5">
                 {#each milestones as m (m.id)}
                     <div class="flex items-center justify-between gap-2 rounded-md border px-2 py-1.5 text-sm">
-                        <span class="truncate">{m.label} · {displayDate(m.date)}</span>
-                        <Button variant={armed === m.id ? "destructive" : "ghost"}
-                                class={cn("h-11 shrink-0", armed === m.id ? "px-3 text-xs" : "w-11 p-0")}
-                                disabled={busy}
-                                aria-label={$_(armed === m.id ? 'stats.milestone.confirmDeleteLabel' : 'stats.milestone.deleteLabel', { locale: $lang, values: {label: m.label} })}
-                                on:click={() => armed === m.id ? remove(m.id) : armed = m.id}>
-                            {#if armed === m.id}
+                        <span class="truncate">{m.label} · {m.date}</span>
+                        {#if armed === m.id}
+                            <Button variant="destructive" class="h-7 px-2 text-xs shrink-0" disabled={busy}
+                                    on:click={() => remove(m.id)}>
                                 {#if busy}<LucideLoader class="mr-1 h-3 w-3 animate-spin"/>{/if}
                                 {$_('stats.milestone.confirmDelete', { locale: $lang })}
-                            {:else}
+                            </Button>
+                        {:else}
+                            <Button variant="ghost" class="h-7 w-7 p-0 shrink-0" disabled={busy}
+                                    aria-label={$_('stats.milestone.confirmDelete', { locale: $lang })}
+                                    on:click={() => armed = m.id}>
                                 <LucideTrash2 class="h-4 w-4 text-muted-foreground"/>
-                            {/if}
-                        </Button>
+                            </Button>
+                        {/if}
                     </div>
                 {/each}
             </div>
         {/if}
 
         <div class="flex flex-col gap-2 border-t pt-3">
-            <label class="text-sm font-medium" for="milestone-label">{$_('stats.milestone.label', { locale: $lang })}</label>
-            <Input id="milestone-label" class="h-11" maxlength={256} bind:value={newLabel}
+            <div class="text-sm font-medium">{$_('stats.milestone.add', { locale: $lang })}</div>
+            <Input class="h-9" maxlength={256} bind:value={newLabel}
                    placeholder={$_('stats.milestone.labelPlaceholder', { locale: $lang })}/>
             <Popover.Root>
                 <Popover.Trigger asChild let:builder>
                     <Button variant="outline"
-                            class={cn("h-11 justify-start text-left font-normal", !newDate && "text-muted-foreground")}
+                            class={cn("h-9 justify-start text-left font-normal", !newDate && "text-muted-foreground")}
                             builders={[builder]}>
                         <CalendarIcon class="mr-2 h-4 w-4"/>
                         {newDate ? formatCalendarDate(newDate.toDate(getLocalTimeZone()), $lang, {dateStyle: "long"}) : $_('stats.milestone.date', { locale: $lang })}
                     </Button>
                 </Popover.Trigger>
                 <Popover.Content class="w-auto p-0" align="start">
-                    <Calendar bind:value={newDate} maxValue={today}/>
+                    <Calendar bind:value={newDate}/>
                 </Popover.Content>
             </Popover.Root>
-            <Button class="h-11" disabled={busy || !validNewDate || newLabel.trim().length === 0} on:click={create}>
+            <Button disabled={busy || newDate == null || newLabel.trim().length === 0} on:click={create}>
                 {#if busy}<LucideLoader class="mr-2 h-4 w-4 animate-spin"/>{/if}
                 {$_('stats.milestone.add', { locale: $lang })}
             </Button>

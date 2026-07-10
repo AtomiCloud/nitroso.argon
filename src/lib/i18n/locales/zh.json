@@ -1408,20 +1408,14 @@
     "range": {
       "after": "出行日期从",
       "before": "出行日期至",
-      "hint": "出行日期范围（默认：从最新里程碑开始，否则最近 90 天）",
-      "notSelected": "未选择",
-      "invalid": "开始日期必须早于或等于结束日期。"
+      "hint": "出行日期范围（默认：从最新里程碑开始，否则最近 90 天）"
     },
     "tabs": {
       "overview": "总览",
-      "time": "时间",
-      "direction": "方向",
-      "dayOfWeek": "星期",
       "matrix": "星期 × 时间",
       "leadTime": "提前时长",
       "queueDepth": "排队深度",
-      "delivery": "出票时长",
-      "slotLoad": "时段负载"
+      "delivery": "出票时长"
     },
     "priority": {
       "priority": "仅优先",
@@ -1431,7 +1425,6 @@
       "select": "从里程碑开始",
       "manage": "管理里程碑",
       "add": "添加里程碑",
-      "label": "里程碑标签",
       "labelPlaceholder": "标签（如：优先功能上线）",
       "date": "里程碑日期",
       "empty": "暂无里程碑",
@@ -1441,21 +1434,18 @@
       "deleteFailed": "删除里程碑失败",
       "loadFailed": "无法加载里程碑",
       "confirmDelete": "删除？",
-      "deleteLabel": "删除里程碑“{label}”",
-      "confirmDeleteLabel": "确认删除里程碑“{label}”",
       "hint": "里程碑用于标记上线或变更；出行日期范围默认从最新的里程碑开始。"
     },
     "queue": {
-      "title": "按历史时段负载查看成功率",
-      "info": "每个出行日期、时间和方向构成一个历史时段。负载区间使用该完整时段的全部请求；图表汇总成功与失败数量，而不是平均各时段百分比。"
+      "title": "按排队深度（每时段预订数）",
+      "info": "同一时段有多少预订在竞争。竞争越激烈，成功率越低——结合星期/时间筛选可查看某个时段的历史成功概率。"
     },
     "delivery": {
-      "title": "按出票截止时间查看成功率",
+      "title": "出票时长（仅已完成）",
       "bucket": "出发前",
       "completed": "已完成",
       "share": "占比",
-      "info": "对每个截止时间，已完成表示车票在出发前超过该时长交付。分母保持为已完成 + 已退款；选择后再加入已取消。",
-      "moreThan": "出发前 > {bucket}"
+      "info": "仅统计已完成的预订：车票在出发前多久拿到。按区间：各时段单独统计；累计 ≤：在出发前该时长内拿到票；累计 ≥：至少提前该时长拿到票。"
     },
     "definition": {
       "refundOnly": "仅退款",
@@ -1470,17 +1460,16 @@
     "bucketMode": {
       "per": "按区间",
       "cumulativeLe": "累计 ≤",
-      "cumulativeGe": "累计 >",
+      "cumulativeGe": "累计 ≥",
       "helpPer": "每个提前时长区间单独统计。",
       "helpCumulativeLe": "每行统计在出发前该时长内（该区间及更短）购买的所有预订。",
-      "helpCumulativeGe": "每行统计在出发前超过该提前时长阈值的所有预订。",
+      "helpCumulativeGe": "每行统计至少提前该时长（该区间及更长）购买的所有预订。",
       "upTo": "≤ {bucket}",
-      "moreThan": "> {bucket}",
-      "all": "全部"
+      "atLeast": "≥ {bucket}"
     },
     "matrix": {
       "title": "星期 × 出发时间",
-      "description": "星期纵向排列，出发时间横向排列。每个单元格使用与所有图表相同的筛选条件和成功定义。",
+      "description": "每个时段（行，按方向着色）与星期（列）的成功率",
       "day": "星期",
       "rateLegend": "成功率",
       "time": "时间"
@@ -1491,8 +1480,6 @@
       "time": "出发时间",
       "bucket": "提前时长",
       "priority": "优先",
-      "slotLoad": "时段负载",
-      "deliveryCutoff": "出票截止时间",
       "all": "全部"
     },
     "summary": {
@@ -1504,7 +1491,6 @@
     "table": {
       "byDay": "按星期",
       "byTime": "按出发时间",
-      "byDirection": "按方向",
       "byBucket": "按提前时长（购买 → 出发）",
       "group": "分组",
       "total": "总数",
