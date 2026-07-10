@@ -1408,20 +1408,14 @@
     "range": {
       "after": "Tarikh perjalanan dari",
       "before": "Tarikh perjalanan hingga",
-      "hint": "Julat tarikh perjalanan (lalai: dari pencapaian terkini, jika tiada — 90 hari terakhir)",
-      "notSelected": "Belum dipilih",
-      "invalid": "Tarikh mula mesti pada atau sebelum tarikh akhir."
+      "hint": "Julat tarikh perjalanan (lalai: dari pencapaian terkini, jika tiada — 90 hari terakhir)"
     },
     "tabs": {
       "overview": "Ringkasan",
-      "time": "Masa",
-      "direction": "Arah",
-      "dayOfWeek": "Hari minggu",
       "matrix": "Hari × Masa",
       "leadTime": "Masa pendahuluan",
       "queueDepth": "Kedalaman giliran",
-      "delivery": "Masa perolehan tiket",
-      "slotLoad": "Beban slot"
+      "delivery": "Masa perolehan tiket"
     },
     "priority": {
       "priority": "Keutamaan sahaja",
@@ -1431,7 +1425,6 @@
       "select": "Dari pencapaian",
       "manage": "Urus pencapaian",
       "add": "Tambah pencapaian",
-      "label": "Label pencapaian",
       "labelPlaceholder": "Label (cth. pelancaran keutamaan)",
       "date": "Tarikh pencapaian",
       "empty": "Tiada pencapaian lagi",
@@ -1441,21 +1434,18 @@
       "deleteFailed": "Gagal memadam pencapaian",
       "loadFailed": "Gagal memuatkan pencapaian",
       "confirmDelete": "Padam?",
-      "deleteLabel": "Padam pencapaian {label}",
-      "confirmDeleteLabel": "Sahkan pemadaman pencapaian {label}",
       "hint": "Pencapaian menandakan pelancaran atau perubahan; julat tarikh perjalanan bermula dari pencapaian terkini secara lalai."
     },
     "queue": {
-      "title": "Kejayaan mengikut beban slot sejarah",
-      "info": "Setiap tarikh perjalanan, masa dan arah ialah satu slot sejarah. Julat beban menggunakan semua permintaan bagi slot penuh itu; carta menggunakan jumlah hasil selesai dan gagal, bukan purata peratus slot."
+      "title": "Mengikut kedalaman giliran (tempahan setiap slot)",
+      "info": "Berapa banyak tempahan bersaing untuk slot yang sama. Semakin ramai bersaing, semakin rendah peluang — gabungkan dengan penapis hari/masa untuk melihat peluang sejarah sebenar bagi sesuatu slot."
     },
     "delivery": {
-      "title": "Kejayaan mengikut had masa penghantaran",
+      "title": "Masa perolehan tiket (selesai sahaja)",
       "bucket": "Sebelum berlepas",
       "completed": "Selesai",
       "share": "Bahagian",
-      "info": "Bagi setiap had masa, selesai bermaksud tiket dihantar lebih awal daripada tempoh itu sebelum berlepas. Penyebut kekal selesai + bayaran balik, dengan pembatalan ditambah apabila dipilih.",
-      "moreThan": "> {bucket} sebelum berlepas"
+      "info": "Untuk tempahan selesai sahaja: berapa lama sebelum berlepas tiket diperoleh. Ikut selang: setiap tetingkap dikira berasingan. Kumulatif ≤: tiket diperoleh dalam tempoh itu sebelum berlepas. Kumulatif ≥: tiket diperoleh sekurang-kurangnya tempoh itu sebelum berlepas."
     },
     "definition": {
       "refundOnly": "Bayaran balik sahaja",
@@ -1470,17 +1460,16 @@
     "bucketMode": {
       "per": "Ikut selang",
       "cumulativeLe": "Kumulatif ≤",
-      "cumulativeGe": "Kumulatif >",
+      "cumulativeGe": "Kumulatif ≥",
       "helpPer": "Setiap selang masa pendahuluan dikira berasingan.",
       "helpCumulativeLe": "Setiap baris mengira semua tempahan yang dibuat dalam tempoh itu sebelum berlepas (selang itu dan lebih pendek).",
-      "helpCumulativeGe": "Setiap baris mengira semua tempahan yang dibuat melebihi ambang masa pendahuluan itu sebelum berlepas.",
+      "helpCumulativeGe": "Setiap baris mengira semua tempahan yang dibuat sekurang-kurangnya selang itu sebelum berlepas (selang itu dan lebih panjang).",
       "upTo": "≤ {bucket}",
-      "moreThan": "> {bucket}",
-      "all": "Semua"
+      "atLeast": "≥ {bucket}"
     },
     "matrix": {
       "title": "Hari × masa berlepas",
-      "description": "Hari disusun menegak dan masa berlepas mendatar. Setiap sel menggunakan penapis dan takrif kejayaan yang sama seperti semua graf.",
+      "description": "Kadar kejayaan mengikut slot masa (baris, diwarnakan mengikut arah) dan hari (lajur)",
       "day": "Hari",
       "rateLegend": "kadar kejayaan",
       "time": "Masa"
@@ -1491,8 +1480,6 @@
       "time": "Masa berlepas",
       "bucket": "Masa pendahuluan",
       "priority": "Keutamaan",
-      "slotLoad": "Beban slot",
-      "deliveryCutoff": "Had masa penghantaran",
       "all": "Semua"
     },
     "summary": {
@@ -1504,7 +1491,6 @@
     "table": {
       "byDay": "Mengikut hari dalam minggu",
       "byTime": "Mengikut masa berlepas",
-      "byDirection": "Mengikut arah",
       "byBucket": "Mengikut masa pendahuluan (beli → berlepas)",
       "group": "Kumpulan",
       "total": "Jumlah",

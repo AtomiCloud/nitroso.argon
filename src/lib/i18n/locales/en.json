@@ -1408,20 +1408,14 @@
     "range": {
       "after": "Travel date from",
       "before": "Travel date to",
-      "hint": "Travel-date range (default: from the latest milestone, else the last 90 days)",
-      "notSelected": "Not selected",
-      "invalid": "Start date must be on or before the end date."
+      "hint": "Travel-date range (default: from the latest milestone, else the last 90 days)"
     },
     "tabs": {
       "overview": "Overview",
-      "time": "Time",
-      "direction": "Direction",
-      "dayOfWeek": "Day of week",
       "matrix": "Day × Time",
       "leadTime": "Lead time",
       "queueDepth": "Queue depth",
-      "delivery": "Delivery lead",
-      "slotLoad": "Slot load"
+      "delivery": "Delivery lead"
     },
     "priority": {
       "priority": "Priority only",
@@ -1431,7 +1425,6 @@
       "select": "From milestone",
       "manage": "Manage milestones",
       "add": "Add milestone",
-      "label": "Milestone label",
       "labelPlaceholder": "Label (e.g. priority launch)",
       "date": "Milestone date",
       "empty": "No milestones yet",
@@ -1441,21 +1434,18 @@
       "deleteFailed": "Failed to delete milestone",
       "loadFailed": "Failed to load milestones",
       "confirmDelete": "Delete?",
-      "deleteLabel": "Delete milestone {label}",
-      "confirmDeleteLabel": "Confirm deletion of milestone {label}",
       "hint": "Milestones mark launches or changes; the travel-date range starts from the latest milestone by default."
     },
     "queue": {
-      "title": "Success by historical slot load",
-      "info": "Each travel date, time and direction is one historical slot. Its load bucket uses every request for that full slot; the chart uses summed completed and failed outcomes, never an average of slot percentages."
+      "title": "By queue depth (bookings per slot)",
+      "info": "How many bookings competed for the same slot. More people chasing a slot means lower odds — combine with the day/time filters to read the exact historical chance for a slot."
     },
     "delivery": {
-      "title": "Success by delivery cutoff",
+      "title": "Delivery lead (completed only)",
       "bucket": "Before departure",
       "completed": "Completed",
       "share": "Share",
-      "info": "For each cutoff, completed means the ticket was delivered more than that long before departure. The denominator remains completed + refunded, with cancelled added when selected.",
-      "moreThan": "> {bucket} before departure"
+      "info": "How long before departure the ticket was secured, for completed bookings only. Per bucket: each window on its own. Cumulative ≤: got the ticket within that long of departure. Cumulative ≥: had the ticket at least that long before departure."
     },
     "definition": {
       "refundOnly": "Refund only",
@@ -1470,17 +1460,16 @@
     "bucketMode": {
       "per": "Per bucket",
       "cumulativeLe": "Cumulative ≤",
-      "cumulativeGe": "Cumulative >",
+      "cumulativeGe": "Cumulative ≥",
       "helpPer": "Each lead-time bucket is counted on its own.",
       "helpCumulativeLe": "Each row counts every booking made within that lead time of departure (that bucket and shorter).",
-      "helpCumulativeGe": "Each row counts every booking made more than that lead-time threshold before departure.",
+      "helpCumulativeGe": "Each row counts every booking made at least that long before departure (that bucket and longer).",
       "upTo": "≤ {bucket}",
-      "moreThan": "> {bucket}",
-      "all": "All"
+      "atLeast": "≥ {bucket}"
     },
     "matrix": {
       "title": "Day × departure time",
-      "description": "Days run vertically and departure times horizontally. Each cell uses the same filters and success definition as every graph.",
+      "description": "Success rate per timeslot (rows, tinted by direction) and day of week (columns)",
       "day": "Day",
       "rateLegend": "success rate",
       "time": "Time"
@@ -1491,8 +1480,6 @@
       "time": "Departure time",
       "bucket": "Lead time",
       "priority": "Priority",
-      "slotLoad": "Slot load",
-      "deliveryCutoff": "Delivery cutoff",
       "all": "All"
     },
     "summary": {
@@ -1504,7 +1491,6 @@
     "table": {
       "byDay": "By day of week",
       "byTime": "By departure time",
-      "byDirection": "By direction",
       "byBucket": "By lead time (purchase → departure)",
       "group": "Group",
       "total": "Total",
