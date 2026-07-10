@@ -18,6 +18,15 @@ export function parseZincDate(value: string): CalendarDate {
   return new CalendarDate(year, month, day);
 }
 
+/**
+ * `formatCalendarDate` reads a Date's runtime-local calendar fields. Preserve
+ * the floating CalendarDate fields rather than converting midnight SGT into
+ * an absolute instant, which would display as the previous day in UTC/LA.
+ */
+export function calendarDateForDisplay(date: Pick<CalendarDate, 'year' | 'month' | 'day'>): Date {
+  return new Date(date.year, date.month - 1, date.day);
+}
+
 function departureInstant(date: CalendarDate, time: string): Date {
   const [hour, minute, second = 0] = time.split(':').map(part => Number.parseInt(part, 10));
   const wallClock = new CalendarDateTime(date.year, date.month, date.day, hour, minute, second);

@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { filterTimesAtOrAfterBookingCutoff, parseZincDate, singaporeToday, toZincDate } from './singapore';
+import {
+  calendarDateForDisplay,
+  filterTimesAtOrAfterBookingCutoff,
+  parseZincDate,
+  singaporeToday,
+  toZincDate,
+} from './singapore';
 
 describe('Singapore schedule clock', () => {
   it('uses the same Singapore day and cutoff in UTC SSR and LA runtimes', () => {
@@ -26,6 +32,22 @@ describe('Singapore schedule clock', () => {
   it('uses the Singapore calendar day when UTC and LA are still on the previous day', () => {
     const instant = new Date('2026-07-09T16:01:00Z'); // 10-Jul 00:01 SGT; 09-Jul in UTC and LA
     expect(toZincDate(singaporeToday(instant))).toBe('10-07-2026');
+  });
+
+  it('preserves the displayed floating calendar day in UTC and LA runtimes', () => {
+    const originalTimeZone = process.env.TZ;
+    const date = parseZincDate('10-07-2026');
+
+    try {
+      for (const runtimeTimeZone of ['UTC', 'America/Los_Angeles']) {
+        process.env.TZ = runtimeTimeZone;
+        const displayed = calendarDateForDisplay(date);
+        expect([displayed.getFullYear(), displayed.getMonth() + 1, displayed.getDate()]).toEqual([2026, 7, 10]);
+      }
+    } finally {
+      if (originalTimeZone == null) delete process.env.TZ;
+      else process.env.TZ = originalTimeZone;
+    }
   });
 
   it('filters both sides of midnight and includes a departure exactly at the cutoff', () => {

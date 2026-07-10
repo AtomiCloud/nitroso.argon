@@ -21,7 +21,7 @@
     import {_} from "svelte-i18n";
     import {lang, formatCalendarDate, formatClockTime, formatMoney, formatNumber} from "$lib/i18n";
     import {HALF_HOURS} from "./times";
-    import {SINGAPORE_TIME_ZONE, singaporeToday} from "$lib/time/singapore";
+    import {calendarDateForDisplay, singaporeToday} from "$lib/time/singapore";
 
     // Live pricing preview: pick a hypothetical booking (date, time,
     // direction) with tap controls only, then show GET Cost/summary as an
@@ -104,7 +104,7 @@
                                 builders={[builder]}>
                             <CalendarIcon class="mr-2 h-4 w-4"/>
                             {date
-                                ? formatCalendarDate(date.toDate(SINGAPORE_TIME_ZONE), $lang, {dateStyle: "long"})
+                                ? formatCalendarDate(calendarDateForDisplay(date), $lang, {dateStyle: "long"})
                                 : $_('admin.costs.preview.pickDate', {locale: $lang})}
                         </Button>
                     </Popover.Trigger>

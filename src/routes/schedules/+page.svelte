@@ -28,7 +28,7 @@
     import {discountSteps} from "$lib/api/cost";
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatNumber, formatCalendarDate, formatClockTime} from "$lib/i18n";
-    import {SINGAPORE_TIME_ZONE, singaporeToday} from "$lib/time/singapore";
+    import {calendarDateForDisplay, singaporeToday} from "$lib/time/singapore";
 
     export let data: PageData;
 
@@ -154,7 +154,7 @@
                             class={cn("w-full max-w-sm lg:max-w-[240px] justify-start text-left font-normal",!bindDate && "text-muted-foreground")}
                             builders={[builder]}>
                         <CalendarIcon class="mr-2 h-4 w-4"/>
-                        {bindDate ? formatCalendarDate(bindDate.toDate(SINGAPORE_TIME_ZONE), $lang, {dateStyle: "long"}) : $_("schedules.selectDate", { locale: $lang })}
+                        {bindDate ? formatCalendarDate(calendarDateForDisplay(bindDate), $lang, {dateStyle: "long"}) : $_("schedules.selectDate", { locale: $lang })}
                     </Button>
                 </Popover.Trigger>
                 <Popover.Content class="w-auto p-0" align="center">
@@ -194,7 +194,7 @@
                                         <div class="flex flex-wrap gap-2 justify-center items-center">
                                             <div class="flex flex-col gap-2">
                                                 <div class="w-24 text-center">{displayTime(time)}</div>
-                                                <div class="w-24 text-center text-slate-500 text-sm">{bindDate ? formatCalendarDate(bindDate.toDate(SINGAPORE_TIME_ZONE), $lang, {dateStyle: "medium"}) : ""}</div>
+                                                <div class="w-24 text-center text-slate-500 text-sm">{bindDate ? formatCalendarDate(calendarDateForDisplay(bindDate), $lang, {dateStyle: "medium"}) : ""}</div>
                                             </div>
                                             <div class="flex flex-col gap-2 items-center">
                                                 <Badge class="text-center {countColor(count)}">{$_("schedules.ticketsInQueue", { locale: $lang, values: { count } })}
