@@ -318,6 +318,7 @@
     "purchase": {
       "success": "Berjaya membeli tempahan",
       "error": "Gagal membeli tempahan",
+      "priceChanged": "Harga berubah semasa halaman ini dibuka. Kami telah memuat semula harga — sila semak dan sahkan sekali lagi.",
       "createPassengerError": "Gagal mencipta penumpang",
       "trigger": "Beli",
       "title": "Beli Tempahan",
@@ -1413,10 +1414,14 @@
     },
     "tabs": {
       "overview": "Ringkasan",
+      "time": "Masa",
+      "direction": "Arah",
+      "dayOfWeek": "Hari minggu",
       "matrix": "Hari × Masa",
       "leadTime": "Masa pendahuluan",
       "queueDepth": "Kedalaman giliran",
-      "delivery": "Masa perolehan tiket"
+      "delivery": "Masa perolehan tiket",
+      "slotLoad": "Beban slot"
     },
     "priority": {
       "priority": "Keutamaan sahaja",
@@ -1441,15 +1446,16 @@
       "hint": "Pencapaian menandakan pelancaran atau perubahan; julat tarikh perjalanan bermula dari pencapaian terkini secara lalai."
     },
     "queue": {
-      "title": "Mengikut kedalaman giliran (tempahan setiap slot)",
-      "info": "Berapa banyak tempahan bersaing untuk slot yang sama. Semakin ramai bersaing, semakin rendah peluang — gabungkan dengan penapis hari/masa untuk melihat peluang sejarah sebenar bagi sesuatu slot."
+      "title": "Kejayaan mengikut beban slot sejarah",
+      "info": "Setiap tarikh perjalanan, masa dan arah ialah satu slot sejarah. Julat beban menggunakan semua permintaan bagi slot penuh itu; carta menggunakan jumlah hasil selesai dan gagal, bukan purata peratus slot."
     },
     "delivery": {
-      "title": "Masa perolehan tiket (selesai sahaja)",
+      "title": "Kejayaan mengikut had masa penghantaran",
       "bucket": "Sebelum berlepas",
       "completed": "Selesai",
       "share": "Bahagian",
-      "info": "Untuk tempahan selesai sahaja: berapa lama sebelum berlepas tiket diperoleh. Ikut selang: setiap tetingkap dikira berasingan. Kumulatif ≤: tiket diperoleh dalam tempoh itu sebelum berlepas. Kumulatif >: tiket diperoleh lebih daripada tempoh itu sebelum berlepas."
+      "info": "Bagi setiap had masa, selesai bermaksud tiket dihantar lebih awal daripada tempoh itu sebelum berlepas. Penyebut kekal selesai + bayaran balik, dengan pembatalan ditambah apabila dipilih.",
+      "moreThan": "> {bucket} sebelum berlepas"
     },
     "definition": {
       "refundOnly": "Bayaran balik sahaja",
@@ -1474,7 +1480,7 @@
     },
     "matrix": {
       "title": "Hari × masa berlepas",
-      "description": "Kadar kejayaan mengikut slot masa (baris, diwarnakan mengikut arah) dan hari (lajur)",
+      "description": "Hari disusun menegak dan masa berlepas mendatar. Setiap sel menggunakan penapis dan takrif kejayaan yang sama seperti semua graf.",
       "day": "Hari",
       "rateLegend": "kadar kejayaan",
       "time": "Masa"
@@ -1485,6 +1491,8 @@
       "time": "Masa berlepas",
       "bucket": "Masa pendahuluan",
       "priority": "Keutamaan",
+      "slotLoad": "Beban slot",
+      "deliveryCutoff": "Had masa penghantaran",
       "all": "Semua"
     },
     "summary": {
@@ -1496,6 +1504,7 @@
     "table": {
       "byDay": "Mengikut hari dalam minggu",
       "byTime": "Mengikut masa berlepas",
+      "byDirection": "Mengikut arah",
       "byBucket": "Mengikut masa pendahuluan (beli → berlepas)",
       "group": "Kumpulan",
       "total": "Jumlah",

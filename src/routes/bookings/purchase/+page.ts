@@ -5,16 +5,29 @@ import type { PageLoad } from './$types';
 import type { ProblemDetails } from '../../../errors/problem_details';
 import { NewApi } from '../../../store';
 import { Res } from '$lib/core/result';
+import { LIVE_PRICING_DEPENDENCY } from '$lib/api/cost';
+import { filterTimesAtOrAfterBookingCutoff } from '$lib/time/singapore';
+import { redirect } from '@sveltejs/kit';
 
 export const load = (async ({
   parent,
   url,
   fetch,
+  depends,
 }): Promise<{
   result: ['err', ProblemDetails[]] | ['ok', [PassengerPrincipalRes[], CostSummaryRes]];
   eligibility: PriorityEligibilityRes;
 }> => {
+  depends(LIVE_PRICING_DEPENDENCY);
   const { session, user, locale } = await parent();
+
+  const date = url.searchParams.get('date') ?? '';
+  const time = url.searchParams.get('time') ?? '';
+  const direction = url.searchParams.get('direction') ?? '';
+  if (date && time && !filterTimesAtOrAfterBookingCutoff(date, [time], new Date()).includes(time)) {
+    const scheduleQuery = new URLSearchParams({ date, direction: direction || 'WToJ' });
+    throw redirect(302, `/schedules?${scheduleQuery}`);
+  }
 
   const api = NewApi({ data: { session }, fetch });
   const userId = session.roles?.includes('admin') ? undefined : (user?.principal.id ?? '');
@@ -32,9 +45,9 @@ export const load = (async ({
   const cost = toResult(
     () =>
       api.vCostSummaryDetail('1', {
-        Date: url.searchParams.get('date') ?? '',
-        Time: url.searchParams.get('time') ?? '',
-        Direction: url.searchParams.get('direction') ?? '',
+        Date: date,
+        Time: time,
+        Direction: direction,
       }),
     await loadError(locale, 'errors.load.cost'),
   );

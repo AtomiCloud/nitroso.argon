@@ -10,11 +10,13 @@
     import {toResult} from "$lib/utility";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
-    import {goto} from "$app/navigation";
+    import {goto, invalidate} from "$app/navigation";
     import {format, parse} from "date-fns";
     import type {ZodIssue} from "zod";
     import {_} from "svelte-i18n";
-    import {lang, formatCalendarDate, formatClockTime} from "$lib/i18n";
+    import {lang, formatCalendarDate, formatClockTime, formatMoney} from "$lib/i18n";
+    import type {CostSummaryRes} from "$lib/api/core/data-contracts";
+    import {LIVE_PRICING_DEPENDENCY, priceQuote, samePriceQuote} from "$lib/api/cost";
 
 
     export let checked: boolean;
@@ -39,6 +41,7 @@
 
     export let wallet: number;
     export let cost: number;
+    export let quote: string;
 
     // priority queue opt-in: when true, POST Booking/{id}/prioritize right
     // after a successful purchase; the fee is part of the balance gate so the
@@ -47,6 +50,20 @@
     export let priorityFee = 0;
 
     let dialogOpen = false;
+    let wasDialogOpen = false;
+    let confirmedCost = cost;
+    let confirmedQuote = quote;
+
+    // Freeze exactly what the customer opened the confirmation for. A live
+    // refresh may update the page behind the dialog, but it must not silently
+    // replace the quote being approved.
+    $: if (dialogOpen !== wasDialogOpen) {
+        wasDialogOpen = dialogOpen;
+        if (dialogOpen) {
+            confirmedCost = cost;
+            confirmedQuote = quote;
+        }
+    }
 
     let submitting = false;
 
@@ -55,7 +72,11 @@
     }
 
 
-    $: isValid = errors.length === 0 && Object.entries(taints).length > 0 && wallet >= cost + (priority ? priorityFee : 0);
+    $: isValid = errors.length === 0
+        && Object.entries(taints).length > 0
+        && typeof quote === "string"
+        && quote.length > 0
+        && wallet >= cost + (priority ? priorityFee : 0);
 
     // The booking exists even when the prioritize call fails — tell the user
     // they keep their spot and can upgrade later from the booking page.
@@ -88,9 +109,44 @@
         (window as any)?.fathom?.trackEvent('Trigger Buy');
     }
 
+    // The quote can cross a strict lead-time boundary while the confirmation
+    // dialog is open. Re-read it immediately before any passenger or booking
+    // mutation; if it changed, refresh the page quote and require a fresh
+    // confirmation instead of silently charging a different amount.
+    async function quoteIsCurrent(): Promise<boolean> {
+        let latest: CostSummaryRes | null = null;
+        let failed = false;
+        await toResult(() => $api.vCostSummaryDetail("1", {
+            Date: date,
+            Time: time,
+            Direction: direction,
+        }), $_('bookingActions.purchase.error', { locale: $lang })).match({
+            ok: (summary: CostSummaryRes) => {
+                latest = summary;
+            },
+            err: (e) => {
+                console.error(e);
+                failed = true;
+                toast.error(e.detail ?? e.type);
+            }
+        });
+
+        if (failed || latest == null) return false;
+        if (samePriceQuote(confirmedQuote, priceQuote(latest))) return true;
+
+        dialogOpen = false;
+        toast.warning($_('bookingActions.purchase.priceChanged', { locale: $lang }));
+        await invalidate(LIVE_PRICING_DEPENDENCY);
+        return false;
+    }
+
     async function buy() {
         submitting = true;
         (window as any)?.fathom?.trackEvent('Buy')
+        if (!await quoteIsCurrent()) {
+            submitting = false;
+            return;
+        }
         if (checked) {
             await toResult(() => $api.vPassengerCreate(userId, "1.0", {
                 fullName: passenger.fullName,
@@ -99,7 +155,7 @@
                 passportNumber: passenger.passportNumber,
             }), $_('bookingActions.purchase.createPassengerError', { locale: $lang }))
                 .andThen(() => toResult(() => $api.vBookingPurchaseCreate(userId, "1", {
-                    date, time, direction, passenger: {
+                    date, time, direction, expectedCost: confirmedQuote, passenger: {
                         ...passenger,
                         passportExpiry: format(passenger.passportExpiry, "dd-MM-yyyy"),
                     }
@@ -110,15 +166,16 @@
                         if (priority) await prioritize(b.id);
                         redirectSuccess();
                     },
-                    err: (e) => {
+                    err: async (e) => {
                         console.error(e);
                         toast.error(e.detail ?? e.type);
                         dialogOpen = false;
+                        await invalidate(LIVE_PRICING_DEPENDENCY);
                     }
                 });
         } else {
             await toResult(() => $api.vBookingPurchaseCreate(userId, "1", {
-                date, time, direction, passenger: {
+                date, time, direction, expectedCost: confirmedQuote, passenger: {
                     ...passenger,
                     passportExpiry: format(passenger.passportExpiry, "dd-MM-yyyy"),
                 }
@@ -129,10 +186,11 @@
                         if (priority) await prioritize(b.id);
                         redirectSuccess();
                     },
-                    err: (e) => {
+                    err: async (e) => {
                         console.error(e);
                         toast.error(e.detail ?? e.type);
                         dialogOpen = false;
+                        await invalidate(LIVE_PRICING_DEPENDENCY);
                     }
                 });
         }
@@ -190,6 +248,10 @@
                         <div class="flex justify-between">
                             <div class="font-bold">{$_('fields.gender', { locale: $lang })}</div>
                             <div>{passenger.gender === "M" ? $_('bookingActions.purchase.male', { locale: $lang }) : $_('bookingActions.purchase.female', { locale: $lang })}</div>
+                        </div>
+                        <div class="mt-4 flex justify-between border-t pt-4">
+                            <div class="font-bold">{$_('bookings.purchase.bookingCost', { locale: $lang })}</div>
+                            <div class="font-bold">{formatMoney(confirmedCost, $lang)}</div>
                         </div>
                     </div>
 
