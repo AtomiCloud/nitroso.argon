@@ -206,7 +206,7 @@
                                                  subtotal is the DISCOUNT signature; policy adjustments
                                                  are simply part of the shown price. -->
                                             <Popover.Root>
-                                                <Popover.Trigger aria-label={$_("schedules.breakdown.open", { locale: $lang })}>
+                                                <Popover.Trigger aria-label={`${formatMoney(slot.final, $lang)} — ${$_("schedules.breakdown.open", { locale: $lang })}`}>
                                                     <div class="flex flex-col items-center gap-1">
                                                         <div class="flex items-center gap-2">
                                                             <Card.Title>{formatMoney(slot.final, $lang)}</Card.Title>

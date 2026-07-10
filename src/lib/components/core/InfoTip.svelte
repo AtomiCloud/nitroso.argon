@@ -45,7 +45,8 @@
     <!-- closeOnPointerDown must stay off (see header comment); openDelay
          150ms keeps desktop hover snappy vs melt's sluggish 1s default. -->
     <Tooltip.Root bind:open openDelay={150} closeOnPointerDown={false}>
-        <Tooltip.Trigger on:pointerdown={triggerPointerDown} aria-label={label || undefined}>
+        <Tooltip.Trigger class="inline-flex h-11 w-11 items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                         on:pointerdown={triggerPointerDown} aria-label={label || undefined}>
             <slot name="trigger">
                 <Info class="h-4 w-4 text-muted-foreground"/>
             </slot>

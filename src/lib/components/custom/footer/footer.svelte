@@ -14,34 +14,40 @@ import {lang} from "$lib/i18n";
 <h2 class="text-lg text-center">{$_('footer.contactHelp', {locale: $lang})}</h2>
 
 <div class="flex flex-wrap justify-center gap-8 p-8">
-    <!-- Singapore-hours support: WhatsApp, staffed on SGT time -->
+    <!-- Day support window, stated as an exact non-overlapping SGT range. -->
     <div class="flex flex-col items-center gap-3">
-        <h3 class="text-sm font-semibold">{$_('footer.supportSgt', {locale: $lang})}</h3>
-        <a href="https://wa.me/6583090333" class="flex items-center gap-2 cursor-pointer hover:text-green-500">
+        <h3 class="text-sm font-semibold">{$_('footer.supportDay', {locale: $lang})}</h3>
+        <a href="https://wa.me/6583090333" class="flex min-h-11 items-center gap-2 rounded-md px-2 cursor-pointer hover:text-green-500"
+           aria-label={`${$_('footer.whatsapp', {locale: $lang})}: +65 8309 0333`}>
             <Icon src={BsWhatsapp} size="20" color="currentColor"/>
             <span class="text-sm">+65 8309 0333</span>
         </a>
-        <a href="https://wa.me/6597809828" class="flex items-center gap-2 cursor-pointer hover:text-green-500">
+        <a href="https://wa.me/6597809828" class="flex min-h-11 items-center gap-2 rounded-md px-2 cursor-pointer hover:text-green-500"
+           aria-label={`${$_('footer.whatsapp', {locale: $lang})}: +65 9780 9828`}>
             <Icon src={BsWhatsapp} size="20" color="currentColor"/>
             <span class="text-sm">+65 9780 9828</span>
         </a>
     </div>
 
-    <!-- California-hours support: the original contact set, staffed on PT time -->
+    <!-- Overnight support window, stated entirely in SGT. -->
     <div class="flex flex-col items-center gap-3">
-        <h3 class="text-sm font-semibold">{$_('footer.supportUs', {locale: $lang})}</h3>
-        <a href="https://wa.me/6588178504" class="flex items-center gap-2 cursor-pointer hover:text-green-500">
+        <h3 class="text-sm font-semibold">{$_('footer.supportOvernight', {locale: $lang})}</h3>
+        <a href="https://wa.me/6588178504" class="flex min-h-11 items-center gap-2 rounded-md px-2 cursor-pointer hover:text-green-500"
+           aria-label={`${$_('footer.whatsapp', {locale: $lang})}: +65 8817 8504`}>
             <Icon src={BsWhatsapp} size="20" color="currentColor"/>
             <span class="text-sm">+65 8817 8504</span>
         </a>
         <div class="flex items-center gap-6">
-            <a href="https://t.me/bunnybooker" class="cursor-pointer hover:text-sky-500">
+            <a href="https://t.me/bunnybooker" class="flex h-11 w-11 items-center justify-center rounded-md cursor-pointer hover:text-sky-500"
+               aria-label={$_('footer.telegram', {locale: $lang})}>
                 <Icon src={BsTelegram} size="20" color="currentColor"/>
             </a>
-            <a href="mailto:support@bunnybooker.com" class="cursor-pointer hover:text-rose-500">
+            <a href="mailto:support@bunnybooker.com" class="flex h-11 w-11 items-center justify-center rounded-md cursor-pointer hover:text-rose-500"
+               aria-label={$_('footer.email', {locale: $lang})}>
                 <Icon src={AiOutlineMail} size="20" color="currentColor"/>
             </a>
-            <a href="tel:+6588178504" class="cursor-pointer hover:text-red-500">
+            <a href="tel:+6588178504" class="flex h-11 w-11 items-center justify-center rounded-md cursor-pointer hover:text-red-500"
+               aria-label={$_('footer.phone', {locale: $lang})}>
                 <Icon src={BsTelephone} size="20" color="currentColor"/>
             </a>
         </div>
@@ -49,10 +55,12 @@ import {lang} from "$lib/i18n";
 </div>
 
 <div class="flex flex-wrap align-center justify-center gap-8 pb-8">
-    <a href="https://www.facebook.com/profile.php?id=61554414882276&mibextid=ZbWKwL" class="cursor-pointer hover:text-blue-500">
+    <a href="https://www.facebook.com/profile.php?id=61554414882276&mibextid=ZbWKwL" class="flex h-11 w-11 items-center justify-center rounded-md cursor-pointer hover:text-blue-500"
+       aria-label="Facebook">
         <Icon src={BsFacebook} size="24" color="currentColor"/>
     </a>
-    <a href="https://www.instagram.com/bunnybooker.sg?utm_source=qr&igsh=MWxrMDFkN2diczlnZg==" class="cursor-pointer hover:text-pink-500">
+    <a href="https://www.instagram.com/bunnybooker.sg?utm_source=qr&igsh=MWxrMDFkN2diczlnZg==" class="flex h-11 w-11 items-center justify-center rounded-md cursor-pointer hover:text-pink-500"
+       aria-label="Instagram">
         <Icon src={BsInstagram} size="24" color="currentColor"/>
     </a>
 </div>

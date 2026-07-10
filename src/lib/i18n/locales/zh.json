@@ -339,9 +339,10 @@
       "title": "终止预订",
       "intro": "我们的小兔子们已经成功在 KITS 上为您锁定了车票！终止此车票会将您的车票释放回 KITS。",
       "takeNoteTitle": "请注意！",
-      "takeNoteBefore": "终止预订只会退还",
-      "refundPercent": "50%",
-      "takeNoteAfter": "您所支付车票价格的金额。这是为了防止滥用系统。",
+      "feeNotice": "将从您实际支付的金额中扣除 {fee} 的终止手续费，余额将退回您的 BunnyBooker 钱包。",
+      "feeLoading": "正在加载当前终止手续费……",
+      "feeLoadFailed": "无法加载当前终止手续费。请重试后再继续。",
+      "feeRetry": "重试",
       "typeNameBefore": "请输入乘客的姓名，",
       "typeNameAfter": "以继续。",
       "typeNameError": "请输入该预订乘客的姓名以继续。",
@@ -750,8 +751,8 @@
       "deliveryHeading": "交付、退款与换票政策",
       "deliveryIntro": "您接受以下关于车票交付、退款和换票的条款：",
       "deliveryItem1": "对于 BunnyBooker 系统未能在 KTMB 网站上成功锁定的车票，将提供全额退款。",
-      "deliveryItem2": "已在 KTMB 网站上成功锁定的车票不可免费退款或换票。此类订单可选择终止，但需支付票价 50% 的终止费；其余 50% 将以余额形式退还至您的 BunnyBooker 钱包。",
-      "deliveryItem3": "车票预订后即可发起取消；在车票尚未锁定前，取消是免费的。当 BunnyBooker 系统在 KTMB 网站上成功锁定车票后，将无法再取消，只能终止订单，并按上述规定收取 50% 的终止费。",
+      "deliveryItem2": "已在 KTMB 网站上成功锁定的车票不可免费退款或换票。此类订单可选择终止，但需支付当时配置并在确认前显示的终止手续费；余额将退回您的 BunnyBooker 钱包。",
+      "deliveryItem3": "车票预订后即可发起取消；在车票尚未锁定前，取消是免费的。当 BunnyBooker 系统在 KTMB 网站上成功锁定车票后，将无法再取消，只能终止订单，并按上述规定收取已配置的终止手续费。",
       "deliveryItem4": "车票一经订购并启用我们的预订服务，我们的小兔子将积极尝试锁定您的车票。",
       "deliveryItem5": "预订工作将持续到所选列车方向预定出发时间前 30 分钟。",
       "deliveryItem6": "如果成功，您将及时收到确认的预订详情通知。",
@@ -982,8 +983,12 @@
     "refundPolicy": "配送、取消及退款政策",
     "privacyPolicy": "隐私政策",
     "termsOfUse": "使用条款",
-    "supportSgt": "上午9点 – 午夜（新加坡时间）",
-    "supportUs": "其他时间"
+    "supportDay": "09:00–23:59（新加坡时间）",
+    "supportOvernight": "00:00–08:59（新加坡时间）",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram 客服",
+    "email": "电邮客服",
+    "phone": "致电客服"
   },
   "loader": {
     "default": "正在加载，请稍候……",
@@ -1319,7 +1324,7 @@
         "title": "终止手续费",
         "description": "用户终止已锁定预订时收取的手续费。"
       },
-      "terminationNote": "此手续费在用户终止已锁定的预订时收取——条款与条件目前注明为 50%，请与已发布的条款保持一致。",
+      "terminationNote": "用户终止已锁定的预订时，此手续费按实际支付金额计算。以上配置的百分比、固定金额和上限决定最终收费。",
       "hint": "0% + S$0 表示取消手续费，并对用户隐藏。",
       "currentLabel": "当前手续费",
       "loadFailed": "无法加载当前手续费"
@@ -1396,7 +1401,9 @@
     "range": {
       "after": "出行日期从",
       "before": "出行日期至",
-      "hint": "出行日期范围（默认：从最新里程碑开始，否则最近 90 天）"
+      "hint": "出行日期范围（默认：从最新里程碑开始，否则最近 90 天）",
+      "notSelected": "未选择",
+      "invalid": "开始日期必须早于或等于结束日期。"
     },
     "tabs": {
       "overview": "总览",
@@ -1413,6 +1420,7 @@
       "select": "从里程碑开始",
       "manage": "管理里程碑",
       "add": "添加里程碑",
+      "label": "里程碑标签",
       "labelPlaceholder": "标签（如：优先功能上线）",
       "date": "里程碑日期",
       "empty": "暂无里程碑",
@@ -1422,6 +1430,8 @@
       "deleteFailed": "删除里程碑失败",
       "loadFailed": "无法加载里程碑",
       "confirmDelete": "删除？",
+      "deleteLabel": "删除里程碑“{label}”",
+      "confirmDeleteLabel": "确认删除里程碑“{label}”",
       "hint": "里程碑用于标记上线或变更；出行日期范围默认从最新的里程碑开始。"
     },
     "queue": {
@@ -1433,7 +1443,7 @@
       "bucket": "出发前",
       "completed": "已完成",
       "share": "占比",
-      "info": "仅统计已完成的预订：车票在出发前多久拿到。按区间：各时段单独统计；累计 ≤：在出发前该时长内拿到票；累计 ≥：至少提前该时长拿到票。"
+      "info": "仅统计已完成的预订：车票在出发前多久拿到。按区间：各时段单独统计；累计 ≤：在出发前该时长内拿到票；累计 >：在出发前超过该时长拿到票。"
     },
     "definition": {
       "refundOnly": "仅退款",
@@ -1448,12 +1458,13 @@
     "bucketMode": {
       "per": "按区间",
       "cumulativeLe": "累计 ≤",
-      "cumulativeGe": "累计 ≥",
+      "cumulativeGe": "累计 >",
       "helpPer": "每个提前时长区间单独统计。",
       "helpCumulativeLe": "每行统计在出发前该时长内（该区间及更短）购买的所有预订。",
-      "helpCumulativeGe": "每行统计至少提前该时长（该区间及更长）购买的所有预订。",
+      "helpCumulativeGe": "每行统计在出发前超过该提前时长阈值的所有预订。",
       "upTo": "≤ {bucket}",
-      "atLeast": "≥ {bucket}"
+      "moreThan": "> {bucket}",
+      "all": "全部"
     },
     "matrix": {
       "title": "星期 × 出发时间",

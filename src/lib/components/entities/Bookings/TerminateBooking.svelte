@@ -7,7 +7,8 @@
     import * as Dialog from "$lib/components/ui/dialog";
     // @ts-ignore
     import * as Alert from "$lib/components/ui/alert";
-    import type {BookingPrincipalRes} from "$lib/api/core/data-contracts";
+    import type {BookingPrincipalRes, FeeRes} from "$lib/api/core/data-contracts";
+    import {describeFee, loadFee} from "$lib/api/fee";
     import {toResult} from "$lib/utility";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
@@ -21,34 +22,75 @@
     let dialogOpen = false;
     export let booking: BookingPrincipalRes;
 
+    let confirm = "";
+    let terminationFee: FeeRes | null = null;
+    let feeLoading = false;
+    let feeLoadFailed = false;
+    let feeRequested = false;
+
+    $: feeDescription = terminationFee == null
+        ? ""
+        : describeFee(terminationFee, $_, $lang);
+
+    // A configurable fee must be disclosed before the destructive action.
+    // Load it each time the dialog opens and block confirmation if the value
+    // cannot be verified against Zinc.
+    $: if (dialogOpen && !feeRequested) {
+        feeRequested = true;
+        void loadTerminationFee();
+    }
+    $: if (!dialogOpen && feeRequested) {
+        feeRequested = false;
+        terminationFee = null;
+        feeLoadFailed = false;
+        confirm = "";
+    }
+
+    async function loadTerminationFee() {
+        feeLoading = true;
+        feeLoadFailed = false;
+        try {
+            terminationFee = await loadFee(
+                $api,
+                "Termination",
+                $_('bookingActions.terminate.feeLoadFailed', { locale: $lang }),
+            );
+            feeLoadFailed = terminationFee == null;
+        } finally {
+            feeLoading = false;
+        }
+    }
+
     async function submit() {
-        if (valid) await terminateBooking();
+        if (valid && terminationFee != null && !feeLoadFailed) await terminateBooking();
     }
 
     let submitting = false;
 
     async function terminateBooking() {
         submitting = true;
-        const session: Session | any = $page.data.session;
-        const user = session?.roles?.includes("admin")
-            ? {}
-            : {userId: $page.data.user.principal.id}
-        await toResult(() => $api.vBookingTerminateCreate(booking.id, "1.0", user),
-            $_('bookingActions.terminate.error', { locale: $lang })).match({
-            ok: ok => {
-                toast.info($_('bookingActions.terminate.success', { locale: $lang }));
-                dialogOpen = false;
-                invalidateAll();
-            },
-            err: (e) => {
-                console.error(e);
-                toast.error(e.detail ?? e.type);
-            }
-        })
-        submitting = false;
+        try {
+            const session: Session | any = $page.data.session;
+            const user = session?.roles?.includes("admin")
+                ? {}
+                : {userId: $page.data.user.principal.id}
+            await toResult(() => $api.vBookingTerminateCreate(booking.id, "1.0", user),
+                $_('bookingActions.terminate.error', { locale: $lang })).match({
+                ok: ok => {
+                    toast.info($_('bookingActions.terminate.success', { locale: $lang }));
+                    dialogOpen = false;
+                    invalidateAll();
+                },
+                err: (e) => {
+                    console.error(e);
+                    toast.error(e.detail ?? e.type);
+                }
+            })
+        } finally {
+            submitting = false;
+        }
     }
 
-    let confirm = "";
     $: valid = confirm === booking.passenger.fullName;
 
 </script>
@@ -70,9 +112,24 @@
                         <AlertTriangle class="h-4 w-4"/>
                         <Alert.Title>{$_('bookingActions.terminate.takeNoteTitle', { locale: $lang })}</Alert.Title>
                         <Alert.Description>
-                            {$_('bookingActions.terminate.takeNoteBefore', { locale: $lang })}
-                            <span class="underline">{$_('bookingActions.terminate.refundPercent', { locale: $lang })}</span>
-                            {$_('bookingActions.terminate.takeNoteAfter', { locale: $lang })}
+                            {#if feeLoading}
+                                <span class="inline-flex items-center gap-2" role="status">
+                                    <LucideLoader class="h-4 w-4 animate-spin"/>
+                                    {$_('bookingActions.terminate.feeLoading', { locale: $lang })}
+                                </span>
+                            {:else if feeLoadFailed || terminationFee == null}
+                                <span class="flex flex-col items-start gap-2 text-destructive" role="alert">
+                                    <span>{$_('bookingActions.terminate.feeLoadFailed', { locale: $lang })}</span>
+                                    <Button variant="outline" class="h-10 px-3" on:click={loadTerminationFee}>
+                                        {$_('bookingActions.terminate.feeRetry', { locale: $lang })}
+                                    </Button>
+                                </span>
+                            {:else}
+                                {$_('bookingActions.terminate.feeNotice', {
+                                    locale: $lang,
+                                    values: {fee: feeDescription},
+                                })}
+                            {/if}
                         </Alert.Description>
                     </Alert.Root>
 
@@ -84,7 +141,8 @@
                     </p>
 
                     <div class="flex flex-col">
-                        <Input placeholder={$_('fields.name', { locale: $lang })}
+                        <label class="sr-only" for={`terminate-${booking.id}`}>{$_('fields.name', { locale: $lang })}</label>
+                        <Input id={`terminate-${booking.id}`} placeholder={$_('fields.name', { locale: $lang })}
                                bind:value={confirm}
                         />
                         <div class="text-sm text-destructive {valid ? 'opacity-0' : 'opacity-1'}">
@@ -93,7 +151,8 @@
                     </div>
 
 
-                    <Button class="my-2" on:click={submit} disabled={submitting || !valid}>
+                    <Button class="my-2" on:click={submit}
+                            disabled={submitting || !valid || feeLoading || feeLoadFailed || terminationFee == null}>
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                         {/if}

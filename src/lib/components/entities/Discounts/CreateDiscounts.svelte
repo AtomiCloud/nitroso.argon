@@ -98,7 +98,7 @@
             if (val.record.type === "Percentage") val.record.amount = val.record.amount / 100;
             await createDiscount({
                 ...val,
-                record: {...val.record, ...(slotMatchers?.build() ?? {})},
+                record: {...val.record, ...slotMatchers?.build()},
             });
         }
     }

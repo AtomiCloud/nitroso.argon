@@ -42,7 +42,12 @@
                     <Table.Body>
                         {#each rows as r (r.key)}
                             <Table.Row class={r.dir ? DIR_TINT[r.dir] : ""}>
-                                <Table.Cell class="px-2 py-1.5 font-medium whitespace-nowrap">{r.label}</Table.Cell>
+                                <Table.Cell class="px-2 py-1.5 font-medium whitespace-nowrap">
+                                    {r.label}
+                                    {#if r.dir}
+                                        <span class="ml-1 rounded border px-1 text-[10px] font-normal">{$_(r.dir === "WToJ" ? 'stats.dir.wtoj' : 'stats.dir.jtow', { locale: $lang })}</span>
+                                    {/if}
+                                </Table.Cell>
                                 <Table.Cell class="px-2 py-1.5 text-right">{formatNumber(r.total, $lang)}</Table.Cell>
                                 <Table.Cell class="px-2 py-1.5">
                                     <div class="flex items-center gap-2 whitespace-nowrap">
@@ -53,7 +58,7 @@
                                             {/if}
                                         </div>
                                         <!-- raw numerator/denominator (actuarial base) -->
-                                        <span class="text-[10px] text-muted-foreground tabular-nums">{formatNumber(r.num, $lang)}/{formatNumber(r.den, $lang)}</span>
+                                        <span class="text-xs text-muted-foreground tabular-nums">{formatNumber(r.num, $lang)}/{formatNumber(r.den, $lang)}</span>
                                     </div>
                                 </Table.Cell>
                             </Table.Row>

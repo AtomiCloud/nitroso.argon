@@ -339,9 +339,10 @@
       "title": "Tamatkan Tempahan",
       "intro": "Arnab kami telah berjaya mendapatkan tiket anda di KITS! Menamatkan tiket ini akan melepaskan tiket anda semula kepada KITS.",
       "takeNoteTitle": "Ambil Perhatian!",
-      "takeNoteBefore": "Menamatkan tempahan hanya akan mengembalikan",
-      "refundPercent": "50%",
-      "takeNoteAfter": "daripada harga tiket yang anda bayar. Ini adalah untuk mengelakkan penyalahgunaan sistem.",
+      "feeNotice": "Fi penamatan sebanyak {fee} akan ditolak daripada jumlah yang anda bayar. Bakinya akan dikembalikan ke dompet BunnyBooker anda.",
+      "feeLoading": "Memuatkan fi penamatan semasa…",
+      "feeLoadFailed": "Fi penamatan semasa tidak dapat dimuatkan. Cuba lagi sebelum meneruskan.",
+      "feeRetry": "Cuba lagi",
       "typeNameBefore": "Sila taipkan nama penumpang,",
       "typeNameAfter": "untuk meneruskan.",
       "typeNameError": "Sila taipkan nama penumpang tempahan untuk meneruskan.",
@@ -750,8 +751,8 @@
       "deliveryHeading": "Dasar Penghantaran, Bayaran Balik & Pertukaran",
       "deliveryIntro": "Anda menerima terma berikut untuk penghantaran, bayaran balik dan pertukaran tiket:",
       "deliveryItem1": "Bayaran balik penuh akan diberikan untuk tiket yang tidak berjaya diperoleh oleh sistem BunnyBooker di laman web KTMB.",
-      "deliveryItem2": "Tiket yang telah berjaya diperoleh di laman web KTMB tidak layak untuk bayaran balik atau pertukaran percuma. Tempahan sedemikian boleh ditamatkan, tertakluk kepada fi penamatan sebanyak 50% daripada harga tiket; baki 50% akan dikembalikan sebagai kredit ke dompet BunnyBooker anda.",
-      "deliveryItem3": "Pembatalan boleh dimulakan setelah tiket ditempah dan adalah percuma selagi tiket belum diperoleh. Selepas sistem BunnyBooker berjaya memperoleh tiket di laman web KTMB, pembatalan tidak lagi tersedia — hanya penamatan, yang dikenakan fi penamatan 50% seperti dinyatakan di atas.",
+      "deliveryItem2": "Tiket yang telah berjaya diperoleh di laman web KTMB tidak layak untuk bayaran balik atau pertukaran percuma. Tempahan sedemikian boleh ditamatkan, tertakluk kepada fi penamatan yang dikonfigurasi pada masa itu dan dipaparkan sebelum pengesahan; baki akan dikembalikan sebagai kredit ke dompet BunnyBooker anda.",
+      "deliveryItem3": "Pembatalan boleh dimulakan setelah tiket ditempah dan adalah percuma selagi tiket belum diperoleh. Selepas sistem BunnyBooker berjaya memperoleh tiket di laman web KTMB, pembatalan tidak lagi tersedia — hanya penamatan, yang dikenakan fi penamatan yang dikonfigurasi seperti dinyatakan di atas.",
       "deliveryItem4": "Setelah tiket dipesan dan perkhidmatan tempahan kami digunakan, arnab kami akan secara aktif cuba memperoleh tiket anda.",
       "deliveryItem5": "Usaha tempahan akan diteruskan sehingga 30 minit sebelum waktu berlepas yang dijadualkan dalam arah kereta api yang dipilih.",
       "deliveryItem6": "Jika berjaya, anda akan dimaklumkan dengan segera tentang butiran tempahan anda yang disahkan.",
@@ -982,8 +983,12 @@
     "refundPolicy": "Dasar Penghantaran, Pembatalan & Bayaran Balik",
     "privacyPolicy": "Dasar Privasi",
     "termsOfUse": "Terma Penggunaan",
-    "supportSgt": "9 pagi – tengah malam (SGT)",
-    "supportUs": "Waktu lain"
+    "supportDay": "09:00–23:59 SGT",
+    "supportOvernight": "00:00–08:59 SGT",
+    "whatsapp": "WhatsApp",
+    "telegram": "Sokongan Telegram",
+    "email": "Sokongan e-mel",
+    "phone": "Hubungi sokongan"
   },
   "loader": {
     "default": "Sedang memuatkan, sila tunggu...",
@@ -1319,7 +1324,7 @@
         "title": "Yuran penamatan",
         "description": "Yuran yang dikenakan apabila pengguna menamatkan tempahan yang telah dijamin."
       },
-      "terminationNote": "Yuran ini dikenakan apabila pengguna menamatkan tempahan yang telah dijamin — T&C kini menyatakan 50%, jadi pastikan ia konsisten dengan terma yang diterbitkan.",
+      "terminationNote": "Yuran ini dikira daripada jumlah sebenar yang dibayar apabila tempahan yang telah dijamin ditamatkan. Peratusan, amaun tetap dan had yang dikonfigurasi di atas menentukan caj.",
       "hint": "0% + S$0 membuang yuran dan menyembunyikannya daripada pengguna.",
       "currentLabel": "Yuran semasa",
       "loadFailed": "Gagal memuatkan yuran semasa"
@@ -1396,7 +1401,9 @@
     "range": {
       "after": "Tarikh perjalanan dari",
       "before": "Tarikh perjalanan hingga",
-      "hint": "Julat tarikh perjalanan (lalai: dari pencapaian terkini, jika tiada — 90 hari terakhir)"
+      "hint": "Julat tarikh perjalanan (lalai: dari pencapaian terkini, jika tiada — 90 hari terakhir)",
+      "notSelected": "Belum dipilih",
+      "invalid": "Tarikh mula mesti pada atau sebelum tarikh akhir."
     },
     "tabs": {
       "overview": "Ringkasan",
@@ -1413,6 +1420,7 @@
       "select": "Dari pencapaian",
       "manage": "Urus pencapaian",
       "add": "Tambah pencapaian",
+      "label": "Label pencapaian",
       "labelPlaceholder": "Label (cth. pelancaran keutamaan)",
       "date": "Tarikh pencapaian",
       "empty": "Tiada pencapaian lagi",
@@ -1422,6 +1430,8 @@
       "deleteFailed": "Gagal memadam pencapaian",
       "loadFailed": "Gagal memuatkan pencapaian",
       "confirmDelete": "Padam?",
+      "deleteLabel": "Padam pencapaian {label}",
+      "confirmDeleteLabel": "Sahkan pemadaman pencapaian {label}",
       "hint": "Pencapaian menandakan pelancaran atau perubahan; julat tarikh perjalanan bermula dari pencapaian terkini secara lalai."
     },
     "queue": {
@@ -1433,7 +1443,7 @@
       "bucket": "Sebelum berlepas",
       "completed": "Selesai",
       "share": "Bahagian",
-      "info": "Untuk tempahan selesai sahaja: berapa lama sebelum berlepas tiket diperoleh. Ikut selang: setiap tetingkap dikira berasingan. Kumulatif ≤: tiket diperoleh dalam tempoh itu sebelum berlepas. Kumulatif ≥: tiket diperoleh sekurang-kurangnya tempoh itu sebelum berlepas."
+      "info": "Untuk tempahan selesai sahaja: berapa lama sebelum berlepas tiket diperoleh. Ikut selang: setiap tetingkap dikira berasingan. Kumulatif ≤: tiket diperoleh dalam tempoh itu sebelum berlepas. Kumulatif >: tiket diperoleh lebih daripada tempoh itu sebelum berlepas."
     },
     "definition": {
       "refundOnly": "Bayaran balik sahaja",
@@ -1448,12 +1458,13 @@
     "bucketMode": {
       "per": "Ikut selang",
       "cumulativeLe": "Kumulatif ≤",
-      "cumulativeGe": "Kumulatif ≥",
+      "cumulativeGe": "Kumulatif >",
       "helpPer": "Setiap selang masa pendahuluan dikira berasingan.",
       "helpCumulativeLe": "Setiap baris mengira semua tempahan yang dibuat dalam tempoh itu sebelum berlepas (selang itu dan lebih pendek).",
-      "helpCumulativeGe": "Setiap baris mengira semua tempahan yang dibuat sekurang-kurangnya selang itu sebelum berlepas (selang itu dan lebih panjang).",
+      "helpCumulativeGe": "Setiap baris mengira semua tempahan yang dibuat melebihi ambang masa pendahuluan itu sebelum berlepas.",
       "upTo": "≤ {bucket}",
-      "atLeast": "≥ {bucket}"
+      "moreThan": "> {bucket}",
+      "all": "Semua"
     },
     "matrix": {
       "title": "Hari × masa berlepas",
