@@ -8,7 +8,7 @@
     //@ts-ignore
     import * as ToggleGroup from "$lib/components/ui/toggle-group";
     import {problem} from "../../../store";
-    import type {CostSummaryRes, CreateDiscountReq, PassengerPrincipalRes} from "$lib/api/core/data-contracts";
+    import type {CreateDiscountReq, PassengerPrincipalRes} from "$lib/api/core/data-contracts";
     import {type SafeParseError, z, type ZodIssue} from "zod";
     import {tick} from "svelte";
     import {addMonths, format, parse} from "date-fns";
@@ -20,8 +20,6 @@
     import {ArrowLeftRight, CalendarIcon} from "lucide-svelte";
     import {Button} from "$lib/components/ui/button";
     import {Input} from "$lib/components/ui/input";
-    import {Res} from "$lib/core/result";
-    import type {ProblemDetails} from "../../../errors/problem_details";
     import type {PageData} from "./$types";
     import type {Selected} from "bits-ui";
     import {Checkbox} from "$lib/components/ui/checkbox";
@@ -32,9 +30,10 @@
     import * as Card from "$lib/components/ui/card";
     import {Zap} from "lucide-svelte";
     import PurchaseBooking from "$lib/components/entities/Bookings/PurchaseBooking.svelte";
-    import {discountSteps} from "$lib/api/cost";
+    import {discountSteps, priceQuote} from "$lib/api/cost";
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatNumber, formatClockTime, formatCalendarDate} from "$lib/i18n";
+    import LivePricingRefresh from "$lib/components/entities/Costs/LivePricingRefresh.svelte";
 
     export let data: PageData;
 
@@ -56,18 +55,16 @@
     let time = $page.url.searchParams.get("time");
     let userId = $page.url.searchParams.get("userId");
 
-    $: passengerAndCost = (Res.fromSerial<[PassengerPrincipalRes[], CostSummaryRes], ProblemDetails[]>(data.result)
-        .match({
-            ok: (a: [PassengerPrincipalRes[], CostSummaryRes]): [PassengerPrincipalRes[], CostSummaryRes] => {
-                problem.set(null)
-                return a;
-            },
-            err: (e) => {
-                console.error(e);
-                problem.set(e[0]);
-                return null as never;
-            }
-        }) satisfies Promise<[PassengerPrincipalRes[], CostSummaryRes]>)
+    // Page data is already a resolved serialized result. Keep it synchronous
+    // so 30-second quote refreshes update the displayed cost without tearing
+    // down the form, confirmation dialog, or focused mobile input.
+    $: purchaseData = data.result[0] === "ok" ? data.result[1] : null;
+    $: if (data.result[0] === "ok") {
+        problem.set(null);
+    } else {
+        console.error(data.result[1]);
+        problem.set(data.result[1][0]);
+    }
 
     // ---- priority queue opt-in (only offered when zinc says we're eligible) ----
     $: eligibility = data.eligibility;
@@ -183,6 +180,8 @@
         : $_('bookings.purchase.directionWToJ', { locale: $lang });
 </script>
 
+<LivePricingRefresh/>
+
 <div class="flex flex-col">
     <div class="flex flex-col gap-4 w-11/12 max-w-[1200px] mx-auto my-12">
         <div class="flex flex-col gap-4 mb-12">
@@ -194,7 +193,8 @@
             </div>
         </div>
 
-        {#await passengerAndCost then [ps, cost]}
+        {#if purchaseData != null}
+            {@const [ps, cost] = purchaseData}
             {#if ps.length > 0}
                 <div class="flex flex-col gap-1.5 my-4">
                     <h1 class="my-4 text-lg">{$_('bookings.purchase.selectExistingPassenger', { locale: $lang })}</h1>
@@ -364,6 +364,7 @@
                                 {checked} {passenger} {direction} {userId} {date} {time}
                                 wallet={$page.data.user?.wallet?.usable ?? 0}
                                 cost={cost.final}
+                                quote={priceQuote(cost)}
                                 priority={priorityOptIn && eligibility.eligible}
                                 priorityFee={priorityFee}
                         />
@@ -392,6 +393,6 @@
                 </div>
 
             </div>
-        {/await}
+        {/if}
     </div>
 </div>

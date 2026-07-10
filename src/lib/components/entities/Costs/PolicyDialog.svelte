@@ -23,6 +23,7 @@
     import {_} from "svelte-i18n";
     import {lang, formatCalendarDate, formatClockTime} from "$lib/i18n";
     import {DAYS_OF_WEEK, HALF_HOURS, LEAD_TIME_HOURS, withValue} from "./times";
+    import {leadTimeResponseToSelection, leadTimeSelectionToRequest} from "./lead-time";
 
     // Add/edit dialog for one cost policy. Everything except the name and the
     // adjustment amount is a tap control (calendar, select, toggle) — no free
@@ -122,8 +123,9 @@
             ? {value: p.matchDirection, label: directionLabel(p.matchDirection)}
             : undefined;
         useDirection = selDirection != null;
-        selLead = p?.leadTimeUnderHours != null
-            ? {value: String(p.leadTimeUnderHours), label: $_('admin.costs.policies.leadUnder', {locale: $lang, values: {hours: p.leadTimeUnderHours}})}
+        const leadSelection = leadTimeResponseToSelection(p?.leadTimeUnderHours);
+        selLead = leadSelection != null && p?.leadTimeUnderHours != null
+            ? {value: leadSelection, label: $_('admin.costs.policies.leadUnder', {locale: $lang, values: {hours: p.leadTimeUnderHours}})}
             : undefined;
         useLead = selLead != null;
 
@@ -193,7 +195,7 @@
             matchTime: useTime ? (selTime?.value ?? null) : null,
             matchDayOfWeek: useDay ? (selDay?.value ?? null) : null,
             matchDirection: useDirection ? (selDirection?.value ?? null) : null,
-            leadTimeUnderHours: useLead && selLead?.value ? parseInt(selLead.value, 10) : null,
+            leadTimeUnderHours: leadTimeSelectionToRequest(useLead, selLead?.value),
             amount: (sign === "-" ? -1 : 1) * magnitude,
             isPercentage: adjKind === "percent",
             effectiveAt: useEffective && effectiveDate != null ? toIso(effectiveDate, selEffectiveTime?.value) : null,

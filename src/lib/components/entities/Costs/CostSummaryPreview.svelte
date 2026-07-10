@@ -12,7 +12,7 @@
     import {Separator} from "$lib/components/ui/separator";
     import {CalendarIcon, Clock, LucideLoader} from "lucide-svelte";
     import type {Selected} from "bits-ui";
-    import {CalendarDate, type DateValue, getLocalTimeZone} from "@internationalized/date";
+    import {type DateValue} from "@internationalized/date";
     import type {CostSummaryRes} from "$lib/api/core/data-contracts";
     import {api} from "../../../../store";
     import {toResult} from "$lib/utility";
@@ -21,6 +21,8 @@
     import {_} from "svelte-i18n";
     import {lang, formatCalendarDate, formatClockTime, formatMoney, formatNumber} from "$lib/i18n";
     import {HALF_HOURS} from "./times";
+    import {calendarDateForDisplay, singaporeToday} from "$lib/time/singapore";
+    import LivePricingRefresh from "./LivePricingRefresh.svelte";
 
     // Live pricing preview: pick a hypothetical booking (date, time,
     // direction) with tap controls only, then show GET Cost/summary as an
@@ -34,8 +36,7 @@
         mounted = true;
     });
 
-    const today = new Date();
-    let date: DateValue | undefined = new CalendarDate(today.getFullYear(), today.getMonth() + 1, today.getDate());
+    let date: DateValue | undefined = singaporeToday();
     let direction = "WToJ";
     $: if (!direction) direction = "WToJ";
     let selTime: Selected<string> | undefined = undefined;
@@ -83,11 +84,17 @@
         loading = false;
     }
 
+    function refreshSummary() {
+        if (!loading && date != null && selTime?.value && direction) loadSummary(sig);
+    }
+
     function signedMoney(delta: number): string {
         const sign = delta >= 0 ? "+" : "−";
         return `${sign}${formatMoney(Math.abs(delta), $lang)}`;
     }
 </script>
+
+<LivePricingRefresh on:refresh={refreshSummary}/>
 
 <Card.Root>
     <Card.Header>
@@ -104,7 +111,7 @@
                                 builders={[builder]}>
                             <CalendarIcon class="mr-2 h-4 w-4"/>
                             {date
-                                ? formatCalendarDate(date.toDate(getLocalTimeZone()), $lang, {dateStyle: "long"})
+                                ? formatCalendarDate(calendarDateForDisplay(date), $lang, {dateStyle: "long"})
                                 : $_('admin.costs.preview.pickDate', {locale: $lang})}
                         </Button>
                     </Popover.Trigger>
