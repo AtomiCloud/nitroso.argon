@@ -212,6 +212,18 @@ export interface CostSummaryRes {
   final: number;
 }
 
+export interface CostSlotSummaryRes {
+  time?: string | null;
+  /** @format double */
+  baseCost: number;
+  policyLines?: CostPolicyLineRes[] | null;
+  /** @format double */
+  subtotal: number;
+  discounts?: DiscountRecordRes[] | null;
+  /** @format double */
+  final: number;
+}
+
 export interface PriorityEligibilityRes {
   eligible: boolean;
   /** @format double */
@@ -324,6 +336,16 @@ export interface DiscountRecordReq {
   /** @format double */
   amount: number;
   type?: string | null;
+  matchDate?: string | null;
+  matchTime?: string | null;
+  matchDayOfWeek?: string | null;
+  matchDirection?: string | null;
+  /** @format int32 */
+  leadTimeUnderHours?: number | null;
+  /** @format date-time */
+  effectiveAt?: string | null;
+  /** @format date-time */
+  expiresAt?: string | null;
 }
 
 export interface DiscountRecordRes {
@@ -332,6 +354,16 @@ export interface DiscountRecordRes {
   /** @format double */
   amount: number;
   type?: string | null;
+  matchDate?: string | null;
+  matchTime?: string | null;
+  matchDayOfWeek?: string | null;
+  matchDirection?: string | null;
+  /** @format int32 */
+  leadTimeUnderHours?: number | null;
+  /** @format date-time */
+  effectiveAt?: string | null;
+  /** @format date-time */
+  expiresAt?: string | null;
 }
 
 export interface DiscountStatusReq {
@@ -369,6 +401,8 @@ export interface FeeChangeRes {
   flatAmount: number;
   /** @format date-time */
   effectiveAt: string;
+  /** @format double */
+  cap?: number | null;
 }
 
 export interface FeeRes {
@@ -376,6 +410,8 @@ export interface FeeRes {
   percentage: number;
   /** @format double */
   flatAmount: number;
+  /** @format double */
+  cap?: number | null;
 }
 
 export interface LatestScheduleRes {
@@ -474,6 +510,12 @@ export interface SetFeeReq {
   flatAmount: number;
   /** @format date-time */
   effectiveAt?: string | null;
+  /**
+   * @format double
+   * @min 0
+   * @max 100000
+   */
+  cap?: number | null;
 }
 
 export interface TimingPrincipalRes {
@@ -543,6 +585,7 @@ export interface UserPrincipalRes {
   email?: string | null;
   emailVerified?: boolean | null;
   roles?: string[] | null;
+  extraRoles?: string[] | null;
 }
 
 export interface UserRes {

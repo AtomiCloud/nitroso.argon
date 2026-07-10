@@ -17,12 +17,17 @@
     import * as ToggleGroup from "$lib/components/ui/toggle-group";
     import {Input} from "$lib/components/ui/input";
     import Validation from "$lib/components/core/Validation.svelte";
+    import SlotMatchers from "./SlotMatchers.svelte";
     import {DISCOUNT_MATCH_MODE, DISCOUNT_MATCH_TYPE, DISCOUNT_TYPE} from "../../../../routes/discounts/status";
     import {tick} from "svelte";
     import {_} from "svelte-i18n";
     import {lang} from "$lib/i18n";
 
     let dialogOpen = false;
+
+    // optional slot matchers (date/time/day/direction/lead-time/window),
+    // tap-only controls shared with the update dialog
+    let slotMatchers: SlotMatchers;
 
     const createDiscountSchema = z.object({
         target: z.object({
@@ -88,9 +93,13 @@
 
     async function submit() {
         onChange("");
-        if (errors.length === 0) {
+        const slotOk = slotMatchers?.validate() ?? true;
+        if (errors.length === 0 && slotOk) {
             if (val.record.type === "Percentage") val.record.amount = val.record.amount / 100;
-            await createDiscount(val);
+            await createDiscount({
+                ...val,
+                record: {...val.record, ...(slotMatchers?.build() ?? {})},
+            });
         }
     }
 
@@ -120,7 +129,7 @@
     <Dialog.Trigger class="w-full max-w-80  {buttonVariants({ variant: 'default' })}">
         {$_('discounts.create.trigger', { locale: $lang })}
     </Dialog.Trigger>
-    <Dialog.Content>
+    <Dialog.Content class="max-h-[90vh] overflow-y-auto">
         <Dialog.Header>
             <Dialog.Title>{$_('discounts.create.title', { locale: $lang })}</Dialog.Title>
             <Dialog.Description>
@@ -224,6 +233,8 @@
                         <LucidePlusCircle class="mr-2 h-4 w-4"/>
                         {$_('discounts.create.addMatchTarget', { locale: $lang })}
                     </Button>
+                    <hr>
+                    <SlotMatchers bind:this={slotMatchers} seed={null} open={dialogOpen}/>
                     <hr>
                     <Button class="my-2" on:click={submit} disabled={submitting}>
                         {#if submitting}
