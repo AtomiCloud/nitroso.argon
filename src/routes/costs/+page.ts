@@ -37,10 +37,7 @@ export const load = (async ({
     () => api.vBookingPrioritySettingsDetail('1'),
     await loadError(locale, 'errors.load.priority'),
   );
-  const access = toResult(
-    () => api.vBookingPriorityAccessDetail('1'),
-    await loadError(locale, 'errors.load.priority'),
-  );
+  const access = toResult(() => api.vBookingPriorityAccessDetail('1'), await loadError(locale, 'errors.load.priority'));
   const timingsJToW = toResult(() => api.vTimingDetail('JToW', '1'), await loadError(locale, 'errors.load.timing'));
   const timingsWToJ = toResult(() => api.vTimingDetail('WToJ', '1'), await loadError(locale, 'errors.load.timing'));
 

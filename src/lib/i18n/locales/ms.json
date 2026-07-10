@@ -1396,7 +1396,44 @@
     "range": {
       "after": "Tarikh perjalanan dari",
       "before": "Tarikh perjalanan hingga",
-      "hint": "Julat tarikh perjalanan (lalai: 90 hari terakhir)"
+      "hint": "Julat tarikh perjalanan (lalai: dari pencapaian terkini, jika tiada — 90 hari terakhir)"
+    },
+    "tabs": {
+      "overview": "Ringkasan",
+      "matrix": "Hari × Masa",
+      "leadTime": "Masa pendahuluan",
+      "queueDepth": "Kedalaman giliran",
+      "delivery": "Masa perolehan tiket"
+    },
+    "priority": {
+      "priority": "Keutamaan sahaja",
+      "regular": "Biasa sahaja"
+    },
+    "milestone": {
+      "select": "Dari pencapaian",
+      "manage": "Urus pencapaian",
+      "add": "Tambah pencapaian",
+      "labelPlaceholder": "Label (cth. pelancaran keutamaan)",
+      "date": "Tarikh pencapaian",
+      "empty": "Tiada pencapaian lagi",
+      "created": "Pencapaian ditambah",
+      "createFailed": "Gagal menambah pencapaian",
+      "deleted": "Pencapaian dipadam",
+      "deleteFailed": "Gagal memadam pencapaian",
+      "loadFailed": "Gagal memuatkan pencapaian",
+      "confirmDelete": "Padam?",
+      "hint": "Pencapaian menandakan pelancaran atau perubahan; julat tarikh perjalanan bermula dari pencapaian terkini secara lalai."
+    },
+    "queue": {
+      "title": "Mengikut kedalaman giliran (tempahan setiap slot)",
+      "info": "Berapa banyak tempahan bersaing untuk slot yang sama. Semakin ramai bersaing, semakin rendah peluang — gabungkan dengan penapis hari/masa untuk melihat peluang sejarah sebenar bagi sesuatu slot."
+    },
+    "delivery": {
+      "title": "Masa perolehan tiket (selesai sahaja)",
+      "bucket": "Sebelum berlepas",
+      "completed": "Selesai",
+      "share": "Bahagian",
+      "info": "Untuk tempahan selesai sahaja: berapa lama sebelum berlepas tiket diperoleh. Ikut selang: setiap tetingkap dikira berasingan. Kumulatif ≤: tiket diperoleh dalam tempoh itu sebelum berlepas. Kumulatif ≥: tiket diperoleh sekurang-kurangnya tempoh itu sebelum berlepas."
     },
     "definition": {
       "refundOnly": "Bayaran balik sahaja",
@@ -1430,6 +1467,7 @@
       "direction": "Arah",
       "time": "Masa berlepas",
       "bucket": "Masa pendahuluan",
+      "priority": "Keutamaan",
       "all": "Semua"
     },
     "summary": {
