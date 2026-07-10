@@ -13,6 +13,7 @@ import { Res } from '$lib/core/result';
 import type { Timings } from './typing';
 import { redirect } from '@sveltejs/kit';
 import { filterTimesAtOrAfterBookingCutoff, parseZincDate, singaporeToday, toZincDate } from '$lib/time/singapore';
+import { LIVE_PRICING_DEPENDENCY } from '$lib/api/cost';
 
 function getTiming(
   direction: 'JToW' | 'WToJ',
@@ -38,11 +39,13 @@ export const load = (async ({
   parent,
   url,
   fetch,
+  depends,
 }): Promise<{
   result: ['err', ProblemDetails[]] | ['ok', Timings];
   slotSummaries: CostSlotSummaryRes[] | null;
   slotPricingFailed: boolean;
 }> => {
+  depends(LIVE_PRICING_DEPENDENCY);
   const { session, locale } = await parent();
 
   const api = NewApi({ data: { session }, fetch });

@@ -29,6 +29,7 @@
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatNumber, formatCalendarDate, formatClockTime} from "$lib/i18n";
     import {calendarDateForDisplay, singaporeToday} from "$lib/time/singapore";
+    import LivePricingRefresh from "$lib/components/entities/Costs/LivePricingRefresh.svelte";
 
     export let data: PageData;
 
@@ -128,6 +129,8 @@
     $: currDate = toZincDate(bindDate);
 
 </script>
+
+<LivePricingRefresh/>
 
 <div class="flex flex-col">
     <div class="border-b bg-muted ">

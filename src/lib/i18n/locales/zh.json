@@ -318,6 +318,7 @@
     "purchase": {
       "success": "已成功购买预订",
       "error": "购买预订失败",
+      "priceChanged": "此页面打开期间价格已变更。我们已刷新价格，请检查后再次确认。",
       "createPassengerError": "创建乘客失败",
       "trigger": "购买",
       "title": "购买预订",

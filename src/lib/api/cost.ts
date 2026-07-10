@@ -1,5 +1,17 @@
 import type { DiscountRecordRes } from '$lib/api/core/data-contracts';
 
+// Both the schedule cards and the purchase quote depend on wall-clock lead
+// time. This custom SvelteKit dependency lets one lightweight client timer
+// refresh only the loaders that contain live pricing.
+export const LIVE_PRICING_DEPENDENCY = 'app:live-pricing';
+export const LIVE_PRICING_REFRESH_MS = 30_000;
+
+/** Compare server money values at the cent precision shown to customers. */
+export function sameQuotedPrice(quoted: number, current: number): boolean {
+  if (!Number.isFinite(quoted) || !Number.isFinite(current)) return false;
+  return Math.round(quoted * 100) === Math.round(current * 100);
+}
+
 /** One rendered discount line: the amount BEFORE this discount (struck out in
  * the UI) and the amount AFTER it. */
 interface DiscountStep {

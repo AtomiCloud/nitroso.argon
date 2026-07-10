@@ -10,11 +10,13 @@
     import {toResult} from "$lib/utility";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
-    import {goto} from "$app/navigation";
+    import {goto, invalidate} from "$app/navigation";
     import {format, parse} from "date-fns";
     import type {ZodIssue} from "zod";
     import {_} from "svelte-i18n";
     import {lang, formatCalendarDate, formatClockTime} from "$lib/i18n";
+    import type {CostSummaryRes} from "$lib/api/core/data-contracts";
+    import {LIVE_PRICING_DEPENDENCY, sameQuotedPrice} from "$lib/api/cost";
 
 
     export let checked: boolean;
@@ -88,9 +90,44 @@
         (window as any)?.fathom?.trackEvent('Trigger Buy');
     }
 
+    // The quote can cross a strict lead-time boundary while the confirmation
+    // dialog is open. Re-read it immediately before any passenger or booking
+    // mutation; if it changed, refresh the page quote and require a fresh
+    // confirmation instead of silently charging a different amount.
+    async function quoteIsCurrent(): Promise<boolean> {
+        let latest: CostSummaryRes | null = null;
+        let failed = false;
+        await toResult(() => $api.vCostSummaryDetail("1", {
+            Date: date,
+            Time: time,
+            Direction: direction,
+        }), $_('bookingActions.purchase.error', { locale: $lang })).match({
+            ok: (summary: CostSummaryRes) => {
+                latest = summary;
+            },
+            err: (e) => {
+                console.error(e);
+                failed = true;
+                toast.error(e.detail ?? e.type);
+            }
+        });
+
+        if (failed || latest == null) return false;
+        if (sameQuotedPrice(cost, latest.final)) return true;
+
+        dialogOpen = false;
+        toast.warning($_('bookingActions.purchase.priceChanged', { locale: $lang }));
+        await invalidate(LIVE_PRICING_DEPENDENCY);
+        return false;
+    }
+
     async function buy() {
         submitting = true;
         (window as any)?.fathom?.trackEvent('Buy')
+        if (!await quoteIsCurrent()) {
+            submitting = false;
+            return;
+        }
         if (checked) {
             await toResult(() => $api.vPassengerCreate(userId, "1.0", {
                 fullName: passenger.fullName,

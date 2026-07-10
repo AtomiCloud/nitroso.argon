@@ -22,6 +22,7 @@
     import {lang, formatCalendarDate, formatClockTime, formatMoney, formatNumber} from "$lib/i18n";
     import {HALF_HOURS} from "./times";
     import {calendarDateForDisplay, singaporeToday} from "$lib/time/singapore";
+    import LivePricingRefresh from "./LivePricingRefresh.svelte";
 
     // Live pricing preview: pick a hypothetical booking (date, time,
     // direction) with tap controls only, then show GET Cost/summary as an
@@ -83,11 +84,17 @@
         loading = false;
     }
 
+    function refreshSummary() {
+        if (!loading && date != null && selTime?.value && direction) loadSummary(sig);
+    }
+
     function signedMoney(delta: number): string {
         const sign = delta >= 0 ? "+" : "−";
         return `${sign}${formatMoney(Math.abs(delta), $lang)}`;
     }
 </script>
+
+<LivePricingRefresh on:refresh={refreshSummary}/>
 
 <Card.Root>
     <Card.Header>

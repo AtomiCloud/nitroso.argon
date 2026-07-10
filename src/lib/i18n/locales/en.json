@@ -318,6 +318,7 @@
     "purchase": {
       "success": "Successfully purchased booking",
       "error": "Failed to purchase booking",
+      "priceChanged": "The price changed while this page was open. We refreshed it — please review and confirm again.",
       "createPassengerError": "Failed to create passenger",
       "trigger": "Purchase",
       "title": "Purchase Booking",

@@ -35,6 +35,7 @@
     import {discountSteps} from "$lib/api/cost";
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatNumber, formatClockTime, formatCalendarDate} from "$lib/i18n";
+    import LivePricingRefresh from "$lib/components/entities/Costs/LivePricingRefresh.svelte";
 
     export let data: PageData;
 
@@ -182,6 +183,8 @@
         ? $_('bookings.purchase.directionJToW', { locale: $lang })
         : $_('bookings.purchase.directionWToJ', { locale: $lang });
 </script>
+
+<LivePricingRefresh/>
 
 <div class="flex flex-col">
     <div class="flex flex-col gap-4 w-11/12 max-w-[1200px] mx-auto my-12">

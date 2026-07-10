@@ -318,6 +318,7 @@
     "purchase": {
       "success": "Berjaya membeli tempahan",
       "error": "Gagal membeli tempahan",
+      "priceChanged": "Harga berubah semasa halaman ini dibuka. Kami telah memuat semula harga — sila semak dan sahkan sekali lagi.",
       "createPassengerError": "Gagal mencipta penumpang",
       "trigger": "Beli",
       "title": "Beli Tempahan",
