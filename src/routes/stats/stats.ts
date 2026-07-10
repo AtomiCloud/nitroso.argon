@@ -140,9 +140,10 @@ export function toStatRow(
   direction: string,
   rows: readonly BookingStatRes[],
   definition: SuccessDefinition | string,
+  deliveryCutoff?: string | null,
 ): StatRow {
   const totals = aggregate(rows);
-  const metric = successMetric(totals, definition);
+  const metric = successMetricForRows(rows, definition, deliveryCutoff);
   return {
     key,
     label,
@@ -257,6 +258,7 @@ function metricRowsForValues(
   valueOf: (row: BookingStatRes) => string | null | undefined,
   definition: SuccessDefinition | string,
   directionOf: (value: string) => string = () => '',
+  deliveryCutoff?: string | null,
 ): StatRow[] {
   return values.map(value =>
     toStatRow(
@@ -265,6 +267,7 @@ function metricRowsForValues(
       directionOf(value),
       rows.filter(row => valueOf(row) === value),
       definition,
+      deliveryCutoff,
     ),
   );
 }
@@ -279,13 +282,24 @@ function presentValues(
 }
 
 /** Success metrics grouped by 24-hour departure time, combining directions. */
-export function timeMetricRows(rows: readonly BookingStatRes[], definition: SuccessDefinition | string): StatRow[] {
+export function timeMetricRows(
+  rows: readonly BookingStatRes[],
+  definition: SuccessDefinition | string,
+  deliveryCutoff?: string | null,
+): StatRow[] {
   const times = [
     ...new Set(
       rows.map(row => row?.time).filter((time): time is string => typeof time === 'string' && API_TIME.test(time)),
     ),
   ].sort();
-  return metricRowsForValues(rows, times, row => row?.time, definition).map(metric => ({
+  return metricRowsForValues(
+    rows,
+    times,
+    row => row?.time,
+    definition,
+    () => '',
+    deliveryCutoff,
+  ).map(metric => ({
     ...metric,
     label: metric.key.slice(0, 5),
   }));
@@ -295,6 +309,7 @@ export function timeMetricRows(rows: readonly BookingStatRes[], definition: Succ
 export function directionMetricRows(
   rows: readonly BookingStatRes[],
   definition: SuccessDefinition | string,
+  deliveryCutoff?: string | null,
 ): StatRow[] {
   const directions = presentValues(rows, DIRECTIONS, row => row?.direction);
   return metricRowsForValues(
@@ -303,13 +318,25 @@ export function directionMetricRows(
     row => row?.direction,
     definition,
     direction => direction,
+    deliveryCutoff,
   );
 }
 
 /** Success metrics grouped Monday through Sunday. */
-export function weekdayMetricRows(rows: readonly BookingStatRes[], definition: SuccessDefinition | string): StatRow[] {
+export function weekdayMetricRows(
+  rows: readonly BookingStatRes[],
+  definition: SuccessDefinition | string,
+  deliveryCutoff?: string | null,
+): StatRow[] {
   const days = presentValues(rows, DAYS, row => row?.dayOfWeek);
-  return metricRowsForValues(rows, days, row => row?.dayOfWeek, definition);
+  return metricRowsForValues(
+    rows,
+    days,
+    row => row?.dayOfWeek,
+    definition,
+    () => '',
+    deliveryCutoff,
+  );
 }
 
 /**
@@ -320,6 +347,7 @@ export function purchaseLeadMetricRows(
   rows: readonly BookingStatRes[],
   definition: SuccessDefinition | string,
   mode: BucketMode = 'per',
+  deliveryCutoff?: string | null,
 ): StatRow[] {
   if (rows.length === 0) return [];
   return LEAD_BUCKETS.map(bucket =>
@@ -329,6 +357,7 @@ export function purchaseLeadMetricRows(
       '',
       rows.filter(row => leadBucketMatches(row?.bucket, bucket, mode)),
       definition,
+      deliveryCutoff,
     ),
   );
 }
@@ -338,9 +367,20 @@ export function purchaseLeadMetricRows(
  * is contextual (all requests in date + time + direction), even when the
  * supplied outcome rows have already been narrowed by another filter.
  */
-export function slotLoadMetricRows(rows: readonly BookingStatRes[], definition: SuccessDefinition | string): StatRow[] {
+export function slotLoadMetricRows(
+  rows: readonly BookingStatRes[],
+  definition: SuccessDefinition | string,
+  deliveryCutoff?: string | null,
+): StatRow[] {
   if (rows.length === 0) return [];
-  return metricRowsForValues(rows, DEMAND_BUCKETS, row => row?.demandBucket, definition);
+  return metricRowsForValues(
+    rows,
+    DEMAND_BUCKETS,
+    row => row?.demandBucket,
+    definition,
+    () => '',
+    deliveryCutoff,
+  );
 }
 
 function hasCanonicalDeliveryBucket(row: BookingStatRes): row is BookingStatRes & { deliveryBucket: string } {
@@ -424,15 +464,29 @@ export function deliveryCutoffMetric(
   };
 }
 
-/** One cumulative SLA metric for every canonical delivery cutoff. */
+/** One cumulative SLA metric for every real cutoff (the `48h+` value is the
+ * overflow bucket for the `> 48h` cutoff, not a second cutoff). */
 export function deliveryCutoffMetricRows(
   rows: readonly BookingStatRes[],
   definition: SuccessDefinition | string,
 ): DeliveryCutoffMetric[] {
   if (rows.length === 0) return [];
-  return DELIVERY_BUCKETS.map(cutoff => deliveryCutoffMetric(rows, cutoff, definition)).filter(
-    (metric): metric is DeliveryCutoffMetric => metric != null,
-  );
+  return DELIVERY_BUCKETS.slice(0, -1)
+    .map(cutoff => deliveryCutoffMetric(rows, cutoff, definition))
+    .filter((metric): metric is DeliveryCutoffMetric => metric != null);
+}
+
+/** The one success metric used by summaries, charts and matrix cells. */
+export function successMetricForRows(
+  rows: readonly BookingStatRes[],
+  definition: SuccessDefinition | string,
+  deliveryCutoff?: string | null,
+): RatioMetric {
+  if (deliveryCutoff) {
+    const cutoffMetric = deliveryCutoffMetric(rows, deliveryCutoff, definition);
+    if (cutoffMetric != null) return cutoffMetric;
+  }
+  return successMetric(aggregate(rows), definition);
 }
 
 export type DayTimeMatrixCell = RatioMetric & {
@@ -465,6 +519,7 @@ export function dayTimeMetricKey(day: string | null | undefined, time: string | 
 export function buildDayTimeMatrix(
   rows: readonly BookingStatRes[],
   definition: SuccessDefinition | string,
+  deliveryCutoff?: string | null,
 ): DayTimeMatrix {
   const grouped = new Map<string, BookingStatRes[]>();
 
@@ -488,7 +543,7 @@ export function buildDayTimeMatrix(
 
   for (const [key, group] of grouped) {
     const totals = aggregate(group);
-    const metric = successMetric(totals, definition);
+    const metric = successMetricForRows(group, definition, deliveryCutoff);
     const [day, time] = key.split('|');
     cells.set(key, {
       key,

@@ -1413,10 +1413,14 @@
     },
     "tabs": {
       "overview": "Overview",
+      "time": "Time",
+      "direction": "Direction",
+      "dayOfWeek": "Day of week",
       "matrix": "Day × Time",
       "leadTime": "Lead time",
       "queueDepth": "Queue depth",
-      "delivery": "Delivery lead"
+      "delivery": "Delivery lead",
+      "slotLoad": "Slot load"
     },
     "priority": {
       "priority": "Priority only",
@@ -1441,15 +1445,16 @@
       "hint": "Milestones mark launches or changes; the travel-date range starts from the latest milestone by default."
     },
     "queue": {
-      "title": "By queue depth (bookings per slot)",
-      "info": "How many bookings competed for the same slot. More people chasing a slot means lower odds — combine with the day/time filters to read the exact historical chance for a slot."
+      "title": "Success by historical slot load",
+      "info": "Each travel date, time and direction is one historical slot. Its load bucket uses every request for that full slot; the chart uses summed completed and failed outcomes, never an average of slot percentages."
     },
     "delivery": {
-      "title": "Delivery lead (completed only)",
+      "title": "Success by delivery cutoff",
       "bucket": "Before departure",
       "completed": "Completed",
       "share": "Share",
-      "info": "How long before departure the ticket was secured, for completed bookings only. Per bucket: each window on its own. Cumulative ≤: got the ticket within that long of departure. Cumulative >: had the ticket more than that long before departure."
+      "info": "For each cutoff, completed means the ticket was delivered more than that long before departure. The denominator remains completed + refunded, with cancelled added when selected.",
+      "moreThan": "> {bucket} before departure"
     },
     "definition": {
       "refundOnly": "Refund only",
@@ -1474,7 +1479,7 @@
     },
     "matrix": {
       "title": "Day × departure time",
-      "description": "Success rate per timeslot (rows, tinted by direction) and day of week (columns)",
+      "description": "Days run vertically and departure times horizontally. Each cell uses the same filters and success definition as every graph.",
       "day": "Day",
       "rateLegend": "success rate",
       "time": "Time"
@@ -1485,6 +1490,8 @@
       "time": "Departure time",
       "bucket": "Lead time",
       "priority": "Priority",
+      "slotLoad": "Slot load",
+      "deliveryCutoff": "Delivery cutoff",
       "all": "All"
     },
     "summary": {
@@ -1496,6 +1503,7 @@
     "table": {
       "byDay": "By day of week",
       "byTime": "By departure time",
+      "byDirection": "By direction",
       "byBucket": "By lead time (purchase → departure)",
       "group": "Group",
       "total": "Total",

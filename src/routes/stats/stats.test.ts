@@ -26,6 +26,7 @@ import {
   singaporeToday,
   slotLoadMetricRows,
   successMetric,
+  successMetricForRows,
   successMetricRows,
   timeMetricRows,
   toStatRow,
@@ -341,9 +342,23 @@ describe('delivery cutoff SLA', () => {
     expect(deliveryCutoffMetric(rows, '48h+', 'refund')).toMatchObject({ numerator: 4, denominator: 12 });
 
     const metrics = deliveryCutoffMetricRows(rows, 'refund');
-    expect(metrics).toHaveLength(DELIVERY_BUCKETS.length);
+    expect(metrics).toHaveLength(DELIVERY_BUCKETS.length - 1);
+    expect(metrics.at(-1)?.cutoff).toBe('48h');
     expect(metrics.every(metric => metric.denominator === 12)).toBe(true);
     expect(deliveryCutoffMetric(rows, 'not-a-cutoff', 'refund')).toBeNull();
+  });
+
+  it('applies one selected cutoff to summaries and every grouped visualization', () => {
+    expect(successMetricForRows(rows, 'refund', '2h')).toMatchObject({ numerator: 6, denominator: 12, rate: 50 });
+    expect(timeMetricRows(rows, 'refund', '2h')[0]).toMatchObject({ num: 6, den: 12, rate: 50 });
+    expect(directionMetricRows(rows, 'refund', '2h')[0]).toMatchObject({ num: 6, den: 12, rate: 50 });
+    expect(weekdayMetricRows(rows, 'refund', '2h')[0]).toMatchObject({ num: 6, den: 12, rate: 50 });
+    expect(slotLoadMetricRows(rows, 'refund', '2h')[0]).toMatchObject({ num: 6, den: 12, rate: 50 });
+    expect(buildDayTimeMatrix(rows, 'refund', '2h').cells.get('Monday|08:00:00')).toMatchObject({
+      numerator: 6,
+      denominator: 12,
+      rate: 50,
+    });
   });
 });
 
