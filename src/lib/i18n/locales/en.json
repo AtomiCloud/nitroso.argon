@@ -337,11 +337,12 @@
       "error": "Failed to terminate booking",
       "trigger": "Terminate",
       "title": "Terminate Booking",
-      "intro": "Our bunnies have already managed to secure your ticket on KITS! Terminating this ticket release the your ticket back to KITS.",
+      "intro": "Our bunnies have already secured your ticket on KITS. Terminating the booking releases the ticket back to KITS.",
       "takeNoteTitle": "Take Note!",
-      "takeNoteBefore": "Terminating a booking will only refund",
-      "refundPercent": "50%",
-      "takeNoteAfter": "of the ticket price you paid for. This is to prevent abuse of the system.",
+      "feeNotice": "A termination fee of {fee} will be deducted from the amount you paid. The remainder will be refunded to your BunnyBooker wallet.",
+      "feeLoading": "Loading the current termination fee…",
+      "feeLoadFailed": "The current termination fee could not be loaded. Retry before continuing.",
+      "feeRetry": "Retry fee",
       "typeNameBefore": "Please type the name of the passenger,",
       "typeNameAfter": "to proceed.",
       "typeNameError": "Please type the name of the passenger of the booking to proceed.",
@@ -750,8 +751,8 @@
       "deliveryHeading": "Delivery, Refunds & Exchange Policy",
       "deliveryIntro": "You accept the following terms for delivery, refund and exchange of tickets:",
       "deliveryItem1": "Full refunds will be provided for tickets that have not been successfully secured by the BunnyBooker system on the KTMB website.",
-      "deliveryItem2": "Tickets that have been secured on KTMB's website successfully are not eligible for free refunds or exchanges. Such bookings may be terminated instead, subject to a termination fee of 50% of the ticket price; the remaining 50% is refunded as credit to your BunnyBooker wallet.",
-      "deliveryItem3": "Cancellations can be initiated once a ticket is booked and are free of charge while the ticket has not yet been secured. After the BunnyBooker system successfully secures the ticket on the KTMB website, cancellation is no longer available — only termination, which carries the 50% termination fee described above.",
+      "deliveryItem2": "Tickets that have been secured on KTMB's website successfully are not eligible for free refunds or exchanges. Such bookings may be terminated instead, subject to the termination fee configured at that time and shown before confirmation; the remaining amount is refunded as credit to your BunnyBooker wallet.",
+      "deliveryItem3": "Cancellations can be initiated once a ticket is booked and are free of charge while the ticket has not yet been secured. After the BunnyBooker system successfully secures the ticket on the KTMB website, cancellation is no longer available — only termination, which carries the configured termination fee described above.",
       "deliveryItem4": "Once a ticket is ordered and our booking service is engaged, our bunnies will actively attempt to secure your ticket.",
       "deliveryItem5": "Booking efforts will continue up until 30 minutes before the scheduled departure time in the chosen train direction.",
       "deliveryItem6": "If successful, you will be promptly notified of your confirmed booking details.",
@@ -982,8 +983,12 @@
     "refundPolicy": "Delivery, Cancellation & Refund Policy",
     "privacyPolicy": "Privacy Policy",
     "termsOfUse": "Terms of Use",
-    "supportSgt": "9 AM – midnight (SGT)",
-    "supportUs": "All other hours"
+    "supportDay": "09:00–23:59 SGT",
+    "supportOvernight": "00:00–08:59 SGT",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram support",
+    "email": "Email support",
+    "phone": "Call support"
   },
   "loader": {
     "default": "Loading, please wait...",
@@ -1319,7 +1324,7 @@
         "title": "Termination fee",
         "description": "The fee charged when a user terminates a secured booking."
       },
-      "terminationNote": "This fee applies when a user terminates a secured booking — the T&C currently states 50%, so keep this consistent with the published terms.",
+      "terminationNote": "This fee is calculated from the actual amount paid when a secured booking is terminated. The configured percentage, flat amount, and cap above control the charge.",
       "hint": "0% + S$0 removes the fee and hides it from users.",
       "currentLabel": "Current fee",
       "loadFailed": "Failed to load the current fee"
@@ -1396,7 +1401,9 @@
     "range": {
       "after": "Travel date from",
       "before": "Travel date to",
-      "hint": "Travel-date range (default: from the latest milestone, else the last 90 days)"
+      "hint": "Travel-date range (default: from the latest milestone, else the last 90 days)",
+      "notSelected": "Not selected",
+      "invalid": "Start date must be on or before the end date."
     },
     "tabs": {
       "overview": "Overview",
@@ -1413,6 +1420,7 @@
       "select": "From milestone",
       "manage": "Manage milestones",
       "add": "Add milestone",
+      "label": "Milestone label",
       "labelPlaceholder": "Label (e.g. priority launch)",
       "date": "Milestone date",
       "empty": "No milestones yet",
@@ -1422,6 +1430,8 @@
       "deleteFailed": "Failed to delete milestone",
       "loadFailed": "Failed to load milestones",
       "confirmDelete": "Delete?",
+      "deleteLabel": "Delete milestone {label}",
+      "confirmDeleteLabel": "Confirm deletion of milestone {label}",
       "hint": "Milestones mark launches or changes; the travel-date range starts from the latest milestone by default."
     },
     "queue": {
@@ -1433,7 +1443,7 @@
       "bucket": "Before departure",
       "completed": "Completed",
       "share": "Share",
-      "info": "How long before departure the ticket was secured, for completed bookings only. Per bucket: each window on its own. Cumulative ≤: got the ticket within that long of departure. Cumulative ≥: had the ticket at least that long before departure."
+      "info": "How long before departure the ticket was secured, for completed bookings only. Per bucket: each window on its own. Cumulative ≤: got the ticket within that long of departure. Cumulative >: had the ticket more than that long before departure."
     },
     "definition": {
       "refundOnly": "Refund only",
@@ -1448,12 +1458,13 @@
     "bucketMode": {
       "per": "Per bucket",
       "cumulativeLe": "Cumulative ≤",
-      "cumulativeGe": "Cumulative ≥",
+      "cumulativeGe": "Cumulative >",
       "helpPer": "Each lead-time bucket is counted on its own.",
       "helpCumulativeLe": "Each row counts every booking made within that lead time of departure (that bucket and shorter).",
-      "helpCumulativeGe": "Each row counts every booking made at least that long before departure (that bucket and longer).",
+      "helpCumulativeGe": "Each row counts every booking made more than that lead-time threshold before departure.",
       "upTo": "≤ {bucket}",
-      "atLeast": "≥ {bucket}"
+      "moreThan": "> {bucket}",
+      "all": "All"
     },
     "matrix": {
       "title": "Day × departure time",
