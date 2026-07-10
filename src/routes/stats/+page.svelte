@@ -1,5 +1,6 @@
 <script lang="ts">
     import {onMount, tick} from "svelte";
+    import {page} from "$app/stores";
     import {api} from "../../store";
 
     //@ts-ignore
@@ -15,46 +16,60 @@
     import * as Table from "$lib/components/ui/table";
 
     //@ts-ignore
+    import * as Tabs from "$lib/components/ui/tabs";
+
+    //@ts-ignore
     import * as ToggleGroup from "$lib/components/ui/toggle-group";
     import {Calendar} from "$lib/components/ui/calendar";
     import {Button} from "$lib/components/ui/button";
     import {cn} from "$lib/utils";
     import type {Selected} from "bits-ui";
     import {CalendarDate, type DateValue, getLocalTimeZone} from "@internationalized/date";
-    import {CalendarIcon, Clock, CalendarDays, ArrowLeftRight, Hourglass, LucideLoader, RotateCw} from "lucide-svelte";
-    import type {BookingStatRes} from "$lib/api/core/data-contracts";
+    import {CalendarIcon, Clock, CalendarDays, ArrowLeftRight, Flag, Hourglass, LucideLoader, RotateCw, Zap} from "lucide-svelte";
+    import type {BookingStatRes, MilestonePrincipalRes} from "$lib/api/core/data-contracts";
     import {toResult} from "$lib/utility";
     import Loader from "$lib/components/complex/loader.svelte";
+    import InfoTip from "$lib/components/core/InfoTip.svelte";
     import {_} from "svelte-i18n";
     import {lang, formatCalendarDate, formatNumber} from "$lib/i18n";
+    import {
+        DAYS, DIRECTIONS, DIR_DOT, DIR_TINT, BUCKETS, DEMAND_BUCKETS, DELIVERY_BUCKETS,
+        aggregate, rateOf, rateClass, barClass, rateText, toStatRow,
+        type StatRow,
+    } from "./stats";
+    import StatTable from "./StatTable.svelte";
+    import MilestoneManage from "./MilestoneManage.svelte";
 
     // Admin-only booking statistics (same server-side gating as /fees — zinc
     // rejects non-admin reads and the nav link is only rendered for admins).
     // ONE call to GET Booking/stats per travel-date range; every other filter
     // and the success-rate definition toggle are pure client-side
     // re-aggregations of the returned rows, which zinc pre-groups by
-    // (dayOfWeek, time, direction, lead-time bucket).
+    // (dayOfWeek, time, direction, lead-time bucket, priority, demandBucket,
+    // deliveryBucket).
     //
     // Mobile-first (owner mandate — this page is mostly used on phones):
     // 24h clock only ("17:00", shorter than locale AM/PM), short day names
-    // ("Mon"), compact cell padding, and direction shown purely by COLOR
-    // (blue = W → JB, purple = JB → W) with one legend at the top — direction
-    // text appears only in that legend and the direction filter.
+    // ("Mon"), compact cell padding, a sticky compact filter bar whose rows
+    // scroll horizontally inside themselves, and direction shown purely by
+    // COLOR (blue = W → JB, purple = JB → W) with one legend at the top —
+    // direction text appears only in that legend and the direction filter.
+    //
+    // The page is TABS over ONE shared filtered slice: Overview, Day × Time,
+    // Lead time, Queue depth, Delivery lead — the global bar filters ALL tabs.
 
-    const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-    const DIRECTIONS = ["WToJ", "JToW"];
-    // direction → consistent tint/dot used across every table and the matrix
-    const DIR_TINT: Record<string, string> = {WToJ: "bg-blue-500/10", JToW: "bg-purple-500/10"};
-    const DIR_DOT: Record<string, string> = {WToJ: "bg-blue-500", JToW: "bg-purple-500"};
-    // lead-time buckets (purchase → departure), shortest first
-    const BUCKETS = ["6h", "12h", "24h", "2d", "3d", "4d", "1w", "2w", "3w", "4w", "1m", "2m", "3m", "6m", "6m+"];
+    // milestone create/delete is admin-only on zinc; the list is authed for
+    // everyone, so non-admins still get the "From milestone" select
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    $: session = $page.data.session as any;
+    $: isAdmin = session?.roles?.includes("admin") ?? false;
 
     // 24h wall-clock text from zinc's HH:mm:ss
     function hhmm(t: string | null | undefined): string {
         return (t ?? "").slice(0, 5);
     }
 
-    // ---- travel-date range (default: the last 90 days) ----
+    // ---- travel-date range ----
     function toCalDate(d: Date): DateValue {
         return new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
     }
@@ -67,6 +82,13 @@
         return `${dd}-${mm}-${d.year}`;
     }
 
+    function fromApiDate(s: string | null | undefined): DateValue | null {
+        const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(s ?? "");
+        return m ? new CalendarDate(Number(m[3]), Number(m[2]), Number(m[1])) : null;
+    }
+
+    // seed with the 90-day fallback; onMount swaps the start to the latest
+    // milestone date when one exists
     const today = new Date();
     let after: DateValue | undefined = toCalDate(new Date(today.getTime() - 90 * 24 * 3600 * 1000));
     let before: DateValue | undefined = toCalDate(today);
@@ -93,10 +115,81 @@
         loading = false;
     }
 
-    onMount(load);
+    // ---- milestones (range-start presets; newest date first from zinc) ----
+    let milestones: MilestonePrincipalRes[] = [];
+    let selMilestone: Selected<string> | undefined;
+
+    function milestoneLabel(m: MilestonePrincipalRes): string {
+        return `${m.label} · ${m.date}`;
+    }
+
+    async function loadMilestones() {
+        await toResult(() => $api.vMilestoneList("1"),
+            $_('stats.milestone.loadFailed', { locale: $lang })).match({
+            ok: (r: MilestonePrincipalRes[]) => {
+                milestones = r;
+            },
+            err: (e) => {
+                // non-fatal: keep the 90-day fallback range
+                console.error(e);
+            }
+        });
+    }
+
+    function latestMilestone(): MilestonePrincipalRes | undefined {
+        // zinc returns newest date first, but derive defensively
+        let best: MilestonePrincipalRes | undefined;
+        let bestD: DateValue | null = null;
+        for (const m of milestones) {
+            const d = fromApiDate(m.date);
+            if (d == null) continue;
+            if (bestD == null || d.compare(bestD) > 0) {
+                best = m;
+                bestD = d;
+            }
+        }
+        return best;
+    }
+
+    onMount(async () => {
+        await loadMilestones();
+        const latest = latestMilestone();
+        const d = latest == null ? null : fromApiDate(latest.date);
+        // default range start = the LATEST milestone date (fallback: the
+        // seeded last-90-days start); never start the range after its end
+        if (latest != null && d != null && before != null && d.compare(before) <= 0) {
+            after = d;
+            selMilestone = {value: latest.id, label: milestoneLabel(latest)};
+        }
+        await load();
+    });
+
+    // picking a milestone snaps the range start to its date; the calendar
+    // popover can still override afterwards
+    function milestonePick(s: Selected<string> | undefined) {
+        const m = milestones.find(x => x.id === s?.value);
+        const d = fromApiDate(m?.date);
+        if (d != null) {
+            after = d;
+            load();
+        }
+    }
+
+    // after admin create/delete: refresh the list and drop a stale selection
+    async function refreshMilestones() {
+        await loadMilestones();
+        const sel = selMilestone;
+        if (sel?.value && !milestones.some(m => m.id === sel.value)) selMilestone = undefined;
+    }
 
     async function rangeChange() {
         await tick();
+        // a manual calendar override invalidates the milestone preset label
+        const sel = selMilestone;
+        if (sel?.value) {
+            const m = milestones.find(x => x.id === sel.value);
+            if (after == null || m?.date !== toApiDate(after)) selMilestone = undefined;
+        }
         load();
     }
 
@@ -107,14 +200,14 @@
     // ToggleGroup single allows deselecting; never leave the page undefined
     $: if (!definition) definition = "refund";
 
-    // ---- bucket aggregation mode ----
-    // "per": each lead-time bucket stands alone (a la carte)
-    // "le":  cumulative ≤ — each bucket row aggregates ALL rows with lead
-    //        time at or under that bucket ("booked within X of departure")
-    // "ge":  cumulative ≥ — each bucket row aggregates ALL rows with lead
-    //        time at or over that bucket ("booked at least X before")
-    // A bucket FILTER follows the same semantics, so it feeds the matrix and
-    // summary consistently. ≤ and ≥ tell different stories — both exist.
+    // ---- bucket aggregation mode (lead-time AND delivery ladders) ----
+    // "per": each bucket stands alone (a la carte)
+    // "le":  cumulative ≤ — each bucket row aggregates ALL rows at or under
+    //        that bucket ("within X of departure")
+    // "ge":  cumulative ≥ — each bucket row aggregates ALL rows at or over
+    //        that bucket ("at least X before departure")
+    // A bucket FILTER follows the same semantics, so it feeds every tab
+    // consistently. ≤ and ≥ tell different stories — both exist.
     let bucketMode = "per";
     // ToggleGroup single allows deselecting; never leave the mode undefined
     $: if (!bucketMode) bucketMode = "per";
@@ -128,6 +221,7 @@
     let selDirection: Selected<string> | undefined;
     let selTime: Selected<string> | undefined;
     let selBucket: Selected<string> | undefined;
+    let selPriority: Selected<string> | undefined;
 
     // Keep closed-trigger labels in the active locale (same treatment as the
     // bookings list selects).
@@ -148,6 +242,10 @@
     $: if (selBucket?.value) {
         const l = bucketLabel(selBucket.value, bucketMode, $lang);
         if (selBucket.label !== l) selBucket = { ...selBucket, label: l };
+    }
+    $: if (selPriority?.value) {
+        const l = $_(`stats.priority.${selPriority.value}`, { locale: $lang });
+        if (selPriority.label !== l) selPriority = { ...selPriority, label: l };
     }
 
     function bucketLabel(bk: string, mode: string, l: typeof $lang): string {
@@ -174,73 +272,15 @@
         return mode === "ge" ? i >= bucketIdx(sel) : i <= bucketIdx(sel);
     }
 
+    // the ONE filtered slice every tab reads
     $: filtered = rows.filter(r =>
         (!selDay?.value || r.dayOfWeek === selDay.value) &&
         (!selDirection?.value || r.direction === selDirection.value) &&
         (!selTime?.value || r.time === selTime.value) &&
+        (!selPriority?.value || (selPriority.value === "priority" ? r.priority : !r.priority)) &&
         (!selBucket?.value || bucketMatches(r, selBucket.value, bucketMode)));
 
-    // ---- aggregation ----
-    type Agg = {
-        total: number;
-        completed: number;
-        refunded: number;
-        cancelled: number;
-    };
-
-    function aggregate(rs: BookingStatRes[]): Agg {
-        const a: Agg = {total: 0, completed: 0, refunded: 0, cancelled: 0};
-        for (const r of rs) {
-            a.total += r.total;
-            a.completed += r.completed;
-            a.refunded += r.refunded;
-            a.cancelled += r.cancelled;
-        }
-        return a;
-    }
-
-    function failedOf(a: Agg, def: string): number {
-        return a.refunded + (def === "refundCancel" ? a.cancelled : 0);
-    }
-
-    // null when no booking has resolved to success/failure yet
-    function rateOf(a: Agg, def: string): number | null {
-        const f = failedOf(a, def);
-        const denominator = a.completed + f;
-        return denominator === 0 ? null : (a.completed / denominator) * 100;
-    }
-
-    function rateClass(rate: number | null): string {
-        if (rate == null) return "text-muted-foreground";
-        if (rate >= 80) return "text-green-600 dark:text-green-400";
-        if (rate >= 50) return "text-amber-600 dark:text-amber-400";
-        return "text-red-600 dark:text-red-400";
-    }
-
-    function barClass(rate: number): string {
-        if (rate >= 80) return "bg-green-500";
-        if (rate >= 50) return "bg-amber-500";
-        return "bg-red-500";
-    }
-
-    function rateText(rate: number | null): string {
-        return rate == null ? "—" : `${formatNumber(rate, $lang, {maximumFractionDigits: 1})}%`;
-    }
-
-    type StatRow = {
-        key: string;
-        label: string;
-        // direction is conveyed purely by row COLOR (owner mandate); empty =
-        // no direction dimension for this row
-        dir: string;
-        total: number;
-        rate: number | null;
-    };
-
-    function toStatRow(key: string, label: string, dir: string, rs: BookingStatRes[], def: string): StatRow {
-        const a = aggregate(rs);
-        return {key, label, dir, total: a.total, rate: rateOf(a, def)};
-    }
+    // ---- breakdown tables (Group | Total | Success % + raw n/d) ----
 
     // breakdown by day of week (Mon → Sun)
     $: byDay = DAYS
@@ -268,25 +308,55 @@
         filtered.filter(r => bucketMatches(r, bk, bucketMode)),
         definition));
 
-    $: tables = [
-        {title: $_('stats.table.byDay', { locale: $lang }), rows: byDay},
-        {title: $_('stats.table.byTime', { locale: $lang }), rows: byTime},
-        {title: $_('stats.table.byBucket', { locale: $lang }), rows: byBucket},
-    ];
+    // breakdown by queue depth — how many bookings competed for the slot
+    $: byDemand = DEMAND_BUCKETS
+        .map(db => ({key: db, rs: filtered.filter(r => r.demandBucket === db)}))
+        .filter(g => g.rs.length > 0)
+        .map(g => toStatRow(g.key, g.key, "", g.rs, definition)) as StatRow[];
 
-    // ---- 2D matrix: day-of-week (rows, Mon→Sun) × time-of-day (columns) ----
-    // The many-item axis (timeslots) is the horizontal one so it can scroll;
-    // the 7 days always fit vertically. Each departure time belongs to
-    // exactly ONE direction (the J→W and W→J timetables are disjoint), so a
-    // (day, time) cell holds a single value — the direction is conveyed by
-    // tinting the whole column (header + cells, see page legend) while the
-    // cell TEXT keeps the green/amber/red success-rate coloring.
+    // ---- delivery lead (COMPLETED bookings only; deliveryBucket != null) ----
+    // distribution of how long before departure the ticket was secured; the
+    // 3-mode toggle applies here too (per / cumulative ≤ / cumulative ≥)
+    type DeliveryRow = { key: string; label: string; count: number; share: number | null };
+
+    function deliveryIdx(db: string | null | undefined): number {
+        return DELIVERY_BUCKETS.indexOf(db ?? "");
+    }
+
+    function deliveryMatches(r: BookingStatRes, sel: string, mode: string): boolean {
+        if (r.deliveryBucket == null) return false;
+        if (mode === "per") return r.deliveryBucket === sel;
+        const i = deliveryIdx(r.deliveryBucket);
+        if (i === -1) return false;
+        return mode === "ge" ? i >= deliveryIdx(sel) : i <= deliveryIdx(sel);
+    }
+
+    $: deliveredTotal = filtered.filter(r => r.deliveryBucket != null)
+        .reduce((s, r) => s + r.completed, 0);
+    $: byDelivery = DELIVERY_BUCKETS
+        .filter(db => filtered.some(r => r.deliveryBucket === db))
+        .map((db): DeliveryRow => {
+            const count = filtered.filter(r => deliveryMatches(r, db, bucketMode))
+                .reduce((s, r) => s + r.completed, 0);
+            return {
+                key: db,
+                label: bucketLabel(db, bucketMode, $lang),
+                count,
+                share: deliveredTotal === 0 ? null : (count / deliveredTotal) * 100,
+            };
+        });
+
+    // ---- 2D matrix: day-of-week × time-of-day (transposed for mobile) ----
+    // Each departure time belongs to exactly ONE direction (the J→W and W→J
+    // timetables are disjoint), so a (day, time) cell holds a single value —
+    // the direction is conveyed by tinting the whole timeslot row (see page
+    // legend) while the cell TEXT keeps the green/amber/red rate coloring.
     type MatrixCell = { rate: number | null; total: number };
 
     $: matrixTimes = [...new Set(filtered.map(r => r.time ?? ""))].filter(t => t !== "").sort();
     $: matrixDays = DAYS.filter(d => filtered.some(r => r.dayOfWeek === d));
     $: matrix = buildMatrix(filtered, definition);
-    // each time's direction, derived from the data rows (for column tinting)
+    // each time's direction, derived from the data rows (for row tinting)
     $: timeDirection = deriveTimeDirection(rows);
 
     function deriveTimeDirection(rs: BookingStatRes[]): Map<string, string> {
@@ -316,10 +386,16 @@
         return m;
     }
 
-    // summary of the current filtered slice, under both definitions
+    // summary of the current filtered slice, under both definitions, with the
+    // raw numerators/denominators visible (the owner's actuarial base)
     $: summary = aggregate(filtered);
     $: summaryRateRefund = rateOf(summary, "refund");
     $: summaryRateRefundCancel = rateOf(summary, "refundCancel");
+    $: summaryDenRefund = summary.completed + summary.refunded;
+    $: summaryDenRefundCancel = summary.completed + summary.refunded + summary.cancelled;
+
+    // ---- tabs over the one shared slice ----
+    let tab = "overview";
 </script>
 
 <div class="flex flex-col">
@@ -338,7 +414,7 @@
             </Button>
         </div>
     </div>
-    <div class="flex flex-col gap-4 w-full px-2 sm:px-0 sm:w-11/12 max-w-[1200px] mx-auto my-8 sm:my-12">
+    <div class="flex flex-col gap-4 w-full px-2 sm:px-0 sm:w-11/12 max-w-[1200px] mx-auto my-4 sm:my-8">
 
         <!-- the ONE direction color legend for the whole page: every table row
              and matrix sub-cell uses these tints instead of direction text -->
@@ -351,136 +427,172 @@
             {/each}
         </div>
 
-        <!-- travel-date range (the only thing that refetches from zinc) -->
-        <div class="flex gap-4 flex-wrap items-center">
-            <Popover.Root>
-                <Popover.Trigger asChild let:builder>
-                    <Button variant="outline"
-                            class={cn("w-full lg:max-w-60 justify-start text-left font-normal", !after && "text-muted-foreground")}
-                            builders={[builder]}>
-                        <CalendarIcon class="mr-2 h-4 w-4"/>
-                        {after ? formatCalendarDate(after.toDate(getLocalTimeZone()), $lang, {dateStyle: "long"}) : $_('stats.range.after', { locale: $lang })}
-                    </Button>
-                </Popover.Trigger>
-                <Popover.Content class="w-auto p-0" align="start">
-                    <Calendar bind:value={after} onValueChange={rangeChange}/>
-                </Popover.Content>
-            </Popover.Root>
-            <span class="text-muted-foreground">→</span>
-            <Popover.Root>
-                <Popover.Trigger asChild let:builder>
-                    <Button variant="outline"
-                            class={cn("w-full lg:max-w-60 justify-start text-left font-normal", !before && "text-muted-foreground")}
-                            builders={[builder]}>
-                        <CalendarIcon class="mr-2 h-4 w-4"/>
-                        {before ? formatCalendarDate(before.toDate(getLocalTimeZone()), $lang, {dateStyle: "long"}) : $_('stats.range.before', { locale: $lang })}
-                    </Button>
-                </Popover.Trigger>
-                <Popover.Content class="w-auto p-0" align="start">
-                    <Calendar bind:value={before} onValueChange={rangeChange}/>
-                </Popover.Content>
-            </Popover.Root>
-            <p class="text-sm text-muted-foreground">
-                {$_('stats.range.hint', { locale: $lang })}
-            </p>
-        </div>
+        <!-- GLOBAL filter bar: one shared state that narrows EVERY tab.
+             Sticky + compact on mobile; each row scrolls horizontally inside
+             itself (container-scoped) instead of wrapping into a tall stack -->
+        <div class="sticky top-0 z-20 -mx-2 px-2 py-2 sm:mx-0 sm:px-3 bg-background/95 backdrop-blur border-b sm:border sm:rounded-lg flex flex-col gap-2">
 
-        <!-- success-rate definition -->
-        <div class="flex gap-4 flex-wrap items-center">
-            <ToggleGroup.Root type="single" bind:value={definition} class="justify-start">
-                <ToggleGroup.Item value="refund" aria-label={$_('stats.definition.refundOnly', { locale: $lang })}>
-                    {$_('stats.definition.refundOnly', { locale: $lang })}
-                </ToggleGroup.Item>
-                <ToggleGroup.Item value="refundCancel" aria-label={$_('stats.definition.refundCancel', { locale: $lang })}>
-                    {$_('stats.definition.refundCancel', { locale: $lang })}
-                </ToggleGroup.Item>
-            </ToggleGroup.Root>
-            <p class="text-sm text-muted-foreground">
-                {#if definition === "refundCancel"}
-                    {$_('stats.definition.helpRefundCancel', { locale: $lang })}
-                {:else}
-                    {$_('stats.definition.helpRefundOnly', { locale: $lang })}
-                {/if}
-            </p>
-        </div>
+            <!-- row 1: travel-date range (the only thing that refetches from
+                 zinc) + milestone preset + admin milestone management -->
+            <div class="overflow-x-auto">
+                <div class="flex gap-2 items-center w-max">
+                    <Popover.Root>
+                        <Popover.Trigger asChild let:builder>
+                            <Button variant="outline"
+                                    class={cn("h-8 px-2 text-xs justify-start font-normal shrink-0", !after && "text-muted-foreground")}
+                                    builders={[builder]}>
+                                <CalendarIcon class="mr-1.5 h-3.5 w-3.5"/>
+                                {after ? formatCalendarDate(after.toDate(getLocalTimeZone()), $lang, {day: "numeric", month: "short", year: "2-digit"}) : $_('stats.range.after', { locale: $lang })}
+                            </Button>
+                        </Popover.Trigger>
+                        <Popover.Content class="w-auto p-0" align="start">
+                            <Calendar bind:value={after} onValueChange={rangeChange}/>
+                        </Popover.Content>
+                    </Popover.Root>
+                    <span class="text-muted-foreground text-xs">→</span>
+                    <Popover.Root>
+                        <Popover.Trigger asChild let:builder>
+                            <Button variant="outline"
+                                    class={cn("h-8 px-2 text-xs justify-start font-normal shrink-0", !before && "text-muted-foreground")}
+                                    builders={[builder]}>
+                                <CalendarIcon class="mr-1.5 h-3.5 w-3.5"/>
+                                {before ? formatCalendarDate(before.toDate(getLocalTimeZone()), $lang, {day: "numeric", month: "short", year: "2-digit"}) : $_('stats.range.before', { locale: $lang })}
+                            </Button>
+                        </Popover.Trigger>
+                        <Popover.Content class="w-auto p-0" align="start">
+                            <Calendar bind:value={before} onValueChange={rangeChange}/>
+                        </Popover.Content>
+                    </Popover.Root>
+                    <Select.Root bind:selected={selMilestone} onSelectedChange={milestonePick}>
+                        <Select.Trigger class="h-8 w-48 text-xs shrink-0">
+                            <Flag class="mr-1.5 h-3.5 w-3.5 shrink-0"/>
+                            <Select.Value placeholder={$_('stats.milestone.select', { locale: $lang })}/>
+                        </Select.Trigger>
+                        <Select.Content>
+                            {#if milestones.length === 0}
+                                <div class="px-2 py-1.5 text-xs text-muted-foreground">{$_('stats.milestone.empty', { locale: $lang })}</div>
+                            {/if}
+                            {#each milestones as m (m.id)}
+                                <Select.Item value={m.id}>{milestoneLabel(m)}</Select.Item>
+                            {/each}
+                        </Select.Content>
+                    </Select.Root>
+                    {#if isAdmin}
+                        <MilestoneManage {milestones} {toApiDate} reload={refreshMilestones}/>
+                    {/if}
+                </div>
+            </div>
 
-        <!-- lead-time bucket aggregation mode -->
-        <div class="flex gap-4 flex-wrap items-center">
-            <ToggleGroup.Root type="single" bind:value={bucketMode} class="justify-start flex-wrap">
-                <ToggleGroup.Item value="per" aria-label={$_('stats.bucketMode.per', { locale: $lang })}>
-                    {$_('stats.bucketMode.per', { locale: $lang })}
-                </ToggleGroup.Item>
-                <ToggleGroup.Item value="le" aria-label={$_('stats.bucketMode.cumulativeLe', { locale: $lang })}>
-                    {$_('stats.bucketMode.cumulativeLe', { locale: $lang })}
-                </ToggleGroup.Item>
-                <ToggleGroup.Item value="ge" aria-label={$_('stats.bucketMode.cumulativeGe', { locale: $lang })}>
-                    {$_('stats.bucketMode.cumulativeGe', { locale: $lang })}
-                </ToggleGroup.Item>
-            </ToggleGroup.Root>
-            <p class="text-sm text-muted-foreground">
-                {#if bucketMode === "le"}
-                    {$_('stats.bucketMode.helpCumulativeLe', { locale: $lang })}
-                {:else if bucketMode === "ge"}
-                    {$_('stats.bucketMode.helpCumulativeGe', { locale: $lang })}
-                {:else}
-                    {$_('stats.bucketMode.helpPer', { locale: $lang })}
-                {/if}
-            </p>
-        </div>
+            <!-- row 2: slice filters (pure client-side re-aggregation) -->
+            <div class="overflow-x-auto">
+                <div class="flex gap-2 items-center w-max">
+                    <Select.Root bind:selected={selDirection}>
+                        <Select.Trigger class="h-8 w-36 text-xs shrink-0">
+                            <ArrowLeftRight class="mr-1.5 h-3.5 w-3.5 shrink-0"/>
+                            <Select.Value placeholder={$_('stats.filters.direction', { locale: $lang })}/>
+                        </Select.Trigger>
+                        <Select.Content>
+                            <Select.Item value="">{$_('stats.filters.all', { locale: $lang })}</Select.Item>
+                            {#each DIRECTIONS as d}
+                                <Select.Item value={d}>
+                                    <span class="inline-block h-2 w-2 rounded-full mr-2 {DIR_DOT[d]}"></span>
+                                    {$_(d === "WToJ" ? 'stats.dir.wtoj' : 'stats.dir.jtow', { locale: $lang })}
+                                </Select.Item>
+                            {/each}
+                        </Select.Content>
+                    </Select.Root>
+                    <Select.Root bind:selected={selDay}>
+                        <Select.Trigger class="h-8 w-36 text-xs shrink-0">
+                            <CalendarDays class="mr-1.5 h-3.5 w-3.5 shrink-0"/>
+                            <Select.Value placeholder={$_('stats.filters.day', { locale: $lang })}/>
+                        </Select.Trigger>
+                        <Select.Content>
+                            <Select.Item value="">{$_('stats.filters.all', { locale: $lang })}</Select.Item>
+                            {#each DAYS as d}
+                                <Select.Item value={d}>{$_(`stats.daysShort.${d.toLowerCase()}`, { locale: $lang })}</Select.Item>
+                            {/each}
+                        </Select.Content>
+                    </Select.Root>
+                    <Select.Root bind:selected={selTime}>
+                        <Select.Trigger class="h-8 w-36 text-xs shrink-0">
+                            <Clock class="mr-1.5 h-3.5 w-3.5 shrink-0"/>
+                            <Select.Value placeholder={$_('stats.filters.time', { locale: $lang })}/>
+                        </Select.Trigger>
+                        <Select.Content>
+                            <Select.Item value="">{$_('stats.filters.all', { locale: $lang })}</Select.Item>
+                            {#each timesInData as t}
+                                <Select.Item value={t}>{hhmm(t)}</Select.Item>
+                            {/each}
+                        </Select.Content>
+                    </Select.Root>
+                    <Select.Root bind:selected={selBucket}>
+                        <Select.Trigger class="h-8 w-36 text-xs shrink-0">
+                            <Hourglass class="mr-1.5 h-3.5 w-3.5 shrink-0"/>
+                            <Select.Value placeholder={$_('stats.filters.bucket', { locale: $lang })}/>
+                        </Select.Trigger>
+                        <Select.Content>
+                            <Select.Item value="">{$_('stats.filters.all', { locale: $lang })}</Select.Item>
+                            {#each bucketsInData as bk}
+                                <Select.Item value={bk}>{bk}</Select.Item>
+                            {/each}
+                        </Select.Content>
+                    </Select.Root>
+                    <Select.Root bind:selected={selPriority}>
+                        <Select.Trigger class="h-8 w-36 text-xs shrink-0">
+                            <Zap class="mr-1.5 h-3.5 w-3.5 shrink-0"/>
+                            <Select.Value placeholder={$_('stats.filters.priority', { locale: $lang })}/>
+                        </Select.Trigger>
+                        <Select.Content>
+                            <Select.Item value="">{$_('stats.filters.all', { locale: $lang })}</Select.Item>
+                            <Select.Item value="priority">{$_('stats.priority.priority', { locale: $lang })}</Select.Item>
+                            <Select.Item value="regular">{$_('stats.priority.regular', { locale: $lang })}</Select.Item>
+                        </Select.Content>
+                    </Select.Root>
+                </div>
+            </div>
 
-        <!-- client-side slice filters -->
-        <div class="flex gap-4 flex-wrap justify-start">
-            <Select.Root bind:selected={selDay}>
-                <Select.Trigger class="w-full lg:max-w-52">
-                    <CalendarDays class="mr-2 h-4 w-4"/>
-                    <Select.Value placeholder={$_('stats.filters.day', { locale: $lang })}/>
-                </Select.Trigger>
-                <Select.Content>
-                    <Select.Item value="">{$_('stats.filters.all', { locale: $lang })}</Select.Item>
-                    {#each DAYS as d}
-                        <Select.Item value={d}>{$_(`stats.daysShort.${d.toLowerCase()}`, { locale: $lang })}</Select.Item>
-                    {/each}
-                </Select.Content>
-            </Select.Root>
-            <Select.Root bind:selected={selDirection}>
-                <Select.Trigger class="w-full lg:max-w-52">
-                    <ArrowLeftRight class="mr-2 h-4 w-4"/>
-                    <Select.Value placeholder={$_('stats.filters.direction', { locale: $lang })}/>
-                </Select.Trigger>
-                <Select.Content>
-                    <Select.Item value="">{$_('stats.filters.all', { locale: $lang })}</Select.Item>
-                    {#each DIRECTIONS as d}
-                        <Select.Item value={d}>
-                            <span class="inline-block h-2 w-2 rounded-full mr-2 {DIR_DOT[d]}"></span>
-                            {$_(d === "WToJ" ? 'stats.dir.wtoj' : 'stats.dir.jtow', { locale: $lang })}
-                        </Select.Item>
-                    {/each}
-                </Select.Content>
-            </Select.Root>
-            <Select.Root bind:selected={selTime}>
-                <Select.Trigger class="w-full lg:max-w-52">
-                    <Clock class="mr-2 h-4 w-4"/>
-                    <Select.Value placeholder={$_('stats.filters.time', { locale: $lang })}/>
-                </Select.Trigger>
-                <Select.Content>
-                    <Select.Item value="">{$_('stats.filters.all', { locale: $lang })}</Select.Item>
-                    {#each timesInData as t}
-                        <Select.Item value={t}>{hhmm(t)}</Select.Item>
-                    {/each}
-                </Select.Content>
-            </Select.Root>
-            <Select.Root bind:selected={selBucket}>
-                <Select.Trigger class="w-full lg:max-w-52">
-                    <Hourglass class="mr-2 h-4 w-4"/>
-                    <Select.Value placeholder={$_('stats.filters.bucket', { locale: $lang })}/>
-                </Select.Trigger>
-                <Select.Content>
-                    <Select.Item value="">{$_('stats.filters.all', { locale: $lang })}</Select.Item>
-                    {#each bucketsInData as bk}
-                        <Select.Item value={bk}>{bk}</Select.Item>
-                    {/each}
-                </Select.Content>
-            </Select.Root>
+            <!-- row 3: success definition + bucket aggregation mode (the long
+                 help sentences live in InfoTips to keep the sticky bar short) -->
+            <div class="overflow-x-auto">
+                <div class="flex gap-2 items-center w-max">
+                    <ToggleGroup.Root type="single" bind:value={definition} class="justify-start">
+                        <ToggleGroup.Item value="refund" class="h-8 px-2 text-xs" aria-label={$_('stats.definition.refundOnly', { locale: $lang })}>
+                            {$_('stats.definition.refundOnly', { locale: $lang })}
+                        </ToggleGroup.Item>
+                        <ToggleGroup.Item value="refundCancel" class="h-8 px-2 text-xs" aria-label={$_('stats.definition.refundCancel', { locale: $lang })}>
+                            {$_('stats.definition.refundCancel', { locale: $lang })}
+                        </ToggleGroup.Item>
+                    </ToggleGroup.Root>
+                    <InfoTip label={$_('stats.definition.refundOnly', { locale: $lang })}>
+                        {#if definition === "refundCancel"}
+                            {$_('stats.definition.helpRefundCancel', { locale: $lang })}
+                        {:else}
+                            {$_('stats.definition.helpRefundOnly', { locale: $lang })}
+                        {/if}
+                    </InfoTip>
+                    <span class="h-5 w-px bg-border"></span>
+                    <ToggleGroup.Root type="single" bind:value={bucketMode} class="justify-start">
+                        <ToggleGroup.Item value="per" class="h-8 px-2 text-xs" aria-label={$_('stats.bucketMode.per', { locale: $lang })}>
+                            {$_('stats.bucketMode.per', { locale: $lang })}
+                        </ToggleGroup.Item>
+                        <ToggleGroup.Item value="le" class="h-8 px-2 text-xs" aria-label={$_('stats.bucketMode.cumulativeLe', { locale: $lang })}>
+                            {$_('stats.bucketMode.cumulativeLe', { locale: $lang })}
+                        </ToggleGroup.Item>
+                        <ToggleGroup.Item value="ge" class="h-8 px-2 text-xs" aria-label={$_('stats.bucketMode.cumulativeGe', { locale: $lang })}>
+                            {$_('stats.bucketMode.cumulativeGe', { locale: $lang })}
+                        </ToggleGroup.Item>
+                    </ToggleGroup.Root>
+                    <InfoTip label={$_('stats.bucketMode.per', { locale: $lang })}>
+                        {#if bucketMode === "le"}
+                            {$_('stats.bucketMode.helpCumulativeLe', { locale: $lang })}
+                        {:else if bucketMode === "ge"}
+                            {$_('stats.bucketMode.helpCumulativeGe', { locale: $lang })}
+                        {:else}
+                            {$_('stats.bucketMode.helpPer', { locale: $lang })}
+                        {/if}
+                    </InfoTip>
+                </div>
+            </div>
         </div>
 
         {#if failed}
@@ -496,131 +608,173 @@
         {:else if rows.length === 0}
             <p class="text-center text-muted-foreground py-12">{$_('stats.empty', { locale: $lang })}</p>
         {:else}
-            <!-- summary of the current filtered slice -->
-            <Card.Root>
-                <Card.Header class="p-4 sm:p-6">
-                    <Card.Title>{$_('stats.summary.title', { locale: $lang })}</Card.Title>
-                </Card.Header>
-                <Card.Content class="px-4 sm:px-6">
-                    <div class="flex gap-x-8 gap-y-4 flex-wrap">
-                        <div class="flex flex-col">
-                            <span class="text-sm text-muted-foreground">{$_('stats.summary.total', { locale: $lang })}</span>
-                            <span class="text-2xl font-semibold">{formatNumber(summary.total, $lang)}</span>
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="text-sm text-muted-foreground">{$_('stats.summary.successRefundOnly', { locale: $lang })}</span>
-                            <span class="text-2xl font-semibold {rateClass(summaryRateRefund)}">{rateText(summaryRateRefund)}</span>
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="text-sm text-muted-foreground">{$_('stats.summary.successRefundCancel', { locale: $lang })}</span>
-                            <span class="text-2xl font-semibold {rateClass(summaryRateRefundCancel)}">{rateText(summaryRateRefundCancel)}</span>
-                        </div>
-                    </div>
-                </Card.Content>
-            </Card.Root>
+            <Tabs.Root bind:value={tab}>
+                <div class="overflow-x-auto">
+                    <Tabs.List class="w-max h-9">
+                        <Tabs.Trigger value="overview" class="text-xs sm:text-sm px-2.5">{$_('stats.tabs.overview', { locale: $lang })}</Tabs.Trigger>
+                        <Tabs.Trigger value="matrix" class="text-xs sm:text-sm px-2.5">{$_('stats.tabs.matrix', { locale: $lang })}</Tabs.Trigger>
+                        <Tabs.Trigger value="leadTime" class="text-xs sm:text-sm px-2.5">{$_('stats.tabs.leadTime', { locale: $lang })}</Tabs.Trigger>
+                        <Tabs.Trigger value="queueDepth" class="text-xs sm:text-sm px-2.5">{$_('stats.tabs.queueDepth', { locale: $lang })}</Tabs.Trigger>
+                        <Tabs.Trigger value="delivery" class="text-xs sm:text-sm px-2.5">{$_('stats.tabs.delivery', { locale: $lang })}</Tabs.Trigger>
+                    </Tabs.List>
+                </div>
 
-            <!-- the three breakdown tables: Group | Total | Success % only -->
-            {#each tables as t (t.title)}
-                <Card.Root>
-                    <Card.Header class="p-4 sm:p-6">
-                        <Card.Title>{t.title}</Card.Title>
-                    </Card.Header>
-                    <Card.Content class="px-2 sm:px-6">
-                        {#if t.rows.length === 0}
-                            <p class="text-sm text-muted-foreground px-2">{$_('stats.empty', { locale: $lang })}</p>
-                        {:else}
-                            <div class="overflow-x-auto">
-                                <Table.Root>
-                                    <Table.Header>
-                                        <Table.Row>
-                                            <Table.Head class="h-9 px-2">{$_('stats.table.group', { locale: $lang })}</Table.Head>
-                                            <Table.Head class="h-9 px-2 text-right">{$_('stats.table.total', { locale: $lang })}</Table.Head>
-                                            <Table.Head class="h-9 px-2">{$_('stats.table.rate', { locale: $lang })}</Table.Head>
-                                        </Table.Row>
-                                    </Table.Header>
-                                    <Table.Body>
-                                        {#each t.rows as r (r.key)}
-                                            <Table.Row class={r.dir ? DIR_TINT[r.dir] : ""}>
-                                                <Table.Cell class="px-2 py-1.5 font-medium whitespace-nowrap">{r.label}</Table.Cell>
-                                                <Table.Cell class="px-2 py-1.5 text-right">{formatNumber(r.total, $lang)}</Table.Cell>
-                                                <Table.Cell class="px-2 py-1.5">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="w-12 sm:w-14 text-right font-medium {rateClass(r.rate)}">{rateText(r.rate)}</span>
-                                                        <div class="h-1.5 w-12 sm:w-24 rounded bg-muted overflow-hidden">
-                                                            {#if r.rate != null}
-                                                                <div class="h-full {barClass(r.rate)}" style="width: {r.rate}%"></div>
-                                                            {/if}
-                                                        </div>
-                                                    </div>
-                                                </Table.Cell>
-                                            </Table.Row>
-                                        {/each}
-                                    </Table.Body>
-                                </Table.Root>
+                <!-- 1. Overview: the filtered slice under both definitions,
+                     raw numerators/denominators spelled out -->
+                <Tabs.Content value="overview" class="flex flex-col gap-4">
+                    <Card.Root>
+                        <Card.Header class="p-4 sm:p-6">
+                            <Card.Title>{$_('stats.summary.title', { locale: $lang })}</Card.Title>
+                        </Card.Header>
+                        <Card.Content class="px-4 sm:px-6">
+                            <div class="flex gap-x-8 gap-y-4 flex-wrap">
+                                <div class="flex flex-col">
+                                    <span class="text-sm text-muted-foreground">{$_('stats.summary.total', { locale: $lang })}</span>
+                                    <span class="text-2xl font-semibold">{formatNumber(summary.total, $lang)}</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-sm text-muted-foreground">{$_('stats.summary.successRefundOnly', { locale: $lang })}</span>
+                                    <span class="text-2xl font-semibold {rateClass(summaryRateRefund)}">{rateText(summaryRateRefund, $lang)}</span>
+                                    <span class="text-xs text-muted-foreground tabular-nums">{formatNumber(summary.completed, $lang)}/{formatNumber(summaryDenRefund, $lang)}</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-sm text-muted-foreground">{$_('stats.summary.successRefundCancel', { locale: $lang })}</span>
+                                    <span class="text-2xl font-semibold {rateClass(summaryRateRefundCancel)}">{rateText(summaryRateRefundCancel, $lang)}</span>
+                                    <span class="text-xs text-muted-foreground tabular-nums">{formatNumber(summary.completed, $lang)}/{formatNumber(summaryDenRefundCancel, $lang)}</span>
+                                </div>
                             </div>
-                        {/if}
-                    </Card.Content>
-                </Card.Root>
-            {/each}
+                        </Card.Content>
+                    </Card.Root>
+                </Tabs.Content>
 
-            <!-- 2D matrix: days vertical (Mon→Sun), timeslots horizontal;
-                 columns tinted by their time's one-and-only direction -->
-            <Card.Root>
-                <Card.Header class="p-4 sm:p-6">
-                    <Card.Title>{$_('stats.matrix.title', { locale: $lang })}</Card.Title>
-                    <Card.Description>{$_('stats.matrix.description', { locale: $lang })}</Card.Description>
-                </Card.Header>
-                <Card.Content class="px-2 sm:px-6">
-                    {#if matrixDays.length === 0 || matrixTimes.length === 0}
-                        <p class="text-sm text-muted-foreground px-2">{$_('stats.empty', { locale: $lang })}</p>
-                    {:else}
-                        <!-- TRANSPOSED for mobile: timeslots are ROWS (the many-item
-                             axis scrolls vertically, which is natural on a phone) and
-                             the 7 days are short fixed COLUMNS that fit any screen —
-                             no horizontal scrolling at all. A row is one timeslot =
-                             exactly one direction, so the whole row carries its
-                             direction tint -->
-                        <div class="overflow-x-auto">
-                            <Table.Root>
-                                <Table.Header>
-                                    <Table.Row>
-                                        <Table.Head class="h-8 px-2">{$_('stats.matrix.time', { locale: $lang })}</Table.Head>
-                                        {#each matrixDays as d (d)}
-                                            <Table.Head class="h-8 px-1 text-center whitespace-nowrap">
-                                                {$_(`stats.daysShort.${d.toLowerCase()}`, { locale: $lang })}
-                                            </Table.Head>
-                                        {/each}
-                                    </Table.Row>
-                                </Table.Header>
-                                <Table.Body>
-                                    {#each matrixTimes as tm (tm)}
-                                        <Table.Row class={DIR_TINT[timeDirection.get(tm) ?? ''] ?? ''}>
-                                            <Table.Cell class="px-2 py-1 font-medium whitespace-nowrap">{hhmm(tm)}</Table.Cell>
-                                            {#each matrixDays as d (d)}
-                                                {@const c = matrix.get(`${d}|${tm}`)}
-                                                <Table.Cell class="px-1 py-1 text-center text-xs">
-                                                    {#if c != null && c.rate != null}
-                                                        <span class="font-medium {rateClass(c.rate)}">{rateText(c.rate)}</span>
-                                                    {:else}
-                                                        <span class="text-muted-foreground/50 select-none">—</span>
-                                                    {/if}
-                                                </Table.Cell>
+                <!-- 2. Day × Time: the transposed matrix (timeslots as rows so
+                     the many-item axis scrolls vertically on a phone; the 7
+                     short day columns always fit) + the per-day and per-time
+                     breakdown tables -->
+                <Tabs.Content value="matrix" class="flex flex-col gap-4">
+                    <Card.Root>
+                        <Card.Header class="p-4 sm:p-6">
+                            <Card.Title>{$_('stats.matrix.title', { locale: $lang })}</Card.Title>
+                            <Card.Description>{$_('stats.matrix.description', { locale: $lang })}</Card.Description>
+                        </Card.Header>
+                        <Card.Content class="px-2 sm:px-6">
+                            {#if matrixDays.length === 0 || matrixTimes.length === 0}
+                                <p class="text-sm text-muted-foreground px-2">{$_('stats.empty', { locale: $lang })}</p>
+                            {:else}
+                                <!-- a row is one timeslot = exactly one direction,
+                                     so the whole row carries its direction tint -->
+                                <div class="overflow-x-auto">
+                                    <Table.Root>
+                                        <Table.Header>
+                                            <Table.Row>
+                                                <Table.Head class="h-8 px-2">{$_('stats.matrix.time', { locale: $lang })}</Table.Head>
+                                                {#each matrixDays as d (d)}
+                                                    <Table.Head class="h-8 px-1 text-center whitespace-nowrap">
+                                                        {$_(`stats.daysShort.${d.toLowerCase()}`, { locale: $lang })}
+                                                    </Table.Head>
+                                                {/each}
+                                            </Table.Row>
+                                        </Table.Header>
+                                        <Table.Body>
+                                            {#each matrixTimes as tm (tm)}
+                                                <Table.Row class={DIR_TINT[timeDirection.get(tm) ?? ''] ?? ''}>
+                                                    <Table.Cell class="px-2 py-1 font-medium whitespace-nowrap">{hhmm(tm)}</Table.Cell>
+                                                    {#each matrixDays as d (d)}
+                                                        {@const c = matrix.get(`${d}|${tm}`)}
+                                                        <Table.Cell class="px-1 py-1 text-center text-xs">
+                                                            {#if c != null && c.rate != null}
+                                                                <span class="font-medium {rateClass(c.rate)}">{rateText(c.rate, $lang)}</span>
+                                                            {:else}
+                                                                <span class="text-muted-foreground/50 select-none">—</span>
+                                                            {/if}
+                                                        </Table.Cell>
+                                                    {/each}
+                                                </Table.Row>
                                             {/each}
-                                        </Table.Row>
-                                    {/each}
-                                </Table.Body>
-                            </Table.Root>
-                        </div>
-                        <!-- rate color scale (direction colors: see page legend) -->
-                        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-3 px-2 text-xs text-muted-foreground">
-                            <span class="font-medium text-green-600 dark:text-green-400">≥80%</span>
-                            <span class="font-medium text-amber-600 dark:text-amber-400">50–79%</span>
-                            <span class="font-medium text-red-600 dark:text-red-400">&lt;50%</span>
-                            <span>{$_('stats.matrix.rateLegend', { locale: $lang })}</span>
-                        </div>
-                    {/if}
-                </Card.Content>
-            </Card.Root>
+                                        </Table.Body>
+                                    </Table.Root>
+                                </div>
+                                <!-- rate color scale (direction colors: see page legend) -->
+                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-3 px-2 text-xs text-muted-foreground">
+                                    <span class="font-medium text-green-600 dark:text-green-400">≥80%</span>
+                                    <span class="font-medium text-amber-600 dark:text-amber-400">50–79%</span>
+                                    <span class="font-medium text-red-600 dark:text-red-400">&lt;50%</span>
+                                    <span>{$_('stats.matrix.rateLegend', { locale: $lang })}</span>
+                                </div>
+                            {/if}
+                        </Card.Content>
+                    </Card.Root>
+                    <StatTable title={$_('stats.table.byDay', { locale: $lang })} rows={byDay}/>
+                    <StatTable title={$_('stats.table.byTime', { locale: $lang })} rows={byTime}/>
+                </Tabs.Content>
+
+                <!-- 3. Lead time: purchase → departure ladder, 3-mode toggle -->
+                <Tabs.Content value="leadTime" class="flex flex-col gap-4">
+                    <StatTable title={$_('stats.table.byBucket', { locale: $lang })} rows={byBucket}/>
+                </Tabs.Content>
+
+                <!-- 4. Queue depth: success rate by how contested the slot was -->
+                <Tabs.Content value="queueDepth" class="flex flex-col gap-4">
+                    <StatTable title={$_('stats.queue.title', { locale: $lang })} rows={byDemand}>
+                        <InfoTip slot="info" label={$_('stats.queue.title', { locale: $lang })}>
+                            {$_('stats.queue.info', { locale: $lang })}
+                        </InfoTip>
+                    </StatTable>
+                </Tabs.Content>
+
+                <!-- 5. Delivery lead: COMPLETED bookings only — how long before
+                     departure the ticket was secured (share of all completed
+                     in the slice; ≤/≥ readings via the global mode toggle) -->
+                <Tabs.Content value="delivery" class="flex flex-col gap-4">
+                    <Card.Root>
+                        <Card.Header class="p-4 sm:p-6">
+                            <Card.Title class="flex items-center gap-2">
+                                {$_('stats.delivery.title', { locale: $lang })}
+                                <InfoTip label={$_('stats.delivery.title', { locale: $lang })}>
+                                    {$_('stats.delivery.info', { locale: $lang })}
+                                </InfoTip>
+                            </Card.Title>
+                        </Card.Header>
+                        <Card.Content class="px-2 sm:px-6">
+                            {#if byDelivery.length === 0 || deliveredTotal === 0}
+                                <p class="text-sm text-muted-foreground px-2">{$_('stats.empty', { locale: $lang })}</p>
+                            {:else}
+                                <div class="overflow-x-auto">
+                                    <Table.Root>
+                                        <Table.Header>
+                                            <Table.Row>
+                                                <Table.Head class="h-9 px-2">{$_('stats.delivery.bucket', { locale: $lang })}</Table.Head>
+                                                <Table.Head class="h-9 px-2 text-right">{$_('stats.delivery.completed', { locale: $lang })}</Table.Head>
+                                                <Table.Head class="h-9 px-2">{$_('stats.delivery.share', { locale: $lang })}</Table.Head>
+                                            </Table.Row>
+                                        </Table.Header>
+                                        <Table.Body>
+                                            {#each byDelivery as r (r.key)}
+                                                <Table.Row>
+                                                    <Table.Cell class="px-2 py-1.5 font-medium whitespace-nowrap">{r.label}</Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right">{formatNumber(r.count, $lang)}</Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5">
+                                                        <div class="flex items-center gap-2 whitespace-nowrap">
+                                                            <span class="w-12 sm:w-14 text-right font-medium">{r.share == null ? "—" : rateText(r.share, $lang)}</span>
+                                                            <!-- a share of completions, not a success rate: neutral bar -->
+                                                            <div class="h-1.5 w-12 sm:w-24 rounded bg-muted overflow-hidden">
+                                                                {#if r.share != null}
+                                                                    <div class="h-full bg-primary/60" style="width: {r.share}%"></div>
+                                                                {/if}
+                                                            </div>
+                                                            <span class="text-[10px] text-muted-foreground tabular-nums">{formatNumber(r.count, $lang)}/{formatNumber(deliveredTotal, $lang)}</span>
+                                                        </div>
+                                                    </Table.Cell>
+                                                </Table.Row>
+                                            {/each}
+                                        </Table.Body>
+                                    </Table.Root>
+                                </div>
+                            {/if}
+                        </Card.Content>
+                    </Card.Root>
+                </Tabs.Content>
+            </Tabs.Root>
         {/if}
     </div>
 </div>

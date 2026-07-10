@@ -1396,7 +1396,44 @@
     "range": {
       "after": "Travel date from",
       "before": "Travel date to",
-      "hint": "Travel-date range (default: the last 90 days)"
+      "hint": "Travel-date range (default: from the latest milestone, else the last 90 days)"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "matrix": "Day × Time",
+      "leadTime": "Lead time",
+      "queueDepth": "Queue depth",
+      "delivery": "Delivery lead"
+    },
+    "priority": {
+      "priority": "Priority only",
+      "regular": "Regular only"
+    },
+    "milestone": {
+      "select": "From milestone",
+      "manage": "Manage milestones",
+      "add": "Add milestone",
+      "labelPlaceholder": "Label (e.g. priority launch)",
+      "date": "Milestone date",
+      "empty": "No milestones yet",
+      "created": "Milestone added",
+      "createFailed": "Failed to add milestone",
+      "deleted": "Milestone deleted",
+      "deleteFailed": "Failed to delete milestone",
+      "loadFailed": "Failed to load milestones",
+      "confirmDelete": "Delete?",
+      "hint": "Milestones mark launches or changes; the travel-date range starts from the latest milestone by default."
+    },
+    "queue": {
+      "title": "By queue depth (bookings per slot)",
+      "info": "How many bookings competed for the same slot. More people chasing a slot means lower odds — combine with the day/time filters to read the exact historical chance for a slot."
+    },
+    "delivery": {
+      "title": "Delivery lead (completed only)",
+      "bucket": "Before departure",
+      "completed": "Completed",
+      "share": "Share",
+      "info": "How long before departure the ticket was secured, for completed bookings only. Per bucket: each window on its own. Cumulative ≤: got the ticket within that long of departure. Cumulative ≥: had the ticket at least that long before departure."
     },
     "definition": {
       "refundOnly": "Refund only",
@@ -1430,6 +1467,7 @@
       "direction": "Direction",
       "time": "Departure time",
       "bucket": "Lead time",
+      "priority": "Priority",
       "all": "All"
     },
     "summary": {

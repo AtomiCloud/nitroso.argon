@@ -1396,7 +1396,44 @@
     "range": {
       "after": "出行日期从",
       "before": "出行日期至",
-      "hint": "出行日期范围（默认：最近 90 天）"
+      "hint": "出行日期范围（默认：从最新里程碑开始，否则最近 90 天）"
+    },
+    "tabs": {
+      "overview": "总览",
+      "matrix": "星期 × 时间",
+      "leadTime": "提前时长",
+      "queueDepth": "排队深度",
+      "delivery": "出票时长"
+    },
+    "priority": {
+      "priority": "仅优先",
+      "regular": "仅普通"
+    },
+    "milestone": {
+      "select": "从里程碑开始",
+      "manage": "管理里程碑",
+      "add": "添加里程碑",
+      "labelPlaceholder": "标签（如：优先功能上线）",
+      "date": "里程碑日期",
+      "empty": "暂无里程碑",
+      "created": "里程碑已添加",
+      "createFailed": "添加里程碑失败",
+      "deleted": "里程碑已删除",
+      "deleteFailed": "删除里程碑失败",
+      "loadFailed": "无法加载里程碑",
+      "confirmDelete": "删除？",
+      "hint": "里程碑用于标记上线或变更；出行日期范围默认从最新的里程碑开始。"
+    },
+    "queue": {
+      "title": "按排队深度（每时段预订数）",
+      "info": "同一时段有多少预订在竞争。竞争越激烈，成功率越低——结合星期/时间筛选可查看某个时段的历史成功概率。"
+    },
+    "delivery": {
+      "title": "出票时长（仅已完成）",
+      "bucket": "出发前",
+      "completed": "已完成",
+      "share": "占比",
+      "info": "仅统计已完成的预订：车票在出发前多久拿到。按区间：各时段单独统计；累计 ≤：在出发前该时长内拿到票；累计 ≥：至少提前该时长拿到票。"
     },
     "definition": {
       "refundOnly": "仅退款",
@@ -1430,6 +1467,7 @@
       "direction": "方向",
       "time": "出发时间",
       "bucket": "提前时长",
+      "priority": "优先",
       "all": "全部"
     },
     "summary": {
