@@ -350,7 +350,7 @@ export interface DiscountRecordReq {
   matchDayOfWeek?: string | null;
   matchDirection?: string | null;
   /** @format int32 */
-  leadTimeUnderHours?: number | null;
+  leadTimeAtLeastHours?: number | null;
   /** @format date-time */
   effectiveAt?: string | null;
   /** @format date-time */
@@ -368,7 +368,7 @@ export interface DiscountRecordRes {
   matchDayOfWeek?: string | null;
   matchDirection?: string | null;
   /** @format int32 */
-  leadTimeUnderHours?: number | null;
+  leadTimeAtLeastHours?: number | null;
   /** @format date-time */
   effectiveAt?: string | null;
   /** @format date-time */
