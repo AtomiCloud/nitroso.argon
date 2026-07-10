@@ -8,19 +8,28 @@ import {
   LEAD_BUCKETS,
   aggregate,
   bucketMatches,
+  buildDayTimeMatrix,
   buildMatrixMetrics,
   completedWithDelivery,
+  dayTimeMetricKey,
+  deliveryCutoffMetric,
+  deliveryCutoffMetricRows,
   deliveryMetricRows,
+  directionMetricRows,
   filterStatsRows,
   formatZincDate,
   leadBucketMatches,
   matrixMetricKey,
   parseZincDate,
   priorityMatches,
+  purchaseLeadMetricRows,
   singaporeToday,
+  slotLoadMetricRows,
   successMetric,
   successMetricRows,
+  timeMetricRows,
   toStatRow,
+  weekdayMetricRows,
 } from './stats';
 
 function stat(overrides: Partial<BookingStatRes> = {}): BookingStatRes {
@@ -129,10 +138,38 @@ describe('outcome aggregation and success metrics', () => {
 
 describe('global filtering', () => {
   const rows = [
-    stat({ dayOfWeek: 'Monday', direction: 'WToJ', time: '08:00:00', bucket: '6h', priority: true }),
-    stat({ dayOfWeek: 'Monday', direction: 'WToJ', time: '08:00:00', bucket: '24h', priority: false }),
-    stat({ dayOfWeek: 'Tuesday', direction: 'WToJ', time: '08:00:00', bucket: '12h', priority: false }),
-    stat({ dayOfWeek: 'Monday', direction: 'JToW', time: '08:00:00', bucket: '12h', priority: false }),
+    stat({
+      dayOfWeek: 'Monday',
+      direction: 'WToJ',
+      time: '08:00:00',
+      bucket: '6h',
+      priority: true,
+      demandBucket: '0-5',
+    }),
+    stat({
+      dayOfWeek: 'Monday',
+      direction: 'WToJ',
+      time: '08:00:00',
+      bucket: '24h',
+      priority: false,
+      demandBucket: '10-20',
+    }),
+    stat({
+      dayOfWeek: 'Tuesday',
+      direction: 'WToJ',
+      time: '08:00:00',
+      bucket: '12h',
+      priority: false,
+      demandBucket: '0-5',
+    }),
+    stat({
+      dayOfWeek: 'Monday',
+      direction: 'JToW',
+      time: '08:00:00',
+      bucket: '12h',
+      priority: false,
+      demandBucket: '0-5',
+    }),
   ];
 
   it('supports all, priority-only, and regular-only modes without guessing malformed values', () => {
@@ -153,6 +190,7 @@ describe('global filtering', () => {
         leadBucket: '12h',
         leadMode: 'le',
         priority: 'priority',
+        slotLoadBucket: '0-5',
       }),
     ).toEqual([rows[0]]);
 
@@ -163,9 +201,81 @@ describe('global filtering', () => {
         leadBucket: '12h',
         leadMode: 'ge',
         priority: 'regular',
+        slotLoadBucket: '10-20',
       }),
     ).toEqual([rows[1]]);
     expect(filterStatsRows(rows)).toEqual(rows);
+  });
+});
+
+describe('visualization dimension grouping', () => {
+  const rows = [
+    stat({
+      dayOfWeek: 'Sunday',
+      time: '08:00:00',
+      direction: 'WToJ',
+      bucket: '6h',
+      demandBucket: '0-5',
+      total: 1,
+      completed: 1,
+      other: 0,
+    }),
+    stat({
+      dayOfWeek: 'Monday',
+      time: '08:00:00',
+      direction: 'JToW',
+      bucket: '12h',
+      demandBucket: '20-30',
+      total: 9,
+      completed: 1,
+      refunded: 8,
+      other: 0,
+    }),
+    stat({
+      dayOfWeek: 'Monday',
+      time: '17:00:00',
+      direction: 'WToJ',
+      bucket: '12h',
+      demandBucket: '20-30',
+      total: 10,
+      completed: 8,
+      refunded: 2,
+      other: 0,
+    }),
+  ];
+
+  it('groups time, direction, and weekday in canonical order', () => {
+    const byTime = timeMetricRows(rows, 'refund');
+    expect(byTime.map(row => row.key)).toEqual(['08:00:00', '17:00:00']);
+    // Weighted from raw counts: (1 + 1) / (1 + 9), not the mean of
+    // the two source rates (100% and 11.1%).
+    expect(byTime[0]).toMatchObject({ label: '08:00', num: 2, den: 10, rate: 20, total: 10 });
+
+    const byDirection = directionMetricRows(rows, 'refund');
+    expect(byDirection.map(row => row.key)).toEqual(['WToJ', 'JToW']);
+    expect(byDirection.map(row => row.dir)).toEqual(['WToJ', 'JToW']);
+
+    const byWeekday = weekdayMetricRows(rows, 'refund');
+    expect(byWeekday.map(row => row.key)).toEqual(['Monday', 'Sunday']);
+  });
+
+  it('uses weighted raw sums for purchase-lead cumulative rows and slot load', () => {
+    const byLead = purchaseLeadMetricRows(rows, 'refund', 'le');
+    expect(byLead.find(row => row.key === '6h')).toMatchObject({ num: 1, den: 1, rate: 100 });
+    expect(byLead.find(row => row.key === '12h')).toMatchObject({ num: 10, den: 20, rate: 50, total: 20 });
+
+    const bySlotLoad = slotLoadMetricRows(rows, 'refund');
+    expect(bySlotLoad).toHaveLength(DEMAND_BUCKETS.length);
+    expect(bySlotLoad.find(row => row.key === '0-5')).toMatchObject({ num: 1, den: 1, rate: 100 });
+    expect(bySlotLoad.find(row => row.key === '20-30')).toMatchObject({ num: 9, den: 19 });
+    expect(bySlotLoad.find(row => row.key === '20-30')?.rate).toBeCloseTo(47.3684, 3);
+  });
+
+  it('drops malformed dimension values rather than creating misleading groups', () => {
+    const malformed = [stat({ time: '8am', direction: 'Sideways', dayOfWeek: 'Funday' })];
+    expect(timeMetricRows(malformed, 'refund')).toEqual([]);
+    expect(directionMetricRows(malformed, 'refund')).toEqual([]);
+    expect(weekdayMetricRows(malformed, 'refund')).toEqual([]);
   });
 });
 
@@ -198,6 +308,99 @@ describe('delivery distribution', () => {
     expect(atLeast.find(row => row.key === '1h')).toMatchObject({ numerator: 7, denominator: 9 });
     expect(atLeast.find(row => row.key === '2h')).toMatchObject({ numerator: 4, denominator: 9 });
     expect(atLeast.find(row => row.key === '48h')).toMatchObject({ numerator: 0, denominator: 9 });
+  });
+});
+
+describe('delivery cutoff SLA', () => {
+  const rows = [
+    stat({ deliveryBucket: '48h+', total: 4, completed: 4, other: 0 }),
+    stat({ deliveryBucket: '12h', total: 2, completed: 2, other: 0 }),
+    stat({ deliveryBucket: '2h', total: 3, completed: 3, other: 0 }),
+    // Unknown/late completions and failures remain in the denominator.
+    stat({ deliveryBucket: null, total: 1, completed: 1, other: 0 }),
+    stat({ deliveryBucket: null, total: 2, refunded: 2, other: 0 }),
+    stat({ deliveryBucket: null, total: 1, cancelled: 1, other: 0 }),
+  ];
+
+  it('counts only completions delivered beyond the selected cutoff', () => {
+    expect(deliveryCutoffMetric(rows, '2h', 'refund')).toEqual({
+      cutoff: '2h',
+      totalCompleted: 10,
+      numerator: 6,
+      denominator: 12,
+      rate: 50,
+    });
+
+    const includingCancellation = deliveryCutoffMetric(rows, '2h', 'refundCancel');
+    expect(includingCancellation).toMatchObject({ numerator: 6, denominator: 13 });
+    expect(includingCancellation?.rate).toBeCloseTo(46.1538, 3);
+  });
+
+  it('keeps late completions in the denominator and supports the open-ended cutoff', () => {
+    expect(deliveryCutoffMetric(rows, '12h', 'refund')).toMatchObject({ numerator: 4, denominator: 12 });
+    expect(deliveryCutoffMetric(rows, '48h+', 'refund')).toMatchObject({ numerator: 4, denominator: 12 });
+
+    const metrics = deliveryCutoffMetricRows(rows, 'refund');
+    expect(metrics).toHaveLength(DELIVERY_BUCKETS.length);
+    expect(metrics.every(metric => metric.denominator === 12)).toBe(true);
+    expect(deliveryCutoffMetric(rows, 'not-a-cutoff', 'refund')).toBeNull();
+  });
+});
+
+describe('day rows × time columns matrix', () => {
+  const rows = [
+    stat({
+      dayOfWeek: 'Monday',
+      time: '08:00:00',
+      direction: 'WToJ',
+      total: 4,
+      completed: 3,
+      refunded: 1,
+      other: 0,
+    }),
+    stat({
+      dayOfWeek: 'Monday',
+      time: '08:00:00',
+      direction: 'JToW',
+      total: 3,
+      completed: 2,
+      cancelled: 1,
+      other: 0,
+    }),
+    stat({
+      dayOfWeek: 'Tuesday',
+      time: '17:00:00',
+      direction: 'WToJ',
+      total: 2,
+      completed: 1,
+      refunded: 1,
+      other: 0,
+    }),
+  ];
+
+  it('combines directions into weighted cells when the global filter is All', () => {
+    const matrix = buildDayTimeMatrix(rows, 'refundCancel');
+    expect(matrix.days).toEqual(['Monday', 'Tuesday']);
+    expect(matrix.times).toEqual(['08:00:00', '17:00:00']);
+    expect(dayTimeMetricKey('Monday', '08:00:00')).toBe('Monday|08:00:00');
+    expect(matrix.cells.get('Monday|08:00:00')).toMatchObject({
+      numerator: 5,
+      denominator: 7,
+      total: 7,
+    });
+    expect(matrix.cells.get('Monday|08:00:00')?.rate).toBeCloseTo(71.4286, 3);
+  });
+
+  it('uses the selected direction when the shared filter narrows the input', () => {
+    const filtered = filterStatsRows(rows, { direction: 'WToJ' });
+    const matrix = buildDayTimeMatrix(filtered, 'refundCancel');
+    expect(matrix.cells.get('Monday|08:00:00')).toMatchObject({ numerator: 3, denominator: 4, rate: 75 });
+  });
+
+  it('skips malformed axes and returns stable empty axes', () => {
+    const malformed = [stat({ dayOfWeek: 'Funday' }), stat({ time: '8am' })];
+    expect(buildDayTimeMatrix(malformed, 'refund')).toEqual({ days: [], times: [], cells: new Map() });
+    expect(dayTimeMetricKey('Funday', '08:00:00')).toBeNull();
   });
 });
 

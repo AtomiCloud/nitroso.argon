@@ -32,6 +32,7 @@ export const LEAD_BUCKETS: readonly string[] = [
 export const BUCKETS = LEAD_BUCKETS;
 export const DEMAND_BUCKETS: readonly string[] = ['0-5', '5-10', '10-20', '20-30', '30+'];
 export const DELIVERY_BUCKETS: readonly string[] = ['1h', '2h', '3h', '4h', '5h', '6h', '12h', '24h', '48h', '48h+'];
+const API_TIME = /^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
 
 // Direction → consistent tint/dot used across every table and matrix.
 export const DIR_TINT: Readonly<Record<string, string>> = {
@@ -220,6 +221,7 @@ export type StatsFilters = {
   leadBucket?: string | null;
   leadMode?: BucketMode;
   priority?: PriorityMode | null;
+  slotLoadBucket?: string | null;
 };
 
 function selected(value: string | null | undefined): value is string {
@@ -235,6 +237,10 @@ export function filterStatsRows(
     if (selected(filters.direction) && row?.direction !== filters.direction) return false;
     if (selected(filters.time) && row?.time !== filters.time) return false;
     if (!priorityMatches(row?.priority, filters.priority ?? 'all')) return false;
+    // DemandBucket is computed by Zinc from every request sharing the exact
+    // travel date + departure time + direction. Filtering the response must
+    // never recompute that slot load from the smaller client-side slice.
+    if (selected(filters.slotLoadBucket) && row?.demandBucket !== filters.slotLoadBucket) return false;
     if (
       selected(filters.leadBucket) &&
       !leadBucketMatches(row?.bucket, filters.leadBucket, filters.leadMode ?? 'per')
@@ -243,6 +249,98 @@ export function filterStatsRows(
     }
     return true;
   });
+}
+
+function metricRowsForValues(
+  rows: readonly BookingStatRes[],
+  values: readonly string[],
+  valueOf: (row: BookingStatRes) => string | null | undefined,
+  definition: SuccessDefinition | string,
+  directionOf: (value: string) => string = () => '',
+): StatRow[] {
+  return values.map(value =>
+    toStatRow(
+      value,
+      value,
+      directionOf(value),
+      rows.filter(row => valueOf(row) === value),
+      definition,
+    ),
+  );
+}
+
+function presentValues(
+  rows: readonly BookingStatRes[],
+  order: readonly string[],
+  valueOf: (row: BookingStatRes) => string | null | undefined,
+): string[] {
+  const present = new Set(rows.map(valueOf).filter((value): value is string => typeof value === 'string'));
+  return order.filter(value => present.has(value));
+}
+
+/** Success metrics grouped by 24-hour departure time, combining directions. */
+export function timeMetricRows(rows: readonly BookingStatRes[], definition: SuccessDefinition | string): StatRow[] {
+  const times = [
+    ...new Set(
+      rows.map(row => row?.time).filter((time): time is string => typeof time === 'string' && API_TIME.test(time)),
+    ),
+  ].sort();
+  return metricRowsForValues(rows, times, row => row?.time, definition).map(metric => ({
+    ...metric,
+    label: metric.key.slice(0, 5),
+  }));
+}
+
+/** Success metrics grouped by direction in the product's canonical order. */
+export function directionMetricRows(
+  rows: readonly BookingStatRes[],
+  definition: SuccessDefinition | string,
+): StatRow[] {
+  const directions = presentValues(rows, DIRECTIONS, row => row?.direction);
+  return metricRowsForValues(
+    rows,
+    directions,
+    row => row?.direction,
+    definition,
+    direction => direction,
+  );
+}
+
+/** Success metrics grouped Monday through Sunday. */
+export function weekdayMetricRows(rows: readonly BookingStatRes[], definition: SuccessDefinition | string): StatRow[] {
+  const days = presentValues(rows, DAYS, row => row?.dayOfWeek);
+  return metricRowsForValues(rows, days, row => row?.dayOfWeek, definition);
+}
+
+/**
+ * Success metrics grouped by purchase-to-departure lead time. Cumulative
+ * rows sum the raw outcome counts first; they never average bucket rates.
+ */
+export function purchaseLeadMetricRows(
+  rows: readonly BookingStatRes[],
+  definition: SuccessDefinition | string,
+  mode: BucketMode = 'per',
+): StatRow[] {
+  if (rows.length === 0) return [];
+  return LEAD_BUCKETS.map(bucket =>
+    toStatRow(
+      bucket,
+      bucket,
+      '',
+      rows.filter(row => leadBucketMatches(row?.bucket, bucket, mode)),
+      definition,
+    ),
+  );
+}
+
+/**
+ * Success metrics by Zinc's precomputed exact-slot load. The load dimension
+ * is contextual (all requests in date + time + direction), even when the
+ * supplied outcome rows have already been narrowed by another filter.
+ */
+export function slotLoadMetricRows(rows: readonly BookingStatRes[], definition: SuccessDefinition | string): StatRow[] {
+  if (rows.length === 0) return [];
+  return metricRowsForValues(rows, DEMAND_BUCKETS, row => row?.demandBucket, definition);
 }
 
 function hasCanonicalDeliveryBucket(row: BookingStatRes): row is BookingStatRes & { deliveryBucket: string } {
@@ -289,6 +387,121 @@ export function deliveryMetricRows(rows: readonly BookingStatRes[], mode: Bucket
   });
 }
 
+export type DeliveryCutoffMetric = RatioMetric & {
+  cutoff: string;
+  totalCompleted: number;
+};
+
+/**
+ * Chance that a request is successfully delivered at least the selected
+ * amount of time before departure. Delivery buckets are inclusive upper
+ * bounds, so buckets after the selected cutoff qualify (and the trailing
+ * `48h+` bucket qualifies for its own open-ended cutoff).
+ *
+ * The denominator deliberately includes every completion plus the selected
+ * failure outcomes. A completion delivered too late (or with an unknown
+ * delivery bucket) therefore remains a miss instead of disappearing.
+ */
+export function deliveryCutoffMetric(
+  rows: readonly BookingStatRes[],
+  cutoff: string,
+  definition: SuccessDefinition | string,
+): DeliveryCutoffMetric | null {
+  if (!DELIVERY_BUCKETS.includes(cutoff)) return null;
+
+  const totals = aggregate(rows);
+  const numerator = rows
+    .filter(row => hasCanonicalDeliveryBucket(row) && deliveryBucketMatches(row.deliveryBucket, cutoff, 'ge'))
+    .reduce((sum, row) => sum + safeCount(row.completed), 0);
+  const denominator = totals.completed + failedOf(totals, definition);
+
+  return {
+    cutoff,
+    totalCompleted: totals.completed,
+    numerator,
+    denominator,
+    rate: denominator === 0 ? null : (numerator / denominator) * 100,
+  };
+}
+
+/** One cumulative SLA metric for every canonical delivery cutoff. */
+export function deliveryCutoffMetricRows(
+  rows: readonly BookingStatRes[],
+  definition: SuccessDefinition | string,
+): DeliveryCutoffMetric[] {
+  if (rows.length === 0) return [];
+  return DELIVERY_BUCKETS.map(cutoff => deliveryCutoffMetric(rows, cutoff, definition)).filter(
+    (metric): metric is DeliveryCutoffMetric => metric != null,
+  );
+}
+
+export type DayTimeMatrixCell = RatioMetric & {
+  key: string;
+  day: string;
+  time: string;
+  total: number;
+};
+
+export type DayTimeMatrix = {
+  /** Vertical axis, always Monday through Sunday. */
+  days: string[];
+  /** Horizontal axis, always ascending 24-hour departure times. */
+  times: string[];
+  /** Cells keyed by `day|time`; direction is intentionally not in the key. */
+  cells: Map<string, DayTimeMatrixCell>;
+};
+
+export function dayTimeMetricKey(day: string | null | undefined, time: string | null | undefined): string | null {
+  if (!day || !DAYS.includes(day)) return null;
+  if (!time || !API_TIME.test(time)) return null;
+  return `${day}|${time}`;
+}
+
+/**
+ * Builds the visualization matrix with weekdays as rows and times as
+ * columns. When the globally-filtered input contains both directions, their
+ * raw counts are combined into one weighted cell.
+ */
+export function buildDayTimeMatrix(
+  rows: readonly BookingStatRes[],
+  definition: SuccessDefinition | string,
+): DayTimeMatrix {
+  const grouped = new Map<string, BookingStatRes[]>();
+
+  for (const row of rows) {
+    const key = dayTimeMetricKey(row?.dayOfWeek, row?.time);
+    if (key == null) continue;
+    const existing = grouped.get(key);
+    if (existing) existing.push(row);
+    else grouped.set(key, [row]);
+  }
+
+  const days = DAYS.filter(day => [...grouped.keys()].some(key => key.startsWith(`${day}|`)));
+  const times = [
+    ...new Set(
+      [...grouped.values()]
+        .flatMap(group => group.map(row => row.time))
+        .filter((time): time is string => typeof time === 'string'),
+    ),
+  ].sort();
+  const cells = new Map<string, DayTimeMatrixCell>();
+
+  for (const [key, group] of grouped) {
+    const totals = aggregate(group);
+    const metric = successMetric(totals, definition);
+    const [day, time] = key.split('|');
+    cells.set(key, {
+      key,
+      day,
+      time,
+      total: totals.total,
+      ...metric,
+    });
+  }
+
+  return { days, times, cells };
+}
+
 export type MatrixMetric = {
   key: string;
   day: string;
@@ -299,8 +512,6 @@ export type MatrixMetric = {
   denominator: number;
   rate: number | null;
 };
-
-const API_TIME = /^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
 
 // Direction is part of the key. Zinc does not promise that WToJ and JToW
 // timetables never share the same HH:mm:ss value.
