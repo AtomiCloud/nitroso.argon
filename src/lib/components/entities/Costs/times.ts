@@ -9,7 +9,8 @@ export const HALF_HOURS: string[] = Array.from({ length: 48 }, (_, i) => {
   return `${h}:${m}:00`;
 });
 
-// The standard lead-time buckets (hours) offered for "lead time under" matchers.
+// Standard lead-time thresholds. Cost policies use them as strict "under"
+// caps; discounts use them as inclusive "at least" early-buy thresholds.
 export const LEAD_TIME_HOURS = [6, 12, 24, 48, 72, 96];
 
 // Day-of-week values zinc accepts, Monday-first (i18n via stats.days.*).

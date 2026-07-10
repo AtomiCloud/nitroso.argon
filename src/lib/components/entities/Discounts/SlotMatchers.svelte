@@ -15,19 +15,19 @@
     import {lang, formatCalendarDate, formatClockTime} from "$lib/i18n";
     import {DAYS_OF_WEEK, HALF_HOURS, LEAD_TIME_HOURS, withValue} from "../Costs/times";
 
-    // Slot matchers for a discount, mirroring the cost-policy dialog pattern
-    // (owner mandate: never a typing input where a tap control works). Each
-    // matcher sits behind a toggle; everything left off = wildcard. The parent
-    // dialog calls validate() then build() on submit via bind:this.
+    // Slot matchers for a discount share the cost-policy dimensions, but lead
+    // time is intentionally inverted: costs target late purchases (< N hours)
+    // while discounts promote early purchases (>= N hours). Every matcher is
+    // tap-driven and optional; the parent calls validate() then build().
     type SlotSeed = Pick<
         DiscountRecordRes,
         "matchDate" | "matchTime" | "matchDayOfWeek" | "matchDirection"
-        | "leadTimeUnderHours" | "effectiveAt" | "expiresAt"
+        | "leadTimeAtLeastHours" | "effectiveAt" | "expiresAt"
     >;
     type SlotValues = Pick<
         DiscountRecordReq,
         "matchDate" | "matchTime" | "matchDayOfWeek" | "matchDirection"
-        | "leadTimeUnderHours" | "effectiveAt" | "expiresAt"
+        | "leadTimeAtLeastHours" | "effectiveAt" | "expiresAt"
     >;
 
     // existing values to prefill (null for a fresh create)
@@ -95,8 +95,8 @@
             ? {value: p.matchDirection, label: directionLabel(p.matchDirection)}
             : undefined;
         useDirection = selDirection != null;
-        selLead = p?.leadTimeUnderHours != null
-            ? {value: String(p.leadTimeUnderHours), label: $_('admin.costs.policies.leadUnder', {locale: $lang, values: {hours: p.leadTimeUnderHours}})}
+        selLead = p?.leadTimeAtLeastHours != null
+            ? {value: String(p.leadTimeAtLeastHours), label: $_('discounts.matchers.leadAtLeast', {locale: $lang, values: {hours: p.leadTimeAtLeastHours}})}
             : undefined;
         useLead = selLead != null;
 
@@ -155,7 +155,7 @@
             matchTime: useTime ? (selTime?.value ?? null) : null,
             matchDayOfWeek: useDay ? (selDay?.value ?? null) : null,
             matchDirection: useDirection ? (selDirection?.value ?? null) : null,
-            leadTimeUnderHours: useLead && selLead?.value ? parseInt(selLead.value, 10) : null,
+            leadTimeAtLeastHours: useLead && selLead?.value ? parseInt(selLead.value, 10) : null,
             effectiveAt: useEffective && effectiveDate != null ? toIso(effectiveDate, selEffectiveTime?.value) : null,
             expiresAt: useExpiry && expiryDate != null ? toIso(expiryDate, selExpiryTime?.value) : null,
         };
@@ -247,18 +247,18 @@
     </div>
 
     <div class="flex items-center gap-3">
-        <Switch bind:checked={useLead} aria-label={$_('admin.costs.policies.matchLead', {locale: $lang})}/>
-        <span class="text-sm w-28 shrink-0 text-primary">{$_('admin.costs.policies.matchLead', {locale: $lang})}</span>
+        <Switch bind:checked={useLead} aria-label={$_('discounts.matchers.matchLead', {locale: $lang})}/>
+        <span class="text-sm w-28 shrink-0 text-primary">{$_('discounts.matchers.matchLead', {locale: $lang})}</span>
         {#if useLead}
             <Select.Root bind:selected={selLead}>
                 <Select.Trigger class="flex-1">
-                    <Select.Value placeholder={$_('admin.costs.policies.pickLead', {locale: $lang})}/>
+                    <Select.Value placeholder={$_('discounts.matchers.pickLead', {locale: $lang})}/>
                 </Select.Trigger>
                 <Select.Content>
                     {#each LEAD_TIME_HOURS as h (h)}
                         <Select.Item value={String(h)}
-                                     label={$_('admin.costs.policies.leadUnder', {locale: $lang, values: {hours: h}})}>
-                            {$_('admin.costs.policies.leadUnder', {locale: $lang, values: {hours: h}})}
+                                     label={$_('discounts.matchers.leadAtLeast', {locale: $lang, values: {hours: h}})}>
+                            {$_('discounts.matchers.leadAtLeast', {locale: $lang, values: {hours: h}})}
                         </Select.Item>
                     {/each}
                 </Select.Content>

@@ -191,14 +191,14 @@
                         </Validation>
                     </div>
                     <Validation {errors} {taints} path="target.matchMode">
-                        <div class="flex flex-1 justify-between items-center text-primary border pl-4 rounded-md">
+                        <div class="flex flex-1 flex-col gap-2 rounded-md border p-3 text-primary sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 {$_('discounts.create.matchType', { locale: $lang })}
                             </div>
-                            <ToggleGroup.Root type="single" bind:value={val.target.matchMode}
+                            <ToggleGroup.Root type="single" bind:value={val.target.matchMode} class="flex-wrap justify-start sm:justify-end"
                                               onValueChange={onChange("target.matchMode")}>
                                 {#each Object.entries(DISCOUNT_MATCH_MODE) as [, v]}
-                                    <ToggleGroup.Item class="w-16" value={v.value} aria-label={$_('discounts.create.toggle', { locale: $lang, values: { label: $_(`status.discountMode.${v.value}`, { locale: $lang }) } })}>
+                                    <ToggleGroup.Item class="min-w-20 px-2 text-xs" value={v.value} aria-label={$_('discounts.create.toggle', { locale: $lang, values: { label: $_(`status.discountMode.${v.value}`, { locale: $lang }) } })}>
                                         {$_(`status.discountMode.${v.value}`, { locale: $lang })}
                                     </ToggleGroup.Item>
                                 {/each}
@@ -207,10 +207,10 @@
                         </div>
                     </Validation>
                     {#each val.target.matches as match, i}
-                        <div class="flex justify-between gap-2">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
                             <Validation {errors} {taints} path="target.matches.{i}.value">
                                 <Input
-                                        class="w-48"
+                                        class="w-full sm:w-48"
                                         placeholder={$_('discounts.create.matchTarget', { locale: $lang })}
                                         bind:value={match.value}
                                         on:input={onChange(`target.matches.${i}.value`)}
@@ -226,7 +226,7 @@
                                     {/each}
                                 </ToggleGroup.Root>
                             </Validation>
-                            <Button variant="destructive" size="icon" on:click={deleteTarget(i)}>
+                            <Button variant="destructive" size="icon" class="h-11 w-11 shrink-0" on:click={deleteTarget(i)}>
                                 <LucideTrash2 class="h-4 w-4"/>
                             </Button>
                         </div>

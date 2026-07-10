@@ -477,7 +477,10 @@
       "updateError": "Gagal mengemas kini diskaun"
     },
     "matchers": {
-      "hint": "Secara pilihan, hadkan slot tempahan yang layak untuk diskaun ini. Setiap padanan yang dimatikan memadankan semua tempahan."
+      "hint": "Secara pilihan, hadkan slot tempahan yang layak untuk diskaun ini. Masa pendahuluan memberi ganjaran kepada pembelian awal; setiap padanan yang dimatikan memadankan semua tempahan.",
+      "matchLead": "Beli awal",
+      "pickLead": "Pilih ambang pembelian awal",
+      "leadAtLeast": "Sekurang-kurangnya {hours}j sebelum berlepas"
     },
     "delete": {
       "trigger": "Padam Diskaun",
@@ -967,6 +970,8 @@
     "noSchedulesFound": "Tiada jadual dijumpai",
     "ticketsInQueue": "{count} orang dalam giliran",
     "buy": "Beli",
+    "pricingUnavailable": "Sesetengah harga tepat setiap slot tidak dapat dimuatkan. Hanya pelepasan terjejas dijeda. Sila cuba lagi.",
+    "priceUnavailable": "Harga tidak tersedia",
     "breakdown": {
       "open": "Tunjukkan pecahan harga",
       "base": "Harga asas",
@@ -983,8 +988,9 @@
     "refundPolicy": "Dasar Penghantaran, Pembatalan & Bayaran Balik",
     "privacyPolicy": "Dasar Privasi",
     "termsOfUse": "Terma Penggunaan",
-    "supportDay": "09:00–23:59 SGT",
-    "supportOvernight": "00:00–08:59 SGT",
+    "supportEveryDay": "Setiap hari · Waktu Singapura (SGT)",
+    "supportFrom": "Dari",
+    "supportUntil": "Hingga",
     "whatsapp": "WhatsApp",
     "telegram": "Sokongan Telegram",
     "email": "Sokongan e-mel",
@@ -1272,9 +1278,9 @@
       "Flat": "Tetap"
     },
     "discountMode": {
-      "All": "Semua",
-      "Any": "Mana-mana",
-      "None": "Tiada"
+      "All": "Semua sasaran",
+      "Any": "Mana-mana sasaran",
+      "None": "Semua orang"
     },
     "discountMatchType": {
       "UserId": "ID Pengguna",

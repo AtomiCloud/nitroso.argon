@@ -125,4 +125,14 @@ describe('formatCalendarDate — floating calendar day (FR12, TZ-safe)', () => {
     expect(formatCalendarDate(localMidnight, 'en', { dateStyle: 'long' })).toBe('15 January 2024');
     expect(formatCalendarDate(localMidnight, 'ms', { dateStyle: 'long' })).toContain('Januari');
   });
+
+  it('supports granular date parts without mixing them with dateStyle', () => {
+    expect(
+      formatCalendarDate(localMidnight, 'en', {
+        day: 'numeric',
+        month: 'short',
+        year: '2-digit',
+      }),
+    ).toBe('15 Jan 24');
+  });
 });

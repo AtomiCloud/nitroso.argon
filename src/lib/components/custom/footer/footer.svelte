@@ -11,48 +11,93 @@ import {_} from "svelte-i18n";
 import {lang} from "$lib/i18n";
 </script>
 
-<h2 class="text-lg text-center">{$_('footer.contactHelp', {locale: $lang})}</h2>
+<section class="mx-auto w-full max-w-2xl px-4 py-8" aria-labelledby="support-heading">
+    <h2 id="support-heading" class="text-center text-lg">{$_('footer.contactHelp', {locale: $lang})}</h2>
+    <p id="support-timezone" class="mt-1 text-center text-sm text-slate-300">
+        {$_('footer.supportEveryDay', {locale: $lang})}
+    </p>
 
-<div class="flex flex-wrap justify-center gap-8 p-8">
-    <!-- Day support window, stated as an exact non-overlapping SGT range. -->
-    <div class="flex flex-col items-center gap-3">
-        <h3 class="text-sm font-semibold">{$_('footer.supportDay', {locale: $lang})}</h3>
-        <a href="https://wa.me/6583090333" class="flex min-h-11 items-center gap-2 rounded-md px-2 cursor-pointer hover:text-green-500"
-           aria-label={`${$_('footer.whatsapp', {locale: $lang})}: +65 8309 0333`}>
-            <Icon src={BsWhatsapp} size="20" color="currentColor"/>
-            <span class="text-sm">+65 8309 0333</span>
-        </a>
-        <a href="https://wa.me/6597809828" class="flex min-h-11 items-center gap-2 rounded-md px-2 cursor-pointer hover:text-green-500"
-           aria-label={`${$_('footer.whatsapp', {locale: $lang})}: +65 9780 9828`}>
-            <Icon src={BsWhatsapp} size="20" color="currentColor"/>
-            <span class="text-sm">+65 9780 9828</span>
-        </a>
-    </div>
+    <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <section
+            class="rounded-xl border border-white/15 bg-white/5 p-4"
+            aria-label={`${$_('footer.supportFrom', {locale: $lang})}: 09:00; ${$_('footer.supportUntil', {locale: $lang})}: 23:59`}
+            aria-describedby="support-timezone"
+            data-testid="support-window-0900"
+        >
+            <dl class="grid grid-cols-2 divide-x divide-white/15 rounded-lg bg-slate-950/25 py-3 text-center">
+                <div class="px-2">
+                    <dt class="text-xs font-medium uppercase tracking-wider text-slate-300">
+                        {$_('footer.supportFrom', {locale: $lang})}
+                    </dt>
+                    <dd class="mt-1 text-xl font-semibold tabular-nums"><time datetime="09:00">09:00</time></dd>
+                </div>
+                <div class="px-2">
+                    <dt class="text-xs font-medium uppercase tracking-wider text-slate-300">
+                        {$_('footer.supportUntil', {locale: $lang})}
+                    </dt>
+                    <dd class="mt-1 text-xl font-semibold tabular-nums"><time datetime="23:59">23:59</time></dd>
+                </div>
+            </dl>
 
-    <!-- Overnight support window, stated entirely in SGT. -->
-    <div class="flex flex-col items-center gap-3">
-        <h3 class="text-sm font-semibold">{$_('footer.supportOvernight', {locale: $lang})}</h3>
-        <a href="https://wa.me/6588178504" class="flex min-h-11 items-center gap-2 rounded-md px-2 cursor-pointer hover:text-green-500"
-           aria-label={`${$_('footer.whatsapp', {locale: $lang})}: +65 8817 8504`}>
-            <Icon src={BsWhatsapp} size="20" color="currentColor"/>
-            <span class="text-sm">+65 8817 8504</span>
-        </a>
-        <div class="flex items-center gap-6">
-            <a href="https://t.me/bunnybooker" class="flex h-11 w-11 items-center justify-center rounded-md cursor-pointer hover:text-sky-500"
-               aria-label={$_('footer.telegram', {locale: $lang})}>
-                <Icon src={BsTelegram} size="20" color="currentColor"/>
-            </a>
-            <a href="mailto:support@bunnybooker.com" class="flex h-11 w-11 items-center justify-center rounded-md cursor-pointer hover:text-rose-500"
-               aria-label={$_('footer.email', {locale: $lang})}>
-                <Icon src={AiOutlineMail} size="20" color="currentColor"/>
-            </a>
-            <a href="tel:+6588178504" class="flex h-11 w-11 items-center justify-center rounded-md cursor-pointer hover:text-red-500"
-               aria-label={$_('footer.phone', {locale: $lang})}>
-                <Icon src={BsTelephone} size="20" color="currentColor"/>
-            </a>
-        </div>
+            <div class="mt-3 flex flex-col gap-1">
+                <a href="https://wa.me/6583090333" class="flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-md px-2 hover:bg-white/5 hover:text-green-500"
+                   aria-label={`${$_('footer.whatsapp', {locale: $lang})}: +65 8309 0333`}>
+                    <Icon src={BsWhatsapp} size="20" color="currentColor"/>
+                    <span class="text-sm">+65 8309 0333</span>
+                </a>
+                <a href="https://wa.me/6597809828" class="flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-md px-2 hover:bg-white/5 hover:text-green-500"
+                   aria-label={`${$_('footer.whatsapp', {locale: $lang})}: +65 9780 9828`}>
+                    <Icon src={BsWhatsapp} size="20" color="currentColor"/>
+                    <span class="text-sm">+65 9780 9828</span>
+                </a>
+            </div>
+        </section>
+
+        <section
+            class="rounded-xl border border-white/15 bg-white/5 p-4"
+            aria-label={`${$_('footer.supportFrom', {locale: $lang})}: 00:00; ${$_('footer.supportUntil', {locale: $lang})}: 08:59`}
+            aria-describedby="support-timezone"
+            data-testid="support-window-0000"
+        >
+            <dl class="grid grid-cols-2 divide-x divide-white/15 rounded-lg bg-slate-950/25 py-3 text-center">
+                <div class="px-2">
+                    <dt class="text-xs font-medium uppercase tracking-wider text-slate-300">
+                        {$_('footer.supportFrom', {locale: $lang})}
+                    </dt>
+                    <dd class="mt-1 text-xl font-semibold tabular-nums"><time datetime="00:00">00:00</time></dd>
+                </div>
+                <div class="px-2">
+                    <dt class="text-xs font-medium uppercase tracking-wider text-slate-300">
+                        {$_('footer.supportUntil', {locale: $lang})}
+                    </dt>
+                    <dd class="mt-1 text-xl font-semibold tabular-nums"><time datetime="08:59">08:59</time></dd>
+                </div>
+            </dl>
+
+            <div class="mt-3 flex flex-col gap-1">
+                <a href="https://wa.me/6588178504" class="flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-md px-2 hover:bg-white/5 hover:text-green-500"
+                   aria-label={`${$_('footer.whatsapp', {locale: $lang})}: +65 8817 8504`}>
+                    <Icon src={BsWhatsapp} size="20" color="currentColor"/>
+                    <span class="text-sm">+65 8817 8504</span>
+                </a>
+                <div class="flex items-center justify-center gap-6">
+                    <a href="https://t.me/bunnybooker" class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-md hover:bg-white/5 hover:text-sky-500"
+                       aria-label={`${$_('footer.telegram', {locale: $lang})}: @bunnybooker`}>
+                        <Icon src={BsTelegram} size="20" color="currentColor"/>
+                    </a>
+                    <a href="mailto:support@bunnybooker.com" class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-md hover:bg-white/5 hover:text-rose-500"
+                       aria-label={`${$_('footer.email', {locale: $lang})}: support@bunnybooker.com`}>
+                        <Icon src={AiOutlineMail} size="20" color="currentColor"/>
+                    </a>
+                    <a href="tel:+6588178504" class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-md hover:bg-white/5 hover:text-red-500"
+                       aria-label={`${$_('footer.phone', {locale: $lang})}: +65 8817 8504`}>
+                        <Icon src={BsTelephone} size="20" color="currentColor"/>
+                    </a>
+                </div>
+            </div>
+        </section>
     </div>
-</div>
+</section>
 
 <div class="flex flex-wrap align-center justify-center gap-8 pb-8">
     <a href="https://www.facebook.com/profile.php?id=61554414882276&mibextid=ZbWKwL" class="flex h-11 w-11 items-center justify-center rounded-md cursor-pointer hover:text-blue-500"

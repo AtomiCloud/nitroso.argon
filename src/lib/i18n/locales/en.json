@@ -477,7 +477,10 @@
       "updateError": "Failed to update discount"
     },
     "matchers": {
-      "hint": "Optionally limit which booking slots this discount applies to. Every matcher left off matches all bookings."
+      "hint": "Optionally limit which booking slots this discount applies to. Lead time rewards early purchases; every matcher left off matches all bookings.",
+      "matchLead": "Buy early",
+      "pickLead": "Pick an early-buy threshold",
+      "leadAtLeast": "At least {hours}h before departure"
     },
     "delete": {
       "trigger": "Delete Discount",
@@ -967,6 +970,8 @@
     "noSchedulesFound": "No schedules found",
     "ticketsInQueue": "{count} people in queue",
     "buy": "Buy",
+    "pricingUnavailable": "Some exact slot prices could not be loaded. Only affected departures are paused. Please retry.",
+    "priceUnavailable": "Price unavailable",
     "breakdown": {
       "open": "Show price breakdown",
       "base": "Base price",
@@ -983,8 +988,9 @@
     "refundPolicy": "Delivery, Cancellation & Refund Policy",
     "privacyPolicy": "Privacy Policy",
     "termsOfUse": "Terms of Use",
-    "supportDay": "09:00–23:59 SGT",
-    "supportOvernight": "00:00–08:59 SGT",
+    "supportEveryDay": "Every day · Singapore time (SGT)",
+    "supportFrom": "From",
+    "supportUntil": "Until",
     "whatsapp": "WhatsApp",
     "telegram": "Telegram support",
     "email": "Email support",
@@ -1272,9 +1278,9 @@
       "Flat": "Flat"
     },
     "discountMode": {
-      "All": "All",
-      "Any": "Any",
-      "None": "None"
+      "All": "All targets",
+      "Any": "Any target",
+      "None": "Everyone"
     },
     "discountMatchType": {
       "UserId": "UserId",
