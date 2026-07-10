@@ -128,6 +128,9 @@ export interface BookingStatRes {
   time?: string | null;
   direction?: string | null;
   bucket?: string | null;
+  priority: boolean;
+  demandBucket?: string | null;
+  deliveryBucket?: string | null;
   /** @format int32 */
   total: number;
   /** @format int32 */
@@ -267,6 +270,12 @@ export interface CreateCostReq {
 export interface CreateDiscountReq {
   target: DiscountTargetReq;
   record: DiscountRecordReq;
+}
+
+export interface CreateMilestoneReq {
+  date?: string | null;
+  /** @maxLength 256 */
+  label?: string | null;
 }
 
 export interface CreatePassengerReq {
@@ -427,6 +436,15 @@ export interface MaterializedCostRes {
   /** @format double */
   final: number;
   discounts?: DiscountRecordRes[] | null;
+}
+
+export interface MilestonePrincipalRes {
+  /** @format uuid */
+  id: string;
+  date?: string | null;
+  label?: string | null;
+  /** @format date-time */
+  createdAt: string;
 }
 
 export interface PassengerPrincipalRes {

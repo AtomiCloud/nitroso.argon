@@ -29,6 +29,7 @@ import type {
   CreateBookingReq,
   CreateCostReq,
   CreateDiscountReq,
+  CreateMilestoneReq,
   CreatePassengerReq,
   CreatePaymentReq,
   CreatePaymentRes,
@@ -40,6 +41,7 @@ import type {
   FeeRes,
   LatestScheduleRes,
   MaterializedCostRes,
+  MilestonePrincipalRes,
   PassengerPrincipalRes,
   PassengerRes,
   PaymentPrincipalRes,
@@ -1008,6 +1010,55 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
   vDiscountDelete = (id: string, version: string, params: RequestParams = {}) =>
     this.request<void, any>({
       path: `/api/v${version}/Discount/${id}`,
+      method: 'DELETE',
+      secure: true,
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Milestone
+   * @name VMilestoneList
+   * @request GET:/api/v{version}/Milestone
+   * @secure
+   */
+  vMilestoneList = (version: string, params: RequestParams = {}) =>
+    this.request<MilestonePrincipalRes[], any>({
+      path: `/api/v${version}/Milestone`,
+      method: 'GET',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Milestone
+   * @name VMilestoneCreate
+   * @request POST:/api/v{version}/Milestone
+   * @secure
+   */
+  vMilestoneCreate = (version: string, data: CreateMilestoneReq, params: RequestParams = {}) =>
+    this.request<MilestonePrincipalRes, any>({
+      path: `/api/v${version}/Milestone`,
+      method: 'POST',
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Milestone
+   * @name VMilestoneDelete
+   * @request DELETE:/api/v{version}/Milestone/{id}
+   * @secure
+   */
+  vMilestoneDelete = (id: string, version: string, params: RequestParams = {}) =>
+    this.request<void, any>({
+      path: `/api/v${version}/Milestone/${id}`,
       method: 'DELETE',
       secure: true,
       ...params,
