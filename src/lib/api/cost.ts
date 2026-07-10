@@ -6,10 +6,11 @@ import type { DiscountRecordRes } from '$lib/api/core/data-contracts';
 export const LIVE_PRICING_DEPENDENCY = 'app:live-pricing';
 export const LIVE_PRICING_REFRESH_MS = 30_000;
 
-/** Compare server money values at the cent precision shown to customers. */
+/** Compare two server quotes exactly. Zinc supports sub-cent policy values,
+ * so cent rounding can hide a real price change. */
 export function sameQuotedPrice(quoted: number, current: number): boolean {
   if (!Number.isFinite(quoted) || !Number.isFinite(current)) return false;
-  return Math.round(quoted * 100) === Math.round(current * 100);
+  return quoted === current;
 }
 
 /** One rendered discount line: the amount BEFORE this discount (struck out in

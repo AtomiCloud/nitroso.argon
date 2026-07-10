@@ -136,7 +136,7 @@
                 passportNumber: passenger.passportNumber,
             }), $_('bookingActions.purchase.createPassengerError', { locale: $lang }))
                 .andThen(() => toResult(() => $api.vBookingPurchaseCreate(userId, "1", {
-                    date, time, direction, passenger: {
+                    date, time, direction, expectedCost: cost, passenger: {
                         ...passenger,
                         passportExpiry: format(passenger.passportExpiry, "dd-MM-yyyy"),
                     }
@@ -147,15 +147,16 @@
                         if (priority) await prioritize(b.id);
                         redirectSuccess();
                     },
-                    err: (e) => {
+                    err: async (e) => {
                         console.error(e);
                         toast.error(e.detail ?? e.type);
                         dialogOpen = false;
+                        await invalidate(LIVE_PRICING_DEPENDENCY);
                     }
                 });
         } else {
             await toResult(() => $api.vBookingPurchaseCreate(userId, "1", {
-                date, time, direction, passenger: {
+                date, time, direction, expectedCost: cost, passenger: {
                     ...passenger,
                     passportExpiry: format(passenger.passportExpiry, "dd-MM-yyyy"),
                 }
@@ -166,10 +167,11 @@
                         if (priority) await prioritize(b.id);
                         redirectSuccess();
                     },
-                    err: (e) => {
+                    err: async (e) => {
                         console.error(e);
                         toast.error(e.detail ?? e.type);
                         dialogOpen = false;
+                        await invalidate(LIVE_PRICING_DEPENDENCY);
                     }
                 });
         }

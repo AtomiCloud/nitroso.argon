@@ -260,6 +260,8 @@ export interface CreateBookingReq {
   time?: string | null;
   direction?: string | null;
   passenger: BookingPassengerReq;
+  /** @format double */
+  expectedCost?: number | null;
 }
 
 export interface CreateCostReq {

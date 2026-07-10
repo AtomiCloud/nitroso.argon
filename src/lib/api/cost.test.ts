@@ -2,10 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { sameQuotedPrice } from './cost';
 
 describe('live price quote comparison', () => {
-  it('compares at the cent precision charged and displayed', () => {
+  it('accepts the exact same server quote', () => {
     expect(sameQuotedPrice(15, 15)).toBe(true);
-    expect(sameQuotedPrice(15.1, 15.099999999)).toBe(true);
     expect(sameQuotedPrice(15, 15.01)).toBe(false);
+  });
+
+  it('detects a valid sub-cent change', () => {
+    expect(sameQuotedPrice(1.004, 1.005)).toBe(false);
   });
 
   it('rejects invalid values', () => {
