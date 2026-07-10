@@ -2,7 +2,6 @@ import type { ProblemDetails } from '../../errors/problem_details';
 import type {
   BookingCountRes,
   CostSlotSummaryRes,
-  MaterializedCostRes,
   SchedulePrincipalRes,
   TimingRes,
 } from '$lib/api/core/data-contracts';
@@ -44,8 +43,9 @@ export const load = (async ({
   url,
   fetch,
 }): Promise<{
-  result: ['err', ProblemDetails[]] | ['ok', [Timings, MaterializedCostRes]];
+  result: ['err', ProblemDetails[]] | ['ok', Timings];
   slotSummaries: CostSlotSummaryRes[] | null;
+  slotPricingFailed: boolean;
 }> => {
   const { session, locale } = await parent();
 
@@ -80,22 +80,18 @@ export const load = (async ({
     await loadError(locale, 'errors.load.counts'),
   );
 
-  const cost = toResult(() => api.vCostSelfDetail('1'), await loadError(locale, 'errors.load.cost'));
-
-  const result = await Res.all(schedule, timing, cost, counts)
-    .map(
-      ([s, t, c, b]) =>
-        [stitchTiming(getTiming(direction as 'JToW' | 'WToJ', t, s, after), b), c] as [Timings, MaterializedCostRes],
-    )
+  const result = await Res.all(schedule, timing, counts)
+    .map(([s, t, b]) => stitchTiming(getTiming(direction as 'JToW' | 'WToJ', t, s, after), b))
     .serial();
 
   // Per-slot ACTUAL prices from the batch endpoint (priced for the caller,
-  // per date/time/direction). This is an enhancement on top of the legacy
-  // single Cost/self price: on any failure we degrade to null and the page
-  // falls back to showing the same price on every row.
+  // per date/time/direction). Never silently fall back to Cost/self: that
+  // endpoint has no slot and intentionally cannot apply lead-time/date/time
+  // policies or discounts, so presenting it as the slot price is misleading.
   let slotSummaries: CostSlotSummaryRes[] | null = null;
+  let slotPricingFailed = false;
   if (result[0] === 'ok') {
-    const times = Object.keys(result[1][0]).slice(0, 100);
+    const times = Object.keys(result[1]).slice(0, 100);
     if (times.length === 0) {
       slotSummaries = [];
     } else {
@@ -108,14 +104,19 @@ export const load = (async ({
           }),
         await loadError(locale, 'errors.load.cost'),
       ).match({
-        ok: (b: CostSlotSummaryRes[]) => b,
+        ok: (b: CostSlotSummaryRes[]) => {
+          const returned = new Set(b.map(x => x.time).filter((x): x is string => x != null));
+          slotPricingFailed = times.some(time => !returned.has(time));
+          return b;
+        },
         err: (e): CostSlotSummaryRes[] | null => {
           console.error(e);
+          slotPricingFailed = true;
           return null;
         },
       });
     }
   }
 
-  return { result, slotSummaries };
+  return { result, slotSummaries, slotPricingFailed };
 }) satisfies PageLoad;
