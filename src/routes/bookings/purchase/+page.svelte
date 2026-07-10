@@ -30,7 +30,7 @@
     import * as Card from "$lib/components/ui/card";
     import {Zap} from "lucide-svelte";
     import PurchaseBooking from "$lib/components/entities/Bookings/PurchaseBooking.svelte";
-    import {discountSteps} from "$lib/api/cost";
+    import {discountSteps, priceQuote} from "$lib/api/cost";
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatNumber, formatClockTime, formatCalendarDate} from "$lib/i18n";
     import LivePricingRefresh from "$lib/components/entities/Costs/LivePricingRefresh.svelte";
@@ -364,6 +364,7 @@
                                 {checked} {passenger} {direction} {userId} {date} {time}
                                 wallet={$page.data.user?.wallet?.usable ?? 0}
                                 cost={cost.final}
+                                quote={priceQuote(cost)}
                                 priority={priorityOptIn && eligibility.eligible}
                                 priorityFee={priorityFee}
                         />

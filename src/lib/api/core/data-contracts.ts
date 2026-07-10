@@ -213,6 +213,8 @@ export interface CostSummaryRes {
   discounts?: DiscountRecordRes[] | null;
   /** @format double */
   final: number;
+  /** Exact decimal token. Optional only during the old-Zinc rollout window. */
+  quote?: string | null;
 }
 
 export interface CostSlotSummaryRes {
@@ -225,6 +227,8 @@ export interface CostSlotSummaryRes {
   discounts?: DiscountRecordRes[] | null;
   /** @format double */
   final: number;
+  /** Exact decimal token. Optional only during the old-Zinc rollout window. */
+  quote?: string | null;
 }
 
 export interface PriorityEligibilityRes {
@@ -260,8 +264,7 @@ export interface CreateBookingReq {
   time?: string | null;
   direction?: string | null;
   passenger: BookingPassengerReq;
-  /** @format double */
-  expectedCost?: number | null;
+  expectedCost: string;
 }
 
 export interface CreateCostReq {
