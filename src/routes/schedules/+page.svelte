@@ -12,7 +12,7 @@
     import * as Popover from "$lib/components/ui/popover";
     //@ts-ignore
     import * as ToggleGroup from "$lib/components/ui/toggle-group";
-    import {CalendarDate, type DateValue, getLocalTimeZone, today} from "@internationalized/date";
+    import {CalendarDate, type DateValue} from "@internationalized/date";
     import type {PageData} from "./$types";
     import type {CostSlotSummaryRes, DiscountRecordRes} from "$lib/api/core/data-contracts";
     import {tick} from "svelte";
@@ -28,12 +28,13 @@
     import {discountSteps} from "$lib/api/cost";
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatNumber, formatCalendarDate, formatClockTime} from "$lib/i18n";
+    import {SINGAPORE_TIME_ZONE, singaporeToday} from "$lib/time/singapore";
 
     export let data: PageData;
 
     // Util
     function toCalDate(s: string): DateValue | undefined {
-        if (s == "") return today(getLocalTimeZone());
+        if (s == "") return singaporeToday();
         const [d, m, y] = s.split("-");
         return new CalendarDate(parseInt(y), parseInt(m), parseInt(d));
     }
@@ -118,7 +119,7 @@
             : `−${formatNumber(d.amount * 100, $lang)}%`;
     }
 
-    const minDate = today(getLocalTimeZone());
+    const minDate = singaporeToday();
 
     function track() {
         (window as any)?.fathom?.trackEvent('Select Date To Buy')
@@ -153,7 +154,7 @@
                             class={cn("w-full max-w-sm lg:max-w-[240px] justify-start text-left font-normal",!bindDate && "text-muted-foreground")}
                             builders={[builder]}>
                         <CalendarIcon class="mr-2 h-4 w-4"/>
-                        {bindDate ? formatCalendarDate(bindDate.toDate(getLocalTimeZone()), $lang, {dateStyle: "long"}) : $_("schedules.selectDate", { locale: $lang })}
+                        {bindDate ? formatCalendarDate(bindDate.toDate(SINGAPORE_TIME_ZONE), $lang, {dateStyle: "long"}) : $_("schedules.selectDate", { locale: $lang })}
                     </Button>
                 </Popover.Trigger>
                 <Popover.Content class="w-auto p-0" align="center">
@@ -193,7 +194,7 @@
                                         <div class="flex flex-wrap gap-2 justify-center items-center">
                                             <div class="flex flex-col gap-2">
                                                 <div class="w-24 text-center">{displayTime(time)}</div>
-                                                <div class="w-24 text-center text-slate-500 text-sm">{bindDate ? formatCalendarDate(bindDate.toDate(getLocalTimeZone()), $lang, {dateStyle: "medium"}) : ""}</div>
+                                                <div class="w-24 text-center text-slate-500 text-sm">{bindDate ? formatCalendarDate(bindDate.toDate(SINGAPORE_TIME_ZONE), $lang, {dateStyle: "medium"}) : ""}</div>
                                             </div>
                                             <div class="flex flex-col gap-2 items-center">
                                                 <Badge class="text-center {countColor(count)}">{$_("schedules.ticketsInQueue", { locale: $lang, values: { count } })}
