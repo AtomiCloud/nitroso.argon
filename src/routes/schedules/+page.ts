@@ -1,6 +1,7 @@
 import type { ProblemDetails } from '../../errors/problem_details';
 import type {
   BookingCountRes,
+  CostSlotSummaryRes,
   MaterializedCostRes,
   SchedulePrincipalRes,
   TimingRes,
@@ -44,6 +45,7 @@ export const load = (async ({
   fetch,
 }): Promise<{
   result: ['err', ProblemDetails[]] | ['ok', [Timings, MaterializedCostRes]];
+  slotSummaries: CostSlotSummaryRes[] | null;
 }> => {
   const { session, locale } = await parent();
 
@@ -87,5 +89,33 @@ export const load = (async ({
     )
     .serial();
 
-  return { result };
+  // Per-slot ACTUAL prices from the batch endpoint (priced for the caller,
+  // per date/time/direction). This is an enhancement on top of the legacy
+  // single Cost/self price: on any failure we degrade to null and the page
+  // falls back to showing the same price on every row.
+  let slotSummaries: CostSlotSummaryRes[] | null = null;
+  if (result[0] === 'ok') {
+    const times = Object.keys(result[1][0]).slice(0, 100);
+    if (times.length === 0) {
+      slotSummaries = [];
+    } else {
+      slotSummaries = await toResult(
+        () =>
+          api.vCostSummaryBatchDetail('1', {
+            Date: date,
+            Direction: direction,
+            Times: times.join(','),
+          }),
+        await loadError(locale, 'errors.load.cost'),
+      ).match({
+        ok: (b: CostSlotSummaryRes[]) => b,
+        err: (e): CostSlotSummaryRes[] | null => {
+          console.error(e);
+          return null;
+        },
+      });
+    }
+  }
+
+  return { result, slotSummaries };
 }) satisfies PageLoad;

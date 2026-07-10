@@ -32,18 +32,18 @@
     // zinc rejects non-admin reads of the queue and all writes; the nav link
     // is only rendered for admins). Each fee type carries a QUEUE of scheduled
     // changes; the live fee is whatever change was last to become effective.
-    const FEE_TYPES: FeeType[] = ["Withdrawal", "Deposit"];
+    const FEE_TYPES: FeeType[] = ["Withdrawal", "Deposit", "Termination"];
 
-    // current fee per type (flat SGD + percentage; 0 + 0 = no fee)
-    let fees: Record<FeeType, FeeRes | null> = {Withdrawal: null, Deposit: null};
-    let feeLoadFailed: Record<FeeType, boolean> = {Withdrawal: false, Deposit: false};
+    // current fee per type (flat SGD + percentage + optional cap; 0 + 0 = no fee)
+    let fees: Record<FeeType, FeeRes | null> = {Withdrawal: null, Deposit: null, Termination: null};
+    let feeLoadFailed: Record<FeeType, boolean> = {Withdrawal: false, Deposit: false, Termination: false};
 
     // scheduled future changes per type (soonest first, from GET Fee/{type}/upcoming)
-    let queues: Record<FeeType, FeeChangeRes[]> = {Withdrawal: [], Deposit: []};
-    let queueLoadFailed: Record<FeeType, boolean> = {Withdrawal: false, Deposit: false};
+    let queues: Record<FeeType, FeeChangeRes[]> = {Withdrawal: [], Deposit: [], Termination: []};
+    let queueLoadFailed: Record<FeeType, boolean> = {Withdrawal: false, Deposit: false, Termination: false};
 
     // per-event checkbox selection (explicit requirement): id -> checked
-    let selected: Record<FeeType, Record<string, boolean>> = {Withdrawal: {}, Deposit: {}};
+    let selected: Record<FeeType, Record<string, boolean>> = {Withdrawal: {}, Deposit: {}, Termination: {}};
 
     onMount(() => {
         for (const t of FEE_TYPES) reload(t);
@@ -81,6 +81,7 @@
     $: selectedCounts = {
         Withdrawal: Object.values(selected.Withdrawal).filter(Boolean).length,
         Deposit: Object.values(selected.Deposit).filter(Boolean).length,
+        Termination: Object.values(selected.Termination).filter(Boolean).length,
     } as Record<FeeType, number>;
 
     // ---- cancel-selected (DELETE per checked id, behind a confirm dialog) ----
@@ -134,6 +135,8 @@
     const addVal = {
         percentage: "",
         flatAmount: "",
+        // optional cap in SGD (max 2 decimals); "" = uncapped
+        cap: "",
         // datetime-local string in the admin's local timezone; "" = immediate
         effectiveAt: "",
     }
@@ -180,6 +183,15 @@
                 .max(10000, $_('fees.add.flatRange', { locale: $lang }))
                 .finite($_('fees.add.finite', { locale: $lang }))
                 .refine(twoDecimals, $_('fees.add.precision', { locale: $lang }))),
+        // optional: empty = no cap; otherwise > 0, ≤ 100,000, max 2 decimals
+        cap: z
+            .string()
+            .trim()
+            .refine(x => {
+                if (x === "") return true;
+                const n = Number(x);
+                return Number.isFinite(n) && n > 0 && n <= 100000 && twoDecimals(n);
+            }, $_('fees.add.capRange', { locale: $lang })),
         // optional: empty = immediate; otherwise must be a valid future instant
         effectiveAt: z
             .string()
@@ -208,6 +220,7 @@
         const f = fees[t];
         addVal.percentage = f != null ? String(Number(f.percentage.toFixed(2))) : "";
         addVal.flatAmount = f != null ? String(Number(f.flatAmount.toFixed(2))) : "";
+        addVal.cap = f?.cap != null ? String(Number(f.cap.toFixed(2))) : "";
         addVal.effectiveAt = "";
         addEffectiveMin = nowLocalMinute();
         addErrors = [];
@@ -218,6 +231,7 @@
     async function submitAdd() {
         await onAddChange("percentage")();
         await onAddChange("flatAmount")();
+        await onAddChange("cap")();
         await onAddChange("effectiveAt")();
         if (addErrors.length !== 0) return;
 
@@ -233,6 +247,7 @@
             percentage: v.percentage,
             flatAmount: v.flatAmount,
             effectiveAt: effectiveAtIso,
+            cap: v.cap === "" ? null : Number(v.cap),
         }), $_('fees.add.updateError', { locale: $lang })).match({
             ok: (f) => {
                 const desc = describeFee(f, $_, $lang);
@@ -346,6 +361,9 @@
                             <div class="flex flex-col gap-1">
                                 <Card.Title>{$_(`fees.section.${t}.title`, { locale: $lang })}</Card.Title>
                                 <Card.Description>{$_(`fees.section.${t}.description`, { locale: $lang })}</Card.Description>
+                                {#if t === "Termination"}
+                                    <div class="text-sm text-muted-foreground">{$_('fees.section.terminationNote', { locale: $lang })}</div>
+                                {/if}
                                 <div class="text-sm text-muted-foreground">{$_('fees.section.hint', { locale: $lang })}</div>
                             </div>
                             <div class="flex items-center gap-4">
@@ -543,6 +561,27 @@
                                         bind:value={addVal.flatAmount}
                                         on:input={onAddChange("flatAmount")}
                                 />
+                            </div>
+                        </div>
+                    </Validation>
+                    <Validation errors={addErrors} taints={addTaints} path="cap">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-medium" for="fee-cap">
+                                {$_('fees.add.capLabel', { locale: $lang })}
+                            </label>
+                            <div class="flex items-center gap-2">
+                                <div class="text-lg text-primary">S$</div>
+                                <Input
+                                        id="fee-cap"
+                                        class="flex-1"
+                                        placeholder={$_('fees.add.capPlaceholder', { locale: $lang })}
+                                        inputmode="decimal"
+                                        bind:value={addVal.cap}
+                                        on:input={onAddChange("cap")}
+                                />
+                            </div>
+                            <div class="text-sm text-muted-foreground">
+                                {$_('fees.add.capHint', { locale: $lang })}
                             </div>
                         </div>
                     </Validation>

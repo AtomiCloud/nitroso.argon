@@ -12,6 +12,7 @@
     //@ts-ignore
     import * as Card from "$lib/components/ui/card";
     import {Button} from "$lib/components/ui/button";
+    import InfoTip from "$lib/components/core/InfoTip.svelte";
     import {_} from "svelte-i18n";
     import {lang} from "$lib/i18n";
 
@@ -111,14 +112,23 @@
                                                 <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
                                                 <div class="text-sm">
                                                     <span class="text-muted-foreground">{$_("admin.users.roles", {locale: $lang})}:</span>
+                                                    <InfoTip label={$_("admin.users.roles", {locale: $lang})}>
+                                                        {$_("admin.users.extraRolesTip", {locale: $lang})}
+                                                    </InfoTip>
                                                     <span class="ml-1 font-medium">
-                                                        {#if user.roles && user.roles.length > 0}
-                                                            {#each user.roles as role, i}
-                                                                <span class="inline-block bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full text-xs mr-1">
-                                                                    {role}
-                                                                </span>
-                                                            {/each}
-                                                        {:else}
+                                                        <!-- filled = token roles (permissions); outlined =
+                                                             admin-granted extra roles (pricing targeting only) -->
+                                                        {#each user.roles ?? [] as role}
+                                                            <span class="inline-block bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full text-xs mr-1">
+                                                                {role}
+                                                            </span>
+                                                        {/each}
+                                                        {#each user.extraRoles ?? [] as role}
+                                                            <span class="inline-block border border-purple-400 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full text-xs mr-1">
+                                                                {role}
+                                                            </span>
+                                                        {/each}
+                                                        {#if (user.roles ?? []).length === 0 && (user.extraRoles ?? []).length === 0}
                                                             <span class="text-muted-foreground">{$_("admin.users.noRoles", {locale: $lang})}</span>
                                                         {/if}
                                                     </span>

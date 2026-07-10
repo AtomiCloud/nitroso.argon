@@ -11,15 +11,80 @@
     import type {PageData} from "./$types";
     import {page} from "$app/stores";
     import {Button} from "$lib/components/ui/button";
-    import {CreditCard, Ticket, Users, Wallet as WalletIcon} from "lucide-svelte";
+    import {Badge} from "$lib/components/ui/badge";
+    import {Input} from "$lib/components/ui/input";
+    import {api} from "../../../store";
+    import {toResult} from "$lib/utility";
+    import {toast} from "svelte-sonner";
+    import {invalidateAll} from "$app/navigation";
+    import {CreditCard, LucideLoader, LucidePlus, Ticket, Users, Wallet as WalletIcon, X} from "lucide-svelte";
     import {_} from "svelte-i18n";
     import {lang} from "$lib/i18n";
     //@ts-ignore
     import * as Card from "$lib/components/ui/card";
+    //@ts-ignore
+    import * as Dialog from "$lib/components/ui/dialog";
 
     export let data: PageData;
 
     const session: any = $page.data.session;
+
+    // ---- extra-role management (admin): POST/DELETE User/{id}/roles/{role}.
+    // Extra roles only affect pricing/discount targeting, never permissions. ----
+    const ROLE_FORMAT = /^[a-z0-9_-]{1,64}$/;
+
+    let addRoleOpen = false;
+    let newRole = "";
+    let roleSubmitting = false;
+    $: newRoleValid = ROLE_FORMAT.test(newRole);
+
+    function openAddRole() {
+        newRole = "";
+        addRoleOpen = true;
+    }
+
+    async function addRole(userId: string) {
+        if (!newRoleValid) return;
+        roleSubmitting = true;
+        await toResult(() => $api.vUserRolesCreate(userId, newRole, "1"),
+            $_("admin.users.rolesCard.addError", {locale: $lang})).match({
+            ok: () => {
+                toast.success($_("admin.users.rolesCard.addSuccess", {locale: $lang, values: {role: newRole}}));
+                addRoleOpen = false;
+                invalidateAll();
+            },
+            err: (e) => {
+                console.error(e);
+                toast.error(e.detail ?? e.type);
+            }
+        });
+        roleSubmitting = false;
+    }
+
+    let removeRoleOpen = false;
+    let removeTarget = "";
+
+    function confirmRemoveRole(role: string) {
+        removeTarget = role;
+        removeRoleOpen = true;
+    }
+
+    async function removeRole(userId: string) {
+        roleSubmitting = true;
+        await toResult(() => $api.vUserRolesDelete(userId, removeTarget, "1"),
+            $_("admin.users.rolesCard.removeError", {locale: $lang})).match({
+            ok: () => {
+                toast.success($_("admin.users.rolesCard.removeSuccess", {locale: $lang, values: {role: removeTarget}}));
+                removeRoleOpen = false;
+                invalidateAll();
+            },
+            err: (e) => {
+                console.error(e);
+                toast.error(e.detail ?? e.type);
+            }
+        });
+        roleSubmitting = false;
+    }
 
     $: user = (Res.fromSerial<UserRes, ProblemDetails>(data.result)
         .match({
@@ -77,7 +142,91 @@
                             </Card.Content>
                         </Card.Root>
                     {/if}
-                    
+
+                    <!-- Roles: token roles (filled) vs admin-granted extra
+                         roles (outlined, removable). Extra roles only steer
+                         pricing/discount targeting — never permissions. -->
+                    {#if session?.roles?.includes("admin")}
+                        <Card.Root>
+                            <Card.Header>
+                                <Card.Title>{$_("admin.users.rolesCard.title", {locale: $lang})}</Card.Title>
+                                <Card.Description>{$_("admin.users.rolesCard.description", {locale: $lang})}</Card.Description>
+                            </Card.Header>
+                            <Card.Content>
+                                <div class="flex flex-col gap-4">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        {#each u.principal.roles ?? [] as role}
+                                            <Badge>{role}</Badge>
+                                        {/each}
+                                        {#each u.principal.extraRoles ?? [] as role}
+                                            <Badge variant="outline" class="gap-1 pr-1">
+                                                {role}
+                                                <button class="rounded-full p-0.5 hover:bg-destructive/20"
+                                                        aria-label={$_("admin.users.rolesCard.removeAria", {locale: $lang, values: {role}})}
+                                                        on:click={() => confirmRemoveRole(role)}>
+                                                    <X class="h-3 w-3"/>
+                                                </button>
+                                            </Badge>
+                                        {/each}
+                                        {#if (u.principal.roles ?? []).length === 0 && (u.principal.extraRoles ?? []).length === 0}
+                                            <span class="text-sm text-muted-foreground">{$_("admin.users.noRoles", {locale: $lang})}</span>
+                                        {/if}
+                                    </div>
+                                    <div class="text-sm text-muted-foreground">{$_("admin.users.rolesCard.legend", {locale: $lang})}</div>
+                                    <Button variant="outline" class="self-start" on:click={openAddRole}>
+                                        <LucidePlus class="mr-2 h-4 w-4"/>
+                                        {$_("admin.users.rolesCard.addTrigger", {locale: $lang})}
+                                    </Button>
+                                </div>
+                            </Card.Content>
+                        </Card.Root>
+
+                        <Dialog.Root bind:open={addRoleOpen}>
+                            <Dialog.Content class="max-w-md">
+                                <Dialog.Header>
+                                    <Dialog.Title>{$_("admin.users.rolesCard.addTitle", {locale: $lang})}</Dialog.Title>
+                                    <Dialog.Description>
+                                        {$_("admin.users.rolesCard.addIntro", {locale: $lang})}
+                                    </Dialog.Description>
+                                </Dialog.Header>
+                                <div class="flex flex-col gap-3">
+                                    <Input placeholder={$_("admin.users.rolesCard.rolePlaceholder", {locale: $lang})}
+                                           autocapitalize="none" autocorrect="off" spellcheck={false}
+                                           bind:value={newRole}
+                                           on:input={() => newRole = newRole.toLowerCase()}/>
+                                    <p class="text-sm text-destructive {newRole === '' || newRoleValid ? 'hidden' : ''}">
+                                        {$_("admin.users.rolesCard.roleInvalid", {locale: $lang})}
+                                    </p>
+                                    <Button on:click={() => addRole(u.principal.id ?? "")}
+                                            disabled={roleSubmitting || !newRoleValid}>
+                                        {#if roleSubmitting}
+                                            <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
+                                        {/if}
+                                        {$_("admin.users.rolesCard.addConfirm", {locale: $lang})}
+                                    </Button>
+                                </div>
+                            </Dialog.Content>
+                        </Dialog.Root>
+
+                        <Dialog.Root bind:open={removeRoleOpen}>
+                            <Dialog.Content class="max-w-md">
+                                <Dialog.Header>
+                                    <Dialog.Title>{$_("admin.users.rolesCard.removeTitle", {locale: $lang})}</Dialog.Title>
+                                    <Dialog.Description>
+                                        {$_("admin.users.rolesCard.removeBody", {locale: $lang, values: {role: removeTarget}})}
+                                    </Dialog.Description>
+                                </Dialog.Header>
+                                <Button variant="destructive" on:click={() => removeRole(u.principal.id ?? "")}
+                                        disabled={roleSubmitting}>
+                                    {#if roleSubmitting}
+                                        <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
+                                    {/if}
+                                    {$_("admin.users.rolesCard.removeConfirm", {locale: $lang})}
+                                </Button>
+                            </Dialog.Content>
+                        </Dialog.Root>
+                    {/if}
+
                     <Wallet
                             user={u.principal}
                             wallet={u.wallet}
