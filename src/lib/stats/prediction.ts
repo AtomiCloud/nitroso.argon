@@ -27,35 +27,44 @@ export type OddsPrediction = {
   rate: number; // percent
   num: number; // completed
   den: number; // completed + refunded
+  samples: number; // ALL bookings in the matched cell, every outcome
   level: 0 | 1 | 2 | 3 | 4;
   matched: OddsMatched;
 };
 
-// how much information backs the number, for the UI:
-//   high   — all five dims matched (level 0) on a decent sample (den ≥ 20)
-//   medium — all five dims on a thin sample, OR demand or lead matched
-//            beyond day/time/direction (levels 1–2)
-//   low    — only day/time/direction or less (levels 3–4)
+// how much information backs the number, for the UI. Two independent 1–3
+// scores; the sample size can CAP a full-dimension match:
+//   dims    — 3 = all five dims matched (level 0); 2 = demand or lead
+//             matched beyond day/time/direction (levels 1–2); 1 = only
+//             day/time/direction or less (levels 3–4)
+//   samples — over den (resolved bookings at the matched level):
+//             3 = den ≥ SAMPLE_HIGH_MIN; 2 = den ≥ SAMPLE_MEDIUM_MIN;
+//             1 = below SAMPLE_MEDIUM_MIN
+//   confidence = min(dims, samples): 3 = high, 2 = medium, 1 = low
 export type OddsConfidence = 'high' | 'medium' | 'low';
 
-export const HIGH_CONFIDENCE_MIN_DEN = 20;
+export const SAMPLE_HIGH_MIN = 50;
+export const SAMPLE_MEDIUM_MIN = 15;
 
 export function oddsConfidence(p: OddsPrediction): OddsConfidence {
-  if (p.level === 0 && p.den >= HIGH_CONFIDENCE_MIN_DEN) return 'high';
-  if (p.level <= 2) return 'medium';
-  return 'low';
+  const dims = p.level === 0 ? 3 : p.level <= 2 ? 2 : 1;
+  const samples = p.den >= SAMPLE_HIGH_MIN ? 3 : p.den >= SAMPLE_MEDIUM_MIN ? 2 : 1;
+  const score = Math.min(dims, samples);
+  return score === 3 ? 'high' : score === 2 ? 'medium' : 'low';
 }
 
-function rateOver(rs: BookingStatRes[]): { rate: number; num: number; den: number } | null {
+function rateOver(rs: BookingStatRes[]): { rate: number; num: number; den: number; samples: number } | null {
   let completed = 0;
   let refunded = 0;
+  let samples = 0;
   for (const r of rs) {
     completed += r.completed;
     refunded += r.refunded;
+    samples += r.total;
   }
   const den = completed + refunded;
   // den 0 = nothing in the cell has resolved yet — no signal, fall back
-  return den === 0 ? null : { rate: (completed / den) * 100, num: completed, den };
+  return den === 0 ? null : { rate: (completed / den) * 100, num: completed, den, samples };
 }
 
 /**
