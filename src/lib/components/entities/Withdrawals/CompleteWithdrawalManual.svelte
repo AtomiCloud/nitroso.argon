@@ -10,6 +10,7 @@
     import {invalidateAll} from "$app/navigation";
     import type {FeeRes, WithdrawalPrincipalRes} from "$lib/api/core/data-contracts";
     import {LucideLoader} from "lucide-svelte";
+    import {isCardRefund} from "./withdrawal";
     import {_} from "svelte-i18n";
     import {lang, formatMoney} from "$lib/i18n";
 
@@ -93,7 +94,13 @@
                             {#if fee !== 0}
                                 <div>{$_('withdrawals.completeManual.feeLine', { locale: $lang, values: { fee: formatMoney(fee, $lang) } })}</div>
                             {/if}
-                            <div class="font-bold">{$_('withdrawals.completeManual.transferExactly', { locale: $lang, values: { net: formatMoney(net, $lang), payNowNumber: withdrawal.record.payNowNumber } })}</div>
+                            <div class="font-bold">
+                                {#if isCardRefund(withdrawal.record)}
+                                    {$_('withdrawals.completeManual.transferExactlyCard', { locale: $lang, values: { net: formatMoney(net, $lang) } })}
+                                {:else}
+                                    {$_('withdrawals.completeManual.transferExactly', { locale: $lang, values: { net: formatMoney(net, $lang), payNowNumber: withdrawal.record.payNowNumber } })}
+                                {/if}
+                            </div>
                         {:else if feeLoadFailed}
                             <div class="text-destructive">{$_('withdrawals.completeManual.feeUnavailable', { locale: $lang })}</div>
                             <Button variant="outline" size="sm" class="self-start" on:click={loadFeeInfo}>

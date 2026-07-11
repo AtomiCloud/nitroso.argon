@@ -15,6 +15,7 @@
     import {tick} from "svelte";
     import Validation from "$lib/components/core/Validation.svelte";
     import {Textarea} from "$lib/components/ui/textarea";
+    import {isCardRefund} from "./withdrawal";
     import {_} from "svelte-i18n";
     import {lang, formatMoney} from "$lib/i18n";
 
@@ -91,7 +92,11 @@
             <Dialog.Description>
                 <div class="flex flex-col gap-4">
                     <p class="text-justify py-2">
-                        {$_('withdrawals.reject.confirm', { locale: $lang, values: { amount: formatMoney(withdrawal.record.amount, $lang), payNowNumber: withdrawal.record.payNowNumber } })}
+                        {#if isCardRefund(withdrawal.record)}
+                            {$_('withdrawals.reject.confirmCard', { locale: $lang, values: { amount: formatMoney(withdrawal.record.amount, $lang) } })}
+                        {:else}
+                            {$_('withdrawals.reject.confirm', { locale: $lang, values: { amount: formatMoney(withdrawal.record.amount, $lang), payNowNumber: withdrawal.record.payNowNumber } })}
+                        {/if}
                     </p>
                     <Validation {errors} {taints} path="note">
                         <Textarea

@@ -34,8 +34,8 @@ export type OddsPrediction = {
 
 // how much information backs the number, for the UI. Two independent 1–3
 // scores; the sample size can CAP a full-dimension match:
-//   dims    — 3 = all five dims matched (level 0); 2 = demand or lead
-//             matched beyond day/time/direction (levels 1–2); 1 = only
+//   dims    — 3 = day + demand matched (levels 0–1; lead-time optional);
+//             2 = day + lead matched but not demand (level 2); 1 = only
 //             day/time/direction or less (levels 3–4)
 //   samples — over den (resolved bookings at the matched level):
 //             3 = den ≥ SAMPLE_HIGH_MIN; 2 = den ≥ SAMPLE_MEDIUM_MIN;
@@ -47,7 +47,13 @@ export const SAMPLE_HIGH_MIN = 50;
 export const SAMPLE_MEDIUM_MIN = 15;
 
 export function oddsConfidence(p: OddsPrediction): OddsConfidence {
-  const dims = p.level === 0 ? 3 : p.level <= 2 ? 2 : 1;
+  // L1 (day + demand matched, lead not) earns full dims score alongside L0:
+  // prod L0 cells almost never accumulate 50 resolved bookings (2 cells in
+  // all of prod), demand is the dominant signal, and lead-time is the least
+  // stable dimension — so requiring the lead match would starve "high" of
+  // any real data without adding signal. The OddsStat checklist still shows
+  // ✗ Lead time honestly for L1.
+  const dims = p.level <= 1 ? 3 : p.level === 2 ? 2 : 1;
   const samples = p.den >= SAMPLE_HIGH_MIN ? 3 : p.den >= SAMPLE_MEDIUM_MIN ? 2 : 1;
   const score = Math.min(dims, samples);
   return score === 3 ? 'high' : score === 2 ? 'medium' : 'low';

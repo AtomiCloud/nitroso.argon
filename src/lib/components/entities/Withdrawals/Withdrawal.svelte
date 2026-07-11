@@ -18,6 +18,8 @@
     import ForceCompleteWithdrawal from "$lib/components/entities/Withdrawals/ForceCompleteWithdrawal.svelte";
     import RequeueWithdrawal from "$lib/components/entities/Withdrawals/RequeueWithdrawal.svelte";
     import WithdrawalPayoutDetails from "$lib/components/entities/Withdrawals/WithdrawalPayoutDetails.svelte";
+    import WithdrawalRefunds from "$lib/components/entities/Withdrawals/WithdrawalRefunds.svelte";
+    import {isCardRefund} from "$lib/components/entities/Withdrawals/withdrawal";
     import {toResult} from "$lib/utility";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
@@ -58,8 +60,17 @@
         <Card.Header>
             <div class="flex flex-wrap justify-between">
                 <div>
-                    <Card.Title>{$_('withdrawals.card.amountToPayNow', { locale: $lang, values: { amount: formatMoney(withdrawal.principal.record.amount, $lang), payNowNumber: withdrawal.principal.record.payNowNumber } })}</Card.Title>
+                    <Card.Title>
+                        {#if isCardRefund(withdrawal.principal.record)}
+                            {$_('withdrawals.card.amountToCard', { locale: $lang, values: { amount: formatMoney(withdrawal.principal.record.amount, $lang) } })}
+                        {:else}
+                            {$_('withdrawals.card.amountToPayNow', { locale: $lang, values: { amount: formatMoney(withdrawal.principal.record.amount, $lang), payNowNumber: withdrawal.principal.record.payNowNumber } })}
+                        {/if}
+                    </Card.Title>
                     <Card.Description>{withdrawal.principal.id}</Card.Description>
+                    <div class="pt-1 text-sm text-muted-foreground">
+                        {$_(`withdrawals.method.${isCardRefund(withdrawal.principal.record) ? 'CardRefund' : 'PayNow'}`, { locale: $lang })}
+                    </div>
                 </div>
                 <div>
                     <Badge class="{WITHDRAWAL_STATUS_BADGE[withdrawal.principal.status.status ?? ''].color}">{$_(`withdrawals.status.${withdrawal.principal.status.status ?? ''}`, { locale: $lang })}</Badge>
@@ -117,6 +128,11 @@
         </Card.Header>
     </Card.Root>
 </div>
+{#if withdrawal.refunds?.length > 0}
+<div>
+    <WithdrawalRefunds refunds={withdrawal.refunds}/>
+</div>
+{/if}
 {#if withdrawal.principal.status.status === "Pending"}
 <div>
     <Card.Root>
