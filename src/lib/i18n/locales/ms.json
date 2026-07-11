@@ -991,6 +991,7 @@
       "current": "semasa: {value}",
       "matched": "sepadan",
       "unmatched": "tidak sepadan",
+      "totalSamples": "{count} sampel digunakan (semua hasil)",
       "sample": "{num}/{den} tempahan muktamad",
       "rangeMilestone": "sejak {label}",
       "rangeLast30": "30 hari lepas"
