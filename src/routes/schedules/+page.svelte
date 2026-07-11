@@ -2,7 +2,7 @@
     import Page from "$lib/components/complex/page.svelte";
     import type {ProblemDetails} from "../../errors/problem_details";
     import {Res} from "$lib/core/result";
-    import {problem} from "../../store";
+    import {api, problem} from "../../store";
     import Loader from "$lib/components/complex/loader.svelte";
     import {goto, invalidateAll} from "$app/navigation";
 
@@ -14,8 +14,8 @@
     import * as ToggleGroup from "$lib/components/ui/toggle-group";
     import {CalendarDate, type DateValue} from "@internationalized/date";
     import type {PageData} from "./$types";
-    import type {CostSlotSummaryRes, DiscountRecordRes} from "$lib/api/core/data-contracts";
-    import {tick} from "svelte";
+    import type {BookingStatRes, CostSlotSummaryRes, DiscountRecordRes, MilestonePrincipalRes} from "$lib/api/core/data-contracts";
+    import {onMount, tick} from "svelte";
     import {Button} from "$lib/components/ui/button";
     import {Separator} from "$lib/components/ui/separator";
     import {page} from "$app/stores";
@@ -28,8 +28,11 @@
     import {discountSteps} from "$lib/api/cost";
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatNumber, formatCalendarDate, formatClockTime} from "$lib/i18n";
-    import {calendarDateForDisplay, singaporeToday} from "$lib/time/singapore";
+    import {calendarDateForDisplay, departureInstant, parseZincDate, singaporeToday} from "$lib/time/singapore";
     import LivePricingRefresh from "$lib/components/entities/Costs/LivePricingRefresh.svelte";
+    import {toResult} from "$lib/utility";
+    import {DAYS, demandBucketOf, leadBucketOf} from "$lib/stats/buckets";
+    import OddsBadge from "./OddsBadge.svelte";
 
     export let data: PageData;
 
@@ -128,6 +131,66 @@
 
     $: currDate = toZincDate(bindDate);
 
+    // ---- ADMIN-only live odds ----
+    // Hidden entirely for non-admins. Historical BookingStatRes rows are
+    // fetched ONCE per page load (range: latest milestone → today, matching
+    // /stats' default; fallback last 30 days when no milestone) and cached —
+    // the 30s LivePricingRefresh re-runs the loader for counts/prices, and
+    // the per-slot prediction recomputes client-side from the cached rows
+    // against the FRESH queue counts. Failures are silent (console only):
+    // odds are an admin nicety, never a page error.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    $: session = $page.data.session as any;
+    $: isAdmin = session?.roles?.includes("admin") ?? false;
+
+    let statRows: BookingStatRes[] | null = null;
+
+    async function loadStats() {
+        const today = singaporeToday();
+        // fallback range when no usable milestone exists: last 30 days
+        let from = today.subtract({days: 30});
+        await toResult(() => $api.vMilestoneList("1"), "Failed to load milestones").match({
+            ok: (ms: MilestonePrincipalRes[]) => {
+                // range start = the LATEST milestone date not after today
+                // (zinc returns newest first, but derive defensively — /stats
+                // does the same)
+                let latest: CalendarDate | null = null;
+                for (const m of ms) {
+                    const [dd, mm, yy] = (m.date ?? "").split("-").map(Number);
+                    if (!dd || !mm || !yy) continue;
+                    const d = new CalendarDate(yy, mm, dd);
+                    if (d.compare(today) <= 0 && (latest == null || d.compare(latest) > 0)) latest = d;
+                }
+                if (latest != null) from = latest;
+            },
+            err: (e) => console.error(e),
+        });
+        await toResult(() => $api.vBookingStatsDetail("1", {
+            after: toZincDate(from),
+            before: toZincDate(today),
+        }), "Failed to load booking stats").match({
+            ok: (r: BookingStatRes[]) => {
+                statRows = r;
+            },
+            err: (e) => console.error(e),
+        });
+    }
+
+    onMount(() => {
+        if (isAdmin) loadStats();
+    });
+
+    // day-of-week of the displayed travel date, as zinc's English day name
+    $: slotDay = bindDate == null ? "" :
+        DAYS[(calendarDateForDisplay(bindDate).getDay() + 6) % 7];
+
+    // lead bucket from (slot departure SGT − now), zinc's ladder; recomputed
+    // per pricing refresh tick via the currDate/timings reactive chain
+    function slotLeadBucket(date: string, time: string): string {
+        const hours = (departureInstant(parseZincDate(date), time).getTime() - Date.now()) / 3_600_000;
+        return leadBucketOf(hours);
+    }
+
 </script>
 
 <LivePricingRefresh/>
@@ -202,6 +265,13 @@
                                             <div class="flex flex-col gap-2 items-center">
                                                 <Badge class="text-center {countColor(count)}">{$_("schedules.ticketsInQueue", { locale: $lang, values: { count } })}
                                                 </Badge>
+                                                {#if isAdmin && statRows != null && slotDay !== ""}
+                                                    <!-- ADMIN-only live odds from the cached stats rows;
+                                                         demand bucket comes from the LIVE queue count -->
+                                                    <OddsBadge rows={statRows}
+                                                               ctx={{dayOfWeek: slotDay, time, direction: bindDirection, demandBucket: demandBucketOf(count)}}
+                                                               leadBucket={slotLeadBucket(currDate, time)}/>
+                                                {/if}
                                             </div>
 
 

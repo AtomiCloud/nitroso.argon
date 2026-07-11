@@ -973,6 +973,16 @@
     "buy": "Beli",
     "pricingUnavailable": "Sesetengah harga tepat setiap slot tidak dapat dimuatkan. Hanya pelepasan terjejas dijeda. Sila cuba lagi.",
     "priceUnavailable": "Harga tidak tersedia",
+    "odds": {
+      "label": "Anggaran kadar kejayaan",
+      "na": "tiada anggaran",
+      "info0": "Kadar kejayaan sejarah (bayaran balik sahaja) untuk {day} {time} {direction} pada tahap permintaan semasa ({demand} dalam giliran).",
+      "info1": "Tiada sejarah pada tahap permintaan ini — kadar untuk {day} {time} {direction} merentas semua tahap permintaan.",
+      "info2": "Tiada sejarah untuk hari ini dalam minggu — kadar untuk {time} {direction} merentas semua hari dan tahap permintaan.",
+      "sample": "Sampel: {num} selesai daripada {den} yang muktamad.",
+      "context": "Konteks semasa: permintaan {demand}, masa pendahuluan {lead}.",
+      "infoNa": "Belum ada tempahan sejarah yang muktamad untuk {time} {direction} — tiada anggaran."
+    },
     "breakdown": {
       "open": "Tunjukkan pecahan harga",
       "base": "Harga asas",
@@ -1414,7 +1424,7 @@
       "overview": "Ringkasan",
       "matrix": "Hari × Masa",
       "leadTime": "Masa pendahuluan",
-      "queueDepth": "Kedalaman giliran",
+      "demand": "Permintaan",
       "delivery": "Masa perolehan tiket"
     },
     "priority": {
@@ -1437,7 +1447,7 @@
       "hint": "Pencapaian menandakan pelancaran atau perubahan; julat tarikh perjalanan bermula dari pencapaian terkini secara lalai."
     },
     "queue": {
-      "title": "Mengikut kedalaman giliran (tempahan setiap slot)",
+      "title": "Mengikut permintaan (tempahan setiap slot)",
       "info": "Berapa banyak tempahan bersaing untuk slot yang sama. Semakin ramai bersaing, semakin rendah peluang — gabungkan dengan penapis hari/masa untuk melihat peluang sejarah sebenar bagi sesuatu slot."
     },
     "delivery": {
@@ -1480,7 +1490,14 @@
       "time": "Masa berlepas",
       "bucket": "Masa pendahuluan",
       "priority": "Keutamaan",
+      "demand": "Permintaan",
       "all": "Semua"
+    },
+    "deliveryCutoff": {
+      "placeholder": "Masa perolehan",
+      "off": "Mati",
+      "optionLabel": "Tiket ≥ {bucket}",
+      "info": "Dengan had masa perolehan aktif, tiket yang diperoleh lebih dekat dengan waktu berlepas daripada had itu dikira sebagai gagal. Tempahan selesai tanpa rekod masa perolehan juga dikira gagal semasa had aktif, kerana perolehan tepat pada masa tidak dapat disahkan. Penyebut tidak berubah — hanya pengangka kejayaan mengecil."
     },
     "summary": {
       "title": "Pilihan semasa",

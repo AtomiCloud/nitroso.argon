@@ -27,7 +27,8 @@ export function calendarDateForDisplay(date: Pick<CalendarDate, 'year' | 'month'
   return new Date(date.year, date.month - 1, date.day);
 }
 
-function departureInstant(date: CalendarDate, time: string): Date {
+/** The absolute instant a departure happens (travel date+time are SGT wall-clock). */
+export function departureInstant(date: CalendarDate, time: string): Date {
   const [hour, minute, second = 0] = time.split(':').map(part => Number.parseInt(part, 10));
   const wallClock = new CalendarDateTime(date.year, date.month, date.day, hour, minute, second);
   return toZoned(wallClock, SINGAPORE_TIME_ZONE).toDate();
