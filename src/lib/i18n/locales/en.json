@@ -991,6 +991,7 @@
       "current": "current: {value}",
       "matched": "matched",
       "unmatched": "not matched",
+      "totalSamples": "{count} samples used (all outcomes)",
       "sample": "{num}/{den} resolved bookings",
       "rangeMilestone": "since {label}",
       "rangeLast30": "last 30 days"

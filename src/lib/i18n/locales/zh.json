@@ -991,6 +991,7 @@
       "current": "当前：{value}",
       "matched": "已匹配",
       "unmatched": "未匹配",
+      "totalSamples": "共使用 {count} 个样本（含所有结果）",
       "sample": "{num}/{den} 个已定结果",
       "rangeMilestone": "自 {label} 起",
       "rangeLast30": "最近 30 天"

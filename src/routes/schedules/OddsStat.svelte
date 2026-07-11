@@ -83,6 +83,12 @@
             </span>
         {/each}
         <span class="mt-1 block text-left text-muted-foreground">
+            {$_('schedules.odds.totalSamples', {
+                locale: $lang,
+                values: {count: formatNumber(prediction?.samples ?? 0, $lang)},
+            })}
+        </span>
+        <span class="block text-left text-muted-foreground">
             {$_('schedules.odds.sample', {
                 locale: $lang,
                 values: {
