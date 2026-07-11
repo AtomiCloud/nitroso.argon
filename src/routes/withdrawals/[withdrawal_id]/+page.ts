@@ -18,7 +18,7 @@ export const load = (async ({
   const walletId = params.withdrawal_id;
 
   //@ts-ignore
-  const userId = data.session.roles?.includes('admin') ? undefined : (data.user?.principal.id ?? '');
+  const userId = data.session?.roles?.includes('admin') ? undefined : (data.user?.principal.id ?? '');
 
   const r = await toResult(
     () => api.vWithdrawalDetail2(walletId, '1', { userId }),
