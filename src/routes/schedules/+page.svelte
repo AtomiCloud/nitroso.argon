@@ -4,7 +4,7 @@
     import {Res} from "$lib/core/result";
     import {problem} from "../../store";
     import Loader from "$lib/components/complex/loader.svelte";
-    import {goto} from "$app/navigation";
+    import {goto, invalidateAll} from "$app/navigation";
 
     //@ts-ignore
     import * as Card from "$lib/components/ui/card";
@@ -12,9 +12,9 @@
     import * as Popover from "$lib/components/ui/popover";
     //@ts-ignore
     import * as ToggleGroup from "$lib/components/ui/toggle-group";
-    import {CalendarDate, type DateValue, getLocalTimeZone, today} from "@internationalized/date";
+    import {CalendarDate, type DateValue} from "@internationalized/date";
     import type {PageData} from "./$types";
-    import type {CostSlotSummaryRes, DiscountRecordRes, MaterializedCostRes} from "$lib/api/core/data-contracts";
+    import type {CostSlotSummaryRes, DiscountRecordRes} from "$lib/api/core/data-contracts";
     import {tick} from "svelte";
     import {Button} from "$lib/components/ui/button";
     import {Separator} from "$lib/components/ui/separator";
@@ -28,12 +28,14 @@
     import {discountSteps} from "$lib/api/cost";
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatNumber, formatCalendarDate, formatClockTime} from "$lib/i18n";
+    import {calendarDateForDisplay, singaporeToday} from "$lib/time/singapore";
+    import LivePricingRefresh from "$lib/components/entities/Costs/LivePricingRefresh.svelte";
 
     export let data: PageData;
 
     // Util
     function toCalDate(s: string): DateValue | undefined {
-        if (s == "") return today(getLocalTimeZone());
+        if (s == "") return singaporeToday();
         const [d, m, y] = s.split("-");
         return new CalendarDate(parseInt(y), parseInt(m), parseInt(d));
     }
@@ -45,9 +47,9 @@
         return format(t, "dd-MM-yyyy");
     }
 
-    $: schedules = (Res.fromSerial<[Timings, MaterializedCostRes], ProblemDetails[]>(data.result)
+    $: schedules = (Res.fromSerial<Timings, ProblemDetails[]>(data.result)
         .match({
-            ok: (a: [Timings, MaterializedCostRes]): [Timings, MaterializedCostRes] => {
+            ok: (a: Timings): Timings => {
                 problem.set(null)
                 return a;
             },
@@ -56,7 +58,7 @@
                 problem.set(e[0]);
                 return null as never;
             }
-        }) satisfies Promise<[Timings, MaterializedCostRes]>)
+        }) satisfies Promise<Timings>)
 
 
     const date: string = $page.url.searchParams.get("date") ?? "";
@@ -102,13 +104,8 @@
         return "bg-red-500";
     }
 
-    function calculateDiscount(cost: number, d: DiscountRecordRes): number {
-        if (d.type === "Flat") return d.amount;
-        return cost * d.amount;
-    }
-
-    // per-slot ACTUAL prices from the batch endpoint; null = batch failed and
-    // every row falls back to the legacy single Cost/self price
+    // Per-slot ACTUAL prices only. If batch pricing fails, buying is blocked
+    // rather than showing Cost/self, which cannot apply slot targeting.
     $: slotMap = new Map<string, CostSlotSummaryRes>(
         (data.slotSummaries ?? []).map((s) => [s.time ?? "", s]));
 
@@ -123,7 +120,7 @@
             : `−${formatNumber(d.amount * 100, $lang)}%`;
     }
 
-    const minDate = today(getLocalTimeZone());
+    const minDate = singaporeToday();
 
     function track() {
         (window as any)?.fathom?.trackEvent('Select Date To Buy')
@@ -132,6 +129,8 @@
     $: currDate = toZincDate(bindDate);
 
 </script>
+
+<LivePricingRefresh/>
 
 <div class="flex flex-col">
     <div class="border-b bg-muted ">
@@ -158,7 +157,7 @@
                             class={cn("w-full max-w-sm lg:max-w-[240px] justify-start text-left font-normal",!bindDate && "text-muted-foreground")}
                             builders={[builder]}>
                         <CalendarIcon class="mr-2 h-4 w-4"/>
-                        {bindDate ? formatCalendarDate(bindDate.toDate(getLocalTimeZone()), $lang, {dateStyle: "long"}) : $_("schedules.selectDate", { locale: $lang })}
+                        {bindDate ? formatCalendarDate(calendarDateForDisplay(bindDate), $lang, {dateStyle: "long"}) : $_("schedules.selectDate", { locale: $lang })}
                     </Button>
                 </Popover.Trigger>
                 <Popover.Content class="w-auto p-0" align="center">
@@ -175,9 +174,18 @@
                 </ToggleGroup.Item>
             </ToggleGroup.Root>
         </div>
+        {#if data.slotPricingFailed}
+            <div class="flex flex-col gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 sm:flex-row sm:items-center sm:justify-between"
+                 role="alert">
+                <p class="text-sm">{$_('schedules.pricingUnavailable', { locale: $lang })}</p>
+                <Button variant="outline" class="h-11 shrink-0" on:click={() => invalidateAll()}>
+                    {$_('actions.retry', { locale: $lang })}
+                </Button>
+            </div>
+        {/if}
         {#await schedules}
             <Loader/>
-        {:then [timings, cost]}
+        {:then timings}
             <Page notFoundMessage={$_("schedules.noSchedulesFound", { locale: $lang })} empty={Object.entries(timings).length === 0}>
                 <div class="flex flex-col gap-4 my-4">
                     {#each Object.entries(timings) as [time, count]}
@@ -189,7 +197,7 @@
                                         <div class="flex flex-wrap gap-2 justify-center items-center">
                                             <div class="flex flex-col gap-2">
                                                 <div class="w-24 text-center">{displayTime(time)}</div>
-                                                <div class="w-24 text-center text-slate-500 text-sm">{bindDate ? formatCalendarDate(bindDate.toDate(getLocalTimeZone()), $lang, {dateStyle: "medium"}) : ""}</div>
+                                                <div class="w-24 text-center text-slate-500 text-sm">{bindDate ? formatCalendarDate(calendarDateForDisplay(bindDate), $lang, {dateStyle: "medium"}) : ""}</div>
                                             </div>
                                             <div class="flex flex-col gap-2 items-center">
                                                 <Badge class="text-center {countColor(count)}">{$_("schedules.ticketsInQueue", { locale: $lang, values: { count } })}
@@ -206,7 +214,7 @@
                                                  subtotal is the DISCOUNT signature; policy adjustments
                                                  are simply part of the shown price. -->
                                             <Popover.Root>
-                                                <Popover.Trigger aria-label={$_("schedules.breakdown.open", { locale: $lang })}>
+                                                <Popover.Trigger aria-label={`${formatMoney(slot.final, $lang)} — ${$_("schedules.breakdown.open", { locale: $lang })}`}>
                                                     <div class="flex flex-col items-center gap-1">
                                                         <div class="flex items-center gap-2">
                                                             <Card.Title>{formatMoney(slot.final, $lang)}</Card.Title>
@@ -264,37 +272,17 @@
                                                 </Popover.Content>
                                             </Popover.Root>
                                         {:else}
-                                        <div class="flex flex-col">
-                                            <Card.Title>{formatMoney(cost.final, $lang)}</Card.Title>
-                                            {#if cost.final != cost.cost}
-                                                <div class="flex justify-center items-center gap-2">
-                                                    <Card.Title class="line-through">
-                                                        {formatMoney(cost.cost, $lang)}</Card.Title>
-                                                    <Popover.Root>
-                                                        <Popover.Trigger>
-                                                            <LucideInfo class="w-4 h-4 hover:text-blue-500"/>
-                                                        </Popover.Trigger>
-                                                        <Popover.Content>
-                                                            {#each cost.discounts as dd}
-                                                                <div class="flex justify-between items-center text-xs py-2">
-                                                                    <div class="flex text-left flex-col justify-between">
-                                                                        <div class="font-semibold">{dd.name}</div>
-                                                                        <div class="text-muted-foreground">{dd.description}</div>
-                                                                    </div>
-                                                                    <div>{formatMoney(calculateDiscount(cost.cost, dd), $lang)}</div>
-                                                                </div>
-                                                            {/each}
-                                                        </Popover.Content>
-                                                    </Popover.Root>
-                                                </div>
-                                            {/if}
-                                        </div>
+                                            <div class="text-sm font-medium text-destructive">
+                                                {$_('schedules.priceUnavailable', { locale: $lang })}
+                                            </div>
                                         {/if}
-                                        <hr>
-                                        <Button on:click={track} class="w-full max-w-24"
-                                                href="/bookings/purchase?date={currDate}&direction={bindDirection}&time={time}&userId={$page.data.user.principal.id}">
-                                            {$_("schedules.buy", { locale: $lang })}
-                                        </Button>
+                                        {#if slot != null}
+                                            <hr>
+                                            <Button on:click={track} class="w-full max-w-24"
+                                                    href="/bookings/purchase?date={currDate}&direction={bindDirection}&time={time}&userId={$page.data.user.principal.id}">
+                                                {$_("schedules.buy", { locale: $lang })}
+                                            </Button>
+                                        {/if}
                                     </div>
 
                                 </div>

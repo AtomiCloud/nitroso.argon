@@ -107,8 +107,8 @@
         if (r.matchDirection) {
             chips.push($_(r.matchDirection === "WToJ" ? 'bookings.list.woodlandsToJb' : 'bookings.list.jbToWoodlands', { locale: $lang }));
         }
-        if (r.leadTimeUnderHours != null) {
-            chips.push($_('admin.costs.policies.leadUnder', { locale: $lang, values: { hours: r.leadTimeUnderHours } }));
+        if (r.leadTimeAtLeastHours != null) {
+            chips.push($_('discounts.matchers.leadAtLeast', { locale: $lang, values: { hours: r.leadTimeAtLeastHours } }));
         }
         if (r.effectiveAt != null || r.expiresAt != null) {
             const from = r.effectiveAt == null ? "" : formatDateTime(r.effectiveAt, $lang);

@@ -2,7 +2,6 @@ import type { ProblemDetails } from '../../errors/problem_details';
 import type {
   BookingCountRes,
   CostSlotSummaryRes,
-  MaterializedCostRes,
   SchedulePrincipalRes,
   TimingRes,
 } from '$lib/api/core/data-contracts';
@@ -12,25 +11,22 @@ import { loadError } from '$lib/i18n';
 import type { PageLoad } from './$types';
 import { Res } from '$lib/core/result';
 import type { Timings } from './typing';
-import { CalendarDate, getLocalTimeZone, today } from '@internationalized/date';
 import { redirect } from '@sveltejs/kit';
-import { addMinutes, isAfter } from 'date-fns';
+import { filterTimesAtOrAfterBookingCutoff, parseZincDate, singaporeToday, toZincDate } from '$lib/time/singapore';
+import { LIVE_PRICING_DEPENDENCY } from '$lib/api/cost';
 
 function getTiming(
   direction: 'JToW' | 'WToJ',
   timings: TimingRes,
   schedule: SchedulePrincipalRes,
-  after?: string,
+  date: string,
+  now: Date,
 ): string[] {
   const excluded: string[] = (direction === 'JToW' ? schedule.jToWExcluded : schedule.wToJExcluded) ?? [];
 
   const t: string[] = timings.principal.timings ?? [];
-  const f = t.filter(t => !excluded.includes(t)) ?? [];
-  if (after) {
-    const b = addMinutes(new Date(`2024-01-01T${after}`), 3 * 60);
-    return f.filter(t => isAfter(new Date(`2024-01-01T${t}`), b));
-  }
-  return f;
+  const included = t.filter(t => !excluded.includes(t)) ?? [];
+  return filterTimesAtOrAfterBookingCutoff(date, included, now);
 }
 
 function stitchTiming(timings: string[], res: BookingCountRes[]): Timings {
@@ -43,33 +39,33 @@ export const load = (async ({
   parent,
   url,
   fetch,
+  depends,
 }): Promise<{
-  result: ['err', ProblemDetails[]] | ['ok', [Timings, MaterializedCostRes]];
+  result: ['err', ProblemDetails[]] | ['ok', Timings];
   slotSummaries: CostSlotSummaryRes[] | null;
+  slotPricingFailed: boolean;
 }> => {
+  depends(LIVE_PRICING_DEPENDENCY);
   const { session, locale } = await parent();
 
   const api = NewApi({ data: { session }, fetch });
 
-  const t = today(getLocalTimeZone());
-  const [y, m, d] = t.toString().split('-');
+  const now = new Date();
+  const t = singaporeToday(now);
+  const todayDate = toZincDate(t);
   const date: string = url.searchParams.get('date') ?? '';
   const direction: string = url.searchParams.get('direction') ?? '';
 
   if (date === '' || direction === '') {
-    const dd = date === '' ? `${d}-${m}-${y}` : date;
+    const dd = date === '' ? todayDate : date;
     const dir = direction === '' ? 'WToJ' : direction;
     throw redirect(302, `/schedules?date=${dd}&direction=${dir}`);
   }
 
-  const [dd, dm, dy] = date.split('-');
-
-  const n = new CalendarDate(parseInt(dy), parseInt(dm), parseInt(dd));
+  const n = parseZincDate(date);
   if (n.compare(t) < 0) {
-    throw redirect(302, `/schedules?date=${d}-${m}-${y}&direction=${direction}`);
+    throw redirect(302, `/schedules?date=${todayDate}&direction=${direction}`);
   }
-
-  const after = n.compare(t) === 0 ? new Date().toLocaleTimeString(undefined, { hour12: false }) : undefined;
 
   const schedule = toResult(() => api.vScheduleDetail(date, '1'), await loadError(locale, 'errors.load.schedule'));
 
@@ -80,22 +76,18 @@ export const load = (async ({
     await loadError(locale, 'errors.load.counts'),
   );
 
-  const cost = toResult(() => api.vCostSelfDetail('1'), await loadError(locale, 'errors.load.cost'));
-
-  const result = await Res.all(schedule, timing, cost, counts)
-    .map(
-      ([s, t, c, b]) =>
-        [stitchTiming(getTiming(direction as 'JToW' | 'WToJ', t, s, after), b), c] as [Timings, MaterializedCostRes],
-    )
+  const result = await Res.all(schedule, timing, counts)
+    .map(([s, t, b]) => stitchTiming(getTiming(direction as 'JToW' | 'WToJ', t, s, date, now), b))
     .serial();
 
   // Per-slot ACTUAL prices from the batch endpoint (priced for the caller,
-  // per date/time/direction). This is an enhancement on top of the legacy
-  // single Cost/self price: on any failure we degrade to null and the page
-  // falls back to showing the same price on every row.
+  // per date/time/direction). Never silently fall back to Cost/self: that
+  // endpoint has no slot and intentionally cannot apply lead-time/date/time
+  // policies or discounts, so presenting it as the slot price is misleading.
   let slotSummaries: CostSlotSummaryRes[] | null = null;
+  let slotPricingFailed = false;
   if (result[0] === 'ok') {
-    const times = Object.keys(result[1][0]).slice(0, 100);
+    const times = Object.keys(result[1]).slice(0, 100);
     if (times.length === 0) {
       slotSummaries = [];
     } else {
@@ -108,14 +100,19 @@ export const load = (async ({
           }),
         await loadError(locale, 'errors.load.cost'),
       ).match({
-        ok: (b: CostSlotSummaryRes[]) => b,
+        ok: (b: CostSlotSummaryRes[]) => {
+          const returned = new Set(b.map(x => x.time).filter((x): x is string => x != null));
+          slotPricingFailed = times.some(time => !returned.has(time));
+          return b;
+        },
         err: (e): CostSlotSummaryRes[] | null => {
           console.error(e);
+          slotPricingFailed = true;
           return null;
         },
       });
     }
   }
 
-  return { result, slotSummaries };
+  return { result, slotSummaries, slotPricingFailed };
 }) satisfies PageLoad;

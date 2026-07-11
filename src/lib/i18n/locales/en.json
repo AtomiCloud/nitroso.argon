@@ -318,6 +318,7 @@
     "purchase": {
       "success": "Successfully purchased booking",
       "error": "Failed to purchase booking",
+      "priceChanged": "The price changed while this page was open. We refreshed it — please review and confirm again.",
       "createPassengerError": "Failed to create passenger",
       "trigger": "Purchase",
       "title": "Purchase Booking",
@@ -337,11 +338,12 @@
       "error": "Failed to terminate booking",
       "trigger": "Terminate",
       "title": "Terminate Booking",
-      "intro": "Our bunnies have already managed to secure your ticket on KITS! Terminating this ticket release the your ticket back to KITS.",
+      "intro": "Our bunnies have already secured your ticket on KITS. Terminating the booking releases the ticket back to KITS.",
       "takeNoteTitle": "Take Note!",
-      "takeNoteBefore": "Terminating a booking will only refund",
-      "refundPercent": "50%",
-      "takeNoteAfter": "of the ticket price you paid for. This is to prevent abuse of the system.",
+      "feeNotice": "A termination fee of {fee} will be deducted from the amount you paid. The remainder will be refunded to your BunnyBooker wallet.",
+      "feeLoading": "Loading the current termination fee…",
+      "feeLoadFailed": "The current termination fee could not be loaded. Retry before continuing.",
+      "feeRetry": "Retry fee",
       "typeNameBefore": "Please type the name of the passenger,",
       "typeNameAfter": "to proceed.",
       "typeNameError": "Please type the name of the passenger of the booking to proceed.",
@@ -476,7 +478,10 @@
       "updateError": "Failed to update discount"
     },
     "matchers": {
-      "hint": "Optionally limit which booking slots this discount applies to. Every matcher left off matches all bookings."
+      "hint": "Optionally limit which booking slots this discount applies to. Lead time rewards early purchases; every matcher left off matches all bookings.",
+      "matchLead": "Buy early",
+      "pickLead": "Pick an early-buy threshold",
+      "leadAtLeast": "At least {hours}h before departure"
     },
     "delete": {
       "trigger": "Delete Discount",
@@ -750,8 +755,8 @@
       "deliveryHeading": "Delivery, Refunds & Exchange Policy",
       "deliveryIntro": "You accept the following terms for delivery, refund and exchange of tickets:",
       "deliveryItem1": "Full refunds will be provided for tickets that have not been successfully secured by the BunnyBooker system on the KTMB website.",
-      "deliveryItem2": "Tickets that have been secured on KTMB's website successfully are not eligible for free refunds or exchanges. Such bookings may be terminated instead, subject to a termination fee of 50% of the ticket price; the remaining 50% is refunded as credit to your BunnyBooker wallet.",
-      "deliveryItem3": "Cancellations can be initiated once a ticket is booked and are free of charge while the ticket has not yet been secured. After the BunnyBooker system successfully secures the ticket on the KTMB website, cancellation is no longer available — only termination, which carries the 50% termination fee described above.",
+      "deliveryItem2": "Tickets that have been secured on KTMB's website successfully are not eligible for free refunds or exchanges. Such bookings may be terminated instead, subject to the termination fee configured at that time and shown before confirmation; the remaining amount is refunded as credit to your BunnyBooker wallet.",
+      "deliveryItem3": "Cancellations can be initiated once a ticket is booked and are free of charge while the ticket has not yet been secured. After the BunnyBooker system successfully secures the ticket on the KTMB website, cancellation is no longer available — only termination, which carries the configured termination fee described above.",
       "deliveryItem4": "Once a ticket is ordered and our booking service is engaged, our bunnies will actively attempt to secure your ticket.",
       "deliveryItem5": "Booking efforts will continue up until 30 minutes before the scheduled departure time in the chosen train direction.",
       "deliveryItem6": "If successful, you will be promptly notified of your confirmed booking details.",
@@ -966,6 +971,8 @@
     "noSchedulesFound": "No schedules found",
     "ticketsInQueue": "{count} people in queue",
     "buy": "Buy",
+    "pricingUnavailable": "Some exact slot prices could not be loaded. Only affected departures are paused. Please retry.",
+    "priceUnavailable": "Price unavailable",
     "breakdown": {
       "open": "Show price breakdown",
       "base": "Base price",
@@ -982,8 +989,13 @@
     "refundPolicy": "Delivery, Cancellation & Refund Policy",
     "privacyPolicy": "Privacy Policy",
     "termsOfUse": "Terms of Use",
-    "supportSgt": "9 AM – midnight (SGT)",
-    "supportUs": "All other hours"
+    "supportEveryDay": "Every day · Singapore time (SGT)",
+    "supportFrom": "From",
+    "supportUntil": "Until",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram support",
+    "email": "Email support",
+    "phone": "Call support"
   },
   "loader": {
     "default": "Loading, please wait...",
@@ -1267,9 +1279,9 @@
       "Flat": "Flat"
     },
     "discountMode": {
-      "All": "All",
-      "Any": "Any",
-      "None": "None"
+      "All": "All targets",
+      "Any": "Any target",
+      "None": "Everyone"
     },
     "discountMatchType": {
       "UserId": "UserId",
@@ -1319,7 +1331,7 @@
         "title": "Termination fee",
         "description": "The fee charged when a user terminates a secured booking."
       },
-      "terminationNote": "This fee applies when a user terminates a secured booking — the T&C currently states 50%, so keep this consistent with the published terms.",
+      "terminationNote": "This fee is calculated from the actual amount paid when a secured booking is terminated. The configured percentage, flat amount, and cap above control the charge.",
       "hint": "0% + S$0 removes the fee and hides it from users.",
       "currentLabel": "Current fee",
       "loadFailed": "Failed to load the current fee"

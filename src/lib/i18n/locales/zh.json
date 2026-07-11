@@ -318,6 +318,7 @@
     "purchase": {
       "success": "已成功购买预订",
       "error": "购买预订失败",
+      "priceChanged": "此页面打开期间价格已变更。我们已刷新价格，请检查后再次确认。",
       "createPassengerError": "创建乘客失败",
       "trigger": "购买",
       "title": "购买预订",
@@ -339,9 +340,10 @@
       "title": "终止预订",
       "intro": "我们的小兔子们已经成功在 KITS 上为您锁定了车票！终止此车票会将您的车票释放回 KITS。",
       "takeNoteTitle": "请注意！",
-      "takeNoteBefore": "终止预订只会退还",
-      "refundPercent": "50%",
-      "takeNoteAfter": "您所支付车票价格的金额。这是为了防止滥用系统。",
+      "feeNotice": "将从您实际支付的金额中扣除 {fee} 的终止手续费，余额将退回您的 BunnyBooker 钱包。",
+      "feeLoading": "正在加载当前终止手续费……",
+      "feeLoadFailed": "无法加载当前终止手续费。请重试后再继续。",
+      "feeRetry": "重试",
       "typeNameBefore": "请输入乘客的姓名，",
       "typeNameAfter": "以继续。",
       "typeNameError": "请输入该预订乘客的姓名以继续。",
@@ -476,7 +478,10 @@
       "updateError": "更新折扣失败"
     },
     "matchers": {
-      "hint": "可选择限制此折扣适用的班次。未开启的匹配条件将匹配所有预订。"
+      "hint": "可选择限制此折扣适用的班次。提前时长用于奖励更早购买；未开启的匹配条件将匹配所有预订。",
+      "matchLead": "提前购买",
+      "pickLead": "选择提前购买门槛",
+      "leadAtLeast": "出发前至少 {hours} 小时"
     },
     "delete": {
       "trigger": "删除折扣",
@@ -750,8 +755,8 @@
       "deliveryHeading": "交付、退款与换票政策",
       "deliveryIntro": "您接受以下关于车票交付、退款和换票的条款：",
       "deliveryItem1": "对于 BunnyBooker 系统未能在 KTMB 网站上成功锁定的车票，将提供全额退款。",
-      "deliveryItem2": "已在 KTMB 网站上成功锁定的车票不可免费退款或换票。此类订单可选择终止，但需支付票价 50% 的终止费；其余 50% 将以余额形式退还至您的 BunnyBooker 钱包。",
-      "deliveryItem3": "车票预订后即可发起取消；在车票尚未锁定前，取消是免费的。当 BunnyBooker 系统在 KTMB 网站上成功锁定车票后，将无法再取消，只能终止订单，并按上述规定收取 50% 的终止费。",
+      "deliveryItem2": "已在 KTMB 网站上成功锁定的车票不可免费退款或换票。此类订单可选择终止，但需支付当时配置并在确认前显示的终止手续费；余额将退回您的 BunnyBooker 钱包。",
+      "deliveryItem3": "车票预订后即可发起取消；在车票尚未锁定前，取消是免费的。当 BunnyBooker 系统在 KTMB 网站上成功锁定车票后，将无法再取消，只能终止订单，并按上述规定收取已配置的终止手续费。",
       "deliveryItem4": "车票一经订购并启用我们的预订服务，我们的小兔子将积极尝试锁定您的车票。",
       "deliveryItem5": "预订工作将持续到所选列车方向预定出发时间前 30 分钟。",
       "deliveryItem6": "如果成功，您将及时收到确认的预订详情通知。",
@@ -966,6 +971,8 @@
     "noSchedulesFound": "未找到班次",
     "ticketsInQueue": "排队中有 {count} 人",
     "buy": "购买",
+    "pricingUnavailable": "部分班次的准确价格无法加载。只有受影响的班次会暂停购买。请重试。",
+    "priceUnavailable": "价格暂不可用",
     "breakdown": {
       "open": "查看价格明细",
       "base": "基础价格",
@@ -982,8 +989,13 @@
     "refundPolicy": "配送、取消及退款政策",
     "privacyPolicy": "隐私政策",
     "termsOfUse": "使用条款",
-    "supportSgt": "上午9点 – 午夜（新加坡时间）",
-    "supportUs": "其他时间"
+    "supportEveryDay": "每天 · 新加坡时间（SGT）",
+    "supportFrom": "开始",
+    "supportUntil": "结束",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram 客服",
+    "email": "电邮客服",
+    "phone": "致电客服"
   },
   "loader": {
     "default": "正在加载，请稍候……",
@@ -1267,9 +1279,9 @@
       "Flat": "固定"
     },
     "discountMode": {
-      "All": "全部",
-      "Any": "任意",
-      "None": "无"
+      "All": "全部目标",
+      "Any": "任一目标",
+      "None": "所有人"
     },
     "discountMatchType": {
       "UserId": "用户 ID",
@@ -1319,7 +1331,7 @@
         "title": "终止手续费",
         "description": "用户终止已锁定预订时收取的手续费。"
       },
-      "terminationNote": "此手续费在用户终止已锁定的预订时收取——条款与条件目前注明为 50%，请与已发布的条款保持一致。",
+      "terminationNote": "用户终止已锁定的预订时，此手续费按实际支付金额计算。以上配置的百分比、固定金额和上限决定最终收费。",
       "hint": "0% + S$0 表示取消手续费，并对用户隐藏。",
       "currentLabel": "当前手续费",
       "loadFailed": "无法加载当前手续费"

@@ -213,6 +213,8 @@ export interface CostSummaryRes {
   discounts?: DiscountRecordRes[] | null;
   /** @format double */
   final: number;
+  /** Exact decimal token. Optional only during the old-Zinc rollout window. */
+  quote?: string | null;
 }
 
 export interface CostSlotSummaryRes {
@@ -225,6 +227,8 @@ export interface CostSlotSummaryRes {
   discounts?: DiscountRecordRes[] | null;
   /** @format double */
   final: number;
+  /** Exact decimal token. Optional only during the old-Zinc rollout window. */
+  quote?: string | null;
 }
 
 export interface PriorityEligibilityRes {
@@ -260,6 +264,7 @@ export interface CreateBookingReq {
   time?: string | null;
   direction?: string | null;
   passenger: BookingPassengerReq;
+  expectedCost: string;
 }
 
 export interface CreateCostReq {
@@ -273,9 +278,9 @@ export interface CreateDiscountReq {
 }
 
 export interface CreateMilestoneReq {
-  date?: string | null;
+  date: string;
   /** @maxLength 256 */
-  label?: string | null;
+  label: string;
 }
 
 export interface CreatePassengerReq {
@@ -350,7 +355,7 @@ export interface DiscountRecordReq {
   matchDayOfWeek?: string | null;
   matchDirection?: string | null;
   /** @format int32 */
-  leadTimeUnderHours?: number | null;
+  leadTimeAtLeastHours?: number | null;
   /** @format date-time */
   effectiveAt?: string | null;
   /** @format date-time */
@@ -368,7 +373,7 @@ export interface DiscountRecordRes {
   matchDayOfWeek?: string | null;
   matchDirection?: string | null;
   /** @format int32 */
-  leadTimeUnderHours?: number | null;
+  leadTimeAtLeastHours?: number | null;
   /** @format date-time */
   effectiveAt?: string | null;
   /** @format date-time */
@@ -438,14 +443,17 @@ export interface MaterializedCostRes {
   discounts?: DiscountRecordRes[] | null;
 }
 
-export interface MilestonePrincipalRes {
+export interface MilestoneRes {
   /** @format uuid */
   id: string;
-  date?: string | null;
-  label?: string | null;
+  date: string;
+  label: string;
   /** @format date-time */
   createdAt: string;
 }
+
+/** @deprecated Zinc names this response MilestoneRes. */
+export type MilestonePrincipalRes = MilestoneRes;
 
 export interface PassengerPrincipalRes {
   /** @format uuid */

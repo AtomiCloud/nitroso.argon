@@ -41,7 +41,7 @@ import type {
   FeeRes,
   LatestScheduleRes,
   MaterializedCostRes,
-  MilestonePrincipalRes,
+  MilestoneRes,
   PassengerPrincipalRes,
   PassengerRes,
   PaymentPrincipalRes,
@@ -1023,7 +1023,7 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
    * @secure
    */
   vMilestoneList = (version: string, params: RequestParams = {}) =>
-    this.request<MilestonePrincipalRes[], any>({
+    this.request<MilestoneRes[], any>({
       path: `/api/v${version}/Milestone`,
       method: 'GET',
       secure: true,
@@ -1039,7 +1039,7 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
    * @secure
    */
   vMilestoneCreate = (version: string, data: CreateMilestoneReq, params: RequestParams = {}) =>
-    this.request<MilestonePrincipalRes, any>({
+    this.request<MilestoneRes, any>({
       path: `/api/v${version}/Milestone`,
       method: 'POST',
       body: data,
@@ -1057,10 +1057,11 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
    * @secure
    */
   vMilestoneDelete = (id: string, version: string, params: RequestParams = {}) =>
-    this.request<void, any>({
+    this.request<MilestoneRes, any>({
       path: `/api/v${version}/Milestone/${id}`,
       method: 'DELETE',
       secure: true,
+      format: 'json',
       ...params,
     });
   /**

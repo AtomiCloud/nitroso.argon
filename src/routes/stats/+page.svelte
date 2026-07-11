@@ -1,6 +1,7 @@
 <script lang="ts">
     import {onMount, tick} from "svelte";
     import {page} from "$app/stores";
+    import {goto} from "$app/navigation";
     import {api} from "../../store";
 
     //@ts-ignore
@@ -25,6 +26,7 @@
     import {cn} from "$lib/utils";
     import type {Selected} from "bits-ui";
     import {CalendarDate, type DateValue, getLocalTimeZone} from "@internationalized/date";
+    import {singaporeToday} from "$lib/time/singapore";
     import {CalendarIcon, Clock, CalendarDays, ArrowLeftRight, Flag, Hourglass, LucideLoader, RotateCw, Zap} from "lucide-svelte";
     import type {BookingStatRes, MilestonePrincipalRes} from "$lib/api/core/data-contracts";
     import {toResult} from "$lib/utility";
@@ -50,13 +52,16 @@
     //
     // Mobile-first (owner mandate — this page is mostly used on phones):
     // 24h clock only ("17:00", shorter than locale AM/PM), short day names
-    // ("Mon"), compact cell padding, a sticky compact filter bar whose rows
+    // ("Mon"), compact cell padding, a compact filter bar whose rows
     // scroll horizontally inside themselves, and direction shown purely by
     // COLOR (blue = W → JB, purple = JB → W) with one legend at the top —
     // direction text appears only in that legend and the direction filter.
     //
     // The page is TABS over ONE shared filtered slice: Overview, Day × Time,
     // Lead time, Queue depth, Delivery lead — the global bar filters ALL tabs.
+    // The active tab and every global filter are mirrored into the URL query
+    // string (see the "URL-encoded view state" section) so back / refresh /
+    // share reproduce the exact view.
 
     // milestone create/delete is admin-only on zinc; the list is authed for
     // everyone, so non-admins still get the "From milestone" select
@@ -70,10 +75,6 @@
     }
 
     // ---- travel-date range ----
-    function toCalDate(d: Date): DateValue {
-        return new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
-    }
-
     // zinc's standard API date format, dd-MM-yyyy — CalendarDate.toString()
     // is ISO and gets rejected with a 400
     function toApiDate(d: DateValue): string {
@@ -88,10 +89,12 @@
     }
 
     // seed with the 90-day fallback; onMount swaps the start to the latest
-    // milestone date when one exists
-    const today = new Date();
-    let after: DateValue | undefined = toCalDate(new Date(today.getTime() - 90 * 24 * 3600 * 1000));
-    let before: DateValue | undefined = toCalDate(today);
+    // milestone date when one exists. "Today" is Singapore's calendar day —
+    // travel dates are SGT, so a browser in another timezone must not shift
+    // the window by a day around local midnight.
+    const today = singaporeToday();
+    let after: DateValue | undefined = today.subtract({days: 90});
+    let before: DateValue | undefined = today;
 
     let rows: BookingStatRes[] = [];
     let loading = false;
@@ -161,6 +164,12 @@
             after = d;
             selMilestone = {value: latest.id, label: milestoneLabel(latest)};
         }
+        // the URL omits params at their default, so capture the resolved
+        // defaults before seeding the view from the query string
+        defAfterStr = after == null ? "" : toApiDate(after);
+        defBeforeStr = before == null ? "" : toApiDate(before);
+        applyUrl($page.url.searchParams);
+        urlReady = true;
         await load();
     });
 
@@ -261,7 +270,12 @@
         .filter(r => !selDirection?.value || r.direction === selDirection.value)
         .map(r => r.time ?? ""))].filter(t => t !== "").sort();
     // Drop a stale time filter when a direction switch removes that slot.
-    $: if (selTime?.value && !timesInData.includes(selTime.value)) selTime = undefined;
+    // Gated on !loading AND rows existing: during a refetch (back/forward
+    // range move, reload) `rows` still holds the PREVIOUS range's data, so a
+    // URL-seeded time absent from the old rows must not be judged — clearing
+    // it here would also ripple into syncUrl and rewrite the just-restored
+    // history entry. Judge only against settled data.
+    $: if (!loading && rows.length > 0 && selTime?.value && !timesInData.includes(selTime.value)) selTime = undefined;
     // Bucket options limited to buckets actually present, in canonical order
     $: bucketsInData = BUCKETS.filter(bk => rows.some(r => r.bucket === bk));
 
@@ -396,6 +410,127 @@
 
     // ---- tabs over the one shared slice ----
     let tab = "overview";
+    const TABS = ["overview", "matrix", "leadTime", "queueDepth", "delivery"];
+
+    // ---- URL-encoded view state ----
+    // The active tab and EVERY global control are mirrored into the query
+    // string so back / refresh / share reproduce the exact view:
+    //   tab      active tab (matrix | leadTime | queueDepth | delivery)
+    //   from/to  travel-date range in dd-MM-yyyy (zinc's API date format —
+    //            it round-trips losslessly through toApiDate/fromApiDate);
+    //            when present they OVERRIDE the milestone-derived default
+    //   dir      direction filter (WToJ | JToW)
+    //   day      day-of-week filter (Monday … Sunday)
+    //   time     departure-time filter (HH:mm or HH:mm:ss)
+    //   bucket   lead-time bucket filter (6h … 6m+)
+    //   priority priority filter (priority | regular)
+    //   def      success definition (refundCancel; refund is the default)
+    //   mode     bucket aggregation mode (le | ge; per is the default)
+    // Params at their default are OMITTED, so the default view is a clean
+    // /stats. Tab switches PUSH history entries (browser Back walks the tab
+    // trail); filter changes replace the current entry. Unknown or garbage
+    // values fall back to the default silently.
+
+    // resolved range defaults ("" = unset), captured in onMount AFTER the
+    // milestone default is applied but BEFORE the URL seeds the state
+    let defAfterStr = "";
+    let defBeforeStr = "";
+    // no URL writes until the initial seed is done (never navigate during
+    // hydration); lastTab distinguishes tab switches (push) from filters
+    let urlReady = false;
+    let lastTab = tab;
+
+    function pickParam(v: string | null, allowed: string[]): string {
+        return v != null && allowed.includes(v) ? v : "";
+    }
+
+    // minimal Selected<> shell; the locale reactives above rewrite the label
+    function selOf(v: string): Selected<string> | undefined {
+        return v === "" ? undefined : {value: v, label: v};
+    }
+
+    // dd-MM-yyyy from the URL. CalendarDate is lenient (31-02 silently
+    // constructs), so validate by round-tripping through the real calendar:
+    // an impossible day-of-month normalizes to a different date and fails the
+    // comparison. Anything invalid is ignored.
+    function urlDate(s: string | null): DateValue | null {
+        const d = fromApiDate(s);
+        if (d == null || d.month < 1 || d.month > 12 || d.day < 1) return null;
+        const normalized = new CalendarDate(d.year, d.month, 1).add({days: d.day - 1});
+        return normalized.compare(d) === 0 && normalized.day === d.day ? d : null;
+    }
+
+    // HH:mm or HH:mm:ss from the URL, normalized to zinc's HH:mm:ss rows
+    function urlTime(v: string | null): string {
+        const m = /^([01]\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?$/.exec(v ?? "");
+        return m ? `${m[1]}:${m[2]}:${m[3] ?? "00"}` : "";
+    }
+
+    // seed the whole view state from the query params
+    function applyUrl(q: URLSearchParams) {
+        tab = pickParam(q.get("tab"), TABS) || "overview";
+        lastTab = tab;
+        after = urlDate(q.get("from")) ?? fromApiDate(defAfterStr) ?? undefined;
+        before = urlDate(q.get("to")) ?? fromApiDate(defBeforeStr) ?? undefined;
+        // the milestone select is a label over the range start: re-derive it
+        // so a URL whose "from" IS a milestone date shows that preset
+        const a = after;
+        const ms = a == null ? undefined : milestones.find(m => m.date === toApiDate(a));
+        selMilestone = ms == null ? undefined : {value: ms.id, label: milestoneLabel(ms)};
+        selDirection = selOf(pickParam(q.get("dir"), DIRECTIONS));
+        selDay = selOf(pickParam(q.get("day"), DAYS));
+        selTime = selOf(urlTime(q.get("time")));
+        selBucket = selOf(pickParam(q.get("bucket"), BUCKETS));
+        selPriority = selOf(pickParam(q.get("priority"), ["priority", "regular"]));
+        definition = pickParam(q.get("def"), ["refund", "refundCancel"]) || "refund";
+        bucketMode = pickParam(q.get("mode"), ["per", "le", "ge"]) || "per";
+    }
+
+    // current view state → canonical query string, defaults omitted
+    function serializeUrl(): string {
+        const q = new URLSearchParams();
+        if (tab !== "overview") q.set("tab", tab);
+        const a = after == null ? "" : toApiDate(after);
+        const b = before == null ? "" : toApiDate(before);
+        if (a && a !== defAfterStr) q.set("from", a);
+        if (b && b !== defBeforeStr) q.set("to", b);
+        if (selDirection?.value) q.set("dir", selDirection.value);
+        if (selDay?.value) q.set("day", selDay.value);
+        if (selTime?.value) q.set("time", selTime.value);
+        if (selBucket?.value) q.set("bucket", selBucket.value);
+        if (selPriority?.value) q.set("priority", selPriority.value);
+        if (definition !== "refund") q.set("def", definition);
+        if (bucketMode !== "per") q.set("mode", bucketMode);
+        return q.toString();
+    }
+
+    // state → URL. Only navigates when the serialized query actually differs
+    // from the address bar (loop guard — our own goto lands right back here).
+    $: if (urlReady) syncUrl(tab, after, before, selDirection, selDay, selTime,
+        selBucket, selPriority, definition, bucketMode);
+
+    function syncUrl(..._deps: unknown[]) {
+        const search = serializeUrl();
+        const push = tab !== lastTab;
+        lastTab = tab;
+        if (search === $page.url.searchParams.toString()) return;
+        goto(`${$page.url.pathname}${search ? `?${search}` : ""}`,
+            {replaceState: !push, keepFocus: true, noScroll: true});
+    }
+
+    // URL → state (browser back/forward): re-seed when navigation changes the
+    // query underneath us, refetching only if the travel-date range moved
+    $: if (urlReady) onUrlChange($page.url);
+
+    function onUrlChange(u: URL) {
+        if (u.searchParams.toString() === serializeUrl()) return;
+        const prevA = after == null ? "" : toApiDate(after);
+        const prevB = before == null ? "" : toApiDate(before);
+        applyUrl(u.searchParams);
+        const nextA = after == null ? "" : toApiDate(after);
+        const nextB = before == null ? "" : toApiDate(before);
+        if (nextA !== prevA || nextB !== prevB) load();
+    }
 </script>
 
 <div class="flex flex-col">
@@ -428,9 +563,10 @@
         </div>
 
         <!-- GLOBAL filter bar: one shared state that narrows EVERY tab.
-             Sticky + compact on mobile; each row scrolls horizontally inside
-             itself (container-scoped) instead of wrapping into a tall stack -->
-        <div class="sticky top-0 z-20 -mx-2 px-2 py-2 sm:mx-0 sm:px-3 bg-background/95 backdrop-blur border-b sm:border sm:rounded-lg flex flex-col gap-2">
+             A static compact block (full-bleed on mobile); each row scrolls
+             horizontally inside itself (container-scoped) instead of wrapping
+             into a tall stack -->
+        <div class="-mx-2 px-2 py-2 sm:mx-0 sm:px-3 bg-background border-y sm:border sm:rounded-lg flex flex-col gap-2">
 
             <!-- row 1: travel-date range (the only thing that refetches from
                  zinc) + milestone preset + admin milestone management -->
@@ -552,7 +688,7 @@
             </div>
 
             <!-- row 3: success definition + bucket aggregation mode (the long
-                 help sentences live in InfoTips to keep the sticky bar short) -->
+                 help sentences live in InfoTips to keep the filter bar short) -->
             <div class="overflow-x-auto">
                 <div class="flex gap-2 items-center w-max">
                     <ToggleGroup.Root type="single" bind:value={definition} class="justify-start">

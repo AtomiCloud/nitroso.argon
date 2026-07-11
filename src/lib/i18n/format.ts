@@ -134,5 +134,13 @@ export function formatCalendarDate(
   options: Intl.DateTimeFormatOptions = {},
 ): string {
   const utc = new Date(Date.UTC(value.getFullYear(), value.getMonth(), value.getDate()));
-  return new Intl.DateTimeFormat(tag(locale), { dateStyle: 'medium', timeZone: 'UTC', ...options }).format(utc);
+  const usesDateParts = ['weekday', 'era', 'year', 'month', 'day'].some(part => part in options);
+  // Intl forbids mixing dateStyle with granular date fields. Stats uses a
+  // compact day/month/two-digit-year label, so only supply the default style
+  // when the caller has not selected explicit date parts.
+  const { dateStyle, ...dateParts } = options;
+  const resolved = usesDateParts
+    ? { timeZone: 'UTC', ...dateParts }
+    : { dateStyle: dateStyle ?? 'medium', timeZone: 'UTC', ...dateParts };
+  return new Intl.DateTimeFormat(tag(locale), resolved).format(utc);
 }
