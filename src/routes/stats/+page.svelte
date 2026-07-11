@@ -26,6 +26,7 @@
     import {cn} from "$lib/utils";
     import type {Selected} from "bits-ui";
     import {CalendarDate, type DateValue, getLocalTimeZone} from "@internationalized/date";
+    import {singaporeToday} from "$lib/time/singapore";
     import {CalendarIcon, Clock, CalendarDays, ArrowLeftRight, Flag, Hourglass, LucideLoader, RotateCw, Zap} from "lucide-svelte";
     import type {BookingStatRes, MilestonePrincipalRes} from "$lib/api/core/data-contracts";
     import {toResult} from "$lib/utility";
@@ -74,10 +75,6 @@
     }
 
     // ---- travel-date range ----
-    function toCalDate(d: Date): DateValue {
-        return new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
-    }
-
     // zinc's standard API date format, dd-MM-yyyy — CalendarDate.toString()
     // is ISO and gets rejected with a 400
     function toApiDate(d: DateValue): string {
@@ -92,10 +89,12 @@
     }
 
     // seed with the 90-day fallback; onMount swaps the start to the latest
-    // milestone date when one exists
-    const today = new Date();
-    let after: DateValue | undefined = toCalDate(new Date(today.getTime() - 90 * 24 * 3600 * 1000));
-    let before: DateValue | undefined = toCalDate(today);
+    // milestone date when one exists. "Today" is Singapore's calendar day —
+    // travel dates are SGT, so a browser in another timezone must not shift
+    // the window by a day around local midnight.
+    const today = singaporeToday();
+    let after: DateValue | undefined = today.subtract({days: 90});
+    let before: DateValue | undefined = today;
 
     let rows: BookingStatRes[] = [];
     let loading = false;
@@ -270,9 +269,13 @@
     $: timesInData = [...new Set(rows
         .filter(r => !selDirection?.value || r.direction === selDirection.value)
         .map(r => r.time ?? ""))].filter(t => t !== "").sort();
-    // Drop a stale time filter when a direction switch removes that slot
-    // (only once rows exist — a URL-seeded time must survive the first fetch).
-    $: if (rows.length > 0 && selTime?.value && !timesInData.includes(selTime.value)) selTime = undefined;
+    // Drop a stale time filter when a direction switch removes that slot.
+    // Gated on !loading AND rows existing: during a refetch (back/forward
+    // range move, reload) `rows` still holds the PREVIOUS range's data, so a
+    // URL-seeded time absent from the old rows must not be judged — clearing
+    // it here would also ripple into syncUrl and rewrite the just-restored
+    // history entry. Judge only against settled data.
+    $: if (!loading && rows.length > 0 && selTime?.value && !timesInData.includes(selTime.value)) selTime = undefined;
     // Bucket options limited to buckets actually present, in canonical order
     $: bucketsInData = BUCKETS.filter(bk => rows.some(r => r.bucket === bk));
 
@@ -446,11 +449,15 @@
         return v === "" ? undefined : {value: v, label: v};
     }
 
-    // dd-MM-yyyy from the URL, bounds-checked (the regex alone lets 99-99
-    // through); anything invalid is ignored
+    // dd-MM-yyyy from the URL. CalendarDate is lenient (31-02 silently
+    // constructs), so validate by round-tripping through the real calendar:
+    // an impossible day-of-month normalizes to a different date and fails the
+    // comparison. Anything invalid is ignored.
     function urlDate(s: string | null): DateValue | null {
         const d = fromApiDate(s);
-        return d != null && d.month >= 1 && d.month <= 12 && d.day >= 1 && d.day <= 31 ? d : null;
+        if (d == null || d.month < 1 || d.month > 12 || d.day < 1) return null;
+        const normalized = new CalendarDate(d.year, d.month, 1).add({days: d.day - 1});
+        return normalized.compare(d) === 0 && normalized.day === d.day ? d : null;
     }
 
     // HH:mm or HH:mm:ss from the URL, normalized to zinc's HH:mm:ss rows
