@@ -1161,8 +1161,26 @@
       "statusNone": "无",
       "notFound": "未找到提款记录"
     },
+    "method": {
+      "PayNow": "PayNow",
+      "CardRefund": "退回银行卡"
+    },
+    "refunds": {
+      "title": "退款凭证",
+      "description": "这笔提款的每一部分退回到了哪里",
+      "payment": "付款",
+      "refundId": "退款",
+      "settledAt": "已到账 {at}",
+      "copied": "已复制到剪贴板",
+      "status": {
+        "Created": "待处理",
+        "Settled": "已到账",
+        "Failed": "失败"
+      }
+    },
     "card": {
       "amountToPayNow": "{amount} 至 PayNow {payNowNumber}",
+      "amountToCard": "{amount} 退回银行卡",
       "viewDetails": "查看详情",
       "by": "由",
       "completer": "处理人",
@@ -1181,12 +1199,15 @@
       "trigger": "自动批准（Airwallex）",
       "title": "批准提款",
       "instructions": "批准后将通过 Airwallex 向 {payNowNumber} 发起自动 PayNow 付款，金额为净额（{amount} 减去提款手续费）。提款将进入“处理中”状态，并在 Airwallex 确认转账后自动完成。",
+      "instructionsCard": "批准后将通过 Airwallex 把净额（{amount} 减去提款手续费）按最早付款优先的顺序退回为该钱包充值的银行卡。提款将进入“处理中”状态，并在所有退款到账后自动完成。",
+      "poolShrank": "可退款额度已不足以覆盖这笔提款：需要 {required}，目前仅可退 {available}。请让用户取消后重新申请较小的金额。",
       "success": "已为 {amount} 的提款启动付款，Airwallex 确认后将自动完成。",
       "failed": "批准提款失败"
     },
     "cancel": {
       "title": "取消提款",
       "confirm": "您正在取消这笔 {amount} 至 PayNow {payNowNumber} 的提款。",
+      "confirmCard": "您正在取消这笔 {amount} 的银行卡退款提款。",
       "noteRequired": "请输入备注。",
       "noteTooLong": "备注不能超过 4096 个字符。",
       "success": "已成功取消 {amount} 的提款。",
@@ -1195,6 +1216,7 @@
     "reject": {
       "title": "拒绝提款",
       "confirm": "您正在拒绝这笔 {amount} 至 PayNow {payNowNumber} 的提款。",
+      "confirmCard": "您正在拒绝这笔 {amount} 的银行卡退款提款。",
       "noteRequired": "请输入备注。",
       "noteTooLong": "备注不能超过 4096 个字符。",
       "success": "已成功拒绝 {amount} 的提款。",
@@ -1214,9 +1236,23 @@
       "durationSuffix": "才能处理完成。",
       "balanceLabel": "余额：{amount}",
       "payNowPlaceholder": "8 位 PayNow 手机号码",
+      "methodLabel": "提款方式",
+      "methodCardRefund": "退回银行卡",
+      "methodCardRefundDesc": "款项将退回您付款时使用的银行卡",
+      "methodPayNow": "PayNow",
+      "methodPayNowDesc": "转账至 8 位 PayNow 手机号码",
+      "methodPayNowUnavailable": "暂时不可用",
+      "poolLoading": "正在查询可退回银行卡的金额…",
+      "poolLine": "最多可退回 {pool} 至您的银行卡（最近 {windowDays} 天内的付款）",
+      "poolEmptyTitle": "没有可退款的银行卡付款",
+      "poolEmpty": "您在最近 {windowDays} 天内没有可退款的银行卡付款，目前无法退回银行卡。",
+      "poolUnavailableTitle": "无法获取可退款额度",
+      "poolUnavailable": "无法查询可退回银行卡的金额，请稍后再试。",
+      "poolLoadFailed": "加载可退款额度失败",
       "submit": "申请提款",
       "amountGreaterThanZero": "金额必须大于 0",
       "amountExceedsBalance": "金额必须小于或等于您的可用余额",
+      "amountExceedsPool": "金额不能超过可退回银行卡的额度",
       "amountFinite": "金额必须是有限的数字",
       "invalidPayNow": "PayNow 号码必须是 8 位数字",
       "success": "已成功从您的可用余额申请提款 {amount}。",
@@ -1233,6 +1269,7 @@
       "amountLine": "提款金额：{amount}",
       "feeLine": "提款手续费：−{fee}",
       "transferExactly": "请准确转账：{net} 至 PayNow {payNowNumber}",
+      "transferExactlyCard": "请准确退款：{net} 至用户的银行卡",
       "feeLoading": "正在加载提款手续费率…",
       "feeUnavailable": "提款手续费率加载失败，无法确定净转账金额。请勿转账全额——请先重试加载手续费率。",
       "feeLoadFailed": "无法加载提款手续费率",

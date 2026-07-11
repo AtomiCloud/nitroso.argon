@@ -1161,8 +1161,26 @@
       "statusNone": "None",
       "notFound": "Withdrawals not found"
     },
+    "method": {
+      "PayNow": "PayNow",
+      "CardRefund": "Card refund"
+    },
+    "refunds": {
+      "title": "Refund evidence",
+      "description": "Where each slice of this withdrawal was refunded to",
+      "payment": "Payment",
+      "refundId": "Refund",
+      "settledAt": "Settled {at}",
+      "copied": "Copied to clipboard",
+      "status": {
+        "Created": "Pending",
+        "Settled": "Settled",
+        "Failed": "Failed"
+      }
+    },
     "card": {
       "amountToPayNow": "{amount} to PayNow {payNowNumber}",
+      "amountToCard": "{amount} refunded to card",
       "viewDetails": "View Details",
       "by": "By",
       "completer": "Completer",
@@ -1181,12 +1199,15 @@
       "trigger": "Auto approve (Airwallex)",
       "title": "Approve withdrawal",
       "instructions": "Approving will initiate an automated PayNow payout via Airwallex to {payNowNumber} for the net amount ({amount} minus the withdrawal fee). The withdrawal will move to \"Processing\" and complete automatically once Airwallex confirms the transfer.",
+      "instructionsCard": "Approving will refund the net amount ({amount} minus the withdrawal fee) back onto the card payments that funded this wallet, oldest first, via Airwallex. The withdrawal will move to \"Processing\" and complete automatically once every refund settles.",
+      "poolShrank": "The refundable pool can no longer cover this withdrawal: {required} needed, only {available} refundable. Ask the user to cancel and re-request a smaller amount.",
       "success": "Payout initiated for the withdrawal of {amount}. It will complete automatically once Airwallex confirms.",
       "failed": "Failed to approve withdrawal"
     },
     "cancel": {
       "title": "Cancel withdrawal",
       "confirm": "You are cancelling this withdrawal of {amount} to PayNow {payNowNumber}.",
+      "confirmCard": "You are cancelling this card-refund withdrawal of {amount}.",
       "noteRequired": "Please enter a note.",
       "noteTooLong": "Note cannot be longer than 4096 characters.",
       "success": "Successfully cancelled the withdrawal of {amount}.",
@@ -1195,6 +1216,7 @@
     "reject": {
       "title": "Reject withdrawal",
       "confirm": "You are rejecting this withdrawal of {amount} to PayNow {payNowNumber}.",
+      "confirmCard": "You are rejecting this card-refund withdrawal of {amount}.",
       "noteRequired": "Please enter a note.",
       "noteTooLong": "Note cannot be longer than 4096 characters.",
       "success": "Successfully rejected the withdrawal of {amount}.",
@@ -1214,9 +1236,23 @@
       "durationSuffix": "to be processed.",
       "balanceLabel": "Balance: {amount}",
       "payNowPlaceholder": "8-digit PayNow mobile number",
+      "methodLabel": "Withdrawal method",
+      "methodCardRefund": "Refund to card",
+      "methodCardRefundDesc": "Money goes back onto the cards you paid with",
+      "methodPayNow": "PayNow",
+      "methodPayNowDesc": "Transfer to an 8-digit PayNow mobile number",
+      "methodPayNowUnavailable": "Temporarily unavailable",
+      "poolLoading": "Checking how much is refundable to your cards…",
+      "poolLine": "Up to {pool} refundable to your cards (payments from the last {windowDays} days)",
+      "poolEmptyTitle": "No refundable card payments",
+      "poolEmpty": "You have no refundable card payments in the last {windowDays} days, so a card refund is not possible right now.",
+      "poolUnavailableTitle": "Refundable amount unavailable",
+      "poolUnavailable": "We could not check how much is refundable to your cards. Please try again later.",
+      "poolLoadFailed": "Failed to load the refundable amount",
       "submit": "Request Withdrawal",
       "amountGreaterThanZero": "Amount must be greater than 0",
       "amountExceedsBalance": "Amount must be less than or equal to your usable balance",
+      "amountExceedsPool": "Amount must be within what is refundable to your cards",
       "amountFinite": "Amount must be a finite number",
       "invalidPayNow": "PayNow number must be exactly 8 digits",
       "success": "Successfully requested withdrawal of {amount} from your USABLE balance.",
@@ -1233,6 +1269,7 @@
       "amountLine": "Withdrawal amount: {amount}",
       "feeLine": "Withdrawal fee: −{fee}",
       "transferExactly": "Transfer exactly: {net} to PayNow {payNowNumber}",
+      "transferExactlyCard": "Refund exactly: {net} back to the user's cards",
       "feeLoading": "Loading withdrawal fee rate…",
       "feeUnavailable": "Cannot determine the net transfer amount because the withdrawal fee rate failed to load. Do not transfer the gross amount — retry loading the fee rate first.",
       "feeLoadFailed": "Failed to load withdrawal fee rate",
