@@ -27,7 +27,7 @@
     import type {Selected} from "bits-ui";
     import {CalendarDate, type DateValue, getLocalTimeZone} from "@internationalized/date";
     import {singaporeToday} from "$lib/time/singapore";
-    import {CalendarIcon, Clock, CalendarDays, ArrowLeftRight, Flag, Hourglass, LucideLoader, RotateCw, Zap} from "lucide-svelte";
+    import {CalendarIcon, Clock, CalendarDays, ArrowLeftRight, Flag, Hourglass, LucideLoader, RotateCw, Timer, Users, Zap} from "lucide-svelte";
     import type {BookingStatRes, MilestonePrincipalRes} from "$lib/api/core/data-contracts";
     import {toResult} from "$lib/utility";
     import Loader from "$lib/components/complex/loader.svelte";
@@ -35,7 +35,7 @@
     import {_} from "svelte-i18n";
     import {lang, formatCalendarDate, formatNumber} from "$lib/i18n";
     import {
-        DAYS, DIRECTIONS, DIR_DOT, DIR_TINT, BUCKETS, DEMAND_BUCKETS, DELIVERY_BUCKETS,
+        DAYS, DIRECTIONS, DIR_DOT, DIR_TINT, BUCKETS, DEMAND_BUCKETS, DELIVERY_BUCKETS, DELIVERY_CUTOFFS,
         aggregate, rateOf, rateClass, barClass, rateText, toStatRow,
         type StatRow,
     } from "./stats";
@@ -58,7 +58,7 @@
     // direction text appears only in that legend and the direction filter.
     //
     // The page is TABS over ONE shared filtered slice: Overview, Day × Time,
-    // Lead time, Queue depth, Delivery lead — the global bar filters ALL tabs.
+    // Lead time, Demand, Delivery lead — the global bar filters ALL tabs.
     // The active tab and every global filter are mirrored into the URL query
     // string (see the "URL-encoded view state" section) so back / refresh /
     // share reproduce the exact view.
@@ -231,6 +231,9 @@
     let selTime: Selected<string> | undefined;
     let selBucket: Selected<string> | undefined;
     let selPriority: Selected<string> | undefined;
+    let selDemand: Selected<string> | undefined;
+    // NOT a row filter: the delivery cutoff REDEFINES success (see below)
+    let selDelivery: Selected<string> | undefined;
 
     // Keep closed-trigger labels in the active locale (same treatment as the
     // bookings list selects).
@@ -256,6 +259,16 @@
         const l = $_(`stats.priority.${selPriority.value}`, { locale: $lang });
         if (selPriority.label !== l) selPriority = { ...selPriority, label: l };
     }
+    // The demand trigger follows the same mode-aware labeling as lead time
+    // ("10-20" / "≤ 10-20" / "≥ 10-20").
+    $: if (selDemand?.value) {
+        const l = bucketLabel(selDemand.value, bucketMode, $lang);
+        if (selDemand.label !== l) selDemand = { ...selDemand, label: l };
+    }
+    $: if (selDelivery?.value) {
+        const l = $_('stats.deliveryCutoff.optionLabel', { locale: $lang, values: { bucket: selDelivery.value } });
+        if (selDelivery.label !== l) selDelivery = { ...selDelivery, label: l };
+    }
 
     function bucketLabel(bk: string, mode: string, l: typeof $lang): string {
         if (mode === "le") return $_('stats.bucketMode.upTo', { locale: l, values: { bucket: bk } });
@@ -278,6 +291,7 @@
     $: if (!loading && rows.length > 0 && selTime?.value && !timesInData.includes(selTime.value)) selTime = undefined;
     // Bucket options limited to buckets actually present, in canonical order
     $: bucketsInData = BUCKETS.filter(bk => rows.some(r => r.bucket === bk));
+    $: demandInData = DEMAND_BUCKETS.filter(db => rows.some(r => r.demandBucket === db));
 
     function bucketMatches(r: BookingStatRes, sel: string, mode: string): boolean {
         if (mode === "per") return r.bucket === sel;
@@ -286,13 +300,35 @@
         return mode === "ge" ? i >= bucketIdx(sel) : i <= bucketIdx(sel);
     }
 
-    // the ONE filtered slice every tab reads
+    // The demand filter follows the SAME 3-mode semantics as lead time:
+    // per = exactly that bucket, ≤/≥ = cumulative over the demand ladder
+    // (e.g. mode ≥ + "10-20" = every row with demand at 10-20 or above).
+    function demandFilterMatches(r: BookingStatRes, sel: string, mode: string): boolean {
+        if (mode === "per") return r.demandBucket === sel;
+        const i = DEMAND_BUCKETS.indexOf(r.demandBucket ?? "");
+        if (i === -1) return false;
+        const s = DEMAND_BUCKETS.indexOf(sel);
+        return mode === "ge" ? i >= s : i <= s;
+    }
+
+    // the ONE filtered slice every tab reads. The delivery cutoff is
+    // deliberately NOT here: it never drops rows, it redefines which
+    // completions count as success (see dlvCutoff below).
     $: filtered = rows.filter(r =>
         (!selDay?.value || r.dayOfWeek === selDay.value) &&
         (!selDirection?.value || r.direction === selDirection.value) &&
         (!selTime?.value || r.time === selTime.value) &&
         (!selPriority?.value || (selPriority.value === "priority" ? r.priority : !r.priority)) &&
-        (!selBucket?.value || bucketMatches(r, selBucket.value, bucketMode)));
+        (!selBucket?.value || bucketMatches(r, selBucket.value, bucketMode)) &&
+        (!selDemand?.value || demandFilterMatches(r, selDemand.value, bucketMode)));
+
+    // ---- delivery-lead SUCCESS REDEFINITION ("" = off) ----
+    // With a cutoff active, a completed booking whose ticket arrived closer
+    // to departure than the cutoff counts as a FAILURE: the numerator shrinks
+    // to timely completions, the denominator is untouched. Completed rows
+    // without a deliveryBucket (legacy/unbucketed) cannot be verified as
+    // timely, so they count as fail too — the InfoTip says so.
+    $: dlvCutoff = selDelivery?.value ?? "";
 
     // ---- breakdown tables (Group | Total | Success % + raw n/d) ----
 
@@ -300,7 +336,7 @@
     $: byDay = DAYS
         .map(d => ({key: d, rs: filtered.filter(r => r.dayOfWeek === d)}))
         .filter(g => g.rs.length > 0)
-        .map(g => toStatRow(g.key, $_(`stats.daysShort.${g.key.toLowerCase()}`, { locale: $lang }), "", g.rs, definition));
+        .map(g => toStatRow(g.key, $_(`stats.daysShort.${g.key.toLowerCase()}`, { locale: $lang }), "", g.rs, definition, dlvCutoff));
 
     // breakdown by departure time, one tinted row per (direction, time)
     $: byTime = [...new Set(filtered.map(r => `${r.direction ?? ""}|${r.time ?? ""}`))]
@@ -308,7 +344,7 @@
         .map(k => {
             const [dir, tm] = k.split("|");
             const rs = filtered.filter(r => (r.direction ?? "") === dir && (r.time ?? "") === tm);
-            return toStatRow(k, tm === "" ? "—" : hhmm(tm), dir, rs, definition);
+            return toStatRow(k, tm === "" ? "—" : hhmm(tm), dir, rs, definition, dlvCutoff);
         });
 
     // breakdown by lead-time bucket (6h → 6m+); the cumulative modes turn
@@ -320,13 +356,14 @@
         bucketLabel(bk, bucketMode, $lang),
         "",
         filtered.filter(r => bucketMatches(r, bk, bucketMode)),
-        definition));
+        definition,
+        dlvCutoff));
 
-    // breakdown by queue depth — how many bookings competed for the slot
+    // breakdown by demand — how many bookings competed for the slot
     $: byDemand = DEMAND_BUCKETS
         .map(db => ({key: db, rs: filtered.filter(r => r.demandBucket === db)}))
         .filter(g => g.rs.length > 0)
-        .map(g => toStatRow(g.key, g.key, "", g.rs, definition)) as StatRow[];
+        .map(g => toStatRow(g.key, g.key, "", g.rs, definition, dlvCutoff)) as StatRow[];
 
     // ---- delivery lead (COMPLETED bookings only; deliveryBucket != null) ----
     // distribution of how long before departure the ticket was secured; the
@@ -369,7 +406,7 @@
 
     $: matrixTimes = [...new Set(filtered.map(r => r.time ?? ""))].filter(t => t !== "").sort();
     $: matrixDays = DAYS.filter(d => filtered.some(r => r.dayOfWeek === d));
-    $: matrix = buildMatrix(filtered, definition);
+    $: matrix = buildMatrix(filtered, definition, dlvCutoff);
     // each time's direction, derived from the data rows (for row tinting)
     $: timeDirection = deriveTimeDirection(rows);
 
@@ -382,7 +419,7 @@
         return m;
     }
 
-    function buildMatrix(rs: BookingStatRes[], def: string): Map<string, MatrixCell> {
+    function buildMatrix(rs: BookingStatRes[], def: string, cutoff: string): Map<string, MatrixCell> {
         // group the (already bucket/filter-sliced) rows per (day, time)
         const groups = new Map<string, BookingStatRes[]>();
         for (const r of rs) {
@@ -394,7 +431,7 @@
         }
         const m = new Map<string, MatrixCell>();
         for (const [key, g] of groups) {
-            const a = aggregate(g);
+            const a = aggregate(g, cutoff);
             m.set(key, {rate: rateOf(a, def), total: a.total});
         }
         return m;
@@ -402,7 +439,7 @@
 
     // summary of the current filtered slice, under both definitions, with the
     // raw numerators/denominators visible (the owner's actuarial base)
-    $: summary = aggregate(filtered);
+    $: summary = aggregate(filtered, dlvCutoff);
     $: summaryRateRefund = rateOf(summary, "refund");
     $: summaryRateRefundCancel = rateOf(summary, "refundCancel");
     $: summaryDenRefund = summary.completed + summary.refunded;
@@ -410,12 +447,15 @@
 
     // ---- tabs over the one shared slice ----
     let tab = "overview";
-    const TABS = ["overview", "matrix", "leadTime", "queueDepth", "delivery"];
+    // "demand" was called "queueDepth" before the rename; applyUrl still
+    // accepts the old value so shared/bookmarked URLs keep working
+    const TABS = ["overview", "matrix", "leadTime", "demand", "delivery"];
 
     // ---- URL-encoded view state ----
     // The active tab and EVERY global control are mirrored into the query
     // string so back / refresh / share reproduce the exact view:
-    //   tab      active tab (matrix | leadTime | queueDepth | delivery)
+    //   tab      active tab (matrix | leadTime | demand | delivery;
+    //            queueDepth is accepted as a legacy alias for demand)
     //   from/to  travel-date range in dd-MM-yyyy (zinc's API date format —
     //            it round-trips losslessly through toApiDate/fromApiDate);
     //            when present they OVERRIDE the milestone-derived default
@@ -423,6 +463,9 @@
     //   day      day-of-week filter (Monday … Sunday)
     //   time     departure-time filter (HH:mm or HH:mm:ss)
     //   bucket   lead-time bucket filter (6h … 6m+)
+    //   demand   demand bucket filter (0-5 … 30+); follows `mode` like bucket
+    //   dlv      delivery-lead success cutoff (2h … 48h+) — NOT a row filter,
+    //            it redefines the success numerator (see dlvCutoff)
     //   priority priority filter (priority | regular)
     //   def      success definition (refundCancel; refund is the default)
     //   mode     bucket aggregation mode (le | ge; per is the default)
@@ -468,7 +511,9 @@
 
     // seed the whole view state from the query params
     function applyUrl(q: URLSearchParams) {
-        tab = pickParam(q.get("tab"), TABS) || "overview";
+        // legacy alias from before the "Queue depth" → "Demand" rename
+        const rawTab = q.get("tab") === "queueDepth" ? "demand" : q.get("tab");
+        tab = pickParam(rawTab, TABS) || "overview";
         lastTab = tab;
         after = urlDate(q.get("from")) ?? fromApiDate(defAfterStr) ?? undefined;
         before = urlDate(q.get("to")) ?? fromApiDate(defBeforeStr) ?? undefined;
@@ -481,6 +526,8 @@
         selDay = selOf(pickParam(q.get("day"), DAYS));
         selTime = selOf(urlTime(q.get("time")));
         selBucket = selOf(pickParam(q.get("bucket"), BUCKETS));
+        selDemand = selOf(pickParam(q.get("demand"), DEMAND_BUCKETS));
+        selDelivery = selOf(pickParam(q.get("dlv"), DELIVERY_CUTOFFS));
         selPriority = selOf(pickParam(q.get("priority"), ["priority", "regular"]));
         definition = pickParam(q.get("def"), ["refund", "refundCancel"]) || "refund";
         bucketMode = pickParam(q.get("mode"), ["per", "le", "ge"]) || "per";
@@ -498,6 +545,8 @@
         if (selDay?.value) q.set("day", selDay.value);
         if (selTime?.value) q.set("time", selTime.value);
         if (selBucket?.value) q.set("bucket", selBucket.value);
+        if (selDemand?.value) q.set("demand", selDemand.value);
+        if (selDelivery?.value) q.set("dlv", selDelivery.value);
         if (selPriority?.value) q.set("priority", selPriority.value);
         if (definition !== "refund") q.set("def", definition);
         if (bucketMode !== "per") q.set("mode", bucketMode);
@@ -507,7 +556,7 @@
     // state → URL. Only navigates when the serialized query actually differs
     // from the address bar (loop guard — our own goto lands right back here).
     $: if (urlReady) syncUrl(tab, after, before, selDirection, selDay, selTime,
-        selBucket, selPriority, definition, bucketMode);
+        selBucket, selDemand, selDelivery, selPriority, definition, bucketMode);
 
     function syncUrl(..._deps: unknown[]) {
         const search = serializeUrl();
@@ -563,15 +612,14 @@
         </div>
 
         <!-- GLOBAL filter bar: one shared state that narrows EVERY tab.
-             A static compact block (full-bleed on mobile); each row scrolls
-             horizontally inside itself (container-scoped) instead of wrapping
-             into a tall stack -->
+             A static compact block (full-bleed on mobile); every group WRAPS
+             (no horizontal scrolling anywhere on the page except inside
+             tables) -->
         <div class="-mx-2 px-2 py-2 sm:mx-0 sm:px-3 bg-background border-y sm:border sm:rounded-lg flex flex-col gap-2">
 
-            <!-- row 1: travel-date range (the only thing that refetches from
-                 zinc) + milestone preset + admin milestone management -->
-            <div class="overflow-x-auto">
-                <div class="flex gap-2 items-center w-max">
+            <!-- group 1: travel-date range (the only thing that refetches
+                 from zinc) + milestone preset + admin milestone management -->
+            <div class="flex flex-wrap gap-2 items-center">
                     <Popover.Root>
                         <Popover.Trigger asChild let:builder>
                             <Button variant="outline"
@@ -613,15 +661,14 @@
                             {/each}
                         </Select.Content>
                     </Select.Root>
-                    {#if isAdmin}
-                        <MilestoneManage {milestones} {toApiDate} reload={refreshMilestones}/>
-                    {/if}
-                </div>
+                {#if isAdmin}
+                    <MilestoneManage {milestones} {toApiDate} reload={refreshMilestones}/>
+                {/if}
             </div>
 
-            <!-- row 2: slice filters (pure client-side re-aggregation) -->
-            <div class="overflow-x-auto">
-                <div class="flex gap-2 items-center w-max">
+            <!-- group 2: slice filters (pure client-side re-aggregation)
+                 + the delivery-lead success cutoff -->
+            <div class="flex flex-wrap gap-2 items-center">
                     <Select.Root bind:selected={selDirection}>
                         <Select.Trigger class="h-8 w-36 text-xs shrink-0">
                             <ArrowLeftRight class="mr-1.5 h-3.5 w-3.5 shrink-0"/>
@@ -684,50 +731,85 @@
                             <Select.Item value="regular">{$_('stats.priority.regular', { locale: $lang })}</Select.Item>
                         </Select.Content>
                     </Select.Root>
-                </div>
+                    <Select.Root bind:selected={selDemand}>
+                        <Select.Trigger class="h-8 w-36 text-xs shrink-0">
+                            <Users class="mr-1.5 h-3.5 w-3.5 shrink-0"/>
+                            <Select.Value placeholder={$_('stats.filters.demand', { locale: $lang })}/>
+                        </Select.Trigger>
+                        <Select.Content>
+                            <Select.Item value="">{$_('stats.filters.all', { locale: $lang })}</Select.Item>
+                            {#each demandInData as db}
+                                <Select.Item value={db}>{db}</Select.Item>
+                            {/each}
+                        </Select.Content>
+                    </Select.Root>
+                    <span class="flex items-center gap-0.5">
+                        <!-- delivery cutoff: NOT a row filter — it redefines
+                             success, so it gets its own InfoTip -->
+                        <Select.Root bind:selected={selDelivery}>
+                            <Select.Trigger class="h-8 w-36 text-xs shrink-0">
+                                <Timer class="mr-1.5 h-3.5 w-3.5 shrink-0"/>
+                                <Select.Value placeholder={$_('stats.deliveryCutoff.placeholder', { locale: $lang })}/>
+                            </Select.Trigger>
+                            <Select.Content>
+                                <Select.Item value="">{$_('stats.deliveryCutoff.off', { locale: $lang })}</Select.Item>
+                                {#each DELIVERY_CUTOFFS as db}
+                                    <Select.Item value={db}>{$_('stats.deliveryCutoff.optionLabel', { locale: $lang, values: { bucket: db } })}</Select.Item>
+                                {/each}
+                            </Select.Content>
+                        </Select.Root>
+                        <InfoTip label={$_('stats.deliveryCutoff.placeholder', { locale: $lang })}>
+                            {$_('stats.deliveryCutoff.info', { locale: $lang })}
+                        </InfoTip>
+                    </span>
             </div>
 
-            <!-- row 3: success definition + bucket aggregation mode (the long
-                 help sentences live in InfoTips to keep the filter bar short) -->
-            <div class="overflow-x-auto">
-                <div class="flex gap-2 items-center w-max">
-                    <ToggleGroup.Root type="single" bind:value={definition} class="justify-start">
-                        <ToggleGroup.Item value="refund" class="h-8 px-2 text-xs" aria-label={$_('stats.definition.refundOnly', { locale: $lang })}>
-                            {$_('stats.definition.refundOnly', { locale: $lang })}
-                        </ToggleGroup.Item>
-                        <ToggleGroup.Item value="refundCancel" class="h-8 px-2 text-xs" aria-label={$_('stats.definition.refundCancel', { locale: $lang })}>
-                            {$_('stats.definition.refundCancel', { locale: $lang })}
-                        </ToggleGroup.Item>
-                    </ToggleGroup.Root>
-                    <InfoTip label={$_('stats.definition.refundOnly', { locale: $lang })}>
-                        {#if definition === "refundCancel"}
-                            {$_('stats.definition.helpRefundCancel', { locale: $lang })}
-                        {:else}
-                            {$_('stats.definition.helpRefundOnly', { locale: $lang })}
-                        {/if}
-                    </InfoTip>
-                    <span class="h-5 w-px bg-border"></span>
-                    <ToggleGroup.Root type="single" bind:value={bucketMode} class="justify-start">
-                        <ToggleGroup.Item value="per" class="h-8 px-2 text-xs" aria-label={$_('stats.bucketMode.per', { locale: $lang })}>
-                            {$_('stats.bucketMode.per', { locale: $lang })}
-                        </ToggleGroup.Item>
-                        <ToggleGroup.Item value="le" class="h-8 px-2 text-xs" aria-label={$_('stats.bucketMode.cumulativeLe', { locale: $lang })}>
-                            {$_('stats.bucketMode.cumulativeLe', { locale: $lang })}
-                        </ToggleGroup.Item>
-                        <ToggleGroup.Item value="ge" class="h-8 px-2 text-xs" aria-label={$_('stats.bucketMode.cumulativeGe', { locale: $lang })}>
-                            {$_('stats.bucketMode.cumulativeGe', { locale: $lang })}
-                        </ToggleGroup.Item>
-                    </ToggleGroup.Root>
-                    <InfoTip label={$_('stats.bucketMode.per', { locale: $lang })}>
-                        {#if bucketMode === "le"}
-                            {$_('stats.bucketMode.helpCumulativeLe', { locale: $lang })}
-                        {:else if bucketMode === "ge"}
-                            {$_('stats.bucketMode.helpCumulativeGe', { locale: $lang })}
-                        {:else}
-                            {$_('stats.bucketMode.helpPer', { locale: $lang })}
-                        {/if}
-                    </InfoTip>
-                </div>
+            <!-- group 3: success definition + bucket aggregation mode (the
+                 long help sentences live in InfoTips to keep the filter bar
+                 short). Two toggle groups STACK on phones (each wraps by
+                 itself) and share a row from sm: up — nothing scrolls
+                 horizontally -->
+            <div class="flex flex-col gap-2 items-start sm:flex-row sm:items-center">
+                    <span class="flex flex-wrap gap-2 items-center">
+                        <ToggleGroup.Root type="single" bind:value={definition} class="justify-start">
+                            <ToggleGroup.Item value="refund" class="h-8 px-2 text-xs" aria-label={$_('stats.definition.refundOnly', { locale: $lang })}>
+                                {$_('stats.definition.refundOnly', { locale: $lang })}
+                            </ToggleGroup.Item>
+                            <ToggleGroup.Item value="refundCancel" class="h-8 px-2 text-xs" aria-label={$_('stats.definition.refundCancel', { locale: $lang })}>
+                                {$_('stats.definition.refundCancel', { locale: $lang })}
+                            </ToggleGroup.Item>
+                        </ToggleGroup.Root>
+                        <InfoTip label={$_('stats.definition.refundOnly', { locale: $lang })}>
+                            {#if definition === "refundCancel"}
+                                {$_('stats.definition.helpRefundCancel', { locale: $lang })}
+                            {:else}
+                                {$_('stats.definition.helpRefundOnly', { locale: $lang })}
+                            {/if}
+                        </InfoTip>
+                    </span>
+                    <span class="hidden sm:inline-block h-5 w-px bg-border"></span>
+                    <span class="flex flex-wrap gap-2 items-center">
+                        <ToggleGroup.Root type="single" bind:value={bucketMode} class="justify-start">
+                            <ToggleGroup.Item value="per" class="h-8 px-2 text-xs" aria-label={$_('stats.bucketMode.per', { locale: $lang })}>
+                                {$_('stats.bucketMode.per', { locale: $lang })}
+                            </ToggleGroup.Item>
+                            <ToggleGroup.Item value="le" class="h-8 px-2 text-xs" aria-label={$_('stats.bucketMode.cumulativeLe', { locale: $lang })}>
+                                {$_('stats.bucketMode.cumulativeLe', { locale: $lang })}
+                            </ToggleGroup.Item>
+                            <ToggleGroup.Item value="ge" class="h-8 px-2 text-xs" aria-label={$_('stats.bucketMode.cumulativeGe', { locale: $lang })}>
+                                {$_('stats.bucketMode.cumulativeGe', { locale: $lang })}
+                            </ToggleGroup.Item>
+                        </ToggleGroup.Root>
+                        <InfoTip label={$_('stats.bucketMode.per', { locale: $lang })}>
+                            {#if bucketMode === "le"}
+                                {$_('stats.bucketMode.helpCumulativeLe', { locale: $lang })}
+                            {:else if bucketMode === "ge"}
+                                {$_('stats.bucketMode.helpCumulativeGe', { locale: $lang })}
+                            {:else}
+                                {$_('stats.bucketMode.helpPer', { locale: $lang })}
+                            {/if}
+                        </InfoTip>
+                    </span>
             </div>
         </div>
 
@@ -750,7 +832,7 @@
                         <Tabs.Trigger value="overview" class="text-xs sm:text-sm px-2.5">{$_('stats.tabs.overview', { locale: $lang })}</Tabs.Trigger>
                         <Tabs.Trigger value="matrix" class="text-xs sm:text-sm px-2.5">{$_('stats.tabs.matrix', { locale: $lang })}</Tabs.Trigger>
                         <Tabs.Trigger value="leadTime" class="text-xs sm:text-sm px-2.5">{$_('stats.tabs.leadTime', { locale: $lang })}</Tabs.Trigger>
-                        <Tabs.Trigger value="queueDepth" class="text-xs sm:text-sm px-2.5">{$_('stats.tabs.queueDepth', { locale: $lang })}</Tabs.Trigger>
+                        <Tabs.Trigger value="demand" class="text-xs sm:text-sm px-2.5">{$_('stats.tabs.demand', { locale: $lang })}</Tabs.Trigger>
                         <Tabs.Trigger value="delivery" class="text-xs sm:text-sm px-2.5">{$_('stats.tabs.delivery', { locale: $lang })}</Tabs.Trigger>
                     </Tabs.List>
                 </div>
@@ -768,15 +850,17 @@
                                     <span class="text-sm text-muted-foreground">{$_('stats.summary.total', { locale: $lang })}</span>
                                     <span class="text-2xl font-semibold">{formatNumber(summary.total, $lang)}</span>
                                 </div>
+                                <!-- numerator = TIMELY completions (equals all
+                                     completions unless a delivery cutoff is on) -->
                                 <div class="flex flex-col">
                                     <span class="text-sm text-muted-foreground">{$_('stats.summary.successRefundOnly', { locale: $lang })}</span>
                                     <span class="text-2xl font-semibold {rateClass(summaryRateRefund)}">{rateText(summaryRateRefund, $lang)}</span>
-                                    <span class="text-xs text-muted-foreground tabular-nums">{formatNumber(summary.completed, $lang)}/{formatNumber(summaryDenRefund, $lang)}</span>
+                                    <span class="text-xs text-muted-foreground tabular-nums">{formatNumber(summary.timely, $lang)}/{formatNumber(summaryDenRefund, $lang)}</span>
                                 </div>
                                 <div class="flex flex-col">
                                     <span class="text-sm text-muted-foreground">{$_('stats.summary.successRefundCancel', { locale: $lang })}</span>
                                     <span class="text-2xl font-semibold {rateClass(summaryRateRefundCancel)}">{rateText(summaryRateRefundCancel, $lang)}</span>
-                                    <span class="text-xs text-muted-foreground tabular-nums">{formatNumber(summary.completed, $lang)}/{formatNumber(summaryDenRefundCancel, $lang)}</span>
+                                    <span class="text-xs text-muted-foreground tabular-nums">{formatNumber(summary.timely, $lang)}/{formatNumber(summaryDenRefundCancel, $lang)}</span>
                                 </div>
                             </div>
                         </Card.Content>
@@ -849,8 +933,8 @@
                     <StatTable title={$_('stats.table.byBucket', { locale: $lang })} rows={byBucket}/>
                 </Tabs.Content>
 
-                <!-- 4. Queue depth: success rate by how contested the slot was -->
-                <Tabs.Content value="queueDepth" class="flex flex-col gap-4">
+                <!-- 4. Demand: success rate by how contested the slot was -->
+                <Tabs.Content value="demand" class="flex flex-col gap-4">
                     <StatTable title={$_('stats.queue.title', { locale: $lang })} rows={byDemand}>
                         <InfoTip slot="info" label={$_('stats.queue.title', { locale: $lang })}>
                             {$_('stats.queue.info', { locale: $lang })}

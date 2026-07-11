@@ -973,6 +973,16 @@
     "buy": "购买",
     "pricingUnavailable": "部分班次的准确价格无法加载。只有受影响的班次会暂停购买。请重试。",
     "priceUnavailable": "价格暂不可用",
+    "odds": {
+      "label": "预估成功率",
+      "na": "暂无预估",
+      "info0": "{day} {time} {direction} 在当前需求量（排队 {demand}）下的历史成功率（仅退款口径）。",
+      "info1": "该需求量下暂无历史数据——{day} {time} {direction} 在所有需求量下的成功率。",
+      "info2": "该星期暂无历史数据——{time} {direction} 在所有星期和需求量下的成功率。",
+      "sample": "样本：{den} 个已定结果中 {num} 个完成。",
+      "context": "当前情况：需求量 {demand}，提前时长 {lead}。",
+      "infoNa": "{time} {direction} 尚无已定结果的历史预订——无法预估。"
+    },
     "breakdown": {
       "open": "查看价格明细",
       "base": "基础价格",
@@ -1414,7 +1424,7 @@
       "overview": "总览",
       "matrix": "星期 × 时间",
       "leadTime": "提前时长",
-      "queueDepth": "排队深度",
+      "demand": "需求量",
       "delivery": "出票时长"
     },
     "priority": {
@@ -1437,7 +1447,7 @@
       "hint": "里程碑用于标记上线或变更；出行日期范围默认从最新的里程碑开始。"
     },
     "queue": {
-      "title": "按排队深度（每时段预订数）",
+      "title": "按需求量（每时段预订数）",
       "info": "同一时段有多少预订在竞争。竞争越激烈，成功率越低——结合星期/时间筛选可查看某个时段的历史成功概率。"
     },
     "delivery": {
@@ -1480,7 +1490,14 @@
       "time": "出发时间",
       "bucket": "提前时长",
       "priority": "优先",
+      "demand": "需求量",
       "all": "全部"
+    },
+    "deliveryCutoff": {
+      "placeholder": "出票时限",
+      "off": "关闭",
+      "optionLabel": "出票 ≥ {bucket}",
+      "info": "启用出票时限后，出票时间距出发时间比该时限更近的车票计为失败。已完成但没有出票时间记录的预订在时限启用期间也计为失败，因为无法核实是否及时出票。分母不变——只有成功的分子会减少。"
     },
     "summary": {
       "title": "当前切片",

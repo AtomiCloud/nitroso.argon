@@ -973,6 +973,16 @@
     "buy": "Buy",
     "pricingUnavailable": "Some exact slot prices could not be loaded. Only affected departures are paused. Please retry.",
     "priceUnavailable": "Price unavailable",
+    "odds": {
+      "label": "Estimated success odds",
+      "na": "odds n/a",
+      "info0": "Historical success rate (refund only) for {day} {time} {direction} at the current demand level ({demand} in queue).",
+      "info1": "No history at this exact demand level — rate for {day} {time} {direction} across all demand levels.",
+      "info2": "No history for this day of week — rate for {time} {direction} across all days and demand levels.",
+      "sample": "Sample: {num} completed of {den} resolved.",
+      "context": "Current context: demand {demand}, lead time {lead}.",
+      "infoNa": "No resolved historical bookings for {time} {direction} yet — no estimate."
+    },
     "breakdown": {
       "open": "Show price breakdown",
       "base": "Base price",
@@ -1414,7 +1424,7 @@
       "overview": "Overview",
       "matrix": "Day × Time",
       "leadTime": "Lead time",
-      "queueDepth": "Queue depth",
+      "demand": "Demand",
       "delivery": "Delivery lead"
     },
     "priority": {
@@ -1437,7 +1447,7 @@
       "hint": "Milestones mark launches or changes; the travel-date range starts from the latest milestone by default."
     },
     "queue": {
-      "title": "By queue depth (bookings per slot)",
+      "title": "By demand (bookings per slot)",
       "info": "How many bookings competed for the same slot. More people chasing a slot means lower odds — combine with the day/time filters to read the exact historical chance for a slot."
     },
     "delivery": {
@@ -1480,7 +1490,14 @@
       "time": "Departure time",
       "bucket": "Lead time",
       "priority": "Priority",
+      "demand": "Demand",
       "all": "All"
+    },
+    "deliveryCutoff": {
+      "placeholder": "Delivery lead",
+      "off": "Off",
+      "optionLabel": "Delivered ≥ {bucket}",
+      "info": "With a delivery cutoff, tickets delivered closer to departure than the cutoff count as failures. Completed bookings without a recorded delivery time also count as failures while a cutoff is active, since timely delivery cannot be verified. The denominator is unchanged — only the success numerator shrinks."
     },
     "summary": {
       "title": "Current slice",
