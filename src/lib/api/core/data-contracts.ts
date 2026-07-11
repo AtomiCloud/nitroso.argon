@@ -324,6 +324,11 @@ export interface CreateWithdrawalReq {
   /** @format double */
   amount: number;
   payNowNumber?: string | null;
+  /**
+   * HAND-ADDED (zinc PR #36): "PayNow" (default when omitted, rollout compat)
+   * or "CardRefund". PayNow requires payNowNumber; CardRefund forbids it.
+   */
+  method?: string | null;
 }
 
 export interface DiscountMatchReq {
@@ -666,6 +671,36 @@ export interface WithdrawalRecordRes {
   /** @format double */
   amount: number;
   payNowNumber?: string | null;
+  /** HAND-ADDED (zinc PR #36): "PayNow" or "CardRefund" */
+  method: string;
+}
+
+/**
+ * HAND-ADDED (zinc PR #36). Card-refund evidence: one row per refund created
+ * against a funding payment intent. Status: Created | Settled | Failed.
+ */
+export interface WithdrawalRefundRes {
+  paymentIntentId: string;
+  airwallexRefundId?: string | null;
+  /** @format double */
+  amount: number;
+  status: string;
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  settledAt?: string | null;
+}
+
+/**
+ * HAND-ADDED (zinc PR #36). GET Withdrawal/refundable/{userId}: how much the
+ * user could withdraw via card refunds right now, and the window (days) the
+ * pool was computed over.
+ */
+export interface RefundablePoolRes {
+  /** @format double */
+  pool: number;
+  /** @format int32 */
+  windowDays: number;
 }
 
 export interface WithdrawalRes {
@@ -673,6 +708,8 @@ export interface WithdrawalRes {
   user: UserPrincipalRes;
   completer: UserPrincipalRes;
   wallet: WalletPrincipalRes;
+  /** HAND-ADDED (zinc PR #36): card-refund evidence fragments */
+  refunds: WithdrawalRefundRes[];
 }
 
 export interface WithdrawalStatusRes {

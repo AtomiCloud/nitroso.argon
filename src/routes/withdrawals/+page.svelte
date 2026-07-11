@@ -32,6 +32,7 @@
     import RejectWithdrawal from "$lib/components/entities/Withdrawals/RejectWithdrawal.svelte";
     import CancelWithdrawal from "$lib/components/entities/Withdrawals/CancelWithdrawal.svelte";
     import WithdrawalPayoutDetails from "$lib/components/entities/Withdrawals/WithdrawalPayoutDetails.svelte";
+    import {isCardRefund} from "$lib/components/entities/Withdrawals/withdrawal";
     import type {PageData} from "./$types";
     import {format, parse} from "date-fns";
     import {_} from "svelte-i18n";
@@ -168,7 +169,13 @@
                     {#each ws as w}
                         <Card.Root>
                             <Card.Header>
-                                <Card.Title>{$_('withdrawals.card.amountToPayNow', { locale: $lang, values: { amount: formatMoney(w.record.amount, $lang), payNowNumber: w.record.payNowNumber } })}</Card.Title>
+                                <Card.Title>
+                                    {#if isCardRefund(w.record)}
+                                        {$_('withdrawals.card.amountToCard', { locale: $lang, values: { amount: formatMoney(w.record.amount, $lang) } })}
+                                    {:else}
+                                        {$_('withdrawals.card.amountToPayNow', { locale: $lang, values: { amount: formatMoney(w.record.amount, $lang), payNowNumber: w.record.payNowNumber } })}
+                                    {/if}
+                                </Card.Title>
                                 <div class="flex justify-between py-2">
                                     <Card.Description>{formatDateTime(w.createAt, $lang)}</Card.Description>
                                     <Badge class="{WITHDRAWAL_STATUS_BADGE[w.status.status ?? ''].color}">{$_(`withdrawals.status.${w.status.status ?? ''}`, { locale: $lang })}</Badge>

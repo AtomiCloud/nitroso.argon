@@ -49,6 +49,7 @@ import type {
   PriorityAccessRes,
   PriorityEligibilityRes,
   PrioritySettingsRes,
+  RefundablePoolRes,
   RejectWithdrawalReq,
   ScheduleBulkUpdateReq,
   SchedulePrincipalRes,
@@ -2127,6 +2128,23 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
     this.request<WithdrawalPrincipalRes, any>({
       path: `/api/v${version}/Withdrawal/${id}/requeue`,
       method: 'POST',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc PR #36) pending swagger regeneration — the user's
+   * card-refundable pool (owner or admin).
+   *
+   * @tags Withdrawal
+   * @name VWithdrawalRefundableDetail
+   * @request GET:/api/v{version}/Withdrawal/refundable/{userId}
+   * @secure
+   */
+  vWithdrawalRefundableDetail = (userId: string, version: string, params: RequestParams = {}) =>
+    this.request<RefundablePoolRes, any>({
+      path: `/api/v${version}/Withdrawal/refundable/${userId}`,
+      method: 'GET',
       secure: true,
       format: 'json',
       ...params,
