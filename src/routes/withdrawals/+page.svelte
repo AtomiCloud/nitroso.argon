@@ -155,10 +155,12 @@
                 </Select.Content>
             </Select.Root>
 
-            <CreateWithdrawal
-                    userId={$page.data.user.principal.id}
-                    wallet={$page.data.user.wallet}
-            />
+            {#if $page.data.user}
+                <CreateWithdrawal
+                        userId={$page.data.user.principal.id}
+                        wallet={$page.data.user.wallet}
+                />
+            {/if}
         </div>
 
         {#await withdrawals}
@@ -195,8 +197,10 @@
                                                 <CompleteWithdrawalManual withdrawal={w}/>
                                                 <RejectWithdrawal withdrawal={w}/>
                                             {/if}
-                                            <CancelWithdrawal withdrawal={w}
-                                                              userId={$page.data.user.principal.id}/>
+                                            {#if $page.data.user}
+                                                <CancelWithdrawal withdrawal={w}
+                                                                  userId={$page.data.user.principal.id}/>
+                                            {/if}
                                         {/if}
                                     </div>
                                     <Button href="/withdrawals/{w.id}" variant="ghost" class="w-full lg:max-w-40">
