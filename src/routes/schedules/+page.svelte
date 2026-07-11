@@ -32,7 +32,7 @@
     import LivePricingRefresh from "$lib/components/entities/Costs/LivePricingRefresh.svelte";
     import {toResult} from "$lib/utility";
     import {DAYS, demandBucketOf, leadBucketOf} from "$lib/stats/buckets";
-    import OddsBadge from "./OddsBadge.svelte";
+    import OddsStat from "./OddsStat.svelte";
 
     export let data: PageData;
 
@@ -144,6 +144,8 @@
     $: isAdmin = session?.roles?.includes("admin") ?? false;
 
     let statRows: BookingStatRes[] | null = null;
+    // label of the milestone anchoring the stats range; null = 30d fallback
+    let statRangeMilestone: string | null = null;
 
     async function loadStats() {
         const today = singaporeToday();
@@ -159,7 +161,10 @@
                     const [dd, mm, yy] = (m.date ?? "").split("-").map(Number);
                     if (!dd || !mm || !yy) continue;
                     const d = new CalendarDate(yy, mm, dd);
-                    if (d.compare(today) <= 0 && (latest == null || d.compare(latest) > 0)) latest = d;
+                    if (d.compare(today) <= 0 && (latest == null || d.compare(latest) > 0)) {
+                        latest = d;
+                        statRangeMilestone = m.label;
+                    }
                 }
                 if (latest != null) from = latest;
             },
@@ -267,10 +272,11 @@
                                                 </Badge>
                                                 {#if isAdmin && statRows != null && slotDay !== ""}
                                                     <!-- ADMIN-only live odds from the cached stats rows;
-                                                         demand bucket comes from the LIVE queue count -->
-                                                    <OddsBadge rows={statRows}
-                                                               ctx={{dayOfWeek: slotDay, time, direction: bindDirection, demandBucket: demandBucketOf(count)}}
-                                                               leadBucket={slotLeadBucket(currDate, time)}/>
+                                                         demand bucket comes from the LIVE queue count,
+                                                         lead bucket from departure SGT − now -->
+                                                    <OddsStat rows={statRows}
+                                                              ctx={{dayOfWeek: slotDay, time, direction: bindDirection, demandBucket: demandBucketOf(count), leadBucket: slotLeadBucket(currDate, time)}}
+                                                              rangeMilestone={statRangeMilestone}/>
                                                 {/if}
                                             </div>
 
