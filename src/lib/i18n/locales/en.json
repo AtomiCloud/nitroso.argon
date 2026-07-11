@@ -976,12 +976,24 @@
     "odds": {
       "label": "Estimated success odds",
       "na": "odds n/a",
-      "info0": "Historical success rate (refund only) for {day} {time} {direction} at the current demand level ({demand} in queue).",
-      "info1": "No history at this exact demand level — rate for {day} {time} {direction} across all demand levels.",
-      "info2": "No history for this day of week — rate for {time} {direction} across all days and demand levels.",
-      "sample": "Sample: {num} completed of {den} resolved.",
-      "context": "Current context: demand {demand}, lead time {lead}.",
-      "infoNa": "No resolved historical bookings for {time} {direction} yet — no estimate."
+      "confidence": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      },
+      "check": {
+        "day": "Day of week",
+        "time": "Departure time",
+        "direction": "Direction",
+        "demand": "Demand",
+        "lead": "Lead time"
+      },
+      "current": "current: {value}",
+      "matched": "matched",
+      "unmatched": "not matched",
+      "sample": "{num}/{den} resolved bookings",
+      "rangeMilestone": "since {label}",
+      "rangeLast30": "last 30 days"
     },
     "breakdown": {
       "open": "Show price breakdown",

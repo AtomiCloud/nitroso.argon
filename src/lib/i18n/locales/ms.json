@@ -976,12 +976,24 @@
     "odds": {
       "label": "Anggaran kadar kejayaan",
       "na": "tiada anggaran",
-      "info0": "Kadar kejayaan sejarah (bayaran balik sahaja) untuk {day} {time} {direction} pada tahap permintaan semasa ({demand} dalam giliran).",
-      "info1": "Tiada sejarah pada tahap permintaan ini — kadar untuk {day} {time} {direction} merentas semua tahap permintaan.",
-      "info2": "Tiada sejarah untuk hari ini dalam minggu — kadar untuk {time} {direction} merentas semua hari dan tahap permintaan.",
-      "sample": "Sampel: {num} selesai daripada {den} yang muktamad.",
-      "context": "Konteks semasa: permintaan {demand}, masa pendahuluan {lead}.",
-      "infoNa": "Belum ada tempahan sejarah yang muktamad untuk {time} {direction} — tiada anggaran."
+      "confidence": {
+        "high": "Tinggi",
+        "medium": "Sederhana",
+        "low": "Rendah"
+      },
+      "check": {
+        "day": "Hari dalam minggu",
+        "time": "Masa berlepas",
+        "direction": "Arah",
+        "demand": "Permintaan",
+        "lead": "Masa pendahuluan"
+      },
+      "current": "semasa: {value}",
+      "matched": "sepadan",
+      "unmatched": "tidak sepadan",
+      "sample": "{num}/{den} tempahan muktamad",
+      "rangeMilestone": "sejak {label}",
+      "rangeLast30": "30 hari lepas"
     },
     "breakdown": {
       "open": "Tunjukkan pecahan harga",
