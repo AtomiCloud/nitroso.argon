@@ -268,14 +268,30 @@
                                                 <div class="w-24 text-center text-slate-500 text-sm">{bindDate ? formatCalendarDate(calendarDateForDisplay(bindDate), $lang, {dateStyle: "medium"}) : ""}</div>
                                             </div>
                                             <div class="flex flex-col gap-2 items-center">
-                                                <Badge class="text-center {countColor(count)}">{$_("schedules.ticketsInQueue", { locale: $lang, values: { count } })}
+                                                <!-- queue badge: total + (when new zinc served the
+                                                     split) a compact "P:x · N:y" second line. Old
+                                                     zinc has no split — the badge falls back to the
+                                                     plain total. -->
+                                                <Badge class="text-center {countColor(count.total)}">
+                                                    <span class="flex flex-col items-center leading-tight">
+                                                        <span>{$_("schedules.ticketsInQueue", { locale: $lang, values: { count: count.total } })}</span>
+                                                        {#if count.priority != null && count.normal != null}
+                                                            <span class="text-[10px] font-normal opacity-90"
+                                                                  aria-label={$_("schedules.queueSplitAria", { locale: $lang, values: { priority: count.priority, normal: count.normal } })}>
+                                                                {$_("schedules.queueSplit", { locale: $lang, values: { priority: count.priority, normal: count.normal } })}
+                                                            </span>
+                                                        {/if}
+                                                    </span>
                                                 </Badge>
                                                 {#if isAdmin && statRows != null && slotDay !== ""}
                                                     <!-- ADMIN-only live odds from the cached stats rows;
-                                                         demand bucket comes from the LIVE queue count,
-                                                         lead bucket from departure SGT − now -->
+                                                         demand bucket comes from the LIVE queue count
+                                                         (the TOTAL — the historical demandBucket measures
+                                                         total demand, so the priority/normal split must
+                                                         not change prediction inputs), lead bucket from
+                                                         departure SGT − now -->
                                                     <OddsStat rows={statRows}
-                                                              ctx={{dayOfWeek: slotDay, time, direction: bindDirection, demandBucket: demandBucketOf(count), leadBucket: slotLeadBucket(currDate, time)}}
+                                                              ctx={{dayOfWeek: slotDay, time, direction: bindDirection, demandBucket: demandBucketOf(count.total), leadBucket: slotLeadBucket(currDate, time)}}
                                                               rangeMilestone={statRangeMilestone}/>
                                                 {/if}
                                             </div>
