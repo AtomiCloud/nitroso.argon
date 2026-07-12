@@ -2,8 +2,10 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { waitLocale } from 'svelte-i18n';
 import { ZodError } from 'zod';
 import {
+  DEFAULT_WITHDRAWAL_SETTINGS,
   isCardRefund,
   makeCreateWithdrawalSchema,
+  methodAvailability,
   REFUND_STATUS_BADGE,
   shortenId,
   toCreateWithdrawalReq,
@@ -81,6 +83,84 @@ describe('makeCreateWithdrawalSchema — PayNow', () => {
   it('never applies a pool bound, even if a pool is passed', () => {
     const withPool: Opts = { usable: 100, method: 'PayNow', pool: 5 };
     expect(issueFor(withPool, { amount: 50, payNowNumber: '91234567' })).toEqual([]);
+  });
+});
+
+describe('methodAvailability', () => {
+  const on = { cardRefundEnabled: true };
+  const off = { cardRefundEnabled: false };
+
+  describe('card option', () => {
+    it('is selectable when the policy allows card refunds', () => {
+      expect(methodAvailability({ ...on, payNowMode: 'Enabled' }, 100, 10).card).toBe('selectable');
+    });
+
+    it('is disabled (visible, with a note) when the policy turns card refunds off', () => {
+      expect(methodAvailability({ ...off, payNowMode: 'Enabled' }, 100, 10).card).toBe('disabled');
+    });
+  });
+
+  describe('payNow — mode Enabled', () => {
+    it('is always selectable, regardless of pool and amount', () => {
+      expect(methodAvailability({ ...on, payNowMode: 'Enabled' }, 100, 10).payNow).toBe('selectable');
+      expect(methodAvailability({ ...on, payNowMode: 'Enabled' }, null, 0).payNow).toBe('selectable');
+    });
+  });
+
+  describe('payNow — mode Disabled', () => {
+    it('is hidden entirely', () => {
+      expect(methodAvailability({ ...on, payNowMode: 'Disabled' }, 100, 500).payNow).toBe('hidden');
+    });
+  });
+
+  describe('payNow — mode FallbackOnly', () => {
+    const s = { ...on, payNowMode: 'FallbackOnly' };
+
+    it('stays locked while the amount is within the pool', () => {
+      expect(methodAvailability(s, 100, 50).payNow).toBe('locked');
+    });
+
+    it('stays locked at exactly the pool boundary (zinc unlocks strictly on pool < amount)', () => {
+      expect(methodAvailability(s, 100, 100).payNow).toBe('locked');
+    });
+
+    it('unlocks reactively once the amount exceeds the pool', () => {
+      expect(methodAvailability(s, 100, 100.01).payNow).toBe('selectable');
+    });
+
+    it('unlocks for any positive amount when the pool is zero', () => {
+      expect(methodAvailability(s, 0, 0.01).payNow).toBe('selectable');
+    });
+
+    it('stays locked while the pool is unknown (loading/failed) or the amount is not a number', () => {
+      expect(methodAvailability(s, null, 500).payNow).toBe('locked');
+      expect(methodAvailability(s, 100, NaN).payNow).toBe('locked');
+    });
+
+    it('treats an unknown mode as FallbackOnly (conservative default)', () => {
+      expect(methodAvailability({ ...on, payNowMode: 'SomethingNew' }, 100, 50).payNow).toBe('locked');
+      expect(methodAvailability({ ...on, payNowMode: 'SomethingNew' }, 100, 200).payNow).toBe('selectable');
+    });
+  });
+
+  describe('unavailable — no rail open at all', () => {
+    it('flags card-off + payNow-hidden as fully unavailable', () => {
+      const a = methodAvailability({ ...off, payNowMode: 'Disabled' }, 100, 10);
+      expect(a).toEqual({ card: 'disabled', payNow: 'hidden', unavailable: true });
+    });
+
+    it('is not flagged while any rail can (eventually) be used', () => {
+      // card off but PayNow reachable via fallback
+      expect(methodAvailability({ ...off, payNowMode: 'FallbackOnly' }, 100, 10).unavailable).toBe(false);
+      // paynow hidden but card on
+      expect(methodAvailability({ ...on, payNowMode: 'Disabled' }, 100, 10).unavailable).toBe(false);
+    });
+  });
+
+  it('zinc defaults (card on, FallbackOnly, sweep off) produce the pre-settings UI: card selectable, PayNow locked', () => {
+    const a = methodAvailability(DEFAULT_WITHDRAWAL_SETTINGS, null, 0);
+    expect(a).toEqual({ card: 'selectable', payNow: 'locked', unavailable: false });
+    expect(DEFAULT_WITHDRAWAL_SETTINGS.sweepEnabled).toBe(false);
   });
 });
 

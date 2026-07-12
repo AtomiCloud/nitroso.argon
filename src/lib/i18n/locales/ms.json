@@ -1241,7 +1241,12 @@
       "methodCardRefundDesc": "Wang dikembalikan ke kad yang anda gunakan untuk membayar",
       "methodPayNow": "PayNow",
       "methodPayNowDesc": "Pindahan ke nombor telefon bimbit PayNow 8 digit",
-      "methodPayNowUnavailable": "Tidak tersedia buat sementara waktu",
+      "methodPayNowFallback": "Tersedia apabila bayaran balik kad tidak dapat menampung jumlah anda",
+      "methodCardRefundDisabled": "Tidak tersedia buat masa ini",
+      "backToCard": "Jumlah anda boleh dibayar balik ke kad anda, jadi kaedah bayaran balik kad telah dipilih.",
+      "unavailableTitle": "Pengeluaran tidak tersedia",
+      "unavailable": "Pengeluaran tidak tersedia buat masa ini. Sila cuba lagi nanti.",
+      "settingsLoadFailed": "Gagal memuatkan pilihan pengeluaran",
       "poolLoading": "Menyemak jumlah yang boleh dibayar balik ke kad anda…",
       "poolLine": "Sehingga {pool} boleh dibayar balik ke kad anda (pembayaran dalam {windowDays} hari lepas)",
       "poolEmptyTitle": "Tiada pembayaran kad yang boleh dibayar balik",
@@ -1437,6 +1442,33 @@
       "success": "Yuran ditetapkan kepada {desc}",
       "scheduledSuccess": "Perubahan yuran kepada {desc} dijadualkan dari {date}",
       "updateError": "Gagal menyimpan perubahan yuran"
+    },
+    "withdrawalSettings": {
+      "title": "Tetapan pengeluaran",
+      "description": "Mengawal kaedah pengeluaran yang boleh dipilih pengguna dan cara pengeluaran yang diluluskan dibayar.",
+      "cardRefundLabel": "Bayaran balik ke kad diaktifkan",
+      "cardRefundHint": "Pengguna boleh mengeluarkan wang dengan membayar balik ke kad yang mereka gunakan untuk membayar.",
+      "payNowLabel": "PayNow",
+      "modes": {
+        "Enabled": {
+          "label": "Diaktifkan",
+          "hint": "Pengguna sentiasa boleh mengeluarkan wang ke nombor PayNow."
+        },
+        "Disabled": {
+          "label": "Dilumpuhkan",
+          "hint": "Pilihan PayNow disembunyikan sepenuhnya daripada pengguna."
+        },
+        "FallbackOnly": {
+          "label": "Sandaran sahaja",
+          "hint": "PayNow hanya ditawarkan apabila bayaran balik kad tidak dapat menampung jumlah yang diminta."
+        }
+      },
+      "sweepLabel": "Pembayaran automatik setiap malam",
+      "sweepHint": "Apabila dimatikan, setiap pengeluaran hanya dibayar apabila pentadbir meluluskannya.",
+      "save": "Simpan",
+      "saveSuccess": "Tetapan pengeluaran disimpan",
+      "saveError": "Gagal menyimpan tetapan pengeluaran",
+      "loadFailed": "Gagal memuatkan tetapan pengeluaran"
     },
     "announcement": {
       "title": "Pengumuman yuran",

@@ -56,6 +56,7 @@ import type {
   ScheduleRecordReq,
   SetFeeReq,
   SetPrioritySettingsReq,
+  SetWithdrawalSettingsReq,
   TimingPrincipalRes,
   TimingReq,
   TimingRes,
@@ -72,6 +73,7 @@ import type {
   WalletRes,
   WithdrawalPrincipalRes,
   WithdrawalRes,
+  WithdrawalSettingsRes,
 } from './data-contracts';
 import { ContentType, HttpClient, type RequestParams } from './http-client';
 
@@ -2146,6 +2148,42 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
       path: `/api/v${version}/Withdrawal/refundable/${userId}`,
       method: 'GET',
       secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc withdrawal-policy PR) pending swagger regeneration —
+   * the current withdrawal-method policy (any authenticated user).
+   *
+   * @tags Withdrawal
+   * @name VWithdrawalSettingsCurrentDetail
+   * @request GET:/api/v{version}/Withdrawal/settings/current
+   * @secure
+   */
+  vWithdrawalSettingsCurrentDetail = (version: string, params: RequestParams = {}) =>
+    this.request<WithdrawalSettingsRes, any>({
+      path: `/api/v${version}/Withdrawal/settings/current`,
+      method: 'GET',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc withdrawal-policy PR) pending swagger regeneration —
+   * set the withdrawal-method policy (admin).
+   *
+   * @tags Withdrawal
+   * @name VWithdrawalSettingsCreate
+   * @request POST:/api/v{version}/Withdrawal/settings
+   * @secure
+   */
+  vWithdrawalSettingsCreate = (version: string, data: SetWithdrawalSettingsReq, params: RequestParams = {}) =>
+    this.request<WithdrawalSettingsRes, any>({
+      path: `/api/v${version}/Withdrawal/settings`,
+      method: 'POST',
+      body: data,
+      secure: true,
+      type: ContentType.Json,
       format: 'json',
       ...params,
     });

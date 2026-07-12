@@ -1241,7 +1241,12 @@
       "methodCardRefundDesc": "Money goes back onto the cards you paid with",
       "methodPayNow": "PayNow",
       "methodPayNowDesc": "Transfer to an 8-digit PayNow mobile number",
-      "methodPayNowUnavailable": "Temporarily unavailable",
+      "methodPayNowFallback": "Available when card refund can't cover your amount",
+      "methodCardRefundDisabled": "Currently unavailable",
+      "backToCard": "Your amount fits within what is refundable to your cards, so the card refund method was selected.",
+      "unavailableTitle": "Withdrawals unavailable",
+      "unavailable": "Withdrawals are currently unavailable. Please try again later.",
+      "settingsLoadFailed": "Failed to load withdrawal options",
       "poolLoading": "Checking how much is refundable to your cards…",
       "poolLine": "Up to {pool} refundable to your cards (payments from the last {windowDays} days)",
       "poolEmptyTitle": "No refundable card payments",
@@ -1437,6 +1442,33 @@
       "success": "Fee set to {desc}",
       "scheduledSuccess": "Scheduled fee change to {desc} from {date}",
       "updateError": "Failed to save the fee change"
+    },
+    "withdrawalSettings": {
+      "title": "Withdrawal settings",
+      "description": "Controls which withdrawal methods users can pick and how approved withdrawals are paid out.",
+      "cardRefundLabel": "Refund to card enabled",
+      "cardRefundHint": "Users can withdraw by refunding money back onto the cards they paid with.",
+      "payNowLabel": "PayNow",
+      "modes": {
+        "Enabled": {
+          "label": "Enabled",
+          "hint": "Users can always withdraw to a PayNow number."
+        },
+        "Disabled": {
+          "label": "Disabled",
+          "hint": "The PayNow option is hidden from users entirely."
+        },
+        "FallbackOnly": {
+          "label": "Fallback only",
+          "hint": "PayNow is offered only when card refunds cannot cover the requested amount."
+        }
+      },
+      "sweepLabel": "Nightly auto-payout sweep",
+      "sweepHint": "When off, each withdrawal pays out only when an admin approves it.",
+      "save": "Save",
+      "saveSuccess": "Withdrawal settings saved",
+      "saveError": "Failed to save withdrawal settings",
+      "loadFailed": "Failed to load withdrawal settings"
     },
     "announcement": {
       "title": "Fee announcement",
