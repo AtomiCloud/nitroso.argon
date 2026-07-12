@@ -185,39 +185,45 @@ describe('oddsConfidence = min(dimension score, sample score)', () => {
     expect(SAMPLE_MEDIUM_MIN).toBe(15);
   });
 
-  // dims 3 (level 0) × each sample score
-  it('dims 3 + samples 3 → high (level 0, den >= 50)', () => {
+  // dims 3 (levels 0–1: day + demand matched; lead optional) × each sample score
+  it('dims 3 + samples 3 → high (levels 0-1, den >= 50)', () => {
     expect(oddsConfidence(p(0, 50))).toBe('high');
     expect(oddsConfidence(p(0, 60))).toBe('high');
     expect(oddsConfidence(p(0, 1000))).toBe('high');
+    // L1 (day + demand matched, lead not) earns full dims score too — demand
+    // is the dominant signal and prod L0 cells almost never reach 50 resolved
+    expect(oddsConfidence(p(1, 50))).toBe('high');
+    expect(oddsConfidence(p(1, 200))).toBe('high');
   });
 
-  it('dims 3 + samples 2 → medium (level 0, 15 <= den < 50)', () => {
+  it('dims 3 + samples 2 → medium (levels 0-1, 15 <= den < 50)', () => {
     expect(oddsConfidence(p(0, 15))).toBe('medium');
     expect(oddsConfidence(p(0, 30))).toBe('medium');
     expect(oddsConfidence(p(0, 49))).toBe('medium');
+    expect(oddsConfidence(p(1, 15))).toBe('medium');
+    expect(oddsConfidence(p(1, 49))).toBe('medium');
   });
 
-  it('dims 3 + samples 1 → low (level 0, den < 15 — sample size caps a full match)', () => {
+  it('dims 3 + samples 1 → low (levels 0-1, den < 15 — sample size caps a full match)', () => {
     expect(oddsConfidence(p(0, 14))).toBe('low');
     expect(oddsConfidence(p(0, 8))).toBe('low');
     expect(oddsConfidence(p(0, 1))).toBe('low');
+    expect(oddsConfidence(p(1, 14))).toBe('low');
   });
 
-  // dims 2 (levels 1–2) × each sample score
-  it('dims 2 + samples 3 → medium (dims cap, levels 1-2 with den >= 50)', () => {
-    expect(oddsConfidence(p(1, 50))).toBe('medium');
-    expect(oddsConfidence(p(1, 200))).toBe('medium');
+  // dims 2 (level 2: day + lead, demand unmatched) × each sample score
+  it('dims 2 + samples 3 → medium (dims cap, level 2 with den >= 50)', () => {
+    expect(oddsConfidence(p(2, 50))).toBe('medium');
     expect(oddsConfidence(p(2, 500))).toBe('medium');
   });
 
-  it('dims 2 + samples 2 → medium (levels 1-2, 15 <= den < 50)', () => {
-    expect(oddsConfidence(p(1, 15))).toBe('medium');
+  it('dims 2 + samples 2 → medium (level 2, 15 <= den < 50)', () => {
+    expect(oddsConfidence(p(2, 15))).toBe('medium');
     expect(oddsConfidence(p(2, 49))).toBe('medium');
   });
 
-  it('dims 2 + samples 1 → low (levels 1-2, den < 15)', () => {
-    expect(oddsConfidence(p(1, 14))).toBe('low');
+  it('dims 2 + samples 1 → low (level 2, den < 15)', () => {
+    expect(oddsConfidence(p(2, 14))).toBe('low');
     expect(oddsConfidence(p(2, 3))).toBe('low');
   });
 
@@ -231,15 +237,19 @@ describe('oddsConfidence = min(dimension score, sample score)', () => {
     expect(oddsConfidence(p(4, 5))).toBe('low');
   });
 
-  // both boundaries at the level where each matters
-  it('boundary 14/15: low → medium at level 0', () => {
+  // both boundaries at the levels where each matters
+  it('boundary 14/15: low → medium at levels 0-1', () => {
     expect(oddsConfidence(p(0, 14))).toBe('low');
     expect(oddsConfidence(p(0, 15))).toBe('medium');
+    expect(oddsConfidence(p(1, 14))).toBe('low');
+    expect(oddsConfidence(p(1, 15))).toBe('medium');
   });
 
-  it('boundary 49/50: medium → high at level 0', () => {
+  it('boundary 49/50: medium → high at levels 0-1', () => {
     expect(oddsConfidence(p(0, 49))).toBe('medium');
     expect(oddsConfidence(p(0, 50))).toBe('high');
+    expect(oddsConfidence(p(1, 49))).toBe('medium');
+    expect(oddsConfidence(p(1, 50))).toBe('high');
   });
 
   it('end-to-end: predictOdds + oddsConfidence on an exact 50-sample cell', () => {
@@ -252,6 +262,13 @@ describe('oddsConfidence = min(dimension score, sample score)', () => {
     const pred = predictOdds([row({ completed: 6, refunded: 2, total: 8 })], ctx);
     expect(pred?.level).toBe(0);
     expect(oddsConfidence(pred!)).toBe('low');
+  });
+
+  it('end-to-end: a level-1 cell (day + demand, lead unmatched) with 50 resolved is high', () => {
+    const pred = predictOdds([row({ bucket: '2w', completed: 40, refunded: 10, total: 50 })], ctx);
+    expect(pred?.level).toBe(1);
+    expect(pred?.matched).toEqual({ day: true, demand: true, lead: false });
+    expect(oddsConfidence(pred!)).toBe('high');
   });
 });
 

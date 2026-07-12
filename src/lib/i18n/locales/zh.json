@@ -19,7 +19,8 @@
     "logout": "登出",
     "signIn": "登录",
     "fees": "手续费",
-    "stats": "统计"
+    "stats": "统计",
+    "analysis": "销售分析"
   },
   "theme": {
     "toggle": "切换主题"
@@ -263,7 +264,39 @@
         "removeBody": "将 {userId} 从优先白名单中移除？",
         "removeSuccess": "已从白名单移除",
         "removeError": "移除用户失败",
-        "allowlistEmpty": "白名单暂无用户。"
+        "allowlistEmpty": "白名单暂无用户。",
+        "targets": {
+          "freeLabel": "免费升级对象",
+          "freeHint": "符合此目标的用户可免费升级为优先——不收取费用。关闭 = 没有人可免费升级。",
+          "accessLabel": "使用权限",
+          "accessHint": "设置后将覆盖白名单；留空（关闭）则保留原有白名单行为。",
+          "mode": {
+            "All": "全部",
+            "Any": "任一",
+            "None": "所有人"
+          },
+          "modeHelp": {
+            "All": "用户必须符合下方所有规则。",
+            "Any": "用户至少符合下方一条规则。",
+            "None": "匹配所有用户——下方规则将被忽略。"
+          },
+          "type": {
+            "UserId": "用户 ID",
+            "Role": "角色"
+          },
+          "valuePlaceholder": {
+            "UserId": "粘贴用户 ID...",
+            "Role": "角色名（小写）..."
+          },
+          "addMatch": "添加规则",
+          "removeMatch": "移除规则",
+          "valueRequired": "每条规则都需要填写值",
+          "emptyMatches": {
+            "All": "暂无规则——选择\"全部\"时，空列表将匹配所有用户。",
+            "Any": "暂无规则——选择\"任一\"时，空列表不匹配任何用户。",
+            "None": "无需规则——\"所有人\"匹配所有用户。"
+          }
+        }
       }
     }
   },
@@ -364,7 +397,10 @@
       "upgradeTrigger": "升级为优先（{fee}）",
       "upgradeTitle": "升级为优先",
       "upgradeBody": "支付 {fee} 后，此预订将进入优先队列，先于普通队列处理。费用将立即从您的钱包扣除。",
-      "upgradeConfirm": "支付 {fee} 并升级"
+      "upgradeConfirm": "支付 {fee} 并升级",
+      "upgradeTriggerFree": "升级为优先（免费）",
+      "upgradeBodyFree": "此预订将进入优先队列，先于普通队列处理。此次升级对您免费。",
+      "upgradeConfirmFree": "免费升级"
     }
   },
   "bookings": {
@@ -420,7 +456,9 @@
       "subtotal": "小计",
       "priorityTitle": "优先队列",
       "priorityBody": "+{fee} —— 您的预订将先于普通队列处理。",
+      "priorityBodyFree": "对您免费——您的预订将先于普通队列处理。",
       "priorityLine": "优先队列费用",
+      "priorityFree": "免费",
       "totalWithPriority": "含优先总计",
       "insufficientBalance": "余额不足",
       "yourBalance": "您的余额",
@@ -1161,8 +1199,26 @@
       "statusNone": "无",
       "notFound": "未找到提款记录"
     },
+    "method": {
+      "PayNow": "PayNow",
+      "CardRefund": "退回银行卡"
+    },
+    "refunds": {
+      "title": "退款凭证",
+      "description": "这笔提款的每一部分退回到了哪里",
+      "payment": "付款",
+      "refundId": "退款",
+      "settledAt": "已到账 {at}",
+      "copied": "已复制到剪贴板",
+      "status": {
+        "Created": "待处理",
+        "Settled": "已到账",
+        "Failed": "失败"
+      }
+    },
     "card": {
       "amountToPayNow": "{amount} 至 PayNow {payNowNumber}",
+      "amountToCard": "{amount} 退回银行卡",
       "viewDetails": "查看详情",
       "by": "由",
       "completer": "处理人",
@@ -1181,12 +1237,15 @@
       "trigger": "自动批准（Airwallex）",
       "title": "批准提款",
       "instructions": "批准后将通过 Airwallex 向 {payNowNumber} 发起自动 PayNow 付款，金额为净额（{amount} 减去提款手续费）。提款将进入“处理中”状态，并在 Airwallex 确认转账后自动完成。",
+      "instructionsCard": "批准后将通过 Airwallex 把净额（{amount} 减去提款手续费）按最早付款优先的顺序退回为该钱包充值的银行卡。提款将进入“处理中”状态，并在所有退款到账后自动完成。",
+      "poolShrank": "可退款额度已不足以覆盖这笔提款：需要 {required}，目前仅可退 {available}。请让用户取消后重新申请较小的金额。",
       "success": "已为 {amount} 的提款启动付款，Airwallex 确认后将自动完成。",
       "failed": "批准提款失败"
     },
     "cancel": {
       "title": "取消提款",
       "confirm": "您正在取消这笔 {amount} 至 PayNow {payNowNumber} 的提款。",
+      "confirmCard": "您正在取消这笔 {amount} 的银行卡退款提款。",
       "noteRequired": "请输入备注。",
       "noteTooLong": "备注不能超过 4096 个字符。",
       "success": "已成功取消 {amount} 的提款。",
@@ -1195,6 +1254,7 @@
     "reject": {
       "title": "拒绝提款",
       "confirm": "您正在拒绝这笔 {amount} 至 PayNow {payNowNumber} 的提款。",
+      "confirmCard": "您正在拒绝这笔 {amount} 的银行卡退款提款。",
       "noteRequired": "请输入备注。",
       "noteTooLong": "备注不能超过 4096 个字符。",
       "success": "已成功拒绝 {amount} 的提款。",
@@ -1214,9 +1274,28 @@
       "durationSuffix": "才能处理完成。",
       "balanceLabel": "余额：{amount}",
       "payNowPlaceholder": "8 位 PayNow 手机号码",
+      "methodLabel": "提款方式",
+      "methodCardRefund": "退回银行卡",
+      "methodCardRefundDesc": "款项将退回您付款时使用的银行卡",
+      "methodPayNow": "PayNow",
+      "methodPayNowDesc": "转账至 8 位 PayNow 手机号码",
+      "methodPayNowFallback": "当银行卡退款无法覆盖您的金额时可用",
+      "methodCardRefundDisabled": "目前不可用",
+      "backToCard": "您的金额可以退回银行卡，已为您选择银行卡退款方式。",
+      "unavailableTitle": "提款不可用",
+      "unavailable": "提款功能目前不可用，请稍后再试。",
+      "settingsLoadFailed": "加载提款选项失败",
+      "poolLoading": "正在查询可退回银行卡的金额…",
+      "poolLine": "最多可退回 {pool} 至您的银行卡（最近 {windowDays} 天内的付款）",
+      "poolEmptyTitle": "没有可退款的银行卡付款",
+      "poolEmpty": "您在最近 {windowDays} 天内没有可退款的银行卡付款，目前无法退回银行卡。",
+      "poolUnavailableTitle": "无法获取可退款额度",
+      "poolUnavailable": "无法查询可退回银行卡的金额，请稍后再试。",
+      "poolLoadFailed": "加载可退款额度失败",
       "submit": "申请提款",
       "amountGreaterThanZero": "金额必须大于 0",
       "amountExceedsBalance": "金额必须小于或等于您的可用余额",
+      "amountExceedsPool": "金额不能超过可退回银行卡的额度",
       "amountFinite": "金额必须是有限的数字",
       "invalidPayNow": "PayNow 号码必须是 8 位数字",
       "success": "已成功从您的可用余额申请提款 {amount}。",
@@ -1233,6 +1312,7 @@
       "amountLine": "提款金额：{amount}",
       "feeLine": "提款手续费：−{fee}",
       "transferExactly": "请准确转账：{net} 至 PayNow {payNowNumber}",
+      "transferExactlyCard": "请准确退款：{net} 至用户的银行卡",
       "feeLoading": "正在加载提款手续费率…",
       "feeUnavailable": "提款手续费率加载失败，无法确定净转账金额。请勿转账全额——请先重试加载手续费率。",
       "feeLoadFailed": "无法加载提款手续费率",
@@ -1401,6 +1481,33 @@
       "scheduledSuccess": "已安排手续费于 {date} 更改为 {desc}",
       "updateError": "保存手续费更改失败"
     },
+    "withdrawalSettings": {
+      "title": "提款设置",
+      "description": "控制用户可选择的提款方式，以及已批准的提款如何付款。",
+      "cardRefundLabel": "启用退回银行卡",
+      "cardRefundHint": "用户可以将款项退回付款时使用的银行卡来提款。",
+      "payNowLabel": "PayNow",
+      "modes": {
+        "Enabled": {
+          "label": "启用",
+          "hint": "用户始终可以提款至 PayNow 号码。"
+        },
+        "Disabled": {
+          "label": "停用",
+          "hint": "PayNow 选项对用户完全隐藏。"
+        },
+        "FallbackOnly": {
+          "label": "仅作后备",
+          "hint": "仅当银行卡退款无法覆盖申请金额时才提供 PayNow。"
+        }
+      },
+      "sweepLabel": "每晚自动付款",
+      "sweepHint": "关闭时，每笔提款仅在管理员批准后才会付款。",
+      "save": "保存",
+      "saveSuccess": "提款设置已保存",
+      "saveError": "保存提款设置失败",
+      "loadFailed": "加载提款设置失败"
+    },
     "announcement": {
       "title": "手续费公告",
       "description": "向用户发送手续费公告邮件。",
@@ -1545,6 +1652,41 @@
       "friday": "周五",
       "saturday": "周六",
       "sunday": "周日"
+    }
+  },
+  "analysis": {
+    "title": "销售分析",
+    "reload": "刷新",
+    "loadError": "加载销售分析失败",
+    "empty": "此范围内没有已完成的预订",
+    "grossNote": "均为毛收入——不含 Airwallex 手续费。",
+    "range": {
+      "after": "完成日期从",
+      "before": "完成日期至",
+      "hint": "完成日期范围（新加坡时间，含首尾；默认最近 30 天）"
+    },
+    "summary": {
+      "totalTickets": "总票数",
+      "totalGross": "毛收入",
+      "deposits": "已捕获充值",
+      "depositsCount": "{count} 笔付款",
+      "internalFees": "内部费用",
+      "feeDeposit": "充值",
+      "feeWithdrawal": "提现",
+      "feePriority": "优先",
+      "feeTermination": "终止"
+    },
+    "daily": {
+      "title": "每日销售",
+      "description": "每天已完成的票数和毛收入，按出发班次细分",
+      "tickets": "{count} 张票"
+    },
+    "captured": {
+      "title": "已捕获付款",
+      "description": "此范围内捕获资金的付款意向，最新在前（最多 100 条）",
+      "empty": "此范围内没有已捕获的付款",
+      "loadError": "加载已捕获付款失败",
+      "copied": "已复制付款意向 ID"
     }
   }
 }

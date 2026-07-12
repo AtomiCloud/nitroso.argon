@@ -235,6 +235,12 @@ export interface PriorityEligibilityRes {
   eligible: boolean;
   /** @format double */
   fee: number;
+  /**
+   * HAND-ADDED (zinc PR #37): the calling user boosts FREE (fee is 0 when
+   * true). Optional only during the old-Zinc rollout window — treat a
+   * missing value as false.
+   */
+  free?: boolean;
 }
 
 export interface PrioritySettingsRes {
@@ -243,6 +249,17 @@ export interface PrioritySettingsRes {
   allowAll: boolean;
   windowStartSgt?: string | null;
   windowEndSgt?: string | null;
+  /**
+   * HAND-ADDED (zinc PR #37): who boosts free (fee 0, no ledger row), the
+   * same All/Any/None-over-UserId/Role shape as discount targets.
+   * null = nobody boosts free.
+   */
+  freeTarget?: DiscountTargetRes | null;
+  /**
+   * HAND-ADDED (zinc PR #37): who may prioritize at all. When set it takes
+   * precedence over allowAll/the allowlist; null keeps legacy behavior.
+   */
+  accessTarget?: DiscountTargetRes | null;
 }
 
 export interface SetPrioritySettingsReq {
@@ -251,6 +268,81 @@ export interface SetPrioritySettingsReq {
   allowAll: boolean;
   windowStartSgt?: string | null;
   windowEndSgt?: string | null;
+  /** HAND-ADDED (zinc PR #37): see PrioritySettingsRes.freeTarget */
+  freeTarget?: DiscountTargetReq | null;
+  /** HAND-ADDED (zinc PR #37): see PrioritySettingsRes.accessTarget */
+  accessTarget?: DiscountTargetReq | null;
+}
+
+/**
+ * HAND-ADDED (zinc PR #37). One sales-analysis row: completed bookings
+ * bucketed by the SGT calendar date of completion (dd-MM-yyyy), direction
+ * and departure time; grossRevenue = the booking cost collected at
+ * completion.
+ */
+export interface BookingAnalysisRowRes {
+  date: string;
+  direction: string;
+  time: string;
+  /** @format int32 */
+  ticketsCompleted: number;
+  /** @format double */
+  grossRevenue: number;
+}
+
+/** HAND-ADDED (zinc PR #37). Deposits captured in the range. */
+export interface DepositSummaryRes {
+  /** @format int32 */
+  count: number;
+  /** @format double */
+  captured: number;
+}
+
+/**
+ * HAND-ADDED (zinc PR #37). BunnyBooker's internal fees over the range.
+ * Priority is NET (charges minus refunds); termination = collected cost of
+ * terminated bookings minus what was refunded.
+ */
+export interface InternalFeesRes {
+  /** @format double */
+  deposit: number;
+  /** @format double */
+  withdrawal: number;
+  /** @format double */
+  priority: number;
+  /** @format double */
+  termination: number;
+}
+
+/** HAND-ADDED (zinc PR #37). Range totals for the analysis page. */
+export interface BookingAnalysisSummaryRes {
+  /** @format int32 */
+  totalTickets: number;
+  /** @format double */
+  totalGross: number;
+  deposits: DepositSummaryRes;
+  internalFees: InternalFeesRes;
+}
+
+/** HAND-ADDED (zinc PR #37). GET Booking/analysis response. */
+export interface BookingAnalysisRes {
+  rows: BookingAnalysisRowRes[];
+  summary: BookingAnalysisSummaryRes;
+}
+
+/**
+ * HAND-ADDED (zinc PR #37). One captured payment intent (newest first);
+ * paymentIntentId = the gateway's external reference (the Airwallex intent
+ * id).
+ */
+export interface CapturedPaymentRes {
+  paymentIntentId: string;
+  /** @format double */
+  capturedAmount: number;
+  currency: string;
+  /** @format date-time */
+  createdAt: string;
+  status: string;
 }
 
 export interface PriorityAccessRes {
@@ -324,6 +416,11 @@ export interface CreateWithdrawalReq {
   /** @format double */
   amount: number;
   payNowNumber?: string | null;
+  /**
+   * HAND-ADDED (zinc PR #36): "PayNow" (default when omitted, rollout compat)
+   * or "CardRefund". PayNow requires payNowNumber; CardRefund forbids it.
+   */
+  method?: string | null;
 }
 
 export interface DiscountMatchReq {
@@ -666,6 +763,60 @@ export interface WithdrawalRecordRes {
   /** @format double */
   amount: number;
   payNowNumber?: string | null;
+  /** HAND-ADDED (zinc PR #36): "PayNow" or "CardRefund" */
+  method: string;
+}
+
+/**
+ * HAND-ADDED (zinc PR #36). Card-refund evidence: one row per refund created
+ * against a funding payment intent. Status: Created | Settled | Failed.
+ */
+export interface WithdrawalRefundRes {
+  paymentIntentId: string;
+  airwallexRefundId?: string | null;
+  /** @format double */
+  amount: number;
+  status: string;
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  settledAt?: string | null;
+}
+
+/**
+ * HAND-ADDED (zinc PR #36). GET Withdrawal/refundable/{userId}: how much the
+ * user could withdraw via card refunds right now, and the window (days) the
+ * pool was computed over.
+ */
+export interface RefundablePoolRes {
+  /** @format double */
+  pool: number;
+  /** @format int32 */
+  windowDays: number;
+}
+
+/**
+ * HAND-ADDED (zinc withdrawal-policy PR) pending swagger regeneration.
+ * GET Withdrawal/settings/current: the platform withdrawal-method policy.
+ * When zinc has no settings row it answers the defaults
+ * { cardRefundEnabled: true, payNowMode: "FallbackOnly", sweepEnabled: false }.
+ */
+export interface WithdrawalSettingsRes {
+  cardRefundEnabled: boolean;
+  /** "Enabled" | "Disabled" | "FallbackOnly" */
+  payNowMode: string;
+  sweepEnabled: boolean;
+}
+
+/**
+ * HAND-ADDED (zinc withdrawal-policy PR) pending swagger regeneration.
+ * POST Withdrawal/settings (admin): same shape as the current settings.
+ */
+export interface SetWithdrawalSettingsReq {
+  cardRefundEnabled: boolean;
+  /** "Enabled" | "Disabled" | "FallbackOnly" */
+  payNowMode: string;
+  sweepEnabled: boolean;
 }
 
 export interface WithdrawalRes {
@@ -673,6 +824,8 @@ export interface WithdrawalRes {
   user: UserPrincipalRes;
   completer: UserPrincipalRes;
   wallet: WalletPrincipalRes;
+  /** HAND-ADDED (zinc PR #36): card-refund evidence fragments */
+  refunds: WithdrawalRefundRes[];
 }
 
 export interface WithdrawalStatusRes {

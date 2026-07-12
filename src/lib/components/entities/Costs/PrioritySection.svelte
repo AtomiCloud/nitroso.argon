@@ -19,11 +19,14 @@
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatClockTime, formatDateTime} from "$lib/i18n";
     import {HALF_HOURS} from "./times";
+    import PriorityTargetEditor from "./PriorityTargetEditor.svelte";
+    import {buildTarget, parseTarget, targetDraftValid} from "./priority-targets";
 
     // Admin controls for the priority queue: the fee (preset chips + a small
     // numeric input, acceptable here for admin desktop only), the allow-all
-    // switch, the SGT window (two time SELECTS with an "all day" switch), and
-    // the per-user allowlist (userIds are pasted, so free text is fine).
+    // switch, the SGT window (two time SELECTS with an "all day" switch), the
+    // free/access role-targeting editors (zinc PR #37), and the per-user
+    // allowlist (userIds are pasted, so free text is fine).
     export let settings: PrioritySettingsRes;
     export let access: PriorityAccessRes[];
 
@@ -60,20 +63,29 @@
         return r.length < 2 || r[1].length <= 2;
     };
 
+    // ---- free/access targeting (zinc PR #37) ----
+    // Editor state seeded from the loaded settings; null = target unset on
+    // zinc (nobody boosts free / legacy allowlist behavior).
+    let freeDraft = parseTarget(settings.freeTarget);
+    let accessDraft = parseTarget(settings.accessTarget);
+
     $: feeNum = Number(feeStr);
     $: feeValid = feeStr.trim() !== "" && Number.isFinite(feeNum) && feeNum >= 0 && feeNum <= 10000 && twoDecimals(feeNum);
     $: windowValid = allDay || (selStart?.value != null && selEnd?.value != null);
+    $: targetsValid = targetDraftValid(freeDraft) && targetDraftValid(accessDraft);
 
     let saving = false;
 
     async function saveSettings() {
-        if (!feeValid || !windowValid) return;
+        if (!feeValid || !windowValid || !targetsValid) return;
         saving = true;
         await toResult(() => $api.vBookingPrioritySettingsCreate("1", {
             fee: feeNum,
             allowAll,
             windowStartSgt: allDay ? null : (selStart?.value ?? null),
             windowEndSgt: allDay ? null : (selEnd?.value ?? null),
+            freeTarget: buildTarget(freeDraft),
+            accessTarget: buildTarget(accessDraft),
         }), $_('admin.costs.priority.saveError', {locale: $lang})).match({
             ok: () => {
                 toast.success($_('admin.costs.priority.saveSuccess', {locale: $lang}));
@@ -212,7 +224,17 @@
                 {/if}
             </div>
 
-            <Button class="self-start" on:click={saveSettings} disabled={saving || !feeValid || !windowValid}>
+            <!-- free-boost + access targeting (zinc PR #37) -->
+            <PriorityTargetEditor
+                    label={$_('admin.costs.priority.targets.freeLabel', {locale: $lang})}
+                    hint={$_('admin.costs.priority.targets.freeHint', {locale: $lang})}
+                    bind:draft={freeDraft}/>
+            <PriorityTargetEditor
+                    label={$_('admin.costs.priority.targets.accessLabel', {locale: $lang})}
+                    hint={$_('admin.costs.priority.targets.accessHint', {locale: $lang})}
+                    bind:draft={accessDraft}/>
+
+            <Button class="self-start" on:click={saveSettings} disabled={saving || !feeValid || !windowValid || !targetsValid}>
                 {#if saving}
                     <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                 {/if}

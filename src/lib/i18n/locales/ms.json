@@ -19,7 +19,8 @@
     "logout": "Log keluar",
     "signIn": "Log masuk",
     "fees": "Yuran",
-    "stats": "Statistik"
+    "stats": "Statistik",
+    "analysis": "Analisis"
   },
   "theme": {
     "toggle": "Tukar tema"
@@ -263,7 +264,39 @@
         "removeBody": "Buang {userId} daripada senarai benar keutamaan?",
         "removeSuccess": "Pengguna dibuang daripada senarai benar",
         "removeError": "Gagal membuang pengguna",
-        "allowlistEmpty": "Tiada pengguna dalam senarai benar."
+        "allowlistEmpty": "Tiada pengguna dalam senarai benar.",
+        "targets": {
+          "freeLabel": "Naik taraf percuma untuk",
+          "freeHint": "Pengguna yang sepadan dengan sasaran ini menaik taraf ke keutamaan secara percuma — tiada fi dicaj. Mati = tiada sesiapa percuma.",
+          "accessLabel": "Akses",
+          "accessHint": "Mengatasi senarai benar apabila ditetapkan; biarkan kosong (mati) untuk mengekalkan tingkah laku senarai benar lama.",
+          "mode": {
+            "All": "Semua",
+            "Any": "Mana-mana",
+            "None": "Semua orang"
+          },
+          "modeHelp": {
+            "All": "Pengguna mesti sepadan dengan setiap peraturan di bawah.",
+            "Any": "Pengguna mesti sepadan dengan sekurang-kurangnya satu peraturan di bawah.",
+            "None": "Sepadan dengan setiap pengguna — peraturan di bawah diabaikan."
+          },
+          "type": {
+            "UserId": "ID Pengguna",
+            "Role": "Peranan"
+          },
+          "valuePlaceholder": {
+            "UserId": "Tampal ID pengguna...",
+            "Role": "Nama peranan (huruf kecil)..."
+          },
+          "addMatch": "Tambah peraturan",
+          "removeMatch": "Buang peraturan",
+          "valueRequired": "Setiap peraturan memerlukan nilai",
+          "emptyMatches": {
+            "All": "Tiada peraturan lagi — dengan \"Semua\", senarai kosong sepadan dengan setiap pengguna.",
+            "Any": "Tiada peraturan lagi — dengan \"Mana-mana\", senarai kosong tidak sepadan dengan sesiapa.",
+            "None": "Tiada peraturan diperlukan — \"Semua orang\" sepadan dengan setiap pengguna."
+          }
+        }
       }
     }
   },
@@ -364,7 +397,10 @@
       "upgradeTrigger": "Naik taraf ke keutamaan ({fee})",
       "upgradeTitle": "Naik taraf ke keutamaan",
       "upgradeBody": "Dengan {fee}, tempahan ini masuk ke barisan keutamaan dan dilayan sebelum barisan biasa. Fi dicaj daripada dompet anda sekarang.",
-      "upgradeConfirm": "Bayar {fee} dan naik taraf"
+      "upgradeConfirm": "Bayar {fee} dan naik taraf",
+      "upgradeTriggerFree": "Naik taraf ke keutamaan (Percuma)",
+      "upgradeBodyFree": "Tempahan ini masuk ke barisan keutamaan dan dilayan sebelum barisan biasa. Naik taraf ini percuma untuk anda.",
+      "upgradeConfirmFree": "Naik taraf secara percuma"
     }
   },
   "bookings": {
@@ -420,7 +456,9 @@
       "subtotal": "Jumlah kecil",
       "priorityTitle": "Barisan keutamaan",
       "priorityBody": "+{fee} — tempahan anda dilayan sebelum barisan biasa.",
+      "priorityBodyFree": "Percuma untuk anda — tempahan anda dilayan sebelum barisan biasa.",
       "priorityLine": "Fi barisan keutamaan",
+      "priorityFree": "Percuma",
       "totalWithPriority": "Jumlah dengan keutamaan",
       "insufficientBalance": "Baki tidak mencukupi",
       "yourBalance": "Baki Anda",
@@ -1161,8 +1199,26 @@
       "statusNone": "Tiada",
       "notFound": "Pengeluaran tidak dijumpai"
     },
+    "method": {
+      "PayNow": "PayNow",
+      "CardRefund": "Bayaran balik ke kad"
+    },
+    "refunds": {
+      "title": "Bukti bayaran balik",
+      "description": "Ke mana setiap bahagian pengeluaran ini dibayar balik",
+      "payment": "Pembayaran",
+      "refundId": "Bayaran balik",
+      "settledAt": "Diselesaikan {at}",
+      "copied": "Disalin ke papan keratan",
+      "status": {
+        "Created": "Menunggu",
+        "Settled": "Diselesaikan",
+        "Failed": "Gagal"
+      }
+    },
     "card": {
       "amountToPayNow": "{amount} ke PayNow {payNowNumber}",
+      "amountToCard": "{amount} dibayar balik ke kad",
       "viewDetails": "Lihat Butiran",
       "by": "Oleh",
       "completer": "Penyelesai",
@@ -1181,12 +1237,15 @@
       "trigger": "Lulus automatik (Airwallex)",
       "title": "Luluskan pengeluaran",
       "instructions": "Kelulusan akan memulakan pembayaran PayNow automatik melalui Airwallex ke {payNowNumber} untuk jumlah bersih ({amount} ditolak yuran pengeluaran). Pengeluaran akan bertukar ke status \"Sedang Diproses\" dan selesai secara automatik selepas Airwallex mengesahkan pemindahan.",
+      "instructionsCard": "Kelulusan akan membayar balik jumlah bersih ({amount} ditolak yuran pengeluaran) ke pembayaran kad yang membiayai dompet ini, yang terawal dahulu, melalui Airwallex. Pengeluaran akan bertukar ke status \"Sedang Diproses\" dan selesai secara automatik selepas semua bayaran balik diselesaikan.",
+      "poolShrank": "Kumpulan boleh bayar balik tidak lagi mencukupi untuk pengeluaran ini: {required} diperlukan, hanya {available} boleh dibayar balik. Minta pengguna membatalkan dan memohon semula jumlah yang lebih kecil.",
       "success": "Pembayaran untuk pengeluaran {amount} telah dimulakan. Ia akan selesai secara automatik selepas pengesahan Airwallex.",
       "failed": "Gagal meluluskan pengeluaran"
     },
     "cancel": {
       "title": "Batalkan pengeluaran",
       "confirm": "Anda membatalkan pengeluaran {amount} ke PayNow {payNowNumber} ini.",
+      "confirmCard": "Anda membatalkan pengeluaran bayaran balik kad {amount} ini.",
       "noteRequired": "Sila masukkan nota.",
       "noteTooLong": "Nota tidak boleh melebihi 4096 aksara.",
       "success": "Berjaya membatalkan pengeluaran {amount}.",
@@ -1195,6 +1254,7 @@
     "reject": {
       "title": "Tolak pengeluaran",
       "confirm": "Anda menolak pengeluaran {amount} ke PayNow {payNowNumber} ini.",
+      "confirmCard": "Anda menolak pengeluaran bayaran balik kad {amount} ini.",
       "noteRequired": "Sila masukkan nota.",
       "noteTooLong": "Nota tidak boleh melebihi 4096 aksara.",
       "success": "Berjaya menolak pengeluaran {amount}.",
@@ -1214,9 +1274,28 @@
       "durationSuffix": "untuk diproses.",
       "balanceLabel": "Baki: {amount}",
       "payNowPlaceholder": "Nombor telefon bimbit PayNow 8 digit",
+      "methodLabel": "Kaedah pengeluaran",
+      "methodCardRefund": "Bayaran balik ke kad",
+      "methodCardRefundDesc": "Wang dikembalikan ke kad yang anda gunakan untuk membayar",
+      "methodPayNow": "PayNow",
+      "methodPayNowDesc": "Pindahan ke nombor telefon bimbit PayNow 8 digit",
+      "methodPayNowFallback": "Tersedia apabila bayaran balik kad tidak dapat menampung jumlah anda",
+      "methodCardRefundDisabled": "Tidak tersedia buat masa ini",
+      "backToCard": "Jumlah anda boleh dibayar balik ke kad anda, jadi kaedah bayaran balik kad telah dipilih.",
+      "unavailableTitle": "Pengeluaran tidak tersedia",
+      "unavailable": "Pengeluaran tidak tersedia buat masa ini. Sila cuba lagi nanti.",
+      "settingsLoadFailed": "Gagal memuatkan pilihan pengeluaran",
+      "poolLoading": "Menyemak jumlah yang boleh dibayar balik ke kad anda…",
+      "poolLine": "Sehingga {pool} boleh dibayar balik ke kad anda (pembayaran dalam {windowDays} hari lepas)",
+      "poolEmptyTitle": "Tiada pembayaran kad yang boleh dibayar balik",
+      "poolEmpty": "Anda tiada pembayaran kad yang boleh dibayar balik dalam {windowDays} hari lepas, jadi bayaran balik ke kad tidak boleh dilakukan sekarang.",
+      "poolUnavailableTitle": "Jumlah boleh bayar balik tidak tersedia",
+      "poolUnavailable": "Kami tidak dapat menyemak jumlah yang boleh dibayar balik ke kad anda. Sila cuba lagi nanti.",
+      "poolLoadFailed": "Gagal memuatkan jumlah boleh bayar balik",
       "submit": "Mohon Pengeluaran",
       "amountGreaterThanZero": "Jumlah mesti lebih besar daripada 0",
       "amountExceedsBalance": "Jumlah mesti kurang daripada atau sama dengan baki boleh guna anda",
+      "amountExceedsPool": "Jumlah mesti dalam lingkungan yang boleh dibayar balik ke kad anda",
       "amountFinite": "Jumlah mesti nombor terhingga",
       "invalidPayNow": "Nombor PayNow mestilah tepat 8 digit",
       "success": "Berjaya memohon pengeluaran {amount} daripada baki BOLEH GUNA anda.",
@@ -1233,6 +1312,7 @@
       "amountLine": "Jumlah pengeluaran: {amount}",
       "feeLine": "Yuran pengeluaran: −{fee}",
       "transferExactly": "Pindahkan tepat: {net} ke PayNow {payNowNumber}",
+      "transferExactlyCard": "Bayar balik tepat: {net} ke kad pengguna",
       "feeLoading": "Memuatkan kadar yuran pengeluaran…",
       "feeUnavailable": "Tidak dapat menentukan jumlah pemindahan bersih kerana kadar yuran pengeluaran gagal dimuatkan. Jangan pindahkan jumlah kasar — cuba muatkan semula kadar yuran dahulu.",
       "feeLoadFailed": "Gagal memuatkan kadar yuran pengeluaran",
@@ -1401,6 +1481,33 @@
       "scheduledSuccess": "Perubahan yuran kepada {desc} dijadualkan dari {date}",
       "updateError": "Gagal menyimpan perubahan yuran"
     },
+    "withdrawalSettings": {
+      "title": "Tetapan pengeluaran",
+      "description": "Mengawal kaedah pengeluaran yang boleh dipilih pengguna dan cara pengeluaran yang diluluskan dibayar.",
+      "cardRefundLabel": "Bayaran balik ke kad diaktifkan",
+      "cardRefundHint": "Pengguna boleh mengeluarkan wang dengan membayar balik ke kad yang mereka gunakan untuk membayar.",
+      "payNowLabel": "PayNow",
+      "modes": {
+        "Enabled": {
+          "label": "Diaktifkan",
+          "hint": "Pengguna sentiasa boleh mengeluarkan wang ke nombor PayNow."
+        },
+        "Disabled": {
+          "label": "Dilumpuhkan",
+          "hint": "Pilihan PayNow disembunyikan sepenuhnya daripada pengguna."
+        },
+        "FallbackOnly": {
+          "label": "Sandaran sahaja",
+          "hint": "PayNow hanya ditawarkan apabila bayaran balik kad tidak dapat menampung jumlah yang diminta."
+        }
+      },
+      "sweepLabel": "Pembayaran automatik setiap malam",
+      "sweepHint": "Apabila dimatikan, setiap pengeluaran hanya dibayar apabila pentadbir meluluskannya.",
+      "save": "Simpan",
+      "saveSuccess": "Tetapan pengeluaran disimpan",
+      "saveError": "Gagal menyimpan tetapan pengeluaran",
+      "loadFailed": "Gagal memuatkan tetapan pengeluaran"
+    },
     "announcement": {
       "title": "Pengumuman yuran",
       "description": "Menghantar e-mel pengumuman yuran kepada pengguna.",
@@ -1545,6 +1652,41 @@
       "friday": "Jum",
       "saturday": "Sab",
       "sunday": "Ahd"
+    }
+  },
+  "analysis": {
+    "title": "Analisis Jualan",
+    "reload": "Muat semula",
+    "loadError": "Gagal memuatkan analisis jualan",
+    "empty": "Tiada tempahan selesai dalam julat ini",
+    "grossNote": "Angka kasar — fi pemprosesan Airwallex tidak termasuk.",
+    "range": {
+      "after": "Selesai dari",
+      "before": "Selesai hingga",
+      "hint": "Julat tarikh selesai (SGT, termasuk; lalai: 30 hari terakhir)"
+    },
+    "summary": {
+      "totalTickets": "Jumlah tiket",
+      "totalGross": "Hasil kasar",
+      "deposits": "Deposit ditangkap",
+      "depositsCount": "{count} pembayaran",
+      "internalFees": "Fi dalaman",
+      "feeDeposit": "Deposit",
+      "feeWithdrawal": "Pengeluaran",
+      "feePriority": "Keutamaan",
+      "feeTermination": "Penamatan"
+    },
+    "daily": {
+      "title": "Jualan harian",
+      "description": "Tiket selesai dan hasil kasar setiap hari, dipecahkan mengikut slot berlepas",
+      "tickets": "{count} tiket"
+    },
+    "captured": {
+      "title": "Pembayaran ditangkap",
+      "description": "Niat pembayaran yang menangkap wang dalam julat ini, terbaru dahulu (100 terkini)",
+      "empty": "Tiada pembayaran ditangkap dalam julat ini",
+      "loadError": "Gagal memuatkan pembayaran ditangkap",
+      "copied": "ID niat pembayaran disalin"
     }
   }
 }

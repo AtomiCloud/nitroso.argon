@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type {AnnounceFeeReq, FeeChangeRes, FeeRes} from "$lib/api/core/data-contracts";
+    import type {AnnounceFeeReq, FeeChangeRes, FeeRes, WithdrawalSettingsRes} from "$lib/api/core/data-contracts";
     import {api} from "../../store";
 
     //@ts-ignore
@@ -19,6 +19,7 @@
     import {AlertTriangle, LucideLoader, LucideMail, LucidePlus} from "lucide-svelte";
     import {Button, buttonVariants} from "$lib/components/ui/button";
     import {Checkbox} from "$lib/components/ui/checkbox";
+    import {Switch} from "$lib/components/ui/switch";
     import {Input} from "$lib/components/ui/input";
     import {Textarea} from "$lib/components/ui/textarea";
     import Validation from "$lib/components/core/Validation.svelte";
@@ -47,7 +48,72 @@
 
     onMount(() => {
         for (const t of FEE_TYPES) reload(t);
+        loadWithdrawalSettings();
     })
+
+    // ---- withdrawal settings (method policy + payout sweep) ----
+    // GET settings/current on load; the three controls edit a local draft and
+    // Save POSTs the whole shape, then re-reads the server's answer.
+    const PAYNOW_MODES = ["Enabled", "Disabled", "FallbackOnly"] as const;
+
+    let wSettings: WithdrawalSettingsRes | null = null;
+    let wSettingsFailed = false;
+    let wSaving = false;
+
+    // draft edited by the controls (seeded from the loaded settings)
+    let wCardRefundEnabled = true;
+    let wSweepEnabled = false;
+    let wPayNowMode: Selected<string> = {value: "FallbackOnly", label: ""};
+
+    // keep the closed-trigger label localized after a language switch
+    $: if (wPayNowMode?.value) {
+        const translated = $_(`fees.withdrawalSettings.modes.${wPayNowMode.value}.label`, { locale: $lang });
+        if (wPayNowMode.label !== translated) wPayNowMode = { ...wPayNowMode, label: translated };
+    }
+
+    function seedWithdrawalDraft(s: WithdrawalSettingsRes) {
+        wCardRefundEnabled = s.cardRefundEnabled;
+        wSweepEnabled = s.sweepEnabled;
+        // guard against a mode this UI predates: fall back to zinc's default
+        const mode = (PAYNOW_MODES as readonly string[]).includes(s.payNowMode) ? s.payNowMode : "FallbackOnly";
+        wPayNowMode = {value: mode, label: $_(`fees.withdrawalSettings.modes.${mode}.label`, { locale: $lang })};
+    }
+
+    async function loadWithdrawalSettings() {
+        wSettingsFailed = false;
+        await toResult(() => $api.vWithdrawalSettingsCurrentDetail("1.0"),
+            $_('fees.withdrawalSettings.loadFailed', { locale: $lang })).match({
+            ok: (s) => {
+                wSettings = s;
+                seedWithdrawalDraft(s);
+            },
+            err: (e) => {
+                console.error(e);
+                wSettingsFailed = true;
+            }
+        })
+    }
+
+    async function saveWithdrawalSettings() {
+        wSaving = true;
+        await toResult(() => $api.vWithdrawalSettingsCreate("1.0", {
+            cardRefundEnabled: wCardRefundEnabled,
+            payNowMode: wPayNowMode?.value ?? "FallbackOnly",
+            sweepEnabled: wSweepEnabled,
+        }), $_('fees.withdrawalSettings.saveError', { locale: $lang })).match({
+            ok: () => {
+                toast.info($_('fees.withdrawalSettings.saveSuccess', { locale: $lang }));
+            },
+            err: (e) => {
+                console.error(e);
+                toast.error(e.detail ?? e.type);
+            }
+        })
+        // re-read the authoritative state either way (a concurrent admin may
+        // have raced us; on error the draft snaps back to what is live)
+        await loadWithdrawalSettings();
+        wSaving = false;
+    }
 
     function reload(t: FeeType) {
         loadCurrent(t);
@@ -418,6 +484,72 @@
                 </Card.Content>
             </Card.Root>
         {/each}
+        <Card.Root>
+            <Card.Content class="pt-6">
+                <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-1">
+                        <Card.Title>{$_('fees.withdrawalSettings.title', { locale: $lang })}</Card.Title>
+                        <Card.Description>{$_('fees.withdrawalSettings.description', { locale: $lang })}</Card.Description>
+                    </div>
+                    {#if wSettingsFailed}
+                        <div class="flex items-center gap-2">
+                            <div class="text-sm text-destructive">{$_('fees.withdrawalSettings.loadFailed', { locale: $lang })}</div>
+                            <Button variant="outline" size="sm" on:click={loadWithdrawalSettings}>
+                                {$_('actions.retry', { locale: $lang })}
+                            </Button>
+                        </div>
+                    {:else if wSettings == null}
+                        <LucideLoader class="h-4 w-4 animate-spin"/>
+                    {:else}
+                        <div class="flex items-center justify-between gap-4">
+                            <div class="flex flex-col gap-1">
+                                <label class="text-sm font-medium" for="w-card-refund">
+                                    {$_('fees.withdrawalSettings.cardRefundLabel', { locale: $lang })}
+                                </label>
+                                <div class="text-sm text-muted-foreground">{$_('fees.withdrawalSettings.cardRefundHint', { locale: $lang })}</div>
+                            </div>
+                            <Switch id="w-card-refund" bind:checked={wCardRefundEnabled}/>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <div class="text-sm font-medium">{$_('fees.withdrawalSettings.payNowLabel', { locale: $lang })}</div>
+                            <Select.Root selected={wPayNowMode} onSelectedChange={(s) => { if (s != null) wPayNowMode = s; }}>
+                                <Select.Trigger class="lg:max-w-96">
+                                    <Select.Value placeholder={$_('fees.withdrawalSettings.payNowLabel', { locale: $lang })}/>
+                                </Select.Trigger>
+                                <Select.Content>
+                                    {#each PAYNOW_MODES as m (m)}
+                                        <Select.Item value={m} label={$_(`fees.withdrawalSettings.modes.${m}.label`, { locale: $lang })}>
+                                            <div class="flex flex-col gap-0.5">
+                                                <span>{$_(`fees.withdrawalSettings.modes.${m}.label`, { locale: $lang })}</span>
+                                                <span class="text-xs text-muted-foreground">{$_(`fees.withdrawalSettings.modes.${m}.hint`, { locale: $lang })}</span>
+                                            </div>
+                                        </Select.Item>
+                                    {/each}
+                                </Select.Content>
+                            </Select.Root>
+                            <div class="text-sm text-muted-foreground">
+                                {$_(`fees.withdrawalSettings.modes.${(wPayNowMode?.value ?? "FallbackOnly")}.hint`, { locale: $lang })}
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between gap-4">
+                            <div class="flex flex-col gap-1">
+                                <label class="text-sm font-medium" for="w-sweep">
+                                    {$_('fees.withdrawalSettings.sweepLabel', { locale: $lang })}
+                                </label>
+                                <div class="text-sm text-muted-foreground">{$_('fees.withdrawalSettings.sweepHint', { locale: $lang })}</div>
+                            </div>
+                            <Switch id="w-sweep" bind:checked={wSweepEnabled}/>
+                        </div>
+                        <Button class="self-start" on:click={saveWithdrawalSettings} disabled={wSaving}>
+                            {#if wSaving}
+                                <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
+                            {/if}
+                            {$_('fees.withdrawalSettings.save', { locale: $lang })}
+                        </Button>
+                    {/if}
+                </div>
+            </Card.Content>
+        </Card.Root>
         <Card.Root>
             <Card.Content class="pt-6">
                 <div class="flex flex-col gap-4">
