@@ -703,6 +703,30 @@ export interface RefundablePoolRes {
   windowDays: number;
 }
 
+/**
+ * HAND-ADDED (zinc withdrawal-policy PR) pending swagger regeneration.
+ * GET Withdrawal/settings/current: the platform withdrawal-method policy.
+ * When zinc has no settings row it answers the defaults
+ * { cardRefundEnabled: true, payNowMode: "FallbackOnly", sweepEnabled: false }.
+ */
+export interface WithdrawalSettingsRes {
+  cardRefundEnabled: boolean;
+  /** "Enabled" | "Disabled" | "FallbackOnly" */
+  payNowMode: string;
+  sweepEnabled: boolean;
+}
+
+/**
+ * HAND-ADDED (zinc withdrawal-policy PR) pending swagger regeneration.
+ * POST Withdrawal/settings (admin): same shape as the current settings.
+ */
+export interface SetWithdrawalSettingsReq {
+  cardRefundEnabled: boolean;
+  /** "Enabled" | "Disabled" | "FallbackOnly" */
+  payNowMode: string;
+  sweepEnabled: boolean;
+}
+
 export interface WithdrawalRes {
   principal: WithdrawalPrincipalRes;
   user: UserPrincipalRes;

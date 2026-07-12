@@ -1241,7 +1241,12 @@
       "methodCardRefundDesc": "款项将退回您付款时使用的银行卡",
       "methodPayNow": "PayNow",
       "methodPayNowDesc": "转账至 8 位 PayNow 手机号码",
-      "methodPayNowUnavailable": "暂时不可用",
+      "methodPayNowFallback": "当银行卡退款无法覆盖您的金额时可用",
+      "methodCardRefundDisabled": "目前不可用",
+      "backToCard": "您的金额可以退回银行卡，已为您选择银行卡退款方式。",
+      "unavailableTitle": "提款不可用",
+      "unavailable": "提款功能目前不可用，请稍后再试。",
+      "settingsLoadFailed": "加载提款选项失败",
       "poolLoading": "正在查询可退回银行卡的金额…",
       "poolLine": "最多可退回 {pool} 至您的银行卡（最近 {windowDays} 天内的付款）",
       "poolEmptyTitle": "没有可退款的银行卡付款",
@@ -1437,6 +1442,33 @@
       "success": "手续费已设为 {desc}",
       "scheduledSuccess": "已安排手续费于 {date} 更改为 {desc}",
       "updateError": "保存手续费更改失败"
+    },
+    "withdrawalSettings": {
+      "title": "提款设置",
+      "description": "控制用户可选择的提款方式，以及已批准的提款如何付款。",
+      "cardRefundLabel": "启用退回银行卡",
+      "cardRefundHint": "用户可以将款项退回付款时使用的银行卡来提款。",
+      "payNowLabel": "PayNow",
+      "modes": {
+        "Enabled": {
+          "label": "启用",
+          "hint": "用户始终可以提款至 PayNow 号码。"
+        },
+        "Disabled": {
+          "label": "停用",
+          "hint": "PayNow 选项对用户完全隐藏。"
+        },
+        "FallbackOnly": {
+          "label": "仅作后备",
+          "hint": "仅当银行卡退款无法覆盖申请金额时才提供 PayNow。"
+        }
+      },
+      "sweepLabel": "每晚自动付款",
+      "sweepHint": "关闭时，每笔提款仅在管理员批准后才会付款。",
+      "save": "保存",
+      "saveSuccess": "提款设置已保存",
+      "saveError": "保存提款设置失败",
+      "loadFailed": "加载提款设置失败"
     },
     "announcement": {
       "title": "手续费公告",

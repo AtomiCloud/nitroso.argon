@@ -12,7 +12,7 @@
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
-    import type {FeeRes, RefundablePoolRes, WalletPrincipalRes} from "$lib/api/core/data-contracts";
+    import type {FeeRes, RefundablePoolRes, WalletPrincipalRes, WithdrawalSettingsRes} from "$lib/api/core/data-contracts";
     import {AlertTriangle, CreditCard, LucideLoader, Smartphone} from "lucide-svelte";
     import {tick} from "svelte";
     import Validation from "$lib/components/core/Validation.svelte";
@@ -20,15 +20,12 @@
     import {_} from "svelte-i18n";
     import {lang, formatMoney} from "$lib/i18n";
     import {
+        DEFAULT_WITHDRAWAL_SETTINGS,
         makeCreateWithdrawalSchema,
+        methodAvailability,
         toCreateWithdrawalReq,
         type WithdrawalMethod,
     } from "./withdrawal";
-
-    // Airwallex PayNow payouts are not enabled yet — the PayNow option renders
-    // disabled ("temporarily unavailable") but ALL its form logic stays intact
-    // behind this flag, so re-enabling is this one const.
-    const PAYNOW_ENABLED = false;
 
     export let userId: string;
 
@@ -40,8 +37,8 @@
     let errors: ZodIssue[] = [];
     let taints: Record<string, boolean> = {}
 
-    // CardRefund is the default (and, while PAYNOW_ENABLED is false, the only
-    // selectable) method.
+    // CardRefund is the default method; the actual selectability of each
+    // method is server policy (withdrawal settings) — see `availability`.
     let method: WithdrawalMethod = "CardRefund";
 
     // withdrawal fee (flat SGD + percentage, e.g. 4 = 4%). Loaded lazily when
@@ -58,6 +55,15 @@
     let poolRequested = false;
     let poolFailed = false;
 
+    // withdrawal-method policy (zinc withdrawal settings): which rails are on
+    // and how PayNow behaves. null while loading; on fetch failure we fall
+    // back to zinc's defaults — the server re-enforces the real policy on
+    // create, so the fallback only ever costs a clean server rejection.
+    let settings: WithdrawalSettingsRes | null = null;
+    let settingsRequested = false;
+
+    // fee + pool + settings load in parallel, each triggered independently by
+    // dialog open (three reactive one-shots = three concurrent requests)
     $: if (dialogOpen && !feeRequested) {
         feeRequested = true;
         loadFeeInfo();
@@ -68,8 +74,27 @@
         loadRefundable();
     }
 
+    $: if (dialogOpen && !settingsRequested) {
+        settingsRequested = true;
+        loadSettings();
+    }
+
     async function loadFeeInfo() {
         feeInfo = await loadFee($api, "Withdrawal", $_('withdrawals.create.feeLoadFailed', { locale: $lang }));
+    }
+
+    async function loadSettings() {
+        await toResult(() => $api.vWithdrawalSettingsCurrentDetail("1.0"),
+            $_('withdrawals.create.settingsLoadFailed', { locale: $lang }))
+            .match({
+                ok: (s) => {
+                    settings = s;
+                },
+                err: (e) => {
+                    console.error(e);
+                    settings = DEFAULT_WITHDRAWAL_SETTINGS;
+                }
+            });
     }
 
     async function loadRefundable() {
@@ -128,7 +153,8 @@
     }
 
     function selectMethod(m: WithdrawalMethod) {
-        if (m === "PayNow" && !PAYNOW_ENABLED) return;
+        if (m === "CardRefund" && availability.card !== "selectable") return;
+        if (m === "PayNow" && availability.payNow !== "selectable") return;
         method = m;
     }
 
@@ -158,11 +184,41 @@
         submitting = false;
     }
 
-    // the card option is usable once the pool has loaded and is positive; when
-    // it is 0 or failed to load the option stays visible but explains why and
-    // (with PayNow disabled too) the submit stays blocked
+    $: amountNum = Number(val.amount);
+
+    // policy → per-option availability, recomputed on every amount keystroke
+    // so the FallbackOnly PayNow unlock (pool < amount) is live. While the
+    // settings are loading, zinc's defaults keep the layout stable (card on,
+    // PayNow fallback-locked).
+    $: availability = methodAvailability(settings ?? DEFAULT_WITHDRAWAL_SETTINGS,
+        refundable?.pool ?? null, amountNum);
+
+    // reconcile the selection with the (re)computed availability:
+    // - PayNow selected, then the amount drops back within the pool (or PayNow
+    //   turns off): flip back to card with a note.
+    // - card selected but policy-disabled while PayNow is open: move over.
+    $: reconcileSelection(availability);
+
+    function reconcileSelection(a: ReturnType<typeof methodAvailability>) {
+        if (method === "PayNow" && a.payNow !== "selectable" && a.card === "selectable") {
+            method = "CardRefund";
+            // only announce the flip when it was the live fallback unlock
+            // re-locking (amount lowered) — not a mode/policy change on load
+            if (a.payNow === "locked") {
+                toast.info($_('withdrawals.create.backToCard', { locale: $lang }));
+            }
+        } else if (method === "CardRefund" && a.card !== "selectable" && a.payNow === "selectable") {
+            method = "PayNow";
+        }
+    }
+
+    // the card option additionally needs the refundable pool to be loaded and
+    // positive; when it is 0 or failed to load the option stays visible but
+    // explains why and the submit stays blocked (unless PayNow opens up)
     $: poolUsable = refundable != null && refundable.pool > 0;
-    $: methodAvailable = method === "CardRefund" ? poolUsable : PAYNOW_ENABLED;
+    $: methodAvailable = method === "CardRefund"
+        ? availability.card === "selectable" && poolUsable
+        : availability.payNow === "selectable";
 
     $: isValid = errors.length === 0 && Object.entries(taints).length > 0;
 
@@ -172,7 +228,6 @@
     // 0% + $0 means the fee is disabled: net == gross, so the whole breakdown
     // (including the "you'll receive" line) is hidden; null means the fee
     // failed to load and the breakdown is hidden too.
-    $: amountNum = Number(val.amount);
     $: showFeeBreakdown = feeInfo != null && !isZeroFee(feeInfo) && Number.isFinite(amountNum) && amountNum > 0 && amountNum <= wallet.usable;
     $: feeAmount = feeInfo != null && Number.isFinite(amountNum) ? calcFee(feeInfo, amountNum) : 0;
     $: netAmount = roundToEvenCents(amountNum - feeAmount);
@@ -192,47 +247,64 @@
                         {$_('withdrawals.create.intro', { locale: $lang })}
                     </p>
 
-                    <!-- method selector: two large option cards -->
+                    {#if availability.unavailable}
+                        <!-- no rail is open (card off + PayNow hidden): explain and block -->
+                        <Alert.Root>
+                            <AlertTriangle class="h-4 w-4"/>
+                            <Alert.Title>{$_('withdrawals.create.unavailableTitle', { locale: $lang })}</Alert.Title>
+                            <Alert.Description>{$_('withdrawals.create.unavailable', { locale: $lang })}</Alert.Description>
+                        </Alert.Root>
+                    {:else}
+                    <!-- method selector: large option cards, driven by server policy -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" role="radiogroup" aria-label={$_('withdrawals.create.methodLabel', { locale: $lang })}>
                         <button
                                 type="button"
                                 role="radio"
                                 aria-checked={method === "CardRefund"}
+                                disabled={availability.card !== "selectable"}
                                 class="flex flex-col items-start gap-1 rounded-lg border p-4 text-left transition-colors
-                                       {method === 'CardRefund' ? 'border-primary ring-1 ring-primary bg-primary/5' : 'hover:bg-muted'}"
+                                       {method === 'CardRefund' ? 'border-primary ring-1 ring-primary bg-primary/5' : ''}
+                                       {availability.card === 'selectable' ? 'hover:bg-muted' : 'opacity-50 cursor-not-allowed'}"
                                 on:click={() => selectMethod("CardRefund")}>
                             <span class="flex items-center gap-2 font-semibold text-foreground">
                                 <CreditCard class="h-4 w-4"/>
                                 {$_('withdrawals.create.methodCardRefund', { locale: $lang })}
                             </span>
                             <span class="text-xs text-muted-foreground">
-                                {$_('withdrawals.create.methodCardRefundDesc', { locale: $lang })}
-                            </span>
-                        </button>
-                        <button
-                                type="button"
-                                role="radio"
-                                aria-checked={method === "PayNow"}
-                                disabled={!PAYNOW_ENABLED}
-                                class="flex flex-col items-start gap-1 rounded-lg border p-4 text-left transition-colors
-                                       {method === 'PayNow' ? 'border-primary ring-1 ring-primary bg-primary/5' : ''}
-                                       {PAYNOW_ENABLED ? 'hover:bg-muted' : 'opacity-50 cursor-not-allowed'}"
-                                on:click={() => selectMethod("PayNow")}>
-                            <span class="flex items-center gap-2 font-semibold text-foreground">
-                                <Smartphone class="h-4 w-4"/>
-                                {$_('withdrawals.create.methodPayNow', { locale: $lang })}
-                            </span>
-                            <span class="text-xs text-muted-foreground">
-                                {#if PAYNOW_ENABLED}
-                                    {$_('withdrawals.create.methodPayNowDesc', { locale: $lang })}
+                                {#if availability.card === "selectable"}
+                                    {$_('withdrawals.create.methodCardRefundDesc', { locale: $lang })}
                                 {:else}
-                                    {$_('withdrawals.create.methodPayNowUnavailable', { locale: $lang })}
+                                    {$_('withdrawals.create.methodCardRefundDisabled', { locale: $lang })}
                                 {/if}
                             </span>
                         </button>
+                        {#if availability.payNow !== "hidden"}
+                            <button
+                                    type="button"
+                                    role="radio"
+                                    aria-checked={method === "PayNow"}
+                                    disabled={availability.payNow !== "selectable"}
+                                    class="flex flex-col items-start gap-1 rounded-lg border p-4 text-left transition-colors
+                                           {method === 'PayNow' ? 'border-primary ring-1 ring-primary bg-primary/5' : ''}
+                                           {availability.payNow === 'selectable' ? 'hover:bg-muted' : 'opacity-50 cursor-not-allowed'}"
+                                    on:click={() => selectMethod("PayNow")}>
+                                <span class="flex items-center gap-2 font-semibold text-foreground">
+                                    <Smartphone class="h-4 w-4"/>
+                                    {$_('withdrawals.create.methodPayNow', { locale: $lang })}
+                                </span>
+                                <span class="text-xs text-muted-foreground">
+                                    {#if availability.payNow === "selectable"}
+                                        {$_('withdrawals.create.methodPayNowDesc', { locale: $lang })}
+                                    {:else}
+                                        {$_('withdrawals.create.methodPayNowFallback', { locale: $lang })}
+                                    {/if}
+                                </span>
+                            </button>
+                        {/if}
                     </div>
+                    {/if}
 
-                    {#if method === "CardRefund"}
+                    {#if method === "CardRefund" && availability.card === "selectable"}
                         <!-- refundable pool: how much can go back onto the cards -->
                         {#if refundable == null && !poolFailed}
                             <div class="flex items-center gap-2 text-sm text-muted-foreground">
@@ -256,7 +328,7 @@
                                 {$_('withdrawals.create.poolLine', { locale: $lang, values: { pool: formatMoney(refundable.pool, $lang), windowDays: refundable.windowDays } })}
                             </p>
                         {/if}
-                    {:else}
+                    {:else if method === "PayNow"}
                         <Alert.Root>
                             <AlertTriangle class="h-4 w-4"/>
                             <Alert.Title>{$_('withdrawals.create.importantTitle', { locale: $lang })}</Alert.Title>

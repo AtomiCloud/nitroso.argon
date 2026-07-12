@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { formatStandalone, type SupportedLocale } from '$lib/i18n';
-import type { CreateWithdrawalReq, WithdrawalRecordRes } from '$lib/api/core/data-contracts';
+import type { CreateWithdrawalReq, WithdrawalRecordRes, WithdrawalSettingsRes } from '$lib/api/core/data-contracts';
 
 /**
  * The two withdrawal rails zinc supports (zinc PR #36): "CardRefund" refunds
@@ -9,6 +9,68 @@ import type { CreateWithdrawalReq, WithdrawalRecordRes } from '$lib/api/core/dat
  * payout to an 8-digit PayNow mobile number.
  */
 export type WithdrawalMethod = 'CardRefund' | 'PayNow';
+
+/**
+ * zinc's defaults when no withdrawal-settings row exists (and our fallback
+ * when GET settings/current fails — the server re-enforces the real policy on
+ * create, so an optimistic default only ever costs a clean server rejection).
+ */
+export const DEFAULT_WITHDRAWAL_SETTINGS: WithdrawalSettingsRes = {
+  cardRefundEnabled: true,
+  payNowMode: 'FallbackOnly',
+  sweepEnabled: false,
+};
+
+/**
+ * How each method option should render given the platform policy and the
+ * user's live input.
+ *
+ * - card: 'selectable' | 'disabled' — the card option always stays visible;
+ *   when the policy turns it off it renders disabled with a note.
+ * - payNow: 'selectable' | 'locked' | 'hidden' — mode Disabled hides the
+ *   option entirely; FallbackOnly renders it 'locked' (disabled, with a note
+ *   that it unlocks when card refunds can't cover the amount) until the typed
+ *   amount strictly exceeds the refundable pool, mirroring zinc's rule
+ *   (PayNow iff Enabled, or FallbackOnly AND pool < amount).
+ * - unavailable: no method can ever be selected (card off + PayNow hidden) —
+ *   the dialog shows a "withdrawals are currently unavailable" alert and
+ *   blocks submission.
+ */
+export interface MethodAvailability {
+  card: 'selectable' | 'disabled';
+  payNow: 'selectable' | 'locked' | 'hidden';
+  unavailable: boolean;
+}
+
+/**
+ * Pure policy → UI-availability mapping, recomputed on every amount keystroke
+ * so the FallbackOnly unlock is live. `pool` is null while the refundable
+ * pool is loading or failed to load: fallback PayNow then stays locked (we
+ * cannot prove the pool is insufficient; the server would reject anyway).
+ * An unrecognized payNowMode is treated as FallbackOnly — zinc's default and
+ * the most conservative visible option (never shows an always-on PayNow, never
+ * hides a rail the server might allow).
+ */
+export function methodAvailability(
+  settings: Pick<WithdrawalSettingsRes, 'cardRefundEnabled' | 'payNowMode'>,
+  pool: number | null,
+  amount: number,
+): MethodAvailability {
+  const card = settings.cardRefundEnabled ? 'selectable' : 'disabled';
+
+  let payNow: MethodAvailability['payNow'];
+  if (settings.payNowMode === 'Enabled') {
+    payNow = 'selectable';
+  } else if (settings.payNowMode === 'Disabled') {
+    payNow = 'hidden';
+  } else {
+    // FallbackOnly (and unknown modes): unlocked only once the typed amount
+    // strictly exceeds the known pool — same strict inequality as zinc
+    payNow = pool != null && Number.isFinite(amount) && amount > pool ? 'selectable' : 'locked';
+  }
+
+  return { card, payNow, unavailable: card === 'disabled' && payNow === 'hidden' };
+}
 
 /**
  * Build the create-withdrawal form schema for the selected method, with its
