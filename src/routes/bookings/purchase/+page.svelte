@@ -335,7 +335,11 @@
                                     <div class="flex flex-col gap-1">
                                         <div class="font-semibold">{$_('bookings.purchase.priorityTitle', { locale: $lang })}</div>
                                         <div class="text-sm text-muted-foreground">
-                                            {$_('bookings.purchase.priorityBody', { locale: $lang, values: { fee: formatMoney(eligibility.fee, $lang) } })}
+                                            {#if eligibility.free === true}
+                                                {$_('bookings.purchase.priorityBodyFree', { locale: $lang })}
+                                            {:else}
+                                                {$_('bookings.purchase.priorityBody', { locale: $lang, values: { fee: formatMoney(eligibility.fee, $lang) } })}
+                                            {/if}
                                         </div>
                                     </div>
                                 </div>
@@ -345,7 +349,12 @@
                             {#if priorityOptIn}
                                 <div class="flex justify-between items-center mt-4 text-sm">
                                     <div>{$_('bookings.purchase.priorityLine', { locale: $lang })}</div>
-                                    <div>+{formatMoney(eligibility.fee, $lang)}</div>
+                                    <!-- free boost (zinc PR #37): show "Free" instead of "+S$0.00" -->
+                                    {#if eligibility.free === true}
+                                        <div>{$_('bookings.purchase.priorityFree', { locale: $lang })}</div>
+                                    {:else}
+                                        <div>+{formatMoney(eligibility.fee, $lang)}</div>
+                                    {/if}
                                 </div>
                                 <div class="flex justify-between items-center mt-1 font-semibold">
                                     <div>{$_('bookings.purchase.totalWithPriority', { locale: $lang })}</div>
