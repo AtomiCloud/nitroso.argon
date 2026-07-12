@@ -15,6 +15,7 @@ import type {
   AnnouncementBroadcastRes,
   AnnouncementSendRes,
   BookingAnalysisRes,
+  BookingBoostPageRes,
   BookingCountRes,
   BookingPrincipalRes,
   BookingQueueRes,
@@ -41,6 +42,9 @@ import type {
   ErrorInfo,
   FeeChangeRes,
   FeeRes,
+  GatewayFeeSyncRes,
+  KtmbCostChangeRes,
+  KtmbCostRes,
   LatestScheduleRes,
   MaterializedCostRes,
   MilestoneRes,
@@ -57,6 +61,7 @@ import type {
   SchedulePrincipalRes,
   ScheduleRecordReq,
   SetFeeReq,
+  SetKtmbCostReq,
   SetPrioritySettingsReq,
   SetWithdrawalSettingsReq,
   TimingPrincipalRes,
@@ -287,6 +292,74 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
       method: 'GET',
       query: query,
       secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc PR #39) pending swagger regeneration — the boost
+   * ledger, newest first, paginated (OnlyAdmin; Limit ≤ 200). After/Before
+   * are dd-MM-yyyy on the SGT calendar date of the boost.
+   *
+   * @tags Booking
+   * @name VBookingAnalysisBoostsDetail
+   * @request GET:/api/v{version}/Booking/analysis/boosts
+   * @secure
+   */
+  vBookingAnalysisBoostsDetail = (
+    version: string,
+    query?: {
+      After?: string;
+      Before?: string;
+      /** @format int32 */
+      Limit?: number;
+      /** @format int32 */
+      Skip?: number;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<BookingBoostPageRes, any>({
+      path: `/api/v${version}/Booking/analysis/boosts`,
+      method: 'GET',
+      query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc PR #39) pending swagger regeneration — the KTMB ticket
+   * cost in effect right now per direction + queued future changes
+   * (AdminOrTin).
+   *
+   * @tags Booking
+   * @name VBookingKtmbCostCurrentDetail
+   * @request GET:/api/v{version}/Booking/ktmb-cost/current
+   * @secure
+   */
+  vBookingKtmbCostCurrentDetail = (version: string, params: RequestParams = {}) =>
+    this.request<KtmbCostRes, any>({
+      path: `/api/v${version}/Booking/ktmb-cost/current`,
+      method: 'GET',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc PR #39) pending swagger regeneration — queue a
+   * per-direction KTMB cost change, immediate when effectiveAt is omitted
+   * (OnlyAdmin; insert-only, effective-dated like the withdrawal fee queue).
+   *
+   * @tags Booking
+   * @name VBookingKtmbCostCreate
+   * @request POST:/api/v{version}/Booking/ktmb-cost
+   * @secure
+   */
+  vBookingKtmbCostCreate = (version: string, data: SetKtmbCostReq, params: RequestParams = {}) =>
+    this.request<KtmbCostChangeRes, any>({
+      path: `/api/v${version}/Booking/ktmb-cost`,
+      method: 'POST',
+      body: data,
+      secure: true,
+      type: ContentType.Json,
       format: 'json',
       ...params,
     });
@@ -1275,6 +1348,33 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
     this.request<CapturedPaymentRes[], any>({
       path: `/api/v${version}/Payment/captured`,
       method: 'GET',
+      query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc PR #39) pending swagger regeneration — pull Airwallex's
+   * own fees for the range's captured intents into the analysis store
+   * (AdminOrTin). After/Before are dd-MM-yyyy; fees post with delay, so
+   * `missing` intents may resolve on a later sync; hasMore = run again.
+   *
+   * @tags Payment
+   * @name VPaymentGatewayFeesSyncCreate
+   * @request POST:/api/v{version}/Payment/gateway-fees/sync
+   * @secure
+   */
+  vPaymentGatewayFeesSyncCreate = (
+    version: string,
+    query?: {
+      After?: string;
+      Before?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<GatewayFeeSyncRes, any>({
+      path: `/api/v${version}/Payment/gateway-fees/sync`,
+      method: 'POST',
       query: query,
       secure: true,
       format: 'json',
