@@ -19,7 +19,8 @@
     "logout": "Log keluar",
     "signIn": "Log masuk",
     "fees": "Yuran",
-    "stats": "Statistik"
+    "stats": "Statistik",
+    "analysis": "Analisis"
   },
   "theme": {
     "toggle": "Tukar tema"
@@ -263,7 +264,39 @@
         "removeBody": "Buang {userId} daripada senarai benar keutamaan?",
         "removeSuccess": "Pengguna dibuang daripada senarai benar",
         "removeError": "Gagal membuang pengguna",
-        "allowlistEmpty": "Tiada pengguna dalam senarai benar."
+        "allowlistEmpty": "Tiada pengguna dalam senarai benar.",
+        "targets": {
+          "freeLabel": "Naik taraf percuma untuk",
+          "freeHint": "Pengguna yang sepadan dengan sasaran ini menaik taraf ke keutamaan secara percuma — tiada fi dicaj. Mati = tiada sesiapa percuma.",
+          "accessLabel": "Akses",
+          "accessHint": "Mengatasi senarai benar apabila ditetapkan; biarkan kosong (mati) untuk mengekalkan tingkah laku senarai benar lama.",
+          "mode": {
+            "All": "Semua",
+            "Any": "Mana-mana",
+            "None": "Semua orang"
+          },
+          "modeHelp": {
+            "All": "Pengguna mesti sepadan dengan setiap peraturan di bawah.",
+            "Any": "Pengguna mesti sepadan dengan sekurang-kurangnya satu peraturan di bawah.",
+            "None": "Sepadan dengan setiap pengguna — peraturan di bawah diabaikan."
+          },
+          "type": {
+            "UserId": "ID Pengguna",
+            "Role": "Peranan"
+          },
+          "valuePlaceholder": {
+            "UserId": "Tampal ID pengguna...",
+            "Role": "Nama peranan (huruf kecil)..."
+          },
+          "addMatch": "Tambah peraturan",
+          "removeMatch": "Buang peraturan",
+          "valueRequired": "Setiap peraturan memerlukan nilai",
+          "emptyMatches": {
+            "All": "Tiada peraturan lagi — dengan \"Semua\", senarai kosong sepadan dengan setiap pengguna.",
+            "Any": "Tiada peraturan lagi — dengan \"Mana-mana\", senarai kosong tidak sepadan dengan sesiapa.",
+            "None": "Tiada peraturan diperlukan — \"Semua orang\" sepadan dengan setiap pengguna."
+          }
+        }
       }
     }
   },
@@ -364,7 +397,10 @@
       "upgradeTrigger": "Naik taraf ke keutamaan ({fee})",
       "upgradeTitle": "Naik taraf ke keutamaan",
       "upgradeBody": "Dengan {fee}, tempahan ini masuk ke barisan keutamaan dan dilayan sebelum barisan biasa. Fi dicaj daripada dompet anda sekarang.",
-      "upgradeConfirm": "Bayar {fee} dan naik taraf"
+      "upgradeConfirm": "Bayar {fee} dan naik taraf",
+      "upgradeTriggerFree": "Naik taraf ke keutamaan (Percuma)",
+      "upgradeBodyFree": "Tempahan ini masuk ke barisan keutamaan dan dilayan sebelum barisan biasa. Naik taraf ini percuma untuk anda.",
+      "upgradeConfirmFree": "Naik taraf secara percuma"
     }
   },
   "bookings": {
@@ -420,7 +456,9 @@
       "subtotal": "Jumlah kecil",
       "priorityTitle": "Barisan keutamaan",
       "priorityBody": "+{fee} — tempahan anda dilayan sebelum barisan biasa.",
+      "priorityBodyFree": "Percuma untuk anda — tempahan anda dilayan sebelum barisan biasa.",
       "priorityLine": "Fi barisan keutamaan",
+      "priorityFree": "Percuma",
       "totalWithPriority": "Jumlah dengan keutamaan",
       "insufficientBalance": "Baki tidak mencukupi",
       "yourBalance": "Baki Anda",
@@ -1582,6 +1620,41 @@
       "friday": "Jum",
       "saturday": "Sab",
       "sunday": "Ahd"
+    }
+  },
+  "analysis": {
+    "title": "Analisis Jualan",
+    "reload": "Muat semula",
+    "loadError": "Gagal memuatkan analisis jualan",
+    "empty": "Tiada tempahan selesai dalam julat ini",
+    "grossNote": "Angka kasar — fi pemprosesan Airwallex tidak termasuk.",
+    "range": {
+      "after": "Selesai dari",
+      "before": "Selesai hingga",
+      "hint": "Julat tarikh selesai (SGT, termasuk; lalai: 30 hari terakhir)"
+    },
+    "summary": {
+      "totalTickets": "Jumlah tiket",
+      "totalGross": "Hasil kasar",
+      "deposits": "Deposit ditangkap",
+      "depositsCount": "{count} pembayaran",
+      "internalFees": "Fi dalaman",
+      "feeDeposit": "Deposit",
+      "feeWithdrawal": "Pengeluaran",
+      "feePriority": "Keutamaan",
+      "feeTermination": "Penamatan"
+    },
+    "daily": {
+      "title": "Jualan harian",
+      "description": "Tiket selesai dan hasil kasar setiap hari, dipecahkan mengikut slot berlepas",
+      "tickets": "{count} tiket"
+    },
+    "captured": {
+      "title": "Pembayaran ditangkap",
+      "description": "Niat pembayaran yang menangkap wang dalam julat ini, terbaru dahulu (100 terkini)",
+      "empty": "Tiada pembayaran ditangkap dalam julat ini",
+      "loadError": "Gagal memuatkan pembayaran ditangkap",
+      "copied": "ID niat pembayaran disalin"
     }
   }
 }

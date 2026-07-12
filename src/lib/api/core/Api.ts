@@ -14,6 +14,7 @@ import type {
   AnnounceFeeReq,
   AnnouncementBroadcastRes,
   AnnouncementSendRes,
+  BookingAnalysisRes,
   BookingCountRes,
   BookingPrincipalRes,
   BookingQueueRes,
@@ -21,6 +22,7 @@ import type {
   BookingSearchCountRes,
   BookingStatRes,
   CancelWithdrawalReq,
+  CapturedPaymentRes,
   CostPolicyPrincipalRes,
   CostPolicyReq,
   CostPrincipalRes,
@@ -254,6 +256,32 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
   ) =>
     this.request<BookingStatRes[], any>({
       path: `/api/v${version}/Booking/stats`,
+      method: 'GET',
+      query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc PR #37) pending swagger regeneration — sales/revenue
+   * analysis for the admin Analysis page (OnlyAdmin). After/Before are
+   * dd-MM-yyyy, inclusive, on the SGT calendar date of completion.
+   *
+   * @tags Booking
+   * @name VBookingAnalysisDetail
+   * @request GET:/api/v{version}/Booking/analysis
+   * @secure
+   */
+  vBookingAnalysisDetail = (
+    version: string,
+    query?: {
+      After?: string;
+      Before?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<BookingAnalysisRes, any>({
+      path: `/api/v${version}/Booking/analysis`,
       method: 'GET',
       query: query,
       secure: true,
@@ -1216,6 +1244,34 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
   ) =>
     this.request<PaymentPrincipalRes[], any>({
       path: `/api/v${version}/Payment`,
+      method: 'GET',
+      query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc PR #37) pending swagger regeneration — payment intents
+   * that captured money in the (inclusive SGT date) range, newest first,
+   * capped at 100 (OnlyAdmin). After/Before are dd-MM-yyyy.
+   *
+   * @tags Payment
+   * @name VPaymentCapturedDetail
+   * @request GET:/api/v{version}/Payment/captured
+   * @secure
+   */
+  vPaymentCapturedDetail = (
+    version: string,
+    query?: {
+      After?: string;
+      Before?: string;
+      /** @format int32 */
+      Limit?: number;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<CapturedPaymentRes[], any>({
+      path: `/api/v${version}/Payment/captured`,
       method: 'GET',
       query: query,
       secure: true,

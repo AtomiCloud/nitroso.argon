@@ -19,7 +19,8 @@
     "logout": "Log out",
     "signIn": "Sign in",
     "fees": "Fees",
-    "stats": "Statistics"
+    "stats": "Statistics",
+    "analysis": "Analysis"
   },
   "theme": {
     "toggle": "Toggle theme"
@@ -263,7 +264,39 @@
         "removeBody": "Remove {userId} from the priority allowlist?",
         "removeSuccess": "User removed from the allowlist",
         "removeError": "Failed to remove the user",
-        "allowlistEmpty": "No users on the allowlist."
+        "allowlistEmpty": "No users on the allowlist.",
+        "targets": {
+          "freeLabel": "Free boost for",
+          "freeHint": "Users matching this target upgrade to priority for free — no fee is charged. Off = nobody boosts free.",
+          "accessLabel": "Access",
+          "accessHint": "Overrides the allowlist when set; leave empty (off) to keep legacy allowlist behavior.",
+          "mode": {
+            "All": "All",
+            "Any": "Any",
+            "None": "Everyone"
+          },
+          "modeHelp": {
+            "All": "The user must match every rule below.",
+            "Any": "The user must match at least one rule below.",
+            "None": "Matches every user — the rules below are ignored."
+          },
+          "type": {
+            "UserId": "User ID",
+            "Role": "Role"
+          },
+          "valuePlaceholder": {
+            "UserId": "Paste a user ID...",
+            "Role": "Role name (lowercase)..."
+          },
+          "addMatch": "Add rule",
+          "removeMatch": "Remove rule",
+          "valueRequired": "Each rule needs a value",
+          "emptyMatches": {
+            "All": "No rules yet — with \"All\", an empty list matches every user.",
+            "Any": "No rules yet — with \"Any\", an empty list matches nobody.",
+            "None": "No rules needed — \"Everyone\" matches every user."
+          }
+        }
       }
     }
   },
@@ -364,7 +397,10 @@
       "upgradeTrigger": "Upgrade to priority ({fee})",
       "upgradeTitle": "Upgrade to priority",
       "upgradeBody": "For {fee}, this booking moves into the priority queue and is served before the regular queue. The fee is charged from your wallet now.",
-      "upgradeConfirm": "Pay {fee} and upgrade"
+      "upgradeConfirm": "Pay {fee} and upgrade",
+      "upgradeTriggerFree": "Upgrade to priority (Free)",
+      "upgradeBodyFree": "This booking moves into the priority queue and is served before the regular queue. This upgrade is free for you.",
+      "upgradeConfirmFree": "Upgrade for free"
     }
   },
   "bookings": {
@@ -420,7 +456,9 @@
       "subtotal": "Subtotal",
       "priorityTitle": "Priority queue",
       "priorityBody": "+{fee} — your booking is served before the regular queue.",
+      "priorityBodyFree": "Free for you — your booking is served before the regular queue.",
       "priorityLine": "Priority queue fee",
+      "priorityFree": "Free",
       "totalWithPriority": "Total with priority",
       "insufficientBalance": "Insufficient balance",
       "yourBalance": "Your Balance",
@@ -1582,6 +1620,41 @@
       "friday": "Fri",
       "saturday": "Sat",
       "sunday": "Sun"
+    }
+  },
+  "analysis": {
+    "title": "Sales Analysis",
+    "reload": "Reload",
+    "loadError": "Failed to load the sales analysis",
+    "empty": "No completed bookings in this range",
+    "grossNote": "Gross figures — Airwallex processing fees are not included.",
+    "range": {
+      "after": "Completed from",
+      "before": "Completed to",
+      "hint": "Completion-date range (SGT, inclusive; default: the last 30 days)"
+    },
+    "summary": {
+      "totalTickets": "Total tickets",
+      "totalGross": "Gross revenue",
+      "deposits": "Deposits captured",
+      "depositsCount": "{count} payments",
+      "internalFees": "Internal fees",
+      "feeDeposit": "Deposit",
+      "feeWithdrawal": "Withdrawal",
+      "feePriority": "Priority",
+      "feeTermination": "Termination"
+    },
+    "daily": {
+      "title": "Daily sales",
+      "description": "Completed tickets and gross revenue per day, broken down by departure slot",
+      "tickets": "{count} tickets"
+    },
+    "captured": {
+      "title": "Captured payments",
+      "description": "Payment intents that captured money in the range, newest first (latest 100)",
+      "empty": "No captured payments in this range",
+      "loadError": "Failed to load captured payments",
+      "copied": "Payment intent ID copied"
     }
   }
 }
