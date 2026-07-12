@@ -23,6 +23,7 @@
     import PolicyDialog from "$lib/components/entities/Costs/PolicyDialog.svelte";
     import CostSummaryPreview from "$lib/components/entities/Costs/CostSummaryPreview.svelte";
     import PrioritySection from "$lib/components/entities/Costs/PrioritySection.svelte";
+    import KtmbCostSection from "$lib/components/entities/Costs/KtmbCostSection.svelte";
     import {toResult} from "$lib/utility";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
@@ -275,6 +276,10 @@
                         {/if}
                     </Card.Content>
                 </Card.Root>
+
+                <!-- KTMB ticket cost (BunnyBooker's cost side; feeds the
+                     sales-analysis net figures) -->
+                <KtmbCostSection/>
 
                 <!-- live pricing preview -->
                 <CostSummaryPreview

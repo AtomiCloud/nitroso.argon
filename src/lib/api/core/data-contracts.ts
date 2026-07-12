@@ -70,6 +70,18 @@ export interface BookingCountRes {
   direction?: string | null;
   /** @format int32 */
   ticketsNeeded: number;
+  /**
+   * HAND-ADDED (zinc PR #39): queue split — ticketsNeeded = priority +
+   * normal. Optional only during the old-Zinc rollout window; fall back to
+   * ticketsNeeded when absent.
+   * @format int32
+   */
+  priority?: number;
+  /**
+   * HAND-ADDED (zinc PR #39): see priority.
+   * @format int32
+   */
+  normal?: number;
 }
 
 export interface BookingPassengerReq {
@@ -288,6 +300,13 @@ export interface BookingAnalysisRowRes {
   ticketsCompleted: number;
   /** @format double */
   grossRevenue: number;
+  /**
+   * HAND-ADDED (zinc PR #39): admin-configured effective-dated KTMB ticket
+   * cost attributed to the row (0 when never configured). Optional only
+   * during the old-Zinc rollout window — treat a missing value as 0.
+   * @format double
+   */
+  ktmbCost?: number;
 }
 
 /** HAND-ADDED (zinc PR #37). Deposits captured in the range. */
@@ -314,20 +333,202 @@ export interface InternalFeesRes {
   termination: number;
 }
 
-/** HAND-ADDED (zinc PR #37). Range totals for the analysis page. */
+/**
+ * HAND-ADDED (zinc PR #39). Gateway-fee sync coverage over the range's
+ * captured intents — fees post with delay, so paymentsWithFee <
+ * paymentsTotal means "sync again later".
+ */
+export interface GatewayFeeCoverageRes {
+  /** @format int32 */
+  paymentsWithFee: number;
+  /** @format int32 */
+  paymentsTotal: number;
+}
+
+/**
+ * HAND-ADDED (zinc PR #39). Airwallex's own fees: payments = fees on
+ * captured intents (money in), payouts = fees on transfers + card refunds
+ * (money out).
+ */
+export interface GatewayFeesRes {
+  /** @format double */
+  payments: number;
+  /** @format double */
+  payouts: number;
+  coverage: GatewayFeeCoverageRes;
+}
+
+/** HAND-ADDED (zinc PR #39). Per-direction slice of the completed rows. */
+export interface DirectionBreakdownRes {
+  direction: string;
+  /** @format int32 */
+  tickets: number;
+  /** @format double */
+  gross: number;
+  /** @format double */
+  ktmbCost: number;
+}
+
+/**
+ * HAND-ADDED (zinc PR #39). One SGT calendar month ("MM-yyyy").
+ * net = gross − ktmbCost − gatewayPaymentFees − gatewayPayoutFees.
+ * internalFees (deposit + withdrawal + net priority) is BunnyBooker's own
+ * fee revenue that month — context only, never subtracted.
+ */
+export interface MonthlyAnalysisRes {
+  month: string;
+  /** @format double */
+  gross: number;
+  /** @format double */
+  ktmbCost: number;
+  /** @format double */
+  gatewayPaymentFees: number;
+  /** @format double */
+  gatewayPayoutFees: number;
+  /** @format double */
+  internalFees: number;
+  /** @format double */
+  net: number;
+  byDirection: DirectionBreakdownRes[];
+}
+
+/**
+ * HAND-ADDED (zinc PR #39). One pricing component's aggregate:
+ * kind = "policy" (signed delta) | "discount" (negative) | "priorityFee"
+ * (positive) — ranks which components make or lose money over the range.
+ */
+export interface PriceComponentRes {
+  kind: string;
+  name: string;
+  /** @format int32 */
+  timesApplied: number;
+  /** @format double */
+  totalDelta: number;
+}
+
+/**
+ * HAND-ADDED (zinc PR #39). Breakdown persistence started with the release
+ * that added it — completed bookings without a stored breakdown are excluded
+ * from components.
+ */
+export interface ComponentsCoverageRes {
+  /** @format int32 */
+  withBreakdown: number;
+  /** @format int32 */
+  total: number;
+}
+
+/**
+ * HAND-ADDED (zinc PR #37, EXTENDED by PR #39 with totalKtmbCost,
+ * gatewayFees and byDirection). Range totals for the analysis page.
+ * The PR #39 fields are optional only during the old-Zinc rollout window.
+ */
 export interface BookingAnalysisSummaryRes {
   /** @format int32 */
   totalTickets: number;
   /** @format double */
   totalGross: number;
+  /** @format double */
+  totalKtmbCost?: number;
   deposits: DepositSummaryRes;
   internalFees: InternalFeesRes;
+  gatewayFees?: GatewayFeesRes;
+  byDirection?: DirectionBreakdownRes[];
 }
 
-/** HAND-ADDED (zinc PR #37). GET Booking/analysis response. */
+/**
+ * HAND-ADDED (zinc PR #37, EXTENDED by PR #39 with monthly, components and
+ * componentsCoverage). GET Booking/analysis response. The PR #39 fields are
+ * optional only during the old-Zinc rollout window.
+ */
 export interface BookingAnalysisRes {
   rows: BookingAnalysisRowRes[];
   summary: BookingAnalysisSummaryRes;
+  monthly?: MonthlyAnalysisRes[];
+  components?: PriceComponentRes[];
+  componentsCoverage?: ComponentsCoverageRes;
+}
+
+/**
+ * HAND-ADDED (zinc PR #39). One boost-ledger row: fee null = the boost was
+ * free; boostedAt falls back to the booking's createdAt for boosts predating
+ * the PrioritizedAt stamp; grantedBy = the admin's userId when an admin
+ * boosted someone else's booking (null before that release and for
+ * self-boosts).
+ */
+export interface BookingBoostRes {
+  /** @format uuid */
+  bookingId: string;
+  userId: string;
+  userIdentity: string;
+  date: string;
+  time: string;
+  direction: string;
+  /** @format double */
+  fee?: number | null;
+  free: boolean;
+  /** @format date-time */
+  boostedAt: string;
+  grantedBy?: string | null;
+}
+
+/** HAND-ADDED (zinc PR #39). GET Booking/analysis/boosts response. */
+export interface BookingBoostPageRes {
+  /** @format int32 */
+  total: number;
+  items: BookingBoostRes[];
+}
+
+/**
+ * HAND-ADDED (zinc PR #39). One queued KTMB ticket-cost change
+ * (insert-only, effective-dated like the withdrawal fee queue).
+ */
+export interface KtmbCostChangeRes {
+  /** @format uuid */
+  id: string;
+  direction: string;
+  /** @format double */
+  cost: number;
+  /** @format date-time */
+  effectiveAt: string;
+  /** @format date-time */
+  createdAt: string;
+}
+
+/**
+ * HAND-ADDED (zinc PR #39). GET Booking/ktmb-cost/current response:
+ * current = direction name ("JToW" | "WToJ") → currently effective cost
+ * (a direction key is absent when never configured); upcoming = queued
+ * future changes, soonest first.
+ */
+export interface KtmbCostRes {
+  current: Record<string, number>;
+  upcoming: KtmbCostChangeRes[];
+}
+
+/**
+ * HAND-ADDED (zinc PR #39). POST Booking/ktmb-cost body: direction is
+ * "JToW" | "WToJ"; cost 0–10000; effectiveAt omitted/null = immediate.
+ */
+export interface SetKtmbCostReq {
+  direction: string;
+  /** @format double */
+  cost: number;
+  /** @format date-time */
+  effectiveAt?: string | null;
+}
+
+/**
+ * HAND-ADDED (zinc PR #39). POST Payment/gateway-fees/sync response:
+ * synced = fee rows upserted; missing = intent ids Airwallex has no fee for
+ * yet (they post with delay); hasMore = the range had more intents than one
+ * sync pass covers — run it again.
+ */
+export interface GatewayFeeSyncRes {
+  /** @format int32 */
+  synced: number;
+  missing: string[];
+  hasMore: boolean;
 }
 
 /**
