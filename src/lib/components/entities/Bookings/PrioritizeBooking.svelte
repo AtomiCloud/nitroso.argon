@@ -70,10 +70,17 @@
 </script>
 
 {#if show && eligibility != null}
+    <!-- free:true (zinc PR #37) = this user boosts free: every fee mention
+         swaps to the "free" copy and no charge is implied -->
+    {@const free = eligibility.free === true}
     <Dialog.Root bind:open={dialogOpen}>
         <Dialog.Trigger class="{buttonVariants({ variant: 'outline' })} w-full sm:max-w-60">
             <Zap class="mr-2 h-4 w-4 text-amber-500"/>
-            {$_('bookingActions.priority.upgradeTrigger', { locale: $lang, values: { fee: formatMoney(eligibility.fee, $lang) } })}
+            {#if free}
+                {$_('bookingActions.priority.upgradeTriggerFree', { locale: $lang })}
+            {:else}
+                {$_('bookingActions.priority.upgradeTrigger', { locale: $lang, values: { fee: formatMoney(eligibility.fee, $lang) } })}
+            {/if}
         </Dialog.Trigger>
         <Dialog.Content>
             <Dialog.Header>
@@ -81,13 +88,21 @@
                 <Dialog.Description>
                     <div class="flex flex-col gap-4">
                         <p class="text-justify py-2">
-                            {$_('bookingActions.priority.upgradeBody', { locale: $lang, values: { fee: formatMoney(eligibility.fee, $lang) } })}
+                            {#if free}
+                                {$_('bookingActions.priority.upgradeBodyFree', { locale: $lang })}
+                            {:else}
+                                {$_('bookingActions.priority.upgradeBody', { locale: $lang, values: { fee: formatMoney(eligibility.fee, $lang) } })}
+                            {/if}
                         </p>
                         <Button class="my-2" on:click={prioritize} disabled={submitting}>
                             {#if submitting}
                                 <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                             {/if}
-                            {$_('bookingActions.priority.upgradeConfirm', { locale: $lang, values: { fee: formatMoney(eligibility.fee, $lang) } })}
+                            {#if free}
+                                {$_('bookingActions.priority.upgradeConfirmFree', { locale: $lang })}
+                            {:else}
+                                {$_('bookingActions.priority.upgradeConfirm', { locale: $lang, values: { fee: formatMoney(eligibility.fee, $lang) } })}
+                            {/if}
                         </Button>
                     </div>
                 </Dialog.Description>

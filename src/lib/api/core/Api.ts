@@ -14,6 +14,7 @@ import type {
   AnnounceFeeReq,
   AnnouncementBroadcastRes,
   AnnouncementSendRes,
+  BookingAnalysisRes,
   BookingCountRes,
   BookingPrincipalRes,
   BookingQueueRes,
@@ -21,6 +22,7 @@ import type {
   BookingSearchCountRes,
   BookingStatRes,
   CancelWithdrawalReq,
+  CapturedPaymentRes,
   CostPolicyPrincipalRes,
   CostPolicyReq,
   CostPrincipalRes,
@@ -56,6 +58,7 @@ import type {
   ScheduleRecordReq,
   SetFeeReq,
   SetPrioritySettingsReq,
+  SetWithdrawalSettingsReq,
   TimingPrincipalRes,
   TimingReq,
   TimingRes,
@@ -72,6 +75,7 @@ import type {
   WalletRes,
   WithdrawalPrincipalRes,
   WithdrawalRes,
+  WithdrawalSettingsRes,
 } from './data-contracts';
 import { ContentType, HttpClient, type RequestParams } from './http-client';
 
@@ -254,6 +258,32 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
   ) =>
     this.request<BookingStatRes[], any>({
       path: `/api/v${version}/Booking/stats`,
+      method: 'GET',
+      query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc PR #37) pending swagger regeneration — sales/revenue
+   * analysis for the admin Analysis page (OnlyAdmin). After/Before are
+   * dd-MM-yyyy, inclusive, on the SGT calendar date of completion.
+   *
+   * @tags Booking
+   * @name VBookingAnalysisDetail
+   * @request GET:/api/v{version}/Booking/analysis
+   * @secure
+   */
+  vBookingAnalysisDetail = (
+    version: string,
+    query?: {
+      After?: string;
+      Before?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<BookingAnalysisRes, any>({
+      path: `/api/v${version}/Booking/analysis`,
       method: 'GET',
       query: query,
       secure: true,
@@ -1223,6 +1253,34 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
       ...params,
     });
   /**
+   * HAND-ADDED (zinc PR #37) pending swagger regeneration — payment intents
+   * that captured money in the (inclusive SGT date) range, newest first,
+   * capped at 100 (OnlyAdmin). After/Before are dd-MM-yyyy.
+   *
+   * @tags Payment
+   * @name VPaymentCapturedDetail
+   * @request GET:/api/v{version}/Payment/captured
+   * @secure
+   */
+  vPaymentCapturedDetail = (
+    version: string,
+    query?: {
+      After?: string;
+      Before?: string;
+      /** @format int32 */
+      Limit?: number;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<CapturedPaymentRes[], any>({
+      path: `/api/v${version}/Payment/captured`,
+      method: 'GET',
+      query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
    * No description
    *
    * @tags Payment
@@ -2146,6 +2204,42 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
       path: `/api/v${version}/Withdrawal/refundable/${userId}`,
       method: 'GET',
       secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc withdrawal-policy PR) pending swagger regeneration —
+   * the current withdrawal-method policy (any authenticated user).
+   *
+   * @tags Withdrawal
+   * @name VWithdrawalSettingsCurrentDetail
+   * @request GET:/api/v{version}/Withdrawal/settings/current
+   * @secure
+   */
+  vWithdrawalSettingsCurrentDetail = (version: string, params: RequestParams = {}) =>
+    this.request<WithdrawalSettingsRes, any>({
+      path: `/api/v${version}/Withdrawal/settings/current`,
+      method: 'GET',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc withdrawal-policy PR) pending swagger regeneration —
+   * set the withdrawal-method policy (admin).
+   *
+   * @tags Withdrawal
+   * @name VWithdrawalSettingsCreate
+   * @request POST:/api/v{version}/Withdrawal/settings
+   * @secure
+   */
+  vWithdrawalSettingsCreate = (version: string, data: SetWithdrawalSettingsReq, params: RequestParams = {}) =>
+    this.request<WithdrawalSettingsRes, any>({
+      path: `/api/v${version}/Withdrawal/settings`,
+      method: 'POST',
+      body: data,
+      secure: true,
+      type: ContentType.Json,
       format: 'json',
       ...params,
     });

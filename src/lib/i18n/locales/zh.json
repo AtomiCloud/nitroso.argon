@@ -19,7 +19,8 @@
     "logout": "登出",
     "signIn": "登录",
     "fees": "手续费",
-    "stats": "统计"
+    "stats": "统计",
+    "analysis": "销售分析"
   },
   "theme": {
     "toggle": "切换主题"
@@ -263,7 +264,39 @@
         "removeBody": "将 {userId} 从优先白名单中移除？",
         "removeSuccess": "已从白名单移除",
         "removeError": "移除用户失败",
-        "allowlistEmpty": "白名单暂无用户。"
+        "allowlistEmpty": "白名单暂无用户。",
+        "targets": {
+          "freeLabel": "免费升级对象",
+          "freeHint": "符合此目标的用户可免费升级为优先——不收取费用。关闭 = 没有人可免费升级。",
+          "accessLabel": "使用权限",
+          "accessHint": "设置后将覆盖白名单；留空（关闭）则保留原有白名单行为。",
+          "mode": {
+            "All": "全部",
+            "Any": "任一",
+            "None": "所有人"
+          },
+          "modeHelp": {
+            "All": "用户必须符合下方所有规则。",
+            "Any": "用户至少符合下方一条规则。",
+            "None": "匹配所有用户——下方规则将被忽略。"
+          },
+          "type": {
+            "UserId": "用户 ID",
+            "Role": "角色"
+          },
+          "valuePlaceholder": {
+            "UserId": "粘贴用户 ID...",
+            "Role": "角色名（小写）..."
+          },
+          "addMatch": "添加规则",
+          "removeMatch": "移除规则",
+          "valueRequired": "每条规则都需要填写值",
+          "emptyMatches": {
+            "All": "暂无规则——选择\"全部\"时，空列表将匹配所有用户。",
+            "Any": "暂无规则——选择\"任一\"时，空列表不匹配任何用户。",
+            "None": "无需规则——\"所有人\"匹配所有用户。"
+          }
+        }
       }
     }
   },
@@ -364,7 +397,10 @@
       "upgradeTrigger": "升级为优先（{fee}）",
       "upgradeTitle": "升级为优先",
       "upgradeBody": "支付 {fee} 后，此预订将进入优先队列，先于普通队列处理。费用将立即从您的钱包扣除。",
-      "upgradeConfirm": "支付 {fee} 并升级"
+      "upgradeConfirm": "支付 {fee} 并升级",
+      "upgradeTriggerFree": "升级为优先（免费）",
+      "upgradeBodyFree": "此预订将进入优先队列，先于普通队列处理。此次升级对您免费。",
+      "upgradeConfirmFree": "免费升级"
     }
   },
   "bookings": {
@@ -420,7 +456,9 @@
       "subtotal": "小计",
       "priorityTitle": "优先队列",
       "priorityBody": "+{fee} —— 您的预订将先于普通队列处理。",
+      "priorityBodyFree": "对您免费——您的预订将先于普通队列处理。",
       "priorityLine": "优先队列费用",
+      "priorityFree": "免费",
       "totalWithPriority": "含优先总计",
       "insufficientBalance": "余额不足",
       "yourBalance": "您的余额",
@@ -1241,7 +1279,12 @@
       "methodCardRefundDesc": "款项将退回您付款时使用的银行卡",
       "methodPayNow": "PayNow",
       "methodPayNowDesc": "转账至 8 位 PayNow 手机号码",
-      "methodPayNowUnavailable": "暂时不可用",
+      "methodPayNowFallback": "当银行卡退款无法覆盖您的金额时可用",
+      "methodCardRefundDisabled": "目前不可用",
+      "backToCard": "您的金额可以退回银行卡，已为您选择银行卡退款方式。",
+      "unavailableTitle": "提款不可用",
+      "unavailable": "提款功能目前不可用，请稍后再试。",
+      "settingsLoadFailed": "加载提款选项失败",
       "poolLoading": "正在查询可退回银行卡的金额…",
       "poolLine": "最多可退回 {pool} 至您的银行卡（最近 {windowDays} 天内的付款）",
       "poolEmptyTitle": "没有可退款的银行卡付款",
@@ -1438,6 +1481,33 @@
       "scheduledSuccess": "已安排手续费于 {date} 更改为 {desc}",
       "updateError": "保存手续费更改失败"
     },
+    "withdrawalSettings": {
+      "title": "提款设置",
+      "description": "控制用户可选择的提款方式，以及已批准的提款如何付款。",
+      "cardRefundLabel": "启用退回银行卡",
+      "cardRefundHint": "用户可以将款项退回付款时使用的银行卡来提款。",
+      "payNowLabel": "PayNow",
+      "modes": {
+        "Enabled": {
+          "label": "启用",
+          "hint": "用户始终可以提款至 PayNow 号码。"
+        },
+        "Disabled": {
+          "label": "停用",
+          "hint": "PayNow 选项对用户完全隐藏。"
+        },
+        "FallbackOnly": {
+          "label": "仅作后备",
+          "hint": "仅当银行卡退款无法覆盖申请金额时才提供 PayNow。"
+        }
+      },
+      "sweepLabel": "每晚自动付款",
+      "sweepHint": "关闭时，每笔提款仅在管理员批准后才会付款。",
+      "save": "保存",
+      "saveSuccess": "提款设置已保存",
+      "saveError": "保存提款设置失败",
+      "loadFailed": "加载提款设置失败"
+    },
     "announcement": {
       "title": "手续费公告",
       "description": "向用户发送手续费公告邮件。",
@@ -1582,6 +1652,41 @@
       "friday": "周五",
       "saturday": "周六",
       "sunday": "周日"
+    }
+  },
+  "analysis": {
+    "title": "销售分析",
+    "reload": "刷新",
+    "loadError": "加载销售分析失败",
+    "empty": "此范围内没有已完成的预订",
+    "grossNote": "均为毛收入——不含 Airwallex 手续费。",
+    "range": {
+      "after": "完成日期从",
+      "before": "完成日期至",
+      "hint": "完成日期范围（新加坡时间，含首尾；默认最近 30 天）"
+    },
+    "summary": {
+      "totalTickets": "总票数",
+      "totalGross": "毛收入",
+      "deposits": "已捕获充值",
+      "depositsCount": "{count} 笔付款",
+      "internalFees": "内部费用",
+      "feeDeposit": "充值",
+      "feeWithdrawal": "提现",
+      "feePriority": "优先",
+      "feeTermination": "终止"
+    },
+    "daily": {
+      "title": "每日销售",
+      "description": "每天已完成的票数和毛收入，按出发班次细分",
+      "tickets": "{count} 张票"
+    },
+    "captured": {
+      "title": "已捕获付款",
+      "description": "此范围内捕获资金的付款意向，最新在前（最多 100 条）",
+      "empty": "此范围内没有已捕获的付款",
+      "loadError": "加载已捕获付款失败",
+      "copied": "已复制付款意向 ID"
     }
   }
 }
