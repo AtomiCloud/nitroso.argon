@@ -183,6 +183,11 @@
         loadBoosts();
     }
 
+    // the global direction filter narrows the CURRENT page client-side (zinc
+    // has no direction param on the boosts endpoint); the pager still walks
+    // the unfiltered ledger, so the count line stays the server's truth
+    $: visibleBoosts = boosts.filter(b => dir === "" || b.direction === dir);
+
     // ---- gateway-fee sync (Monthly tab; fees post with delay on Airwallex's
     // side, so "missing" intents are expected to resolve on a later run) ----
     let syncing = false;
@@ -848,7 +853,7 @@
                                             </Table.Row>
                                         </Table.Header>
                                         <Table.Body>
-                                            {#each boosts.filter(b => dir === "" || b.direction === dir) as b (`${b.bookingId}|${b.boostedAt}`)}
+                                            {#each visibleBoosts as b (`${b.bookingId}|${b.boostedAt}`)}
                                                 {@const v = boostView(b)}
                                                 <Table.Row>
                                                     <Table.Cell class="px-2 py-1.5 whitespace-nowrap text-sm">{formatDateTime(b.boostedAt, $lang)}</Table.Cell>
