@@ -123,6 +123,10 @@ export interface BookingQueueRes {
   position?: number | null;
   /** @format int32 */
   total?: number | null;
+  /** @format int32 */
+  priorityTotal?: number | null;
+  /** @format int32 */
+  normalTotal?: number | null;
 }
 
 export interface BookingRes {
