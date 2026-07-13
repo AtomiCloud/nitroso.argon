@@ -102,7 +102,7 @@
         <div class="flex flex-wrap justify-end gap-4 pt-4 w-full">
             {#if !isAdmin && queued}
                 <div class="flex items-center mr-auto">
-                    <QueuePosition bookingId={b.id}/>
+                    <QueuePosition bookingId={b.id} priority={b.priority}/>
                 </div>
             {/if}
             {#if b.status === "Pending"}
