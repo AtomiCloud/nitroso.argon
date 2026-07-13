@@ -500,6 +500,32 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
       ...params,
     });
   /**
+   * HAND-ADDED (zinc PR #42): booking-scoped priority eligibility — hour
+   * policies evaluated against the timeslot's departure, plus slotCap /
+   * slotsLeft when a cap is configured.
+   *
+   * @tags Booking
+   * @name VBookingPriorityEligibilityDetail2
+   * @request GET:/api/v{version}/Booking/{id}/priority/eligibility
+   * @secure
+   */
+  vBookingPriorityEligibilityDetail2 = (
+    id: string,
+    version: string,
+    query?: {
+      userId?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<PriorityEligibilityRes, any>({
+      path: `/api/v${version}/Booking/${id}/priority/eligibility`,
+      method: 'GET',
+      query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
    * No description
    *
    * @tags Booking
