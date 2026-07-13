@@ -411,7 +411,7 @@
     },
     "queue": {
       "position": "Position in queue: {position} of {total}",
-      "groupPosition": "#{position} of {total} in your queue",
+      "groupPosition": "#{position} of {total}",
       "priorityQueue": "Priority queue",
       "standardQueue": "Standard queue",
       "breakdown": "{priority} in priority · {normal} in standard",
