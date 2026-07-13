@@ -86,30 +86,19 @@
 {:else if queue.position != null && queue.total != null}
     <div class="flex flex-col items-center gap-0.5">
         <div class="flex items-center justify-center gap-1.5 text-sm">
-            {#if split}
-                {#if priority}
-                    <span class="bg-gradient-to-r from-amber-500 via-orange-500 to-fuchsia-600 bg-clip-text font-semibold text-transparent">
-                        {$_('bookingActions.queue.priorityQueue', { locale: $lang })}
-                    </span>
-                {:else}
-                    <span class="font-medium text-muted-foreground">
-                        {$_('bookingActions.queue.standardQueue', { locale: $lang })}
-                    </span>
-                {/if}
-                <span class="text-muted-foreground">·</span>
-            {:else}
-                <Users class="h-4 w-4 text-muted-foreground"/>
-            {/if}
             {#if isNext}
                 <PartyPopper class="h-4 w-4 text-green-600 dark:text-green-400"/>
                 <span class="font-medium text-green-600 dark:text-green-400">
                     {$_('bookingActions.queue.next', { locale: $lang })}
                 </span>
             {:else if split}
+                <Users class="h-4 w-4 text-muted-foreground"/>
                 <span>
-                    {$_('bookingActions.queue.groupPosition', { locale: $lang, values: { position: groupPosition, total: groupTotal } })}
+                    {$_(priority ? 'bookingActions.queue.positionPriority' : 'bookingActions.queue.positionStandard',
+                        { locale: $lang, values: { position: groupPosition, total: groupTotal } })}
                 </span>
             {:else}
+                <Users class="h-4 w-4 text-muted-foreground"/>
                 <span>
                     {$_('bookingActions.queue.position', { locale: $lang, values: { position: queue.position, total: queue.total } })}
                 </span>
