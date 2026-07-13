@@ -411,9 +411,8 @@
     },
     "queue": {
       "position": "Position in queue: {position} of {total}",
-      "groupPosition": "#{position} of {total}",
-      "priorityQueue": "Priority queue",
-      "standardQueue": "Standard queue",
+      "positionPriority": "#{position} of {total} in the priority queue",
+      "positionStandard": "#{position} of {total} in the standard queue",
       "breakdown": "{priority} in priority · {normal} in standard",
       "next": "You're next!",
       "refresh": "Refresh queue position",
