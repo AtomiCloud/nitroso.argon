@@ -267,36 +267,11 @@
       },
       "priority": {
         "title": "Barisan keutamaan",
-        "description": "Tempahan keutamaan dilayan sebelum barisan biasa. Konfigurasikan fi, siapa boleh menyertai, dan tetingkap pembelian.",
-        "feeLabel": "Fi keutamaan",
-        "feeInvalid": "Fi mesti nombor antara 0 hingga 10,000 dengan maksimum 2 titik perpuluhan",
-        "allowAll": "Benarkan semua",
-        "allowAllHint": "Apabila dimatikan, hanya pengguna dalam senarai benar di bawah boleh menyertai.",
-        "windowLabel": "Tetingkap pembelian (SGT)",
-        "allDay": "Sepanjang hari",
-        "windowStart": "Mula",
-        "windowEnd": "Tamat",
-        "windowHint": "Keutamaan hanya boleh dibeli antara waktu ini (waktu Singapura).",
-        "save": "Simpan tetapan",
-        "saveSuccess": "Tetapan keutamaan disimpan",
-        "saveError": "Gagal menyimpan tetapan keutamaan",
-        "allowlistTitle": "Senarai benar",
-        "userIdPlaceholder": "Tampal ID pengguna...",
-        "add": "Tambah",
-        "addSuccess": "Pengguna ditambah ke senarai benar",
-        "addError": "Gagal menambah pengguna",
-        "addedOn": "Ditambah {datetime}",
-        "remove": "Buang",
-        "removeTitle": "Buang daripada senarai benar",
-        "removeBody": "Buang {userId} daripada senarai benar keutamaan?",
-        "removeSuccess": "Pengguna dibuang daripada senarai benar",
-        "removeError": "Gagal membuang pengguna",
-        "allowlistEmpty": "Tiada pengguna dalam senarai benar.",
+        "description": "Satu senarai polisi mengawal seluruh barisan keutamaan: siapa boleh naik taraf, bila, dengan fi berapa, dan berapa slot keutamaan setiap perlepasan. Peraturan dinilai dari atas ke bawah — padanan pertama membuat keputusan; tiada padanan bermakna tiada naik taraf.",
+        "save": "Simpan polisi",
+        "saveSuccess": "Polisi keutamaan disimpan",
+        "saveError": "Gagal menyimpan polisi keutamaan",
         "targets": {
-          "freeLabel": "Naik taraf percuma untuk",
-          "freeHint": "Pengguna yang sepadan dengan sasaran ini menaik taraf ke keutamaan secara percuma — tiada fi dicaj. Mati = tiada sesiapa percuma.",
-          "accessLabel": "Akses",
-          "accessHint": "Mengatasi senarai benar apabila ditetapkan; biarkan kosong (mati) untuk mengekalkan tingkah laku senarai benar lama.",
           "mode": {
             "All": "Semua",
             "Any": "Mana-mana",
@@ -324,31 +299,32 @@
             "None": "Tiada peraturan diperlukan — \"Semua orang\" sepadan dengan setiap pengguna."
           }
         },
-        "slotCap": {
-          "label": "Slot prioriti setiap slot masa",
-          "placeholder": "Tanpa had",
-          "hint": "Bilangan maksimum tempahan prioriti bagi setiap perlepasan (arah + tarikh + masa). Slot penuh menyekat naik taraf selanjutnya. Kosong = tanpa had.",
-          "invalid": "Had mesti nombor bulat antara 1 dan 10,000 (atau kosong untuk tanpa had)"
-        },
         "policies": {
-          "title": "Polisi prioriti",
-          "hint": "Dinilai dari atas ke bawah — peraturan PERTAMA yang sepadan membuat keputusan. Tiada padanan jatuh kembali kepada Akses / Benarkan semua / senarai benar.",
-          "empty": "Tiada polisi — akses ditentukan oleh tetapan di atas.",
+          "empty": "Tiada polisi lagi — tiada siapa boleh naik taraf ke keutamaan sehingga anda menambah polisi Benarkan.",
           "add": "Tambah polisi",
           "name": "Nama polisi",
           "namePlaceholder": "cth. VIP boleh naik taraf bila-bila masa",
           "allow": "Benarkan",
           "deny": "Sekat",
+          "whenLabel": "Bila ia terpakai",
+          "anyTime": "Bila-bila masa",
           "minHours": "Dari (jam sebelum perlepasan)",
           "maxHours": "Hingga (jam sebelum perlepasan)",
-          "feeOverride": "Fi ganti (SGD)",
-          "hoursHint": "Peraturan terpakai apabila jam-ke-perlepasan ≥ Dari dan < Hingga; kosongkan untuk tiada had. Contoh: Sekat dengan Hingga 6 menyekat naik taraf dalam 6 jam terakhir.",
+          "hoursHint": "Peraturan terpakai apabila jam-ke-perlepasan ≥ Dari dan < Hingga (biarkan kosong untuk tiada had), dan hanya dalam tetingkap masa SGT di atas (biarkan kosong untuk bila-bila masa). Contoh: Sekat dengan Hingga 6 menyekat naik taraf dalam 6 jam terakhir.",
           "targetLabel": "Terpakai kepada",
           "targetHint": "Mati = peraturan ini terpakai kepada semua; hidup = hanya kepada pengguna yang sepadan dengan sasaran.",
+          "fee": "Fi",
+          "feeFlat": "Tetap",
+          "feePercent": "%",
+          "feePercentHint": "% daripada harga tiket",
+          "feeFreeHint": "0 = naik taraf adalah percuma untuk pengguna yang sepadan.",
+          "slotCap": "Slot keutamaan setiap slot masa",
+          "slotCapUnlimited": "Tanpa had",
           "moveUp": "Naik ke atas",
           "moveDown": "Turun ke bawah",
           "remove": "Buang polisi",
-          "invalid": "Betulkan polisi yang ditanda: setiap polisi perlukan nama, had jam yang sah (Hingga > Dari) dan fi ganti yang sah."
+          "hint": "Peraturan dinilai dari atas ke bawah — peraturan pertama yang semua syaratnya sepadan membuat keputusan. Jika tiada yang sepadan, naik taraf ditolak.",
+          "invalid": "Betulkan polisi yang ditanda: setiap polisi perlukan nama, tetingkap masa berpasangan, had jam yang sah (Hingga > Dari), fi yang sah (tetap ≤ 10,000 / peratus ≤ 100) dan had slot nombor bulat."
         }
       }
     }
@@ -1735,7 +1711,8 @@
       "monthly": "Bulanan",
       "byDay": "Ikut hari",
       "boosts": "Keutamaan",
-      "payments": "Pembayaran"
+      "payments": "Pembayaran",
+      "costs": "Kos tiket"
     },
     "summary": {
       "totalTickets": "Jumlah tiket",

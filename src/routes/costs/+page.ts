@@ -2,7 +2,6 @@ import type { ProblemDetails } from '../../errors/problem_details';
 import type {
   CostPolicyPrincipalRes,
   CostPrincipalRes,
-  PriorityAccessRes,
   PrioritySettingsRes,
   TimingRes,
 } from '$lib/api/core/data-contracts';
@@ -12,14 +11,7 @@ import { loadError } from '$lib/i18n';
 import { Res } from '$lib/core/result';
 import type { PageLoad } from './$types';
 
-export type CostsPageOk = [
-  CostPrincipalRes[],
-  CostPolicyPrincipalRes[],
-  PrioritySettingsRes,
-  PriorityAccessRes[],
-  TimingRes,
-  TimingRes,
-];
+export type CostsPageOk = [CostPrincipalRes[], CostPolicyPrincipalRes[], PrioritySettingsRes, TimingRes, TimingRes];
 
 export const load = (async ({
   parent,
@@ -37,11 +29,10 @@ export const load = (async ({
     () => api.vBookingPrioritySettingsDetail('1'),
     await loadError(locale, 'errors.load.priority'),
   );
-  const access = toResult(() => api.vBookingPriorityAccessDetail('1'), await loadError(locale, 'errors.load.priority'));
   const timingsJToW = toResult(() => api.vTimingDetail('JToW', '1'), await loadError(locale, 'errors.load.timing'));
   const timingsWToJ = toResult(() => api.vTimingDetail('WToJ', '1'), await loadError(locale, 'errors.load.timing'));
 
-  const result = await Res.all(costs, policies, settings, access, timingsJToW, timingsWToJ).serial();
+  const result = await Res.all(costs, policies, settings, timingsJToW, timingsWToJ).serial();
 
   return {
     result,

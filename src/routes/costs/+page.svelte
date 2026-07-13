@@ -23,7 +23,6 @@
     import PolicyDialog from "$lib/components/entities/Costs/PolicyDialog.svelte";
     import CostSummaryPreview from "$lib/components/entities/Costs/CostSummaryPreview.svelte";
     import PrioritySection from "$lib/components/entities/Costs/PrioritySection.svelte";
-    import KtmbCostSection from "$lib/components/entities/Costs/KtmbCostSection.svelte";
     import {toResult} from "$lib/utility";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
@@ -198,7 +197,7 @@
 
             {#await pageData}
                 <Loader/>
-            {:then [cs, policies, prioritySettings, priorityAccess, timingsJToW, timingsWToJ]}
+            {:then [cs, policies, prioritySettings, timingsJToW, timingsWToJ]}
                 <div class="flex flex-wrap justify-between gap-4">
                     <div class="text-2xl">{$_("admin.costs.currentPrice", {locale: $lang, values: {price: formatMoney(cs[0].cost, $lang)}})}</div>
                     <div class="grid w-full max-w-sm items-center gap-1.5">
@@ -277,17 +276,13 @@
                     </Card.Content>
                 </Card.Root>
 
-                <!-- KTMB ticket cost (BunnyBooker's cost side; feeds the
-                     sales-analysis net figures) -->
-                <KtmbCostSection/>
-
                 <!-- live pricing preview -->
                 <CostSummaryPreview
                         timesJToW={timingsJToW.principal.timings ?? []}
                         timesWToJ={timingsWToJ.principal.timings ?? []}/>
 
-                <!-- priority queue settings + allowlist -->
-                <PrioritySection settings={prioritySettings} access={priorityAccess}/>
+                <!-- priority queue policy editor -->
+                <PrioritySection settings={prioritySettings}/>
 
                 <!-- base-cost history -->
                 <div class="flex flex-col gap-4 my-4">

@@ -17,10 +17,10 @@
     } from "./priority-targets";
 
     // One All/Any/None-over-(Role|UserId) target editor (zinc PR #37) —
-    // shared by the "free boost" and "access" targets in PrioritySection.
-    // draft == null means the target is UNSET on zinc (nobody free / legacy
-    // allowlist); the enable switch flips between null and an editable draft.
-    // The parent builds the wire shape via buildTarget(draft) on save.
+    // used per rule in PrioritySection's unified policy list. draft == null
+    // means the rule has NO target on zinc (matches everyone); the enable
+    // switch flips between null and an editable draft. The parent builds the
+    // wire shape via buildTarget(draft) on save.
     export let label: string;
     export let hint: string;
     export let draft: TargetDraft | null;
