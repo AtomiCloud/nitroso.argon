@@ -41,6 +41,7 @@
     import {lang, formatCalendarDate, formatMoney, formatNumber, formatDateTime} from "$lib/i18n";
     import {DIRECTIONS, DIR_DOT, DIR_TINT} from "../stats/stats";
     import {shortenId} from "$lib/components/entities/Withdrawals/withdrawal";
+    import KtmbCostSection from "$lib/components/entities/Costs/KtmbCostSection.svelte";
     import {
         ANALYSIS_TABS,
         boostView,
@@ -518,6 +519,7 @@
                         <Tabs.Trigger value="byday" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.byDay', { locale: $lang })}</Tabs.Trigger>
                         <Tabs.Trigger value="boosts" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.boosts', { locale: $lang })}</Tabs.Trigger>
                         <Tabs.Trigger value="payments" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.payments', { locale: $lang })}</Tabs.Trigger>
+                        <Tabs.Trigger value="costs" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.costs', { locale: $lang })}</Tabs.Trigger>
                     </Tabs.List>
                 </div>
 
@@ -952,6 +954,13 @@
                             {/if}
                         </Card.Content>
                     </Card.Root>
+                </Tabs.Content>
+
+                <!-- 6. Ticket costs: the per-direction KTMB cost inputs that
+                     feed the P&L above — configuration lives WITH the
+                     analysis it powers -->
+                <Tabs.Content value="costs" class="flex flex-col gap-4">
+                    <KtmbCostSection/>
                 </Tabs.Content>
             </Tabs.Root>
         {/if}

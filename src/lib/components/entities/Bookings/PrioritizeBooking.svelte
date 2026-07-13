@@ -102,7 +102,7 @@
             {#if free}
                 {$_('bookingActions.priority.upgradeTriggerFree', { locale: $lang })}
             {:else}
-                {$_('bookingActions.priority.upgradeTrigger', { locale: $lang, values: { fee: formatMoney(eligibility.fee, $lang) } })}
+                {$_('bookingActions.priority.upgradeTrigger', { locale: $lang, values: { fee: formatMoney(eligibility.fee ?? 0, $lang) } })}
             {/if}
         </Dialog.Trigger>
         <Dialog.Content>
@@ -114,7 +114,7 @@
                             {#if free}
                                 {$_('bookingActions.priority.upgradeBodyFree', { locale: $lang })}
                             {:else}
-                                {$_('bookingActions.priority.upgradeBody', { locale: $lang, values: { fee: formatMoney(eligibility.fee, $lang) } })}
+                                {$_('bookingActions.priority.upgradeBody', { locale: $lang, values: { fee: formatMoney(eligibility.fee ?? 0, $lang) } })}
                             {/if}
                         </p>
                         {#if eligibility.slotsLeft != null && eligibility.slotCap != null}
@@ -129,7 +129,7 @@
                             {#if free}
                                 {$_('bookingActions.priority.upgradeConfirmFree', { locale: $lang })}
                             {:else}
-                                {$_('bookingActions.priority.upgradeConfirm', { locale: $lang, values: { fee: formatMoney(eligibility.fee, $lang) } })}
+                                {$_('bookingActions.priority.upgradeConfirm', { locale: $lang, values: { fee: formatMoney(eligibility.fee ?? 0, $lang) } })}
                             {/if}
                         </Button>
                     </div>
