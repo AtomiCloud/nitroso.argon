@@ -68,28 +68,35 @@
         </div>
     {/if}
 {:else if queue.position != null && queue.total != null}
-    <div class="flex items-center justify-center gap-2 text-sm">
-        {#if isNext}
-            <PartyPopper class="h-4 w-4 text-green-600 dark:text-green-400"/>
-            <span class="font-medium text-green-600 dark:text-green-400">
-                {$_('bookingActions.queue.next', { locale: $lang })}
-            </span>
-        {:else}
-            <Users class="h-4 w-4 text-muted-foreground"/>
-            <span>
-                {$_('bookingActions.queue.position', { locale: $lang, values: { position: queue.position, total: queue.total } })}
+    <div class="flex flex-col items-center gap-1">
+        <div class="flex items-center justify-center gap-2 text-sm">
+            {#if isNext}
+                <PartyPopper class="h-4 w-4 text-green-600 dark:text-green-400"/>
+                <span class="font-medium text-green-600 dark:text-green-400">
+                    {$_('bookingActions.queue.next', { locale: $lang })}
+                </span>
+            {:else}
+                <Users class="h-4 w-4 text-muted-foreground"/>
+                <span>
+                    {$_('bookingActions.queue.position', { locale: $lang, values: { position: queue.position, total: queue.total } })}
+                </span>
+            {/if}
+            <InfoTip label={$_('bookingActions.queue.tooltip', { locale: $lang })}>
+                {$_('bookingActions.queue.tooltip', { locale: $lang })}
+            </InfoTip>
+            <Button variant="ghost" size="icon" class="h-6 w-6" disabled={loading} on:click={refresh}
+                    aria-label={$_('bookingActions.queue.refresh', { locale: $lang })}>
+                {#if loading}
+                    <LucideLoader class="h-3.5 w-3.5 animate-spin"/>
+                {:else}
+                    <RotateCw class="h-3.5 w-3.5"/>
+                {/if}
+            </Button>
+        </div>
+        {#if queue.priorityTotal != null && queue.normalTotal != null}
+            <span class="text-xs text-muted-foreground">
+                {$_('bookingActions.queue.breakdown', { locale: $lang, values: { priority: queue.priorityTotal, normal: queue.normalTotal } })}
             </span>
         {/if}
-        <InfoTip label={$_('bookingActions.queue.tooltip', { locale: $lang })}>
-            {$_('bookingActions.queue.tooltip', { locale: $lang })}
-        </InfoTip>
-        <Button variant="ghost" size="icon" class="h-6 w-6" disabled={loading} on:click={refresh}
-                aria-label={$_('bookingActions.queue.refresh', { locale: $lang })}>
-            {#if loading}
-                <LucideLoader class="h-3.5 w-3.5 animate-spin"/>
-            {:else}
-                <RotateCw class="h-3.5 w-3.5"/>
-            {/if}
-        </Button>
     </div>
 {/if}

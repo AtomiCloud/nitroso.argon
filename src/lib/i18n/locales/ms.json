@@ -411,6 +411,7 @@
     },
     "queue": {
       "position": "Kedudukan dalam giliran: {position} daripada {total}",
+      "breakdown": "{priority} prioriti · {normal} biasa dalam giliran ini",
       "next": "Anda seterusnya!",
       "refresh": "Muat semula kedudukan giliran",
       "tooltip": "Kedudukan anda dikemas kini apabila tempahan di hadapan anda selesai atau dibatalkan — anda naik apabila tiket di hadapan anda dibeli.",
