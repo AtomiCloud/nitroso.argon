@@ -323,6 +323,32 @@
             "Any": "Tiada peraturan lagi — dengan \"Mana-mana\", senarai kosong tidak sepadan dengan sesiapa.",
             "None": "Tiada peraturan diperlukan — \"Semua orang\" sepadan dengan setiap pengguna."
           }
+        },
+        "slotCap": {
+          "label": "Slot prioriti setiap slot masa",
+          "placeholder": "Tanpa had",
+          "hint": "Bilangan maksimum tempahan prioriti bagi setiap perlepasan (arah + tarikh + masa). Slot penuh menyekat naik taraf selanjutnya. Kosong = tanpa had.",
+          "invalid": "Had mesti nombor bulat antara 1 dan 10,000 (atau kosong untuk tanpa had)"
+        },
+        "policies": {
+          "title": "Polisi prioriti",
+          "hint": "Dinilai dari atas ke bawah — peraturan PERTAMA yang sepadan membuat keputusan. Tiada padanan jatuh kembali kepada Akses / Benarkan semua / senarai benar.",
+          "empty": "Tiada polisi — akses ditentukan oleh tetapan di atas.",
+          "add": "Tambah polisi",
+          "name": "Nama polisi",
+          "namePlaceholder": "cth. VIP boleh naik taraf bila-bila masa",
+          "allow": "Benarkan",
+          "deny": "Sekat",
+          "minHours": "Dari (jam sebelum perlepasan)",
+          "maxHours": "Hingga (jam sebelum perlepasan)",
+          "feeOverride": "Fi ganti (SGD)",
+          "hoursHint": "Peraturan terpakai apabila jam-ke-perlepasan ≥ Dari dan < Hingga; kosongkan untuk tiada had. Contoh: Sekat dengan Hingga 6 menyekat naik taraf dalam 6 jam terakhir.",
+          "targetLabel": "Terpakai kepada",
+          "targetHint": "Mati = peraturan ini terpakai kepada semua; hidup = hanya kepada pengguna yang sepadan dengan sasaran.",
+          "moveUp": "Naik ke atas",
+          "moveDown": "Turun ke bawah",
+          "remove": "Buang polisi",
+          "invalid": "Betulkan polisi yang ditanda: setiap polisi perlukan nama, had jam yang sah (Hingga > Dari) dan fi ganti yang sah."
         }
       }
     }
@@ -431,7 +457,9 @@
       "upgradeConfirm": "Bayar {fee} dan naik taraf",
       "upgradeTriggerFree": "Naik taraf ke keutamaan (Percuma)",
       "upgradeBodyFree": "Tempahan ini masuk ke barisan keutamaan dan dilayan sebelum barisan biasa. Naik taraf ini percuma untuk anda.",
-      "upgradeConfirmFree": "Naik taraf secara percuma"
+      "upgradeConfirmFree": "Naik taraf secara percuma",
+      "slotsLeft": "{left} daripada {cap} slot prioriti tinggal untuk slot masa ini",
+      "queueFull": "Barisan prioriti slot masa ini sudah penuh — tiada naik taraf lagi tersedia."
     }
   },
   "bookings": {

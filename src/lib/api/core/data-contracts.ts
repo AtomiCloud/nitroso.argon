@@ -257,6 +257,44 @@ export interface PriorityEligibilityRes {
    * missing value as false.
    */
   free?: boolean;
+  /**
+   * HAND-ADDED (zinc PR #42): only on the booking-scoped endpoint when a
+   * per-timeslot cap is configured; null/missing otherwise.
+   * @format int32
+   */
+  slotCap?: number | null;
+  /** HAND-ADDED (zinc PR #42): remaining priority slots in the timeslot. @format int32 */
+  slotsLeft?: number | null;
+}
+
+/**
+ * HAND-ADDED (zinc PR #42): one rule in the ordered priority policy chain —
+ * applies when target matches (null = everyone) AND hours-to-departure is in
+ * [min, max) (null = unbounded); first applying rule decides allow/deny.
+ */
+export interface PriorityPolicyRes {
+  name: string;
+  allow: boolean;
+  target?: DiscountTargetRes | null;
+  /** @format double */
+  minHoursToDeparture?: number | null;
+  /** @format double */
+  maxHoursToDeparture?: number | null;
+  /** @format double */
+  feeOverride?: number | null;
+}
+
+/** HAND-ADDED (zinc PR #42): request twin of PriorityPolicyRes */
+export interface PriorityPolicyReq {
+  name: string;
+  allow: boolean;
+  target?: DiscountTargetReq | null;
+  /** @format double */
+  minHoursToDeparture?: number | null;
+  /** @format double */
+  maxHoursToDeparture?: number | null;
+  /** @format double */
+  feeOverride?: number | null;
 }
 
 export interface PrioritySettingsRes {
@@ -276,6 +314,10 @@ export interface PrioritySettingsRes {
    * precedence over allowAll/the allowlist; null keeps legacy behavior.
    */
   accessTarget?: DiscountTargetRes | null;
+  /** HAND-ADDED (zinc PR #42): ordered policy chain; empty = legacy gate only */
+  policies?: PriorityPolicyRes[] | null;
+  /** HAND-ADDED (zinc PR #42): max priority bookings per timeslot; null = uncapped. @format int32 */
+  slotCap?: number | null;
 }
 
 export interface SetPrioritySettingsReq {
@@ -288,6 +330,10 @@ export interface SetPrioritySettingsReq {
   freeTarget?: DiscountTargetReq | null;
   /** HAND-ADDED (zinc PR #37): see PrioritySettingsRes.accessTarget */
   accessTarget?: DiscountTargetReq | null;
+  /** HAND-ADDED (zinc PR #42): see PrioritySettingsRes.policies */
+  policies?: PriorityPolicyReq[] | null;
+  /** HAND-ADDED (zinc PR #42): see PrioritySettingsRes.slotCap */
+  slotCap?: number | null;
 }
 
 /**

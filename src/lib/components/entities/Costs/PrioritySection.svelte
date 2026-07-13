@@ -9,7 +9,9 @@
     import {Input} from "$lib/components/ui/input";
     import {Switch} from "$lib/components/ui/switch";
     import {Separator} from "$lib/components/ui/separator";
-    import {LucideLoader, LucidePlus, LucideTrash2} from "lucide-svelte";
+    //@ts-ignore
+    import * as ToggleGroup from "$lib/components/ui/toggle-group";
+    import {LucideArrowDown, LucideArrowUp, LucideLoader, LucidePlus, LucideTrash2} from "lucide-svelte";
     import type {Selected} from "bits-ui";
     import type {PriorityAccessRes, PrioritySettingsRes} from "$lib/api/core/data-contracts";
     import {api} from "../../../../store";
@@ -21,6 +23,13 @@
     import {HALF_HOURS} from "./times";
     import PriorityTargetEditor from "./PriorityTargetEditor.svelte";
     import {buildTarget, parseTarget, targetDraftValid} from "./priority-targets";
+    import {
+        buildPolicies,
+        emptyPolicyDraft,
+        parsePolicies,
+        policiesValid,
+        type PolicyDraft,
+    } from "./priority-policies";
 
     // Admin controls for the priority queue: the fee (preset chips + a small
     // numeric input, acceptable here for admin desktop only), the allow-all
@@ -69,15 +78,45 @@
     let freeDraft = parseTarget(settings.freeTarget);
     let accessDraft = parseTarget(settings.accessTarget);
 
+    // ---- policy chain + slot cap (zinc PR #42) ----
+    let policyDrafts: PolicyDraft[] = parsePolicies(settings.policies);
+    let slotCapStr = settings.slotCap == null ? "" : String(settings.slotCap);
+
+    function addPolicy() {
+        policyDrafts = [...policyDrafts, emptyPolicyDraft()];
+    }
+
+    const removePolicy = (i: number) => () => {
+        policyDrafts = policyDrafts.filter((_x, j) => j !== i);
+    };
+
+    const movePolicy = (i: number, delta: number) => () => {
+        const j = i + delta;
+        if (j < 0 || j >= policyDrafts.length) return;
+        const next = [...policyDrafts];
+        [next[i], next[j]] = [next[j], next[i]];
+        policyDrafts = next;
+    };
+
+    // ToggleGroup single fires undefined on deselect — keep the last effect
+    const setEffect = (i: number) => (v: string | undefined) => {
+        if (!v) return;
+        policyDrafts = policyDrafts.map((p, j) => j === i ? {...p, allow: v === "allow"} : p);
+    };
+
     $: feeNum = Number(feeStr);
     $: feeValid = feeStr.trim() !== "" && Number.isFinite(feeNum) && feeNum >= 0 && feeNum <= 10000 && twoDecimals(feeNum);
     $: windowValid = allDay || (selStart?.value != null && selEnd?.value != null);
     $: targetsValid = targetDraftValid(freeDraft) && targetDraftValid(accessDraft);
+    $: slotCapNum = slotCapStr.trim() === "" ? null : Number(slotCapStr);
+    $: slotCapValid = slotCapNum == null
+        || (Number.isInteger(slotCapNum) && slotCapNum >= 1 && slotCapNum <= 10000);
+    $: policiesOk = policiesValid(policyDrafts);
 
     let saving = false;
 
     async function saveSettings() {
-        if (!feeValid || !windowValid || !targetsValid) return;
+        if (!feeValid || !windowValid || !targetsValid || !slotCapValid || !policiesOk) return;
         saving = true;
         await toResult(() => $api.vBookingPrioritySettingsCreate("1", {
             fee: feeNum,
@@ -86,6 +125,8 @@
             windowEndSgt: allDay ? null : (selEnd?.value ?? null),
             freeTarget: buildTarget(freeDraft),
             accessTarget: buildTarget(accessDraft),
+            policies: buildPolicies(policyDrafts),
+            slotCap: slotCapNum,
         }), $_('admin.costs.priority.saveError', {locale: $lang})).match({
             ok: () => {
                 toast.success($_('admin.costs.priority.saveSuccess', {locale: $lang}));
@@ -234,7 +275,99 @@
                     hint={$_('admin.costs.priority.targets.accessHint', {locale: $lang})}
                     bind:draft={accessDraft}/>
 
-            <Button class="self-start" on:click={saveSettings} disabled={saving || !feeValid || !windowValid || !targetsValid}>
+            <!-- per-timeslot priority slot cap (zinc PR #42) -->
+            <div class="flex flex-col gap-2">
+                <div class="text-sm font-medium">{$_('admin.costs.priority.slotCap.label', {locale: $lang})}</div>
+                <div class="flex items-center gap-2">
+                    <Input class="w-28" inputmode="numeric" bind:value={slotCapStr}
+                           placeholder={$_('admin.costs.priority.slotCap.placeholder', {locale: $lang})}
+                           aria-label={$_('admin.costs.priority.slotCap.label', {locale: $lang})}/>
+                </div>
+                <p class="text-sm text-muted-foreground">{$_('admin.costs.priority.slotCap.hint', {locale: $lang})}</p>
+                {#if !slotCapValid}
+                    <p class="text-sm text-destructive">{$_('admin.costs.priority.slotCap.invalid', {locale: $lang})}</p>
+                {/if}
+            </div>
+
+            <!-- ordered policy chain (zinc PR #42): first matching rule wins -->
+            <div class="flex flex-col gap-3">
+                <div class="flex flex-col">
+                    <span class="text-sm font-medium">{$_('admin.costs.priority.policies.title', {locale: $lang})}</span>
+                    <span class="text-sm text-muted-foreground">{$_('admin.costs.priority.policies.hint', {locale: $lang})}</span>
+                </div>
+                {#if policyDrafts.length === 0}
+                    <p class="text-sm text-muted-foreground">{$_('admin.costs.priority.policies.empty', {locale: $lang})}</p>
+                {/if}
+                {#each policyDrafts as d, i (i)}
+                    <div class="flex flex-col gap-3 rounded-lg border p-3">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="w-6 text-center font-mono text-xs text-muted-foreground">{i + 1}</span>
+                            <Input class="w-full sm:max-w-64" bind:value={d.name}
+                                   placeholder={$_('admin.costs.priority.policies.namePlaceholder', {locale: $lang})}
+                                   aria-label={$_('admin.costs.priority.policies.name', {locale: $lang})}/>
+                            <ToggleGroup.Root type="single" value={d.allow ? "allow" : "deny"}
+                                              onValueChange={setEffect(i)}>
+                                <ToggleGroup.Item class="w-20 px-2 text-xs" value="allow"
+                                                  aria-label={$_('admin.costs.priority.policies.allow', {locale: $lang})}>
+                                    {$_('admin.costs.priority.policies.allow', {locale: $lang})}
+                                </ToggleGroup.Item>
+                                <ToggleGroup.Item class="w-20 px-2 text-xs" value="deny"
+                                                  aria-label={$_('admin.costs.priority.policies.deny', {locale: $lang})}>
+                                    {$_('admin.costs.priority.policies.deny', {locale: $lang})}
+                                </ToggleGroup.Item>
+                            </ToggleGroup.Root>
+                            <div class="ml-auto flex items-center gap-1">
+                                <Button variant="ghost" size="icon" class="h-8 w-8" disabled={i === 0}
+                                        aria-label={$_('admin.costs.priority.policies.moveUp', {locale: $lang})}
+                                        on:click={movePolicy(i, -1)}>
+                                    <LucideArrowUp class="h-4 w-4"/>
+                                </Button>
+                                <Button variant="ghost" size="icon" class="h-8 w-8" disabled={i === policyDrafts.length - 1}
+                                        aria-label={$_('admin.costs.priority.policies.moveDown', {locale: $lang})}
+                                        on:click={movePolicy(i, 1)}>
+                                    <LucideArrowDown class="h-4 w-4"/>
+                                </Button>
+                                <Button variant="ghost" size="icon" class="h-8 w-8 text-destructive"
+                                        aria-label={$_('admin.costs.priority.policies.remove', {locale: $lang})}
+                                        on:click={removePolicy(i)}>
+                                    <LucideTrash2 class="h-4 w-4"/>
+                                </Button>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-end gap-3">
+                            <div class="flex flex-col gap-1">
+                                <span class="text-xs text-muted-foreground">{$_('admin.costs.priority.policies.minHours', {locale: $lang})}</span>
+                                <Input class="w-24" inputmode="decimal" bind:value={d.minHours} placeholder="∞"/>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="text-xs text-muted-foreground">{$_('admin.costs.priority.policies.maxHours', {locale: $lang})}</span>
+                                <Input class="w-24" inputmode="decimal" bind:value={d.maxHours} placeholder="∞"/>
+                            </div>
+                            {#if d.allow}
+                                <div class="flex flex-col gap-1">
+                                    <span class="text-xs text-muted-foreground">{$_('admin.costs.priority.policies.feeOverride', {locale: $lang})}</span>
+                                    <Input class="w-24" inputmode="decimal" bind:value={d.feeOverride}
+                                           placeholder={String(Number(settings.fee.toFixed(2)))}/>
+                                </div>
+                            {/if}
+                        </div>
+                        <p class="text-xs text-muted-foreground">{$_('admin.costs.priority.policies.hoursHint', {locale: $lang})}</p>
+                        <PriorityTargetEditor
+                                label={$_('admin.costs.priority.policies.targetLabel', {locale: $lang})}
+                                hint={$_('admin.costs.priority.policies.targetHint', {locale: $lang})}
+                                bind:draft={d.target}/>
+                    </div>
+                {/each}
+                {#if !policiesOk}
+                    <p class="text-sm text-destructive">{$_('admin.costs.priority.policies.invalid', {locale: $lang})}</p>
+                {/if}
+                <Button variant="outline" size="sm" class="self-start" on:click={addPolicy}>
+                    <LucidePlus class="mr-2 h-4 w-4"/>
+                    {$_('admin.costs.priority.policies.add', {locale: $lang})}
+                </Button>
+            </div>
+
+            <Button class="self-start" on:click={saveSettings} disabled={saving || !feeValid || !windowValid || !targetsValid || !slotCapValid || !policiesOk}>
                 {#if saving}
                     <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                 {/if}
