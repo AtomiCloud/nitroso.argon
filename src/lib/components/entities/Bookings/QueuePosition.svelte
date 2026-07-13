@@ -7,7 +7,7 @@
     import {Button} from "$lib/components/ui/button";
 
     import InfoTip from "$lib/components/core/InfoTip.svelte";
-    import {LucideLoader, PartyPopper, RotateCw, Users, Zap} from "lucide-svelte";
+    import {LucideLoader, PartyPopper, RotateCw, Users} from "lucide-svelte";
     import {_} from "svelte-i18n";
     import {lang} from "$lib/i18n";
 
@@ -15,11 +15,12 @@
     // (Pending/Buying/Recovering) — the PARENT decides when to render this.
     // Fetches GET Booking/{id}/queue on mount; manual refresh only, no polling.
     // When zinc reports the booking is no longer queued (position == null),
-    // renders nothing.
+    // renders nothing. The PriorityBadge next to the status pill already marks
+    // the booking itself — this widget names the QUEUE and the place in it.
     export let bookingId: string;
 
     // whether THIS booking is priority — decides which of the two queues the
-    // badge and per-queue position describe
+    // name and per-queue position describe
     export let priority: boolean = false;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -53,7 +54,7 @@
     $: isNext = queue?.position === 1;
 
     // zinc >= 1.53 sends the priority/standard split; older versions don't —
-    // then we fall back to the combined position and hide the queue badge
+    // then we fall back to the combined position and skip the queue name
     $: split = queue?.priorityTotal != null && queue?.normalTotal != null;
     // the priority queue is always served first, so a priority booking's
     // combined position IS its position in the priority queue, and a standard
@@ -83,20 +84,21 @@
         </div>
     {/if}
 {:else if queue.position != null && queue.total != null}
-    <div class="flex flex-col items-center gap-1.5">
-        <div class="flex flex-wrap items-center justify-center gap-2 text-sm">
+    <div class="flex flex-col items-center gap-0.5">
+        <div class="flex items-center justify-center gap-1.5 text-sm">
             {#if split}
                 {#if priority}
-                    <span class="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-fuchsia-600 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-white shadow-md shadow-orange-500/30 ring-1 ring-inset ring-white/30">
-                        <Zap class="h-3 w-3 fill-current"/>
+                    <span class="bg-gradient-to-r from-amber-500 via-orange-500 to-fuchsia-600 bg-clip-text font-semibold text-transparent">
                         {$_('bookingActions.queue.priorityQueue', { locale: $lang })}
                     </span>
                 {:else}
-                    <span class="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-border">
-                        <Users class="h-3 w-3"/>
+                    <span class="font-medium text-muted-foreground">
                         {$_('bookingActions.queue.standardQueue', { locale: $lang })}
                     </span>
                 {/if}
+                <span class="text-muted-foreground">·</span>
+            {:else}
+                <Users class="h-4 w-4 text-muted-foreground"/>
             {/if}
             {#if isNext}
                 <PartyPopper class="h-4 w-4 text-green-600 dark:text-green-400"/>
@@ -108,27 +110,26 @@
                     {$_('bookingActions.queue.groupPosition', { locale: $lang, values: { position: groupPosition, total: groupTotal } })}
                 </span>
             {:else}
-                <Users class="h-4 w-4 text-muted-foreground"/>
                 <span>
                     {$_('bookingActions.queue.position', { locale: $lang, values: { position: queue.position, total: queue.total } })}
                 </span>
             {/if}
+        </div>
+        <div class="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+            {#if split}
+                <span>{$_('bookingActions.queue.breakdown', { locale: $lang, values: { priority: queue.priorityTotal, normal: queue.normalTotal } })}</span>
+            {/if}
             <InfoTip label={$_('bookingActions.queue.tooltip', { locale: $lang })}>
                 {$_('bookingActions.queue.tooltip', { locale: $lang })}
             </InfoTip>
-            <Button variant="ghost" size="icon" class="h-6 w-6" disabled={loading} on:click={refresh}
+            <Button variant="ghost" size="icon" class="h-5 w-5" disabled={loading} on:click={refresh}
                     aria-label={$_('bookingActions.queue.refresh', { locale: $lang })}>
                 {#if loading}
-                    <LucideLoader class="h-3.5 w-3.5 animate-spin"/>
+                    <LucideLoader class="h-3 w-3 animate-spin"/>
                 {:else}
-                    <RotateCw class="h-3.5 w-3.5"/>
+                    <RotateCw class="h-3 w-3"/>
                 {/if}
             </Button>
         </div>
-        {#if split}
-            <span class="text-xs text-muted-foreground">
-                {$_('bookingActions.queue.breakdown', { locale: $lang, values: { priority: queue.priorityTotal, normal: queue.normalTotal } })}
-            </span>
-        {/if}
     </div>
 {/if}

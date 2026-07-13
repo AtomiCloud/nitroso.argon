@@ -411,7 +411,7 @@
     },
     "queue": {
       "position": "Kedudukan dalam giliran: {position} daripada {total}",
-      "groupPosition": "#{position} daripada {total} dalam giliran anda",
+      "groupPosition": "#{position} daripada {total}",
       "priorityQueue": "Giliran prioriti",
       "standardQueue": "Giliran biasa",
       "breakdown": "{priority} dalam prioriti · {normal} dalam biasa",
