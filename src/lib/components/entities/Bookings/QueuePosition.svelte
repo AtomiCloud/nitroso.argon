@@ -63,6 +63,24 @@
         ? (priority ? queue.position : queue.position - (queue.priorityTotal ?? 0))
         : queue?.position;
     $: groupTotal = split ? (priority ? queue?.priorityTotal : queue?.normalTotal) : queue?.total;
+
+    // Queue track: the whole timeslot's line as a bar, front on the LEFT.
+    // Priority group (served first) is the gradient segment, standard the
+    // muted one. Segment widths are proportional but clamped to stay legible;
+    // the "You" dot is placed within its OWN segment so clamping never drops
+    // it in the wrong group.
+    $: pTot = queue?.priorityTotal ?? 0;
+    $: nTot = queue?.normalTotal ?? 0;
+    $: pPct = !split || pTot === 0 ? 0 : nTot === 0 ? 100 : Math.min(85, Math.max(15, (pTot / (pTot + nTot)) * 100));
+    $: sPct = 100 - pPct;
+    $: youPct = (() => {
+        if (!split || groupPosition == null) return 0;
+        const inGroup = (g: number, tot: number) => tot > 0 ? (g - 0.5) / tot : 0;
+        const raw = priority
+            ? pPct * inGroup(groupPosition, pTot)
+            : pPct + sPct * inGroup(groupPosition, nTot);
+        return Math.min(97, Math.max(3, raw));
+    })();
 </script>
 
 {#if failed}
@@ -105,9 +123,6 @@
             {/if}
         </div>
         <div class="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-            {#if split}
-                <span>{$_('bookingActions.queue.breakdown', { locale: $lang, values: { priority: queue.priorityTotal, normal: queue.normalTotal } })}</span>
-            {/if}
             <InfoTip label={$_('bookingActions.queue.tooltip', { locale: $lang })}>
                 {$_('bookingActions.queue.tooltip', { locale: $lang })}
             </InfoTip>
@@ -120,5 +135,35 @@
                 {/if}
             </Button>
         </div>
+        {#if split}
+            <!-- the queue as a track: front of the line on the left, the
+                 gradient stretch is the priority group (served first), the
+                 muted stretch the standard group, and the dot is you -->
+            <div class="w-52 max-w-full">
+                <div class="relative h-3">
+                    <span class="absolute -translate-x-1/2 text-[10px] font-semibold leading-3"
+                          style="left: {youPct}%">
+                        {$_('bookingActions.queue.you', { locale: $lang })}
+                    </span>
+                </div>
+                <div class="relative">
+                    <div class="flex h-2 w-full gap-px overflow-hidden rounded-full">
+                        {#if pTot > 0}
+                            <div class="h-full bg-gradient-to-r from-amber-400 via-orange-500 to-fuchsia-600"
+                                 style="width: {pPct}%"></div>
+                        {/if}
+                        {#if nTot > 0}
+                            <div class="h-full bg-muted-foreground/25" style="width: {sPct}%"></div>
+                        {/if}
+                    </div>
+                    <span class="absolute top-1/2 z-10 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-background shadow ring-2 ring-foreground"
+                          style="left: {youPct}%"></span>
+                </div>
+                <div class="mt-1 flex justify-between text-[10px] leading-3 text-muted-foreground">
+                    <span>{$_('bookingActions.queue.countPriority', { locale: $lang, values: { n: pTot } })}</span>
+                    <span>{$_('bookingActions.queue.countStandard', { locale: $lang, values: { n: nTot } })}</span>
+                </div>
+            </div>
+        {/if}
     </div>
 {/if}
