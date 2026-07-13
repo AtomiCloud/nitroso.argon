@@ -238,6 +238,33 @@
         "subtotal": "小计",
         "final": "最终价格"
       },
+      "ktmb": {
+        "title": "KTMB 票务成本",
+        "description": "BunnyBooker 每张 KTMB 车票的成本（按方向）——销售分析的成本口径。变更会排队并在预定时间生效。",
+        "loadError": "加载 KTMB 票务成本失败",
+        "currentTitle": "当前成本",
+        "notConfigured": "未配置（按 S$0 计算）",
+        "queueTitle": "已排定的变更",
+        "queueEmpty": "暂无排定的变更。",
+        "queueLine": "{direction}：{cost}，自 {date} 起",
+        "addTrigger": "添加变更",
+        "addTitle": "修改 KTMB 票务成本",
+        "addIntro": "按方向排队一次成本变更。日期留空则立即生效。",
+        "directionLabel": "方向",
+        "pickDirection": "选择方向",
+        "directionRequired": "请选择方向",
+        "costLabel": "每张票成本（S$）",
+        "costPlaceholder": "如 5.00",
+        "costRange": "成本必须是 0 到 10,000 之间的数字，最多 2 位小数",
+        "effectiveFrom": "生效时间（可选）",
+        "effectiveHint": "留空 = 立即生效。",
+        "effectiveInvalid": "不是有效的日期时间",
+        "effectivePast": "生效时间必须在将来",
+        "save": "排队变更",
+        "saveSuccess": "KTMB 成本变更已保存",
+        "scheduledSuccess": "KTMB 成本变更已排定于 {date}",
+        "saveError": "保存 KTMB 成本变更失败"
+      },
       "priority": {
         "title": "优先队列",
         "description": "优先预订会先于普通队列处理。可配置费用、开放对象与购买时段。",
@@ -384,6 +411,7 @@
     },
     "queue": {
       "position": "排队位置：第 {position} 位，共 {total} 位",
+      "breakdown": "本队列中：优先 {priority} 位 · 普通 {normal} 位",
       "next": "下一位就是您！",
       "refresh": "刷新排队位置",
       "tooltip": "当您前面的预订完成或取消时，您的排队位置会更新——前面的车票被买走后，您就会向前移动。",
@@ -1008,6 +1036,8 @@
     "jbSentralToWoodlands": "新山中央车站前往兀兰",
     "noSchedulesFound": "未找到班次",
     "ticketsInQueue": "排队中有 {count} 人",
+    "queueSplit": "优先 {priority} · 普通 {normal}",
+    "queueSplitAria": "队列中有 {priority} 位优先、{normal} 位普通",
     "buy": "购买",
     "pricingUnavailable": "部分班次的准确价格无法加载。只有受影响的班次会暂停购买。请重试。",
     "priceUnavailable": "价格暂不可用",
@@ -1659,15 +1689,33 @@
     "reload": "刷新",
     "loadError": "加载销售分析失败",
     "empty": "此范围内没有已完成的预订",
-    "grossNote": "均为毛收入——不含 Airwallex 手续费。",
+    "grossNote": "净收入 = 毛收入 − KTMB 成本 − 已同步的 Airwallex 通道费。KTMB 成本为管理员配置的估算值，非实际账单金额。",
     "range": {
       "after": "完成日期从",
       "before": "完成日期至",
       "hint": "完成日期范围（新加坡时间，含首尾；默认最近 30 天）"
     },
+    "filters": {
+      "direction": "方向",
+      "all": "全部方向"
+    },
+    "tabs": {
+      "overview": "概览",
+      "monthly": "按月",
+      "byDay": "按日",
+      "boosts": "优先加购",
+      "payments": "付款"
+    },
     "summary": {
       "totalTickets": "总票数",
       "totalGross": "毛收入",
+      "ktmbCost": "KTMB 成本",
+      "gatewayFees": "通道费",
+      "gwPayments": "收款",
+      "gwPayouts": "付款",
+      "coverage": "{withFee}/{total} 笔付款已同步费用",
+      "net": "净收入",
+      "netHint": "毛收入 − KTMB 成本 − 通道费",
       "deposits": "已捕获充值",
       "depositsCount": "{count} 笔付款",
       "internalFees": "内部费用",
@@ -1676,10 +1724,72 @@
       "feePriority": "优先",
       "feeTermination": "终止"
     },
-    "daily": {
-      "title": "每日销售",
-      "description": "每天已完成的票数和毛收入，按出发班次细分",
-      "tickets": "{count} 张票"
+    "byDirection": {
+      "title": "按方向",
+      "colTickets": "票数",
+      "colGross": "毛收入",
+      "colKtmb": "KTMB 成本"
+    },
+    "components": {
+      "title": "赚钱与亏钱项",
+      "description": "此范围内的定价组成，按对收入的总影响排序",
+      "colName": "组成项",
+      "colTimes": "应用次数",
+      "colDelta": "合计",
+      "kind": {
+        "policy": "政策",
+        "discount": "折扣",
+        "priorityFee": "优先费"
+      },
+      "coverage": "{n}/{m} 笔已完成预订有价格明细。",
+      "empty": "此范围内没有记录的定价组成"
+    },
+    "monthly": {
+      "title": "月度损益",
+      "description": "按新加坡日历月；净收入 = 毛收入 − KTMB 成本 − 通道费",
+      "colMonth": "月份",
+      "colGross": "毛收入",
+      "colKtmb": "KTMB 成本",
+      "colAwxPayments": "AWX 收款费",
+      "colAwxPayouts": "AWX 付款费",
+      "colInternal": "赚取费用",
+      "colNet": "净收入",
+      "internalHint": "BunnyBooker 当月赚取的充值、提现和优先净费用——仅供参考，不计入净收入的扣减。",
+      "empty": "此范围内没有月份",
+      "sync": "同步通道费",
+      "syncSuccess": "已同步 {synced} 笔费用；{missing} 笔仍缺失",
+      "syncHasMore": "还有付款待同步——请再次运行",
+      "syncError": "同步通道费失败"
+    },
+    "byDay": {
+      "title": "单日明细",
+      "description": "所选日期的方向 × 出发时间",
+      "day": "日期",
+      "prevDay": "前一天",
+      "nextDay": "后一天",
+      "colTime": "时间",
+      "colTickets": "票数",
+      "colGross": "毛收入",
+      "colKtmb": "KTMB 成本",
+      "colNet": "毛收入 − KTMB",
+      "empty": "该日没有已完成的预订"
+    },
+    "boosts": {
+      "title": "优先加购记录",
+      "description": "优先加购台账——谁在何时为哪个预订加购了优先，费用多少",
+      "loadError": "加载优先加购台账失败",
+      "empty": "此范围内没有优先加购",
+      "colWhen": "时间",
+      "colUser": "用户",
+      "colSlot": "班次",
+      "colFee": "费用",
+      "free": "免费",
+      "freeTargeted": "免费（定向）",
+      "adminBadge": "管理员",
+      "adminTooltip": "由管理员 {id} 授予",
+      "pageInfo": "第 {from}–{to} 条，共 {total} 条",
+      "prevPage": "上一页",
+      "nextPage": "下一页"
     },
     "captured": {
       "title": "已捕获付款",

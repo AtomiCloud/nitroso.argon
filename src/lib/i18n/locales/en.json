@@ -238,6 +238,33 @@
         "subtotal": "Subtotal",
         "final": "Final"
       },
+      "ktmb": {
+        "title": "KTMB ticket cost",
+        "description": "What one KTMB ticket costs BunnyBooker, per direction — the cost side of the sales analysis. Changes are queued and take effect at their scheduled time.",
+        "loadError": "Failed to load the KTMB ticket cost",
+        "currentTitle": "Current cost",
+        "notConfigured": "Not configured (counts as S$0)",
+        "queueTitle": "Scheduled changes",
+        "queueEmpty": "No scheduled changes.",
+        "queueLine": "{direction}: {cost} from {date}",
+        "addTrigger": "Add change",
+        "addTitle": "Change the KTMB ticket cost",
+        "addIntro": "Queues a per-direction cost change. Leave the date empty to apply it immediately.",
+        "directionLabel": "Direction",
+        "pickDirection": "Pick a direction",
+        "directionRequired": "Pick a direction",
+        "costLabel": "Cost per ticket (S$)",
+        "costPlaceholder": "e.g. 5.00",
+        "costRange": "The cost must be a number between 0 and 10,000 with at most 2 decimals",
+        "effectiveFrom": "Effective from (optional)",
+        "effectiveHint": "Empty = the change applies immediately.",
+        "effectiveInvalid": "That is not a valid date and time",
+        "effectivePast": "The effective time must be in the future",
+        "save": "Queue change",
+        "saveSuccess": "KTMB cost change saved",
+        "scheduledSuccess": "KTMB cost change scheduled for {date}",
+        "saveError": "Failed to save the KTMB cost change"
+      },
       "priority": {
         "title": "Priority queue",
         "description": "Priority bookings are served before the regular queue. Configure the fee, who may opt in, and the purchase window.",
@@ -384,6 +411,7 @@
     },
     "queue": {
       "position": "Position in queue: {position} of {total}",
+      "breakdown": "{priority} priority · {normal} standard in this queue",
       "next": "You're next!",
       "refresh": "Refresh queue position",
       "tooltip": "Your position updates as bookings ahead of yours are completed or cancelled — you move up as the tickets ahead of you are bought.",
@@ -1008,6 +1036,8 @@
     "jbSentralToWoodlands": "JB Sentral to Woodlands",
     "noSchedulesFound": "No schedules found",
     "ticketsInQueue": "{count} people in queue",
+    "queueSplit": "P:{priority} · N:{normal}",
+    "queueSplitAria": "{priority} priority and {normal} normal in queue",
     "buy": "Buy",
     "pricingUnavailable": "Some exact slot prices could not be loaded. Only affected departures are paused. Please retry.",
     "priceUnavailable": "Price unavailable",
@@ -1659,15 +1689,33 @@
     "reload": "Reload",
     "loadError": "Failed to load the sales analysis",
     "empty": "No completed bookings in this range",
-    "grossNote": "Gross figures — Airwallex processing fees are not included.",
+    "grossNote": "Net = gross − KTMB cost − synced Airwallex gateway fees. KTMB cost is the admin-configured estimate, not an invoiced amount.",
     "range": {
       "after": "Completed from",
       "before": "Completed to",
       "hint": "Completion-date range (SGT, inclusive; default: the last 30 days)"
     },
+    "filters": {
+      "direction": "Direction",
+      "all": "All directions"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "monthly": "Monthly",
+      "byDay": "By day",
+      "boosts": "Boosts",
+      "payments": "Payments"
+    },
     "summary": {
       "totalTickets": "Total tickets",
       "totalGross": "Gross revenue",
+      "ktmbCost": "KTMB cost",
+      "gatewayFees": "Gateway fees",
+      "gwPayments": "Payments",
+      "gwPayouts": "Payouts",
+      "coverage": "fees synced for {withFee}/{total} payments",
+      "net": "Net",
+      "netHint": "Gross − KTMB cost − gateway fees",
       "deposits": "Deposits captured",
       "depositsCount": "{count} payments",
       "internalFees": "Internal fees",
@@ -1676,10 +1724,72 @@
       "feePriority": "Priority",
       "feeTermination": "Termination"
     },
-    "daily": {
-      "title": "Daily sales",
-      "description": "Completed tickets and gross revenue per day, broken down by departure slot",
-      "tickets": "{count} tickets"
+    "byDirection": {
+      "title": "By direction",
+      "colTickets": "Tickets",
+      "colGross": "Gross",
+      "colKtmb": "KTMB cost"
+    },
+    "components": {
+      "title": "What makes and loses money",
+      "description": "Pricing components over the range, ranked by their total effect on revenue",
+      "colName": "Component",
+      "colTimes": "Applied",
+      "colDelta": "Total",
+      "kind": {
+        "policy": "Policy",
+        "discount": "Discount",
+        "priorityFee": "Priority fee"
+      },
+      "coverage": "Breakdown available for {n}/{m} completed bookings.",
+      "empty": "No pricing components recorded in this range"
+    },
+    "monthly": {
+      "title": "Monthly P&L",
+      "description": "Per SGT calendar month; net = gross − KTMB cost − gateway fees",
+      "colMonth": "Month",
+      "colGross": "Gross",
+      "colKtmb": "KTMB cost",
+      "colAwxPayments": "AWX payment fees",
+      "colAwxPayouts": "AWX payout fees",
+      "colInternal": "Fees earned",
+      "colNet": "Net",
+      "internalHint": "Deposit, withdrawal and net priority fees BunnyBooker earned — context only, not subtracted from net.",
+      "empty": "No months in this range",
+      "sync": "Sync gateway fees",
+      "syncSuccess": "Synced {synced} fees; {missing} still missing",
+      "syncHasMore": "More payments to sync — run it again",
+      "syncError": "Failed to sync gateway fees"
+    },
+    "byDay": {
+      "title": "Day breakdown",
+      "description": "Direction × departure time for the selected day",
+      "day": "Day",
+      "prevDay": "Previous day",
+      "nextDay": "Next day",
+      "colTime": "Time",
+      "colTickets": "Tickets",
+      "colGross": "Gross",
+      "colKtmb": "KTMB cost",
+      "colNet": "Gross − KTMB",
+      "empty": "No completed bookings on this day"
+    },
+    "boosts": {
+      "title": "Priority boosts",
+      "description": "The boost ledger — who prioritized which booking, when, for what fee",
+      "loadError": "Failed to load the boost ledger",
+      "empty": "No boosts in this range",
+      "colWhen": "When",
+      "colUser": "User",
+      "colSlot": "Slot",
+      "colFee": "Fee",
+      "free": "Free",
+      "freeTargeted": "Free (targeted)",
+      "adminBadge": "Admin",
+      "adminTooltip": "Granted by admin {id}",
+      "pageInfo": "{from}–{to} of {total}",
+      "prevPage": "Previous page",
+      "nextPage": "Next page"
     },
     "captured": {
       "title": "Captured payments",

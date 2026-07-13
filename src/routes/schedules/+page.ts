@@ -10,7 +10,7 @@ import { toResult } from '$lib/utility';
 import { loadError } from '$lib/i18n';
 import type { PageLoad } from './$types';
 import { Res } from '$lib/core/result';
-import type { Timings } from './typing';
+import { toSlotCount, type Timings } from './typing';
 import { redirect } from '@sveltejs/kit';
 import { filterTimesAtOrAfterBookingCutoff, parseZincDate, singaporeToday, toZincDate } from '$lib/time/singapore';
 import { LIVE_PRICING_DEPENDENCY } from '$lib/api/cost';
@@ -30,9 +30,7 @@ function getTiming(
 }
 
 function stitchTiming(timings: string[], res: BookingCountRes[]): Timings {
-  return Object.fromEntries(timings.map(x => [x, res.find(c => c.time === x)?.ticketsNeeded ?? 0])) as {
-    [s: string]: number;
-  };
+  return Object.fromEntries(timings.map(x => [x, toSlotCount(res.find(c => c.time === x))]));
 }
 
 export const load = (async ({
