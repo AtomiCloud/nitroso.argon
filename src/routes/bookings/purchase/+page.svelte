@@ -71,7 +71,10 @@
     let priorityOptIn = false;
     // gate the purchase on covering the priority fee too, so the follow-up
     // prioritize call can never fail on balance right after a purchase
-    $: priorityFee = priorityOptIn && eligibility.eligible ? eligibility.fee : 0;
+    // a null fee (percent rule, unknowable pre-booking) hides the opt-in — the
+    // balance gate below could not be computed
+    $: priorityOffered = eligibility.eligible && eligibility.fee != null;
+    $: priorityFee = priorityOptIn && priorityOffered ? (eligibility.fee ?? 0) : 0;
 
     function signedDelta(delta: number): string {
         const sign = delta >= 0 ? "+" : "−";
@@ -325,7 +328,7 @@
                     </div>
                 </div>
 
-                {#if eligibility.eligible}
+                {#if priorityOffered}
                     <!-- priority queue opt-in -->
                     <Card.Root class="my-4">
                         <Card.Content class="pt-6">
@@ -338,7 +341,7 @@
                                             {#if eligibility.free === true}
                                                 {$_('bookings.purchase.priorityBodyFree', { locale: $lang })}
                                             {:else}
-                                                {$_('bookings.purchase.priorityBody', { locale: $lang, values: { fee: formatMoney(eligibility.fee, $lang) } })}
+                                                {$_('bookings.purchase.priorityBody', { locale: $lang, values: { fee: formatMoney(eligibility.fee ?? 0, $lang) } })}
                                             {/if}
                                         </div>
                                     </div>
@@ -353,12 +356,12 @@
                                     {#if eligibility.free === true}
                                         <div>{$_('bookings.purchase.priorityFree', { locale: $lang })}</div>
                                     {:else}
-                                        <div>+{formatMoney(eligibility.fee, $lang)}</div>
+                                        <div>+{formatMoney(eligibility.fee ?? 0, $lang)}</div>
                                     {/if}
                                 </div>
                                 <div class="flex justify-between items-center mt-1 font-semibold">
                                     <div>{$_('bookings.purchase.totalWithPriority', { locale: $lang })}</div>
-                                    <div>{formatMoney(cost.final + eligibility.fee, $lang)}</div>
+                                    <div>{formatMoney(cost.final + (eligibility.fee ?? 0), $lang)}</div>
                                 </div>
                             {/if}
                         </Card.Content>
@@ -374,7 +377,7 @@
                                 wallet={$page.data.user?.wallet?.usable ?? 0}
                                 cost={cost.final}
                                 quote={priceQuote(cost)}
-                                priority={priorityOptIn && eligibility.eligible}
+                                priority={priorityOptIn && priorityOffered}
                                 priorityFee={priorityFee}
                         />
                         <div class="{($page.data.user?.wallet?.usable ?? 0) >= cost.final + priorityFee ? 'opacity-0': '' } text-left">

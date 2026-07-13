@@ -249,8 +249,13 @@ export interface CostSlotSummaryRes {
 
 export interface PriorityEligibilityRes {
   eligible: boolean;
-  /** @format double */
-  fee: number;
+  /**
+   * HAND-ADDED (zinc PR #43): null when a percent fee cannot be computed
+   * without a booking in scope; always concrete on the booking-scoped
+   * endpoint when eligible.
+   * @format double
+   */
+  fee?: number | null;
   /**
    * HAND-ADDED (zinc PR #37): the calling user boosts FREE (fee is 0 when
    * true). Optional only during the old-Zinc rollout window — treat a
@@ -258,82 +263,73 @@ export interface PriorityEligibilityRes {
    */
   free?: boolean;
   /**
-   * HAND-ADDED (zinc PR #42): only on the booking-scoped endpoint when a
-   * per-timeslot cap is configured; null/missing otherwise.
+   * HAND-ADDED (zinc PR #42): only when the matched rule caps the timeslot;
+   * null/missing otherwise.
    * @format int32
    */
   slotCap?: number | null;
   /** HAND-ADDED (zinc PR #42): remaining priority slots in the timeslot. @format int32 */
   slotsLeft?: number | null;
+  /** HAND-ADDED (zinc PR #43): the rule that decided, for admin debugging */
+  policyName?: string | null;
 }
 
 /**
- * HAND-ADDED (zinc PR #42): one rule in the ordered priority policy chain —
- * applies when target matches (null = everyone) AND hours-to-departure is in
- * [min, max) (null = unbounded); first applying rule decides allow/deny.
+ * HAND-ADDED (zinc PR #43): one rule of THE unified priority system — who
+ * (target), when (SGT window and/or hours-to-departure [min, max)), allow or
+ * deny, fee (Flat SGD or Percent of the booking's ticket; 0 = free) and an
+ * optional per-timeslot slot cap. First matching rule decides; no match =
+ * deny.
  */
 export interface PriorityPolicyRes {
   name: string;
   allow: boolean;
   target?: DiscountTargetRes | null;
+  windowStartSgt?: string | null;
+  windowEndSgt?: string | null;
   /** @format double */
   minHoursToDeparture?: number | null;
   /** @format double */
   maxHoursToDeparture?: number | null;
+  /** "Flat" | "Percent" */
+  feeKind: string;
   /** @format double */
-  feeOverride?: number | null;
+  feeValue: number;
+  /** @format int32 */
+  slotCap?: number | null;
 }
 
-/** HAND-ADDED (zinc PR #42): request twin of PriorityPolicyRes */
+/** HAND-ADDED (zinc PR #43): request twin of PriorityPolicyRes */
 export interface PriorityPolicyReq {
   name: string;
   allow: boolean;
   target?: DiscountTargetReq | null;
+  windowStartSgt?: string | null;
+  windowEndSgt?: string | null;
   /** @format double */
   minHoursToDeparture?: number | null;
   /** @format double */
   maxHoursToDeparture?: number | null;
+  /** "Flat" | "Percent" */
+  feeKind?: string;
   /** @format double */
-  feeOverride?: number | null;
+  feeValue?: number;
+  /** @format int32 */
+  slotCap?: number | null;
 }
 
+/**
+ * HAND-ADDED (zinc PR #43): the unified priority settings — ONE ordered
+ * policy list, nothing else. Legacy rows are synthesized into equivalent
+ * rules server-side, so this shape is all the frontend ever sees.
+ */
 export interface PrioritySettingsRes {
-  /** @format double */
-  fee: number;
-  allowAll: boolean;
-  windowStartSgt?: string | null;
-  windowEndSgt?: string | null;
-  /**
-   * HAND-ADDED (zinc PR #37): who boosts free (fee 0, no ledger row), the
-   * same All/Any/None-over-UserId/Role shape as discount targets.
-   * null = nobody boosts free.
-   */
-  freeTarget?: DiscountTargetRes | null;
-  /**
-   * HAND-ADDED (zinc PR #37): who may prioritize at all. When set it takes
-   * precedence over allowAll/the allowlist; null keeps legacy behavior.
-   */
-  accessTarget?: DiscountTargetRes | null;
-  /** HAND-ADDED (zinc PR #42): ordered policy chain; empty = legacy gate only */
-  policies?: PriorityPolicyRes[] | null;
-  /** HAND-ADDED (zinc PR #42): max priority bookings per timeslot; null = uncapped. @format int32 */
-  slotCap?: number | null;
+  policies: PriorityPolicyRes[];
 }
 
+/** HAND-ADDED (zinc PR #43): request twin of PrioritySettingsRes */
 export interface SetPrioritySettingsReq {
-  /** @format double */
-  fee: number;
-  allowAll: boolean;
-  windowStartSgt?: string | null;
-  windowEndSgt?: string | null;
-  /** HAND-ADDED (zinc PR #37): see PrioritySettingsRes.freeTarget */
-  freeTarget?: DiscountTargetReq | null;
-  /** HAND-ADDED (zinc PR #37): see PrioritySettingsRes.accessTarget */
-  accessTarget?: DiscountTargetReq | null;
-  /** HAND-ADDED (zinc PR #42): see PrioritySettingsRes.policies */
-  policies?: PriorityPolicyReq[] | null;
-  /** HAND-ADDED (zinc PR #42): see PrioritySettingsRes.slotCap */
-  slotCap?: number | null;
+  policies: PriorityPolicyReq[];
 }
 
 /**
