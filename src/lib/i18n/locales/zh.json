@@ -411,7 +411,7 @@
     },
     "queue": {
       "position": "排队位置：第 {position} 位，共 {total} 位",
-      "groupPosition": "您的队列中第 {position} 位，共 {total} 位",
+      "groupPosition": "第 {position} 位，共 {total} 位",
       "priorityQueue": "优先队列",
       "standardQueue": "普通队列",
       "breakdown": "优先队列 {priority} 位 · 普通队列 {normal} 位",
