@@ -413,7 +413,6 @@
       "position": "Position in queue: {position} of {total}",
       "positionPriority": "#{position} of {total} in the priority queue",
       "positionStandard": "#{position} of {total} in the standard queue",
-      "you": "You",
       "countPriority": "{n} priority",
       "countStandard": "{n} standard",
       "next": "You're next!",
