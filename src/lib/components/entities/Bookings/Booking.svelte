@@ -73,7 +73,7 @@
                         </Badge>
                     {/if}
                     {#if queued}
-                        <QueuePosition bookingId={b.id}/>
+                        <QueuePosition bookingId={b.id} priority={b.priority}/>
                     {/if}
                 </div>
             </div>

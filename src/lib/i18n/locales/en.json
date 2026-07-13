@@ -411,7 +411,10 @@
     },
     "queue": {
       "position": "Position in queue: {position} of {total}",
-      "breakdown": "{priority} priority · {normal} standard in this queue",
+      "groupPosition": "#{position} of {total} in your queue",
+      "priorityQueue": "Priority queue",
+      "standardQueue": "Standard queue",
+      "breakdown": "{priority} in priority · {normal} in standard",
       "next": "You're next!",
       "refresh": "Refresh queue position",
       "tooltip": "Your position updates as bookings ahead of yours are completed or cancelled — you move up as the tickets ahead of you are bought.",
