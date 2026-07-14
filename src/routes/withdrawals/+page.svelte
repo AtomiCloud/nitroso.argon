@@ -193,7 +193,11 @@
                                     <div class="flex flex-1 flex-wrap gap-4">
                                         {#if w.status.status?.toLowerCase() == "pending"}
                                             {#if session?.roles?.includes("admin") ?? false}
-                                                <ApproveWithdrawal withdrawal={w}/>
+                                                <!-- auto-approve is card-refund only until Airwallex
+                                                     PayNow payouts go live (see Withdrawal.svelte) -->
+                                                {#if isCardRefund(w.record)}
+                                                    <ApproveWithdrawal withdrawal={w}/>
+                                                {/if}
                                                 <CompleteWithdrawalManual withdrawal={w}/>
                                                 <RejectWithdrawal withdrawal={w}/>
                                             {/if}
