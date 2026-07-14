@@ -1616,6 +1616,28 @@
       "before": "Tarikh perjalanan hingga",
       "hint": "Julat tarikh perjalanan (lalai: dari pencapaian terkini, jika tiada — 90 hari terakhir)"
     },
+    "travelDate": {
+      "title": "Diperoleh mengikut tarikh perjalanan",
+      "description": "Tiket YANG DIPEROLEH untuk setiap tarikh perjalanan dalam julat ini, dikelompokkan mengikut suku 6 jam sehari. Tab \"Mengikut hari\" dalam Analisis Jualan mengelompok mengikut tarikh siap — paparan ini sebaliknya menjawab \"berapa tiket yang diperoleh untuk tarikh perjalanan tertentu\".",
+      "range": {
+        "after": "Tarikh perjalanan dari",
+        "before": "Tarikh perjalanan hingga",
+        "hint": "Lalai: hari ini → hari ini + 30 hari"
+      },
+      "filter": {
+        "direction": "Arah"
+      },
+      "table": {
+        "date": "Tarikh perjalanan",
+        "q0": "00–06",
+        "q6": "06–12",
+        "q12": "12–18",
+        "q18": "18–24",
+        "total": "Jumlah"
+      },
+      "empty": "Tiada tiket diperoleh dalam julat ini",
+      "loadError": "Tidak dapat memuatkan analisis tarikh perjalanan"
+    },
     "tabs": {
       "overview": "Ringkasan",
       "matrix": "Hari × Masa",

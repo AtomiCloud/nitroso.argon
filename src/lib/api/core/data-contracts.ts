@@ -545,6 +545,23 @@ export interface BookingBoostPageRes {
 }
 
 /**
+ * HAND-ADDED (zinc travel-date analysis) pending swagger regeneration — one
+ * (travel-date, direction, 6h bucket) row counting how many tickets were
+ * SECURED for that travel date in that quarter of the day. Only non-empty
+ * buckets are returned; missing buckets in the UI mean 0. date is dd-MM-yyyy
+ * (zinc's API date format), direction is WToJ or JToW, quarterStartHour is 0,
+ * 6, 12 or 18.
+ */
+export interface TravelAnalysisBucketRes {
+  date: string;
+  direction: string;
+  /** @format int32 */
+  quarterStartHour: number;
+  /** @format int32 */
+  tickets: number;
+}
+
+/**
  * HAND-ADDED (zinc PR #39). One queued KTMB ticket-cost change
  * (insert-only, effective-dated like the withdrawal fee queue).
  */
