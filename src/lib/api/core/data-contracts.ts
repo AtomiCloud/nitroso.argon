@@ -465,6 +465,20 @@ export interface ComponentsCoverageRes {
 }
 
 /**
+ * HAND-ADDED (zinc ktmb actual cost). Actual-KTMB-cost coverage over the
+ * range: withActual = completed tickets whose KTMB cost came from the actual
+ * recorded amount (converted via the effective MYR→SGD FX rate); total =
+ * completed tickets counted for KTMB cost. The rest fell back to the
+ * per-direction estimate.
+ */
+export interface KtmbActualCoverageRes {
+  /** @format int32 */
+  withActual: number;
+  /** @format int32 */
+  total: number;
+}
+
+/**
  * HAND-ADDED (zinc PR #37, EXTENDED by PR #39 with totalKtmbCost,
  * gatewayFees and byDirection). Range totals for the analysis page.
  * The PR #39 fields are optional only during the old-Zinc rollout window.
@@ -480,6 +494,11 @@ export interface BookingAnalysisSummaryRes {
   internalFees: InternalFeesRes;
   gatewayFees?: GatewayFeesRes;
   byDirection?: DirectionBreakdownRes[];
+  /**
+   * HAND-ADDED (zinc ktmb actual cost). Absent on older zinc that predates
+   * actual-cost recording — the UI hides the coverage line when omitted.
+   */
+  ktmbActualCoverage?: KtmbActualCoverageRes;
 }
 
 /**
@@ -550,6 +569,41 @@ export interface KtmbCostChangeRes {
 export interface KtmbCostRes {
   current: Record<string, number>;
   upcoming: KtmbCostChangeRes[];
+}
+
+/**
+ * HAND-ADDED (zinc ktmb actual cost). POST Booking/ktmb-fx body: rate is the
+ * MYR→SGD conversion (SGD per 1 MYR, rate > 0); effectiveAt omitted/null =
+ * immediate.
+ */
+export interface SetKtmbFxReq {
+  /** @format double */
+  rate: number;
+  /** @format date-time */
+  effectiveAt?: string | null;
+}
+
+/**
+ * HAND-ADDED (zinc ktmb actual cost). One MYR→SGD FX rate row (insert-only,
+ * effective-dated). rate = SGD per 1 MYR.
+ */
+export interface KtmbFxRateRes {
+  /** @format double */
+  rate: number;
+  /** @format date-time */
+  effectiveAt: string;
+  /** @format date-time */
+  createdAt: string;
+}
+
+/**
+ * HAND-ADDED (zinc ktmb actual cost). GET Booking/ktmb-fx response:
+ * current = the rate in effect right now (null before any rate is set);
+ * recent = recent rate rows, most recent first.
+ */
+export interface KtmbFxRes {
+  current?: KtmbFxRateRes | null;
+  recent: KtmbFxRateRes[];
 }
 
 /**
