@@ -241,33 +241,6 @@
         "subtotal": "Jumlah kecil",
         "final": "Akhir"
       },
-      "ktmb": {
-        "title": "Kos tiket KTMB",
-        "description": "Kos satu tiket KTMB kepada BunnyBooker, mengikut arah — sisi kos analisis jualan. Perubahan dibariskan dan berkuat kuasa pada masa yang dijadualkan.",
-        "loadError": "Gagal memuatkan kos tiket KTMB",
-        "currentTitle": "Kos semasa",
-        "notConfigured": "Belum dikonfigurasi (dikira sebagai S$0)",
-        "queueTitle": "Perubahan berjadual",
-        "queueEmpty": "Tiada perubahan berjadual.",
-        "queueLine": "{direction}: {cost} mulai {date}",
-        "addTrigger": "Tambah perubahan",
-        "addTitle": "Ubah kos tiket KTMB",
-        "addIntro": "Bariskan perubahan kos mengikut arah. Biarkan tarikh kosong untuk berkuat kuasa serta-merta.",
-        "directionLabel": "Arah",
-        "pickDirection": "Pilih arah",
-        "directionRequired": "Pilih arah",
-        "costLabel": "Kos setiap tiket (S$)",
-        "costPlaceholder": "cth. 5.00",
-        "costRange": "Kos mesti nombor lebih besar daripada 0 dan sehingga 10,000 dengan paling banyak 2 titik perpuluhan",
-        "effectiveFrom": "Berkuat kuasa dari (pilihan)",
-        "effectiveHint": "Kosong = perubahan berkuat kuasa serta-merta.",
-        "effectiveInvalid": "Bukan tarikh dan masa yang sah",
-        "effectivePast": "Masa berkuat kuasa mesti pada masa hadapan",
-        "save": "Bariskan perubahan",
-        "saveSuccess": "Perubahan kos KTMB disimpan",
-        "scheduledSuccess": "Perubahan kos KTMB dijadualkan pada {date}",
-        "saveError": "Gagal menyimpan perubahan kos KTMB"
-      },
       "ktmbFx": {
         "title": "Kadar tukaran MYR→SGD",
         "description": "Kadar tukaran MYR→SGD yang digunakan untuk menukar kos sebenar tiket KTMB setiap tempahan kepada SGD untuk analisis jualan, dalam dolar Singapura bagi setiap 1 ringgit Malaysia. Kadar baharu bertarikh kuat kuasa dan hanya sisip.",
@@ -1776,7 +1749,7 @@
       "profit": "Untung ikut hari perjalanan",
       "boosts": "Keutamaan",
       "payments": "Pembayaran",
-      "costs": "Kos tiket"
+      "costs": "Kadar FX"
     },
     "summary": {
       "totalTickets": "Jumlah tiket",

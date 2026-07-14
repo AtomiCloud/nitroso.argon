@@ -41,7 +41,6 @@
     import {lang, formatCalendarDate, formatMoney, formatNumber, formatDateTime} from "$lib/i18n";
     import {DIRECTIONS, DIR_DOT, DIR_TINT} from "../stats/stats";
     import {shortenId} from "$lib/components/entities/Withdrawals/withdrawal";
-    import KtmbCostSection from "$lib/components/entities/Costs/KtmbCostSection.svelte";
     import KtmbFxSection from "$lib/components/entities/Costs/KtmbFxSection.svelte";
     import {
         ANALYSIS_TABS,
@@ -1089,11 +1088,10 @@
                     </Card.Root>
                 </Tabs.Content>
 
-                <!-- 6. Ticket costs: the per-direction KTMB cost inputs that
-                     feed the P&L above — configuration lives WITH the
-                     analysis it powers -->
+                <!-- 6. FX rates: the MYR→SGD FX rate editor that powers the
+                     conversion of actual KTMB costs into SGD (configuration
+                     lives WITH the analysis it powers) -->
                 <Tabs.Content value="costs" class="flex flex-col gap-4">
-                    <KtmbCostSection/>
                     <KtmbFxSection/>
                 </Tabs.Content>
             </Tabs.Root>
