@@ -1749,6 +1749,7 @@
       "profit": "Profit by travel day",
       "boosts": "Boosts",
       "payments": "Payments",
+      "pnl": "P&L",
       "costs": "FX rates"
     },
     "summary": {
@@ -1858,6 +1859,27 @@
       "empty": "No captured payments in this range",
       "loadError": "Failed to load captured payments",
       "copied": "Payment intent ID copied"
+    },
+    "pnl": {
+      "title": "Monthly P&L",
+      "description": "Two views of each SGT calendar month — CASH (money through BunnyBooker) and EARNED (operational P&L excluding principal flows). All amounts in SGD.",
+      "loadError": "Failed to load the monthly P&L rollup",
+      "colMonth": "Month",
+      "cashTitle": "Cash view",
+      "cashHint": "Deposits − withdrawals − gateway fees. Includes unspent wallet float sitting inside deposits.",
+      "earnedTitle": "Earned view",
+      "earnedHint": "Ticket revenue + withdrawal fee income − KTMB cost − gateway fees. Withdrawals as principal flows are NOT here; they appear in the cash view above.",
+      "colDeposits": "Deposits",
+      "colWithdrawals": "Withdrawals",
+      "colGwFees": "Gateway fees",
+      "colCashNet": "Cash net",
+      "colTicketRevenue": "Ticket revenue",
+      "colFeeIncome": "Fee income",
+      "colKtmbCost": "KTMB cost",
+      "colEarnedNet": "Earned net",
+      "withdrawals": "{count} · {total}",
+      "total": "Total",
+      "cashNote": "The cash view counts unspent wallet float as BunnyBooker cash because deposits include money users paid in but haven't withdrawn yet. For BunnyBooker's operational P&L use the earned view."
     }
   }
 }
