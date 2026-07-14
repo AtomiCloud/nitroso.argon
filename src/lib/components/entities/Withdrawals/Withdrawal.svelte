@@ -142,7 +142,14 @@
         <Card.Content>
             <div class="flex flex-1 flex-wrap gap-4">
                 {#if admin}
-                    <ApproveWithdrawal withdrawal={withdrawal.principal}/>
+                    <!-- PayNow payouts (Beta) are not enabled on the Airwallex
+                         account: auto-approving a PayNow withdrawal only bounces
+                         off the gateway, so the automated rail is offered for
+                         card refunds only — PayNow is completed manually with a
+                         receipt. Drop this gate when payouts go live. -->
+                    {#if isCardRefund(withdrawal.principal.record)}
+                        <ApproveWithdrawal withdrawal={withdrawal.principal}/>
+                    {/if}
                     <CompleteWithdrawalManual withdrawal={withdrawal.principal}/>
                     <RejectWithdrawal withdrawal={withdrawal.principal}/>
                 {/if}
