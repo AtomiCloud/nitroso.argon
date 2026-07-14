@@ -6,7 +6,7 @@ const NOW = new Date('2026-07-10T12:00:00Z');
 describe('validateKtmbDraft', () => {
   it('accepts a clean immediate change', () => {
     expect(validateKtmbDraft({ direction: 'JToW', cost: '5', effectiveAt: '' }, NOW)).toEqual({});
-    expect(validateKtmbDraft({ direction: 'WToJ', cost: '0', effectiveAt: '' }, NOW)).toEqual({});
+    expect(validateKtmbDraft({ direction: 'WToJ', cost: '0.01', effectiveAt: '' }, NOW)).toEqual({});
     expect(validateKtmbDraft({ direction: 'WToJ', cost: '10000', effectiveAt: '' }, NOW)).toEqual({});
     expect(validateKtmbDraft({ direction: 'WToJ', cost: '5.25', effectiveAt: '' }, NOW)).toEqual({});
   });
@@ -18,8 +18,10 @@ describe('validateKtmbDraft', () => {
     );
   });
 
-  it('rejects out-of-range, imprecise or non-numeric costs', () => {
-    for (const cost of ['', '-1', '10000.01', '5.123', 'abc', 'Infinity']) {
+  it('rejects 0, negative, oversized, imprecise or non-numeric costs', () => {
+    // 0 is rejected: a free KTMB ticket is incompatible with the
+    // recorded-actual-cost model the sales analysis relies on
+    for (const cost of ['0', '', '-1', '10000.01', '5.123', 'abc', 'Infinity']) {
       expect(validateKtmbDraft({ direction: 'JToW', cost, effectiveAt: '' }, NOW).cost).toBe('costRange');
     }
   });

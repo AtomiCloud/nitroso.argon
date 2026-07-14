@@ -1,9 +1,11 @@
 // Pure helpers for the /analysis page. Zinc returns one row per (SGT
 // completion date, direction, departure time) plus a range summary, a
-// monthly P&L rollup, a component ranking and the boost ledger; everything
-// here is client-side shaping of those payloads so the page component stays
-// declarative (and the math stays unit-testable).
+// monthly P&L rollup, a component ranking, the profit-by-travel-day buckets
+// and the boost ledger; everything here is client-side shaping of those
+// payloads so the page component stays declarative (and the math stays
+// unit-testable).
 import type {
+  BookingAnalysisProfitBucketRes,
   BookingAnalysisRowRes,
   BookingAnalysisSummaryRes,
   BookingBoostRes,
@@ -123,6 +125,96 @@ export function sortMonthly(monthly: MonthlyAnalysisRes[]): MonthlyAnalysisRes[]
   return [...monthly].sort((a, b) => monthSortKey(b.month).localeCompare(monthSortKey(a.month)));
 }
 
+// ---- profit by travel day (separate endpoint, bucketed by 6h of day) ----
+
+// canonical 6h bucket ladder — the column order in the profit grid is stable
+// regardless of the order zinc returns buckets in
+export const PROFIT_QUARTERS: readonly number[] = [0, 6, 12, 18] as const;
+
+/** one 6h-cell of the profit grid */
+export type ProfitCell = {
+  quarterStartHour: number;
+  /** completed bookings that touched this bucket on this travel date */
+  tickets: number;
+  revenue: number;
+  cost: number;
+  /** tickets in the bucket with a recorded actual KTMB cost; < tickets means
+   * the cost number is partial and the UI must mark the cell */
+  withActualCost: number;
+};
+
+/** one travel-date row of the profit grid (4 cells + day totals) */
+export type ProfitDayRow = {
+  /** zinc wire format, dd-MM-yyyy */
+  date: string;
+  /** quarter → cell; absent buckets read as zeros via cellProfit */
+  cells: Record<number, ProfitCell>;
+  tickets: number;
+  revenue: number;
+  cost: number;
+  withActualCost: number;
+};
+
+/**
+ * Pivot the flat profit-bucket payload into one ProfitDayRow per travel date
+ * with every quarter zero-filled. Order: zinc's emission order (ascending
+ * travel dates), preserved so the table reads from earliest travel date to
+ * latest. Empty input → empty output.
+ */
+export function pivotProfitBuckets(rs: BookingAnalysisProfitBucketRes[]): ProfitDayRow[] {
+  const order: string[] = [];
+  const byDate = new Map<string, ProfitDayRow>();
+  for (const r of rs) {
+    let row = byDate.get(r.date);
+    if (row == null) {
+      row = { date: r.date, cells: {}, tickets: 0, revenue: 0, cost: 0, withActualCost: 0 };
+      byDate.set(r.date, row);
+      order.push(r.date);
+    }
+    const cell: ProfitCell = {
+      quarterStartHour: r.quarterStartHour,
+      tickets: r.tickets,
+      revenue: r.revenue,
+      cost: r.cost,
+      withActualCost: r.withActualCost,
+    };
+    row.cells[r.quarterStartHour] = cell;
+    row.tickets += r.tickets;
+    row.revenue += r.revenue;
+    row.cost += r.cost;
+    row.withActualCost += r.withActualCost;
+  }
+  return order.map(d => byDate.get(d)!).filter(Boolean);
+}
+
+/** a single cell of the profit grid, zero-filled when zinc omitted the bucket */
+export function cellProfit(row: ProfitDayRow, quarter: number): ProfitCell {
+  return (
+    row.cells[quarter] ?? {
+      quarterStartHour: quarter,
+      tickets: 0,
+      revenue: 0,
+      cost: 0,
+      withActualCost: 0,
+    }
+  );
+}
+
+/** profit = revenue − cost (an absent bucket returns 0, not NaN) */
+export function cellNet(c: ProfitCell): number {
+  return c.revenue - c.cost;
+}
+
+/** the cell needs a "cost incomplete" marker when actual coverage is partial */
+export function cellCostIncomplete(c: ProfitCell): boolean {
+  return c.tickets > 0 && c.withActualCost < c.tickets;
+}
+
+/** grand total over a travel-date row */
+export function dayProfitNet(row: ProfitDayRow): number {
+  return row.revenue - row.cost;
+}
+
 // ---- boost ledger rows ----
 
 export type BoostView = {
@@ -146,7 +238,7 @@ export function boostView(b: Pick<BookingBoostRes, 'free' | 'fee' | 'grantedBy'>
 
 // ---- URL-state parsing (pure slices of the /stats pattern) ----
 
-export const ANALYSIS_TABS = ['overview', 'monthly', 'byday', 'boosts', 'payments', 'costs'];
+export const ANALYSIS_TABS = ['overview', 'monthly', 'byday', 'profit', 'boosts', 'payments', 'costs'];
 
 export function pickParam(v: string | null, allowed: string[]): string {
   return v != null && allowed.includes(v) ? v : '';

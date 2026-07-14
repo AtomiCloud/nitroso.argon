@@ -21,7 +21,6 @@
     import {Badge} from "$lib/components/ui/badge";
     import {LucideLoader, LucidePencil, LucidePlus, LucideTrash2} from "lucide-svelte";
     import PolicyDialog from "$lib/components/entities/Costs/PolicyDialog.svelte";
-    import CostSummaryPreview from "$lib/components/entities/Costs/CostSummaryPreview.svelte";
     import PrioritySection from "$lib/components/entities/Costs/PrioritySection.svelte";
     import {toResult} from "$lib/utility";
     import {toast} from "svelte-sonner";
@@ -45,12 +44,16 @@
             }
         }) satisfies Promise<CostsPageOk>)
 
-    // ---- base cost (unchanged behaviour) ----
+    // ---- base cost ----
+    // 0 is intentionally rejected: zinc treats the base cost as "free"
+    // when zero, which conflicts with our refundable deposit + service-fee
+    // pricing model. The update button is disabled until the value parses
+    // to a positive number.
     function isValid(s: string): string {
         if (s.length === 0) return "required";
         const n = Number(s);
         if (isNaN(n)) return "invalidNumber";
-        if (n < 0) return "mustBePositive";
+        if (n <= 0) return "mustBePositive";
         return "valid";
     }
 
@@ -204,7 +207,7 @@
                         <Input inputmode="numeric" placeholder={$_("admin.costs.newCostPlaceholder", {locale: $lang})} bind:value/>
                         <p class="text-sm text-destructive {valid ? 'opacity-0' : 'opacity-100'}">{validationMessage(value)}</p>
                     </div>
-                    <Button class="w-full max-w-sm" on:click={updateCost}>{$_("admin.costs.updateCost", {locale: $lang})}</Button>
+                    <Button class="w-full max-w-sm" on:click={updateCost} disabled={!valid}>{$_("admin.costs.updateCost", {locale: $lang})}</Button>
                 </div>
 
                 <!-- cost policies -->
@@ -276,16 +279,12 @@
                     </Card.Content>
                 </Card.Root>
 
-                <!-- live pricing preview -->
-                <CostSummaryPreview
-                        timesJToW={timingsJToW.principal.timings ?? []}
-                        timesWToJ={timingsWToJ.principal.timings ?? []}/>
-
                 <!-- priority queue policy editor -->
                 <PrioritySection settings={prioritySettings}/>
 
-                <!-- base-cost history -->
-                <div class="flex flex-col gap-4 my-4">
+                <!-- base-cost history (most recent first from zinc) -->
+                <div class="flex flex-col gap-3 my-4">
+                    <h2 class="text-lg font-semibold">{$_("admin.costs.history.title", {locale: $lang})}</h2>
                     {#each cs as c}
                         <Card.Root>
                             <Card.Header>

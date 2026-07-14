@@ -15,6 +15,7 @@ import type {
   AnnouncementBroadcastRes,
   AnnouncementSendRes,
   BookingAnalysisRes,
+  BookingAnalysisProfitBucketRes,
   BookingBoostPageRes,
   BookingCountRes,
   BookingPrincipalRes,
@@ -351,6 +352,34 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
   ) =>
     this.request<TravelAnalysisBucketRes[], any>({
       path: `/api/v${version}/Booking/analysis/travel`,
+      method: 'GET',
+      query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc profit by travel day) pending swagger regeneration —
+   * profit-per-6h-bucket view of COMPLETED bookings grouped by SGT TRAVEL
+   * date (both directions merged). Only non-empty buckets are returned; the
+   * UI zero-fills absent ones. Both revenue and cost are SGD. After/Before
+   * are dd-MM-yyyy, inclusive, on the SGT calendar date of TRAVEL. OnlyAdmin.
+   *
+   * @tags Booking
+   * @name VBookingAnalysisProfitDetail
+   * @request GET:/api/v{version}/Booking/analysis/profit
+   * @secure
+   */
+  vBookingAnalysisProfitDetail = (
+    version: string,
+    query?: {
+      After?: string;
+      Before?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<BookingAnalysisProfitBucketRes[], any>({
+      path: `/api/v${version}/Booking/analysis/profit`,
       method: 'GET',
       query: query,
       secure: true,

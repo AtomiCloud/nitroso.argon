@@ -249,7 +249,7 @@
                             <p class="text-sm text-destructive">{errText("effectiveAt")}</p>
                         {/if}
                     </div>
-                    <Button class="my-2" on:click={submit} disabled={submitting}>
+                    <Button class="my-2" on:click={submit} disabled={submitting || Object.keys(errors).length !== 0}>
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                         {/if}

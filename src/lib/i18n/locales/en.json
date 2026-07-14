@@ -157,6 +157,9 @@
       "updateCost": "Update Cost",
       "costUpdated": "Cost updated",
       "notFound": "Withdrawals cannot be found",
+      "history": {
+        "title": "Historic pricing"
+      },
       "policies": {
         "title": "Cost policies",
         "description": "Automatic surcharges and discounts applied on top of the base cost when a booking matches.",
@@ -255,7 +258,7 @@
         "directionRequired": "Pick a direction",
         "costLabel": "Cost per ticket (S$)",
         "costPlaceholder": "e.g. 5.00",
-        "costRange": "The cost must be a number between 0 and 10,000 with at most 2 decimals",
+        "costRange": "The cost must be a number greater than 0 and up to 10,000 with at most 2 decimals",
         "effectiveFrom": "Effective from (optional)",
         "effectiveHint": "Empty = the change applies immediately.",
         "effectiveInvalid": "That is not a valid date and time",
@@ -1617,15 +1620,12 @@
       "hint": "Travel-date range (default: from the latest milestone, else the last 90 days)"
     },
     "travelDate": {
-      "title": "Secured by travel date",
-      "description": "Tickets SECURED for each travel date in the range, bucketed into 6-hour quarters of the day. The Sales Analysis \"By day\" tab groups by completion date — this answers \"how many tickets were secured for a given travel date\" instead.",
+      "title": "Travel day × time",
+      "description": "Tickets SECURED for each travel date in the range, bucketed into 6-hour quarters of the day. The Sales Analysis \"By day\" tab groups by completion date — this answers \"how many tickets were secured for a given travel date\" instead. Both directions merged per cell.",
       "range": {
         "after": "Travel date from",
         "before": "Travel date to",
         "hint": "Default: today → today + 30 days"
-      },
-      "filter": {
-        "direction": "Direction"
       },
       "table": {
         "date": "Travel date",
@@ -1636,6 +1636,7 @@
         "total": "Total"
       },
       "empty": "No tickets secured in this range",
+      "unsupported": "Travel-date analysis is not available on this server",
       "loadError": "Couldn't load the travel-date analysis"
     },
     "tabs": {
@@ -1643,7 +1644,8 @@
       "matrix": "Day × Time",
       "leadTime": "Lead time",
       "demand": "Demand",
-      "delivery": "Delivery lead"
+      "delivery": "Delivery lead",
+      "travelDay": "Travel day"
     },
     "priority": {
       "priority": "Priority only",
@@ -1771,6 +1773,7 @@
       "overview": "Overview",
       "monthly": "Monthly",
       "byDay": "By day",
+      "profit": "Profit by travel day",
       "boosts": "Boosts",
       "payments": "Payments",
       "costs": "Ticket costs"
@@ -1843,6 +1846,21 @@
       "colKtmb": "KTMB cost",
       "colNet": "Gross − KTMB",
       "empty": "No completed bookings on this day"
+    },
+    "profit": {
+      "title": "Profit by travel day",
+      "description": "Completed bookings grouped by the SGT TRAVEL date (NOT completion date) and bucketed into 6-hour quarters of the day. Both directions merged. Revenue and cost in SGD; cells with partial actual-cost coverage are marked.",
+      "loadError": "Failed to load the profit-by-travel-day analysis",
+      "empty": "No completed bookings with a travel date in this range",
+      "colDate": "Travel date",
+      "colQ0": "00–06",
+      "colQ6": "06–12",
+      "colQ12": "12–18",
+      "colQ18": "18–24",
+      "colTotal": "Total",
+      "cellIncomplete": "cost incomplete — {actual} of {total} tickets have actual cost",
+      "cellEmpty": "—",
+      "cellProfit": "Profit"
     },
     "boosts": {
       "title": "Priority boosts",

@@ -45,11 +45,17 @@
     import KtmbFxSection from "$lib/components/entities/Costs/KtmbFxSection.svelte";
     import {
         ANALYSIS_TABS,
+        PROFIT_QUARTERS,
         boostView,
+        cellCostIncomplete,
+        cellNet,
+        cellProfit,
         daysPresent,
+        dayProfitNet,
         groupByDay,
         monthNet,
         pickParam,
+        pivotProfitBuckets,
         rangeNet,
         sortMonthly,
         urlDayParam,
@@ -102,6 +108,9 @@
 
     let analysis: BookingAnalysisRes | null = null;
     let captured: CapturedPaymentRes[] = [];
+    let profitRows: ReturnType<typeof pivotProfitBuckets> = [];
+    let profitLoading = false;
+    let profitFailed = false;
     let loading = false;
     let failed = false;
 
@@ -142,6 +151,27 @@
         // pagination from the first page
         boostSkip = 0;
         loadBoosts();
+        // the profit-by-travel-day grid fetches independently — it groups
+        // by travel date (NOT completion date), so it tolerates its own
+        // failure without blanking the page above
+        loadProfit();
+    }
+
+    async function loadProfit() {
+        profitLoading = true;
+        profitFailed = false;
+        await toResult(() => $api.vBookingAnalysisProfitDetail("1", rangeQuery()),
+            $_('analysis.profit.loadError', {locale: $lang})).match({
+            ok: (r) => {
+                profitRows = pivotProfitBuckets(r);
+                profitFailed = false;
+            },
+            err: (e) => {
+                console.error(e);
+                profitFailed = true;
+            }
+        });
+        profitLoading = false;
     }
 
     async function rangeChange() {
@@ -292,6 +322,15 @@
     function dayLabel(d: string): string {
         return d === "" ? "" : formatCalendarDate(calendarDateForDisplay(parseZincDate(d)), $lang,
             {weekday: "short", day: "numeric", month: "short", year: "numeric"});
+    }
+
+    // localized date label for travel-date rows (no weekday — the grid is
+    // already one row per travel date)
+    function travelDateLabel(ddMMyyyy: string): string {
+        const parsed = parseZincDate(ddMMyyyy);
+        if (parsed == null) return ddMMyyyy;
+        return formatCalendarDate(calendarDateForDisplay(parsed), $lang,
+            {day: "numeric", month: "short", year: "numeric"});
     }
 
     // the Select mirrors effectiveDay; picking writes the explicit day
@@ -518,6 +557,7 @@
                         <Tabs.Trigger value="overview" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.overview', { locale: $lang })}</Tabs.Trigger>
                         <Tabs.Trigger value="monthly" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.monthly', { locale: $lang })}</Tabs.Trigger>
                         <Tabs.Trigger value="byday" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.byDay', { locale: $lang })}</Tabs.Trigger>
+                        <Tabs.Trigger value="profit" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.profit', { locale: $lang })}</Tabs.Trigger>
                         <Tabs.Trigger value="boosts" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.boosts', { locale: $lang })}</Tabs.Trigger>
                         <Tabs.Trigger value="payments" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.payments', { locale: $lang })}</Tabs.Trigger>
                         <Tabs.Trigger value="costs" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.costs', { locale: $lang })}</Tabs.Trigger>
@@ -830,7 +870,91 @@
                     </Card.Root>
                 </Tabs.Content>
 
-                <!-- 4. Boosts: the paginated boost ledger. Admin-granted
+                <!-- 4. Profit by travel day: completed-bookings P&L view
+                     grouped by SGT TRAVEL date (NOT completion date) and
+                     bucketed into 6-hour quarters of the day. Both
+                     directions merged. Each cell shows tickets, revenue,
+                     cost, profit (= revenue − cost) in SGD. Cells where
+                     actual-cost coverage is partial get a marker. -->
+                <Tabs.Content value="profit" class="flex flex-col gap-4">
+                    <Card.Root>
+                        <Card.Header class="p-4 sm:p-6">
+                            <Card.Title>{$_('analysis.profit.title', { locale: $lang })}</Card.Title>
+                            <Card.Description>{$_('analysis.profit.description', { locale: $lang })}</Card.Description>
+                        </Card.Header>
+                        <Card.Content class="px-2 sm:px-6">
+                            {#if profitFailed}
+                                <div class="flex items-center gap-3 px-2">
+                                    <p class="text-sm text-destructive">{$_('analysis.profit.loadError', { locale: $lang })}</p>
+                                    <Button variant="outline" size="sm" disabled={profitLoading} on:click={loadProfit}>
+                                        {$_('analysis.reload', { locale: $lang })}
+                                    </Button>
+                                </div>
+                            {:else if profitLoading && profitRows.length === 0}
+                                <Loader/>
+                            {:else if profitRows.length === 0}
+                                <p class="text-sm text-muted-foreground px-2">{$_('analysis.profit.empty', { locale: $lang })}</p>
+                            {:else}
+                                <div class="overflow-x-auto">
+                                    <Table.Root>
+                                        <Table.Header>
+                                            <Table.Row>
+                                                <Table.Head class="h-9 px-2 whitespace-nowrap">{$_('analysis.profit.colDate', { locale: $lang })}</Table.Head>
+                                                {#each PROFIT_QUARTERS as q (q)}
+                                                    <Table.Head class="h-9 px-2 text-right whitespace-nowrap">{$_(`analysis.profit.colQ${q}`, { locale: $lang })}</Table.Head>
+                                                {/each}
+                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">{$_('analysis.profit.colTotal', { locale: $lang })}</Table.Head>
+                                            </Table.Row>
+                                        </Table.Header>
+                                        <Table.Body>
+                                            {#each profitRows as r (r.date)}
+                                                <Table.Row>
+                                                    <Table.Cell class="px-2 py-1.5 font-medium whitespace-nowrap">{travelDateLabel(r.date)}</Table.Cell>
+                                                    {#each PROFIT_QUARTERS as q (q)}
+                                                        {@const c = cellProfit(r, q)}
+                                                        {@const incomplete = cellCostIncomplete(c)}
+                                                        <Table.Cell class="px-2 py-1.5 text-right">
+                                                            {#if c.tickets === 0}
+                                                                <span class="text-muted-foreground/50 select-none">{$_('analysis.profit.cellEmpty', { locale: $lang })}</span>
+                                                            {:else}
+                                                                <div class="flex flex-col items-end tabular-nums"
+                                                                     title={incomplete ? $_('analysis.profit.cellIncomplete', {
+                                                                         locale: $lang,
+                                                                         values: {
+                                                                             actual: formatNumber(c.withActualCost, $lang),
+                                                                             total: formatNumber(c.tickets, $lang),
+                                                                         },
+                                                                     }) : ''}>
+                                                                    <span class="font-medium {deltaClass(cellNet(c))}">
+                                                                        {formatMoney(cellNet(c), $lang)}
+                                                                        {#if incomplete}<span class="text-amber-600 dark:text-amber-400">*</span>{/if}
+                                                                    </span>
+                                                                    <span class="text-xs text-muted-foreground">
+                                                                        {formatNumber(c.tickets, $lang)} · {formatMoney(c.revenue, $lang)} · {formatMoney(c.cost, $lang)}
+                                                                    </span>
+                                                                </div>
+                                                            {/if}
+                                                        </Table.Cell>
+                                                    {/each}
+                                                    <Table.Cell class="px-2 py-1.5 text-right">
+                                                        <div class="flex flex-col items-end tabular-nums">
+                                                            <span class="font-semibold {deltaClass(dayProfitNet(r))}">{formatMoney(dayProfitNet(r), $lang)}</span>
+                                                            <span class="text-xs text-muted-foreground">
+                                                                {formatNumber(r.tickets, $lang)} · {formatMoney(r.revenue, $lang)} · {formatMoney(r.cost, $lang)}
+                                                            </span>
+                                                        </div>
+                                                    </Table.Cell>
+                                                </Table.Row>
+                                            {/each}
+                                        </Table.Body>
+                                    </Table.Root>
+                                </div>
+                            {/if}
+                        </Card.Content>
+                    </Card.Root>
+                </Tabs.Content>
+
+                <!-- 5. Boosts: the paginated boost ledger. Admin-granted
                      boosts carry an accent "Admin" badge (full admin id in
                      the native tooltip, shortened next to it); free
                      self-boosts show "Free (targeted)". -->

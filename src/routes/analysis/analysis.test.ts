@@ -1,18 +1,25 @@
 import { describe, expect, it } from 'vitest';
 import type {
+  BookingAnalysisProfitBucketRes,
   BookingAnalysisRowRes,
   BookingAnalysisSummaryRes,
   MonthlyAnalysisRes,
 } from '$lib/api/core/data-contracts';
 import {
+  PROFIT_QUARTERS,
   boostView,
+  cellCostIncomplete,
+  cellNet,
+  cellProfit,
   dateSortKey,
+  dayProfitNet,
   daysPresent,
   groupByDay,
   monthNet,
   monthSortKey,
   netOf,
   pickParam,
+  pivotProfitBuckets,
   rangeNet,
   sortMonthly,
   urlDayParam,
@@ -263,5 +270,123 @@ describe('URL param helpers', () => {
     expect(urlDayParam('29-02-2026')).toBe('');
     expect(urlDayParam('00-07-2026')).toBe('');
     expect(urlDayParam('garbage')).toBe('');
+  });
+});
+
+function profit(over: Partial<BookingAnalysisProfitBucketRes>): BookingAnalysisProfitBucketRes {
+  return {
+    date: '01-07-2026',
+    quarterStartHour: 0,
+    tickets: 2,
+    revenue: 60,
+    cost: 10,
+    withActualCost: 2,
+    ...over,
+  };
+}
+
+describe('PROFIT_QUARTERS ladder', () => {
+  it('is exactly 0/6/12/18 in order', () => {
+    expect([...PROFIT_QUARTERS]).toEqual([0, 6, 12, 18]);
+  });
+});
+
+describe('pivotProfitBuckets', () => {
+  it('returns empty for no input', () => {
+    expect(pivotProfitBuckets([])).toEqual([]);
+  });
+
+  it('places each (date, quarter) bucket into its own cell, summing day totals', () => {
+    // zinc returns one row per (date, quarter) with both directions already
+    // merged on its side; the pivot maps each bucket to its cell and sums
+    // every bucket on the day into the day totals
+    const rs = [
+      profit({ quarterStartHour: 0, tickets: 2, revenue: 60, cost: 10, withActualCost: 2 }),
+      profit({ quarterStartHour: 6, tickets: 3, revenue: 90, cost: 15, withActualCost: 3 }),
+      profit({ quarterStartHour: 12, tickets: 1, revenue: 30, cost: 5, withActualCost: 1 }),
+    ];
+    const rows = pivotProfitBuckets(rs);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].tickets).toBe(6);
+    expect(rows[0].revenue).toBe(180);
+    expect(rows[0].cost).toBe(30);
+    expect(rows[0].withActualCost).toBe(6);
+    expect(rows[0].cells[0].tickets).toBe(2);
+    expect(rows[0].cells[6].tickets).toBe(3);
+    expect(rows[0].cells[12].tickets).toBe(1);
+    // absent buckets are NOT stored on the row — cellProfit() zero-fills
+    expect(rows[0].cells[18]).toBeUndefined();
+  });
+
+  it('keeps one row per travel date in zinc insertion order', () => {
+    const rs = [profit({ date: '02-07-2026', tickets: 1 }), profit({ date: '01-07-2026', tickets: 1 })];
+    const rows = pivotProfitBuckets(rs);
+    expect(rows.map(r => r.date)).toEqual(['02-07-2026', '01-07-2026']);
+  });
+});
+
+describe('cellProfit', () => {
+  const [row] = pivotProfitBuckets([
+    profit({ quarterStartHour: 0, tickets: 2, revenue: 60, cost: 10, withActualCost: 1 }),
+  ]);
+
+  it('returns the present bucket verbatim', () => {
+    expect(cellProfit(row, 0).tickets).toBe(2);
+    expect(cellProfit(row, 0).revenue).toBe(60);
+    expect(cellProfit(row, 0).cost).toBe(10);
+    expect(cellProfit(row, 0).withActualCost).toBe(1);
+  });
+
+  it('zero-fills absent buckets so the renderer can read straight from the pivot', () => {
+    const c = cellProfit(row, 6);
+    expect(c.tickets).toBe(0);
+    expect(c.revenue).toBe(0);
+    expect(c.cost).toBe(0);
+    expect(c.withActualCost).toBe(0);
+    expect(c.quarterStartHour).toBe(6);
+  });
+});
+
+describe('cellNet & dayProfitNet', () => {
+  it('net = revenue − cost (negative when the day costs more than it earns)', () => {
+    const winning = cellProfit(
+      {
+        date: '01-07-2026',
+        cells: { 0: { quarterStartHour: 0, tickets: 2, revenue: 60, cost: 10, withActualCost: 2 } },
+        tickets: 2,
+        revenue: 60,
+        cost: 10,
+        withActualCost: 2,
+      },
+      0,
+    );
+    expect(cellNet(winning)).toBe(50);
+    const losing = cellProfit(
+      {
+        date: '01-07-2026',
+        cells: { 0: { quarterStartHour: 0, tickets: 2, revenue: 10, cost: 30, withActualCost: 2 } },
+        tickets: 2,
+        revenue: 10,
+        cost: 30,
+        withActualCost: 2,
+      },
+      0,
+    );
+    expect(cellNet(losing)).toBe(-20);
+    expect(dayProfitNet({ date: '01-07-2026', cells: {}, tickets: 4, revenue: 70, cost: 40, withActualCost: 4 })).toBe(
+      30,
+    );
+  });
+});
+
+describe('cellCostIncomplete', () => {
+  it('flags a cell whose actual-cost coverage is partial', () => {
+    expect(cellCostIncomplete({ quarterStartHour: 0, tickets: 4, revenue: 120, cost: 30, withActualCost: 3 })).toBe(
+      true,
+    );
+    expect(cellCostIncomplete({ quarterStartHour: 0, tickets: 4, revenue: 120, cost: 30, withActualCost: 4 })).toBe(
+      false,
+    );
+    expect(cellCostIncomplete({ quarterStartHour: 0, tickets: 0, revenue: 0, cost: 0, withActualCost: 0 })).toBe(false);
   });
 });

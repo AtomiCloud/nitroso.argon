@@ -157,6 +157,9 @@
       "updateCost": "更新价格",
       "costUpdated": "价格已更新",
       "notFound": "找不到提现记录",
+      "history": {
+        "title": "历史价格"
+      },
       "policies": {
         "title": "价格政策",
         "description": "当预订符合条件时，在基础价格上自动加收或减免。",
@@ -255,7 +258,7 @@
         "directionRequired": "请选择方向",
         "costLabel": "每张票成本（S$）",
         "costPlaceholder": "如 5.00",
-        "costRange": "成本必须是 0 到 10,000 之间的数字，最多 2 位小数",
+        "costRange": "成本必须是大于 0 且不超过 10,000 的数字，最多 2 位小数",
         "effectiveFrom": "生效时间（可选）",
         "effectiveHint": "留空 = 立即生效。",
         "effectiveInvalid": "不是有效的日期时间",
@@ -1617,15 +1620,12 @@
       "hint": "出行日期范围（默认：从最新里程碑开始，否则最近 90 天）"
     },
     "travelDate": {
-      "title": "按出行日期统计出票",
-      "description": "在所选范围内为每个出行日期成功出票的张数，按一天中的 6 小时区段分组。销售分析中的「按日」选项卡按完成日期分组 — 此视图改为回答「为某个出行日期成功出票多少张」。",
+      "title": "出行日 × 时间",
+      "description": "在所选范围内为每个出行日期成功出票的张数，按一天中的 6 小时区段分组。销售分析中的「按日」选项卡按完成日期分组 — 此视图改为回答「为某个出行日期成功出票多少张」。每个单元格里双向合并。",
       "range": {
         "after": "出行日期从",
         "before": "出行日期至",
         "hint": "默认：今天 → 今天 + 30 天"
-      },
-      "filter": {
-        "direction": "方向"
       },
       "table": {
         "date": "出行日期",
@@ -1636,6 +1636,7 @@
         "total": "合计"
       },
       "empty": "此范围内没有出票记录",
+      "unsupported": "本服务器暂不支持出行日期分析",
       "loadError": "无法加载出行日期分析"
     },
     "tabs": {
@@ -1643,7 +1644,8 @@
       "matrix": "星期 × 时间",
       "leadTime": "提前时长",
       "demand": "需求量",
-      "delivery": "出票时长"
+      "delivery": "出票时长",
+      "travelDay": "出行日"
     },
     "priority": {
       "priority": "仅优先",
@@ -1771,6 +1773,7 @@
       "overview": "概览",
       "monthly": "按月",
       "byDay": "按日",
+      "profit": "按出行日的利润",
       "boosts": "优先加购",
       "payments": "付款",
       "costs": "车票成本"
@@ -1843,6 +1846,21 @@
       "colKtmb": "KTMB 成本",
       "colNet": "毛收入 − KTMB",
       "empty": "该日没有已完成的预订"
+    },
+    "profit": {
+      "title": "按出行日的利润",
+      "description": "已完成的预订按 SGT 出行日（不是完成日）分组，并按一天中的 6 小时时段分桶。双向合并。收入与成本以 SGD 计；实际成本覆盖不完整的单元格会标记。",
+      "loadError": "加载按出行日的利润分析失败",
+      "empty": "此范围内没有已完成的预订带有出行日",
+      "colDate": "出行日",
+      "colQ0": "00–06",
+      "colQ6": "06–12",
+      "colQ12": "12–18",
+      "colQ18": "18–24",
+      "colTotal": "合计",
+      "cellIncomplete": "成本不完整 — {actual}/{total} 张票有实际成本",
+      "cellEmpty": "—",
+      "cellProfit": "利润"
     },
     "boosts": {
       "title": "优先加购记录",
