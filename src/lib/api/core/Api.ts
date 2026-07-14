@@ -22,6 +22,7 @@ import type {
   BookingRes,
   BookingSearchCountRes,
   BookingStatRes,
+  TravelAnalysisBucketRes,
   CancelWithdrawalReq,
   CapturedPaymentRes,
   CostPolicyPrincipalRes,
@@ -322,6 +323,34 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
   ) =>
     this.request<BookingBoostPageRes, any>({
       path: `/api/v${version}/Booking/analysis/boosts`,
+      method: 'GET',
+      query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc travel-date analysis) pending swagger regeneration —
+   * how many tickets were SECURED for each travel date in the range, bucketed
+   * into 6-hour quarters of the day (00–06, 06–12, 12–18, 18–24). After/Before
+   * are dd-MM-yyyy, inclusive, on the SGT calendar date of TRAVEL (not
+   * completion); only non-empty buckets are returned (OnlyAdmin).
+   *
+   * @tags Booking
+   * @name VBookingAnalysisTravelDetail
+   * @request GET:/api/v{version}/Booking/analysis/travel
+   * @secure
+   */
+  vBookingAnalysisTravelDetail = (
+    version: string,
+    query?: {
+      After?: string;
+      Before?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<TravelAnalysisBucketRes[], any>({
+      path: `/api/v${version}/Booking/analysis/travel`,
       method: 'GET',
       query: query,
       secure: true,
