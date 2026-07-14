@@ -1866,7 +1866,7 @@
       "loadError": "Failed to load the monthly P&L rollup",
       "colMonth": "Month",
       "cashTitle": "Cash view",
-      "cashHint": "Deposits − withdrawals − gateway fees. Includes unspent wallet float sitting inside deposits.",
+      "cashHint": "Deposits − net payouts (gross withdrawals minus the fee we keep) − gateway fees. Includes unspent wallet float sitting inside deposits.",
       "earnedTitle": "Earned view",
       "earnedHint": "Ticket revenue + withdrawal fee income − KTMB cost − gateway fees. Withdrawals as principal flows are NOT here; they appear in the cash view above.",
       "colDeposits": "Deposits",

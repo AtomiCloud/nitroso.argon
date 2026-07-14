@@ -1866,7 +1866,7 @@
       "loadError": "Gagal memuatkan ringkasan Untung Rugi bulanan",
       "colMonth": "Bulan",
       "cashTitle": "Pandangan tunai",
-      "cashHint": "Deposit − pengeluaran − fi gerbang. Termasuk lebihan dompet yang belum dibelanjakan dalam deposit.",
+      "cashHint": "Deposit − bayaran keluar bersih (pengeluaran kasar tolak fi yang kami simpan) − fi gerbang. Termasuk lebihan dompet yang belum dibelanjakan dalam deposit.",
       "earnedTitle": "Pandangan diperoleh",
       "earnedHint": "Hasil tiket + hasil fi pengeluaran − kos KTMB − fi gerbang. Pengeluaran sebagai aliran principal TIDAK di sini; ia muncul dalam pandangan tunai di atas.",
       "colDeposits": "Deposit",

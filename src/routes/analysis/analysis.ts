@@ -274,15 +274,17 @@ export type PnlMonthRow = {
 };
 
 /**
- * CASH view net = deposits − withdrawalTotal − gatewayFees.
+ * CASH view net = deposits − (withdrawalTotal − withdrawalFeeIncome) − gatewayFees.
  * Captures movement of money through BunnyBooker: in (deposits), out
- * (withdrawals), and the channel cost of moving it (gateway fees). Wallet
- * float that hasn't been withdrawn still sits inside deposits, so this view
- * counts unspent float as BunnyBooker cash — the "what's in our pockets
- * today" reading.
+ * (withdrawals), and the channel cost of moving it (gateway fees).
+ * withdrawalTotal is GROSS (the wallet debit) but only Amount − Fee actually
+ * leaves the bank — the fee stays with BunnyBooker — so cash out is the net
+ * payout. Wallet float that hasn't been withdrawn still sits inside deposits,
+ * so this view counts unspent float as BunnyBooker cash — the "what's in our
+ * pockets today" reading.
  */
 export function pnlCashNet(r: PnlMonthRow): number {
-  return r.deposits - r.withdrawalTotal - r.gatewayFees;
+  return r.deposits - (r.withdrawalTotal - r.withdrawalFeeIncome) - r.gatewayFees;
 }
 
 /**

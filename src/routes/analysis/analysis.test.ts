@@ -411,19 +411,21 @@ function pnl(over: Partial<BookingAnalysisPnlRowRes>): BookingAnalysisPnlRowRes 
 }
 
 describe('pnlCashNet', () => {
-  it('subtracts withdrawals and gateway fees from deposits', () => {
+  it('subtracts NET payouts (gross − fee kept) and gateway fees from deposits', () => {
+    // withdrawalTotal is the gross wallet debit; only Amount − Fee leaves the
+    // bank — the fee stays with BunnyBooker, so cash out is the net payout.
     expect(
       pnlCashNet({
         month: '',
         deposits: 1000,
         withdrawalCount: 5,
         withdrawalTotal: 340,
-        withdrawalFeeIncome: 0,
+        withdrawalFeeIncome: 40,
         gatewayFees: 12,
         ticketRevenue: 0,
         ktmbCost: 0,
       }),
-    ).toBe(648);
+    ).toBe(688);
   });
 
   it('negative when outflows + fees exceed deposits', () => {
@@ -450,7 +452,7 @@ describe('pnlCashNet', () => {
       deposits: 0,
       withdrawalCount: 0,
       withdrawalTotal: 0,
-      withdrawalFeeIncome: 50,
+      withdrawalFeeIncome: 0,
       gatewayFees: 0,
       ticketRevenue: 9999,
       ktmbCost: 0,
@@ -570,8 +572,9 @@ describe('pnlTotals', () => {
     expect(total.gatewayFees).toBe(10);
     expect(total.ticketRevenue).toBe(600);
     expect(total.ktmbCost).toBe(140);
-    // totals compose with the same formulas (cash + earned views)
-    expect(pnlCashNet(total)).toBe(310);
+    // totals compose with the same formulas (cash + earned views);
+    // cash subtracts NET payouts: 400 − (80 − 13) − 10 = 323
+    expect(pnlCashNet(total)).toBe(323);
     expect(pnlEarnedNet(total)).toBe(463);
   });
 
