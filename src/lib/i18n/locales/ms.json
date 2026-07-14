@@ -281,7 +281,7 @@
         "addIntro": "Menyisip kadar MYR→SGD baharu, dalam dolar Singapura bagi setiap 1 ringgit Malaysia. Biarkan tarikh kosong untuk berkuat kuasa serta-merta.",
         "rateLabel": "Kadar (SGD bagi setiap 1 MYR)",
         "ratePlaceholder": "cth. 0.30",
-        "rateRange": "Kadar mesti nombor lebih besar daripada 0 dengan paling banyak 6 titik perpuluhan",
+        "rateRange": "Kadar mesti nombor lebih besar daripada 0 dan sehingga 1,000 dengan paling banyak 6 titik perpuluhan",
         "effectiveFrom": "Berkuat kuasa dari (pilihan)",
         "effectiveHint": "Kosong = kadar berkuat kuasa serta-merta.",
         "effectiveInvalid": "Bukan tarikh dan masa yang sah",
@@ -1735,7 +1735,7 @@
     "reload": "Muat semula",
     "loadError": "Gagal memuatkan analisis jualan",
     "empty": "Tiada tempahan selesai dalam julat ini",
-    "grossNote": "Bersih = kasar − kos KTMB − fi gerbang Airwallex yang disegerakkan. Kos KTMB ialah anggaran yang dikonfigurasi pentadbir, bukan jumlah invois.",
+    "grossNote": "Bersih = kasar − kos KTMB − fi gerbang Airwallex yang disegerakkan. Kos KTMB menggunakan kos sebenar yang direkodkan jika ada (ditukar pada kadar MYR→SGD berkuat kuasa) dan berbalik kepada anggaran yang dikonfigurasi pentadbir jika tiada.",
     "range": {
       "after": "Selesai dari",
       "before": "Selesai hingga",

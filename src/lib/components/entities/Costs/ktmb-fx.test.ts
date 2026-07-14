@@ -11,9 +11,19 @@ describe('validateKtmbFxDraft', () => {
   });
 
   it('rejects non-positive, out-of-range, imprecise or non-numeric rates', () => {
-    for (const rate of ['', '0', '-1', '1000.01', '0.1234567', 'abc', 'Infinity']) {
+    for (const rate of ['', '0', '-1', '1000.01', '1001', '0.1234567', 'abc', 'Infinity']) {
       expect(validateKtmbFxDraft({ rate, effectiveAt: '' }, NOW).rate).toBe('rateRange');
     }
+  });
+
+  it('rejects exponent notation that sneaks past the decimal cap', () => {
+    // Number('1e-7') is finite and in-range, but has 7 effective decimals
+    expect(validateKtmbFxDraft({ rate: '1e-7', effectiveAt: '' }, NOW).rate).toBe('rateRange');
+    expect(validateKtmbFxDraft({ rate: '3e2', effectiveAt: '' }, NOW).rate).toBe('rateRange');
+  });
+
+  it('accepts the inclusive 1000 upper bound', () => {
+    expect(validateKtmbFxDraft({ rate: '1000', effectiveAt: '' }, NOW)).toEqual({});
   });
 
   it('accepts a future effectiveAt and rejects past/invalid ones', () => {

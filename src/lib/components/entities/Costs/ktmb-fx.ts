@@ -15,24 +15,25 @@ export type KtmbFxDraftErrors = {
   effectiveAt?: string;
 };
 
-function atMostDecimals(x: number, max: number): boolean {
-  const r = x.toString().split('.');
-  return r.length !== 2 || r[1].length <= max;
+/** Plain decimal literal with at most `max` fractional digits — rejects
+ * exponent notation like "1e-7" that Number() would otherwise accept. */
+function decimalWithin(s: string, max: number): boolean {
+  return new RegExp(`^\\d+(?:\\.\\d{1,${max}})?$`).test(s);
 }
 
 /**
  * Validate the add-rate draft. Error values are i18n KEY SUFFIXES under
  * `admin.costs.ktmbFx.*` (the dialog translates them) so this stays pure and
- * unit-testable without a locale runtime. rate must be a finite number > 0
- * (SGD per 1 MYR) with at most 6 decimals; a bounded upper cap guards against
- * fat-finger entries.
+ * unit-testable without a locale runtime. rate must be a plain-decimal number
+ * (no exponent notation) in (0, 1000] with at most 6 decimals; the upper cap
+ * guards against fat-finger entries.
  */
 export function validateKtmbFxDraft(d: KtmbFxDraft, now: Date = new Date()): KtmbFxDraftErrors {
   const errors: KtmbFxDraftErrors = {};
 
   const rateStr = d.rate.trim();
   const rate = Number(rateStr);
-  if (rateStr === '' || !Number.isFinite(rate) || rate <= 0 || rate > 1000 || !atMostDecimals(rate, 6)) {
+  if (rateStr === '' || !decimalWithin(rateStr, 6) || !Number.isFinite(rate) || rate <= 0 || rate > 1000) {
     errors.rate = 'rateRange';
   }
 

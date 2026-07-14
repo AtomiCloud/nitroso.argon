@@ -281,7 +281,7 @@
         "addIntro": "Inserts a new MYR→SGD rate, in Singapore dollars per 1 Malaysian ringgit. Leave the date empty to apply it immediately.",
         "rateLabel": "Rate (SGD per 1 MYR)",
         "ratePlaceholder": "e.g. 0.30",
-        "rateRange": "The rate must be a number greater than 0 with at most 6 decimals",
+        "rateRange": "The rate must be a number greater than 0 and up to 1,000 with at most 6 decimals",
         "effectiveFrom": "Effective from (optional)",
         "effectiveHint": "Empty = the rate applies immediately.",
         "effectiveInvalid": "That is not a valid date and time",
@@ -1735,7 +1735,7 @@
     "reload": "Reload",
     "loadError": "Failed to load the sales analysis",
     "empty": "No completed bookings in this range",
-    "grossNote": "Net = gross − KTMB cost − synced Airwallex gateway fees. KTMB cost is the admin-configured estimate, not an invoiced amount.",
+    "grossNote": "Net = gross − KTMB cost − synced Airwallex gateway fees. KTMB cost uses the recorded actual cost where available (converted at the effective MYR→SGD rate) and falls back to the admin-configured estimate otherwise.",
     "range": {
       "after": "Completed from",
       "before": "Completed to",

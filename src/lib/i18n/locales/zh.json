@@ -281,7 +281,7 @@
         "addIntro": "新增一个 MYR→SGD 汇率，以每 1 令吉兑新加坡元计。日期留空则立即生效。",
         "rateLabel": "汇率（每 1 MYR 兑 SGD）",
         "ratePlaceholder": "如 0.30",
-        "rateRange": "汇率必须是大于 0 的数字，最多 6 位小数",
+        "rateRange": "汇率必须是大于 0 且不超过 1,000 的数字，最多 6 位小数",
         "effectiveFrom": "生效时间（可选）",
         "effectiveHint": "留空 = 立即生效。",
         "effectiveInvalid": "不是有效的日期时间",
@@ -1735,7 +1735,7 @@
     "reload": "刷新",
     "loadError": "加载销售分析失败",
     "empty": "此范围内没有已完成的预订",
-    "grossNote": "净收入 = 毛收入 − KTMB 成本 − 已同步的 Airwallex 通道费。KTMB 成本为管理员配置的估算值，非实际账单金额。",
+    "grossNote": "净收入 = 毛收入 − KTMB 成本 − 已同步的 Airwallex 通道费。KTMB 成本在有记录时采用实际成本（按生效的 MYR→SGD 汇率换算），否则回退至管理员配置的估算值。",
     "range": {
       "after": "完成日期从",
       "before": "完成日期至",

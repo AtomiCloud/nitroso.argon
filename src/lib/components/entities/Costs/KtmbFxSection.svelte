@@ -49,11 +49,14 @@
 
     const draft = {rate: "", effectiveAt: ""};
 
-    // "now" formatted for a datetime-local `min` attribute (local timezone,
-    // minute precision); refreshed each time the dialog opens
+    // "now" rounded UP to the next whole minute, formatted for a
+    // datetime-local `min` attribute (local timezone). Rounding up keeps the
+    // picker's floor strictly in the future, matching validateKtmbFxDraft's
+    // strict future-time rule even mid-minute. Refreshed each time the dialog
+    // opens.
     function nowLocalMinute(): string {
         const d = new Date();
-        d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+        d.setMinutes(d.getMinutes() - d.getTimezoneOffset() + 1, 0, 0);
         return d.toISOString().slice(0, 16);
     }
 
