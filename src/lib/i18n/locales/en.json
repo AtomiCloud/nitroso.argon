@@ -241,33 +241,6 @@
         "subtotal": "Subtotal",
         "final": "Final"
       },
-      "ktmb": {
-        "title": "KTMB ticket cost",
-        "description": "What one KTMB ticket costs BunnyBooker, per direction — the cost side of the sales analysis. Changes are queued and take effect at their scheduled time.",
-        "loadError": "Failed to load the KTMB ticket cost",
-        "currentTitle": "Current cost",
-        "notConfigured": "Not configured (counts as S$0)",
-        "queueTitle": "Scheduled changes",
-        "queueEmpty": "No scheduled changes.",
-        "queueLine": "{direction}: {cost} from {date}",
-        "addTrigger": "Add change",
-        "addTitle": "Change the KTMB ticket cost",
-        "addIntro": "Queues a per-direction cost change. Leave the date empty to apply it immediately.",
-        "directionLabel": "Direction",
-        "pickDirection": "Pick a direction",
-        "directionRequired": "Pick a direction",
-        "costLabel": "Cost per ticket (S$)",
-        "costPlaceholder": "e.g. 5.00",
-        "costRange": "The cost must be a number greater than 0 and up to 10,000 with at most 2 decimals",
-        "effectiveFrom": "Effective from (optional)",
-        "effectiveHint": "Empty = the change applies immediately.",
-        "effectiveInvalid": "That is not a valid date and time",
-        "effectivePast": "The effective time must be in the future",
-        "save": "Queue change",
-        "saveSuccess": "KTMB cost change saved",
-        "scheduledSuccess": "KTMB cost change scheduled for {date}",
-        "saveError": "Failed to save the KTMB cost change"
-      },
       "ktmbFx": {
         "title": "MYR→SGD FX rate",
         "description": "The MYR→SGD exchange rate used to convert each booking's actual KTMB ticket cost into SGD for the sales analysis, in Singapore dollars per 1 Malaysian ringgit. New rates are effective-dated and insert-only.",
@@ -1776,7 +1749,7 @@
       "profit": "Profit by travel day",
       "boosts": "Boosts",
       "payments": "Payments",
-      "costs": "Ticket costs"
+      "costs": "FX rates"
     },
     "summary": {
       "totalTickets": "Total tickets",

@@ -241,33 +241,6 @@
         "subtotal": "小计",
         "final": "最终价格"
       },
-      "ktmb": {
-        "title": "KTMB 票务成本",
-        "description": "BunnyBooker 每张 KTMB 车票的成本（按方向）——销售分析的成本口径。变更会排队并在预定时间生效。",
-        "loadError": "加载 KTMB 票务成本失败",
-        "currentTitle": "当前成本",
-        "notConfigured": "未配置（按 S$0 计算）",
-        "queueTitle": "已排定的变更",
-        "queueEmpty": "暂无排定的变更。",
-        "queueLine": "{direction}：{cost}，自 {date} 起",
-        "addTrigger": "添加变更",
-        "addTitle": "修改 KTMB 票务成本",
-        "addIntro": "按方向排队一次成本变更。日期留空则立即生效。",
-        "directionLabel": "方向",
-        "pickDirection": "选择方向",
-        "directionRequired": "请选择方向",
-        "costLabel": "每张票成本（S$）",
-        "costPlaceholder": "如 5.00",
-        "costRange": "成本必须是大于 0 且不超过 10,000 的数字，最多 2 位小数",
-        "effectiveFrom": "生效时间（可选）",
-        "effectiveHint": "留空 = 立即生效。",
-        "effectiveInvalid": "不是有效的日期时间",
-        "effectivePast": "生效时间必须在将来",
-        "save": "排队变更",
-        "saveSuccess": "KTMB 成本变更已保存",
-        "scheduledSuccess": "KTMB 成本变更已排定于 {date}",
-        "saveError": "保存 KTMB 成本变更失败"
-      },
       "ktmbFx": {
         "title": "MYR→SGD 汇率",
         "description": "用于将每笔预订的实际 KTMB 票务成本换算为 SGD 以进行销售分析的 MYR→SGD 汇率，以每 1 令吉兑新加坡元计。新汇率按生效日期记录，且仅可新增。",
@@ -1776,7 +1749,7 @@
       "profit": "按出行日的利润",
       "boosts": "优先加购",
       "payments": "付款",
-      "costs": "车票成本"
+      "costs": "汇率"
     },
     "summary": {
       "totalTickets": "总票数",
