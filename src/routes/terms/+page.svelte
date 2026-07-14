@@ -51,6 +51,20 @@
             <p class="py-2">{$_('legal.terms.limitationsBody1', { locale: $lang })}</p>
             <p class="py-2">{$_('legal.terms.limitationsBody2', { locale: $lang })}</p>
 
+            <h2 class="py-2 text-3xl">{$_('legal.terms.feesHeading', { locale: $lang })}</h2>
+            <p class="py-2">{$_('legal.terms.feesIntro', { locale: $lang })}</p>
+            <h3 class="py-2 text-2xl">{$_('legal.terms.feesTicketHeading', { locale: $lang })}</h3>
+            <p class="py-2">{$_('legal.terms.feesTicketBody', { locale: $lang })}</p>
+            <h3 class="py-2 text-2xl">{$_('legal.terms.feesPriorityHeading', { locale: $lang })}</h3>
+            <p class="py-2">{$_('legal.terms.feesPriorityBody', { locale: $lang })}</p>
+            <h3 class="py-2 text-2xl">{$_('legal.terms.feesCancellationHeading', { locale: $lang })}</h3>
+            <p class="py-2">{$_('legal.terms.feesCancellationBody', { locale: $lang })}</p>
+            <h3 class="py-2 text-2xl">{$_('legal.terms.feesTerminationHeading', { locale: $lang })}</h3>
+            <p class="py-2">{$_('legal.terms.feesTerminationBody', { locale: $lang })}</p>
+            <h3 class="py-2 text-2xl">{$_('legal.terms.feesWithdrawalHeading', { locale: $lang })}</h3>
+            <p class="py-2">{$_('legal.terms.feesWithdrawalBody1', { locale: $lang })}</p>
+            <p class="py-2">{$_('legal.terms.feesWithdrawalBody2', { locale: $lang })}</p>
+
             <h2 class="py-2 text-3xl">{$_('legal.terms.responsibilitiesHeading', { locale: $lang })}</h2>
             <p class="py-2">{$_('legal.terms.responsibilitiesBody1', { locale: $lang })}</p>
             <p class="py-2">{$_('legal.terms.responsibilitiesBody2', { locale: $lang })}</p>
