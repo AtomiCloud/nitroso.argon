@@ -39,6 +39,17 @@
         aggregate, rateOf, rateClass, barClass, rateText, toStatRow,
         type StatRow,
     } from "./stats";
+    import {
+        QUARTERS,
+        TRAVEL_DIRECTIONS,
+        cellCount,
+        isTravelDirection,
+        parseTravelDate,
+        pivotTravelAnalysis,
+        rowTotal,
+        type TravelDirectionFilter,
+        type TravelDayRow,
+    } from "./travel-stats";
     import StatTable from "./StatTable.svelte";
     import MilestoneManage from "./MilestoneManage.svelte";
 
@@ -171,6 +182,9 @@
         applyUrl($page.url.searchParams);
         urlReady = true;
         await load();
+        // the travel-date section is independent of the main stats range;
+        // load it in parallel so a slow zinc doesn't block the page above
+        loadTravel();
     });
 
     // picking a milestone snaps the range start to its date; the calendar
@@ -580,6 +594,72 @@
         const nextB = before == null ? "" : toApiDate(before);
         if (nextA !== prevA || nextB !== prevB) load();
     }
+
+    // ---- Secured By Travel Date section (its own date range + direction
+    // filter; independent from the main /stats range above because it answers
+    // a DIFFERENT question — completion-date vs travel-date) ----
+    // default range = today → today + 30 days (future travel is the
+    // interesting view: "how many tickets have been secured for upcoming
+    // travel dates, and in which quarter of the day?")
+    const todaySgt = singaporeToday();
+    let travelAfter: DateValue | undefined = todaySgt;
+    let travelBefore: DateValue | undefined = todaySgt.add({days: 30});
+    let travelDirection: TravelDirectionFilter = "";
+    let travelRows: TravelDayRow[] = [];
+    let travelLoading = false;
+    // when zinc predates the travel-analysis endpoint, the fetch 404s and we
+    // hide the whole section so the rest of the page still works
+    let travelUnsupported = false;
+
+    function travelRangeQuery(): { After?: string; Before?: string } {
+        return {
+            ...(travelAfter == null ? {} : {After: toApiDate(travelAfter)}),
+            ...(travelBefore == null ? {} : {Before: toApiDate(travelBefore)}),
+        };
+    }
+
+    async function loadTravel() {
+        travelLoading = true;
+        await toResult(() => $api.vBookingAnalysisTravelDetail("1", travelRangeQuery()),
+            $_('stats.travelDate.loadError', { locale: $lang })).match({
+            ok: (r) => {
+                travelRows = pivotTravelAnalysis(r);
+                travelUnsupported = false;
+            },
+            err: (e) => {
+                // older zinc returns 404; degrade gracefully — the main
+                // /stats view keeps working, this section just stays hidden
+                if (e.status === 404) {
+                    console.error("travel-date analysis: endpoint unavailable on zinc");
+                    travelUnsupported = true;
+                } else {
+                    console.error(e);
+                }
+            }
+        });
+        travelLoading = false;
+    }
+
+    async function travelRangeChange() {
+        await tick();
+        loadTravel();
+    }
+
+    function setTravelDirection(v: string) {
+        travelDirection = isTravelDirection(v) ? v : "";
+    }
+
+    // localized date label for the row's travel date (e.g. "15 Jul 2026");
+    // falls back to the wire string when the date can't be parsed
+    function travelDateLabel(ddMMyyyy: string): string {
+        const d = parseTravelDate(ddMMyyyy);
+        return d == null
+            ? ddMMyyyy
+            : formatCalendarDate(d, $lang, {day: "numeric", month: "short", year: "numeric"});
+    }
+
+    // grand total across all rendered rows under the active direction filter
+    $: travelGrandTotal = travelRows.reduce((s, r) => s + rowTotal(r, travelDirection), 0);
 </script>
 
 <div class="flex flex-col">
@@ -995,6 +1075,116 @@
                     </Card.Root>
                 </Tabs.Content>
             </Tabs.Root>
+        {/if}
+
+        <!-- Secured By Travel Date: how many tickets were SECURED for each
+             travel date (NOT when they were completed). Lives outside the
+             main tabs because it groups by a different date dimension and
+             answers a different question ("how many seats did we secure for
+             future travel?") than the rest of the page. Hidden entirely on
+             older zinc that lacks the endpoint. -->
+        {#if !travelUnsupported}
+            <Card.Root>
+                <Card.Header class="p-4 sm:p-6">
+                    <Card.Title>{$_('stats.travelDate.title', { locale: $lang })}</Card.Title>
+                    <Card.Description>{$_('stats.travelDate.description', { locale: $lang })}</Card.Description>
+                </Card.Header>
+                <Card.Content class="px-2 sm:px-6 flex flex-col gap-3">
+                    <!-- independent travel-date range + direction filter; the
+                         range here is the TRAVEL date (when the slot happens),
+                         not the completion date the main filter bar uses -->
+                    <div class="-mx-2 px-2 py-2 sm:mx-0 sm:px-3 bg-background border-y sm:border sm:rounded-lg flex flex-wrap gap-2 items-center">
+                        <Popover.Root>
+                            <Popover.Trigger asChild let:builder>
+                                <Button variant="outline"
+                                        class={cn("h-8 px-2 text-xs justify-start font-normal shrink-0", !travelAfter && "text-muted-foreground")}
+                                        builders={[builder]}>
+                                    <CalendarIcon class="mr-1.5 h-3.5 w-3.5"/>
+                                    {travelAfter ? formatCalendarDate(travelAfter.toDate(getLocalTimeZone()), $lang, {day: "numeric", month: "short", year: "2-digit"}) : $_('stats.travelDate.range.after', { locale: $lang })}
+                                </Button>
+                            </Popover.Trigger>
+                            <Popover.Content class="w-auto p-0" align="start">
+                                <Calendar bind:value={travelAfter} onValueChange={travelRangeChange}/>
+                            </Popover.Content>
+                        </Popover.Root>
+                        <span class="text-muted-foreground text-xs">→</span>
+                        <Popover.Root>
+                            <Popover.Trigger asChild let:builder>
+                                <Button variant="outline"
+                                        class={cn("h-8 px-2 text-xs justify-start font-normal shrink-0", !travelBefore && "text-muted-foreground")}
+                                        builders={[builder]}>
+                                    <CalendarIcon class="mr-1.5 h-3.5 w-3.5"/>
+                                    {travelBefore ? formatCalendarDate(travelBefore.toDate(getLocalTimeZone()), $lang, {day: "numeric", month: "short", year: "2-digit"}) : $_('stats.travelDate.range.before', { locale: $lang })}
+                                </Button>
+                            </Popover.Trigger>
+                            <Popover.Content class="w-auto p-0" align="start">
+                                <Calendar bind:value={travelBefore} onValueChange={travelRangeChange}/>
+                            </Popover.Content>
+                        </Popover.Root>
+                        <Select.Root selected={{value: travelDirection, label: travelDirection === "" ? $_('stats.filters.all', { locale: $lang }) : $_(travelDirection === "WToJ" ? 'stats.dir.wtoj' : 'stats.dir.jtow', { locale: $lang })}}
+                                     onSelectedChange={(s) => setTravelDirection(s?.value ?? "")}>
+                            <Select.Trigger class="h-8 w-36 text-xs shrink-0">
+                                <ArrowLeftRight class="mr-1.5 h-3.5 w-3.5 shrink-0"/>
+                                <Select.Value placeholder={$_('stats.travelDate.filter.direction', { locale: $lang })}/>
+                            </Select.Trigger>
+                            <Select.Content>
+                                {#each TRAVEL_DIRECTIONS as d}
+                                    <Select.Item value={d}>
+                                        {#if d === ""}
+                                            {$_('stats.filters.all', { locale: $lang })}
+                                        {:else}
+                                            <span class="inline-block h-2 w-2 rounded-full mr-2 {DIR_DOT[d]}"></span>
+                                            {$_(d === "WToJ" ? 'stats.dir.wtoj' : 'stats.dir.jtow', { locale: $lang })}
+                                        {/if}
+                                    </Select.Item>
+                                {/each}
+                            </Select.Content>
+                        </Select.Root>
+                        <span class="text-xs text-muted-foreground">{$_('stats.travelDate.range.hint', { locale: $lang })}</span>
+                    </div>
+
+                    {#if travelLoading && travelRows.length === 0}
+                        <Loader/>
+                    {:else if travelRows.length === 0}
+                        <p class="text-sm text-muted-foreground px-2 py-6 text-center">{$_('stats.travelDate.empty', { locale: $lang })}</p>
+                    {:else}
+                        <div class="overflow-x-auto">
+                            <Table.Root>
+                                <Table.Header>
+                                    <Table.Row>
+                                        <Table.Head class="h-9 px-2 whitespace-nowrap">{$_('stats.travelDate.table.date', { locale: $lang })}</Table.Head>
+                                        {#each QUARTERS as q (q)}
+                                            <Table.Head class="h-9 px-2 text-right whitespace-nowrap">{$_(`stats.travelDate.table.q${q}`, { locale: $lang })}</Table.Head>
+                                        {/each}
+                                        <Table.Head class="h-9 px-2 text-right whitespace-nowrap">{$_('stats.travelDate.table.total', { locale: $lang })}</Table.Head>
+                                    </Table.Row>
+                                </Table.Header>
+                                <Table.Body>
+                                    {#each travelRows as r (r.date)}
+                                        <Table.Row>
+                                            <Table.Cell class="px-2 py-1.5 font-medium whitespace-nowrap">{travelDateLabel(r.date)}</Table.Cell>
+                                            {#each QUARTERS as q (q)}
+                                                {@const v = travelDirection === "" ? cellCount(r, "WToJ", q) + cellCount(r, "JToW", q) : cellCount(r, travelDirection, q)}
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums">{formatNumber(v, $lang)}</Table.Cell>
+                                            {/each}
+                                            <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">{formatNumber(rowTotal(r, travelDirection), $lang)}</Table.Cell>
+                                        </Table.Row>
+                                    {/each}
+                                    <!-- grand total across all rendered rows under the active filter -->
+                                    <Table.Row class="border-t-2">
+                                        <Table.Cell class="px-2 py-1.5 font-semibold">{$_('stats.travelDate.table.total', { locale: $lang })}</Table.Cell>
+                                        {#each QUARTERS as q (q)}
+                                            {@const v = travelRows.reduce((s, r) => s + (travelDirection === "" ? cellCount(r, "WToJ", q) + cellCount(r, "JToW", q) : cellCount(r, travelDirection, q)), 0)}
+                                            <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">{formatNumber(v, $lang)}</Table.Cell>
+                                        {/each}
+                                        <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold">{formatNumber(travelGrandTotal, $lang)}</Table.Cell>
+                                    </Table.Row>
+                                </Table.Body>
+                            </Table.Root>
+                        </div>
+                    {/if}
+                </Card.Content>
+            </Card.Root>
         {/if}
     </div>
 </div>
