@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { TravelAnalysisBucketRes } from '$lib/api/core/data-contracts';
-import { QUARTERS, cellCount, isTravelDirection, parseTravelDate, pivotTravelAnalysis, rowTotal } from './travel-stats';
+import { QUARTERS, cellCount, parseTravelDate, pivotTravelAnalysis, rowTotal } from './travel-stats';
 
 function bucket(over: Partial<TravelAnalysisBucketRes>): TravelAnalysisBucketRes {
   return {
@@ -120,19 +120,5 @@ describe('rowTotal', () => {
   it('returns 0 for a direction the day has no rows for', () => {
     const empty = pivotTravelAnalysis([bucket({ direction: 'WToJ' })])[0];
     expect(rowTotal(empty, 'JToW')).toBe(0);
-  });
-});
-
-describe('isTravelDirection', () => {
-  it('accepts "All" / "WToJ" / "JToW"', () => {
-    expect(isTravelDirection('')).toBe(true);
-    expect(isTravelDirection('WToJ')).toBe(true);
-    expect(isTravelDirection('JToW')).toBe(true);
-  });
-
-  it('rejects anything else', () => {
-    expect(isTravelDirection('all')).toBe(false);
-    expect(isTravelDirection('Both')).toBe(false);
-    expect(isTravelDirection('unknown')).toBe(false);
   });
 });

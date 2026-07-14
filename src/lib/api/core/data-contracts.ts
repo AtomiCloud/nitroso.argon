@@ -562,6 +562,30 @@ export interface TravelAnalysisBucketRes {
 }
 
 /**
+ * HAND-ADDED (zinc profit-by-travel-day) pending swagger regeneration —
+ * one (travel-date, 6h quarter-of-day) bucket of completed bookings on
+ * this admin's P&L view (revenue − ktmb cost; both directions merged,
+ * only the SGT travel date matters). date is dd-MM-yyyy (zinc's API
+ * date format), quarterStartHour is 0, 6, 12 or 18. Only non-empty
+ * buckets are returned; the UI zero-fills the rest. withActualCost < tickets
+ * means some bookings in the bucket still lack an actual KTMB cost and
+ * the cost number is partial.
+ */
+export interface BookingAnalysisProfitBucketRes {
+  date: string;
+  /** @format int32 */
+  quarterStartHour: number;
+  /** @format int32 */
+  tickets: number;
+  /** @format double */
+  revenue: number;
+  /** @format double */
+  cost: number;
+  /** @format int32 */
+  withActualCost: number;
+}
+
+/**
  * HAND-ADDED (zinc PR #39). One queued KTMB ticket-cost change
  * (insert-only, effective-dated like the withdrawal fee queue).
  */

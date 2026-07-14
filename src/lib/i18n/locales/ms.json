@@ -157,6 +157,9 @@
       "updateCost": "Kemas Kini Kos",
       "costUpdated": "Kos dikemas kini",
       "notFound": "Pengeluaran tidak dijumpai",
+      "history": {
+        "title": "Harga sejarah"
+      },
       "policies": {
         "title": "Polisi kos",
         "description": "Surcaj dan diskaun automatik yang dikenakan atas kos asas apabila tempahan sepadan.",
@@ -255,7 +258,7 @@
         "directionRequired": "Pilih arah",
         "costLabel": "Kos setiap tiket (S$)",
         "costPlaceholder": "cth. 5.00",
-        "costRange": "Kos mesti nombor antara 0 dan 10,000 dengan paling banyak 2 titik perpuluhan",
+        "costRange": "Kos mesti nombor lebih besar daripada 0 dan sehingga 10,000 dengan paling banyak 2 titik perpuluhan",
         "effectiveFrom": "Berkuat kuasa dari (pilihan)",
         "effectiveHint": "Kosong = perubahan berkuat kuasa serta-merta.",
         "effectiveInvalid": "Bukan tarikh dan masa yang sah",
@@ -1617,15 +1620,12 @@
       "hint": "Julat tarikh perjalanan (lalai: dari pencapaian terkini, jika tiada — 90 hari terakhir)"
     },
     "travelDate": {
-      "title": "Diperoleh mengikut tarikh perjalanan",
-      "description": "Tiket YANG DIPEROLEH untuk setiap tarikh perjalanan dalam julat ini, dikelompokkan mengikut suku 6 jam sehari. Tab \"Mengikut hari\" dalam Analisis Jualan mengelompok mengikut tarikh siap — paparan ini sebaliknya menjawab \"berapa tiket yang diperoleh untuk tarikh perjalanan tertentu\".",
+      "title": "Hari perjalanan × masa",
+      "description": "Tiket YANG DIPEROLEH untuk setiap tarikh perjalanan dalam julat ini, dikelompokkan mengikut suku 6 jam sehari. Tab \"Mengikut hari\" dalam Analisis Jualan mengelompok mengikut tarikh siap — paparan ini sebaliknya menjawab \"berapa tiket yang diperoleh untuk tarikh perjalanan tertentu\". Kedua-dua arah digabungkan setiap sel.",
       "range": {
         "after": "Tarikh perjalanan dari",
         "before": "Tarikh perjalanan hingga",
         "hint": "Lalai: hari ini → hari ini + 30 hari"
-      },
-      "filter": {
-        "direction": "Arah"
       },
       "table": {
         "date": "Tarikh perjalanan",
@@ -1636,6 +1636,7 @@
         "total": "Jumlah"
       },
       "empty": "Tiada tiket diperoleh dalam julat ini",
+      "unsupported": "Analisis tarikh perjalanan tidak tersedia pada pelayan ini",
       "loadError": "Tidak dapat memuatkan analisis tarikh perjalanan"
     },
     "tabs": {
@@ -1643,7 +1644,8 @@
       "matrix": "Hari × Masa",
       "leadTime": "Masa pendahuluan",
       "demand": "Permintaan",
-      "delivery": "Masa perolehan tiket"
+      "delivery": "Masa perolehan tiket",
+      "travelDay": "Hari perjalanan"
     },
     "priority": {
       "priority": "Keutamaan sahaja",
@@ -1771,6 +1773,7 @@
       "overview": "Ringkasan",
       "monthly": "Bulanan",
       "byDay": "Ikut hari",
+      "profit": "Untung ikut hari perjalanan",
       "boosts": "Keutamaan",
       "payments": "Pembayaran",
       "costs": "Kos tiket"
@@ -1843,6 +1846,21 @@
       "colKtmb": "Kos KTMB",
       "colNet": "Kasar − KTMB",
       "empty": "Tiada tempahan selesai pada hari ini"
+    },
+    "profit": {
+      "title": "Untung ikut hari perjalanan",
+      "description": "Tempahan selesai dikumpulkan mengikut tarikh PERJALANAN SGT (BUKAN tarikh siap) dan dibahagikan mengikut sukuan 6 jam hari. Kedua-dua arah digabungkan. Hasil dan kos dalam SGD; sel dengan liputan kos sebenar separa ditanda.",
+      "loadError": "Gagal memuatkan analisis untung ikut hari perjalanan",
+      "empty": "Tiada tempahan selesai dengan tarikh perjalanan dalam julat ini",
+      "colDate": "Tarikh perjalanan",
+      "colQ0": "00–06",
+      "colQ6": "06–12",
+      "colQ12": "12–18",
+      "colQ18": "18–24",
+      "colTotal": "Jumlah",
+      "cellIncomplete": "kos tidak lengkap — {actual} daripada {total} tiket mempunyai kos sebenar",
+      "cellEmpty": "—",
+      "cellProfit": "Untung"
     },
     "boosts": {
       "title": "Naik taraf keutamaan",
