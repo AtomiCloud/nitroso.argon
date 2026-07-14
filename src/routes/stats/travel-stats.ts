@@ -1,7 +1,8 @@
-// Pure helpers for the "Secured by travel date" section on /stats.
-// Zinc returns a flat array of non-empty (date, direction, 6h bucket) rows;
+// Pure helpers for the "Travel day × time-of-day" tab on /stats. Zinc
+// returns a flat array of non-empty (date, direction, 6h bucket) rows;
 // everything here is a deterministic client-side pivot/groupBy over those
-// rows so the view stays a small render over one fetch.
+// rows so the view stays a small render over one fetch. The same grid is
+// reused with both directions merged per cell — see the page render.
 import type { TravelAnalysisBucketRes } from '$lib/api/core/data-contracts';
 
 // quarterStartHour from zinc is always 0, 6, 12 or 18; the canonical ladder
@@ -56,8 +57,9 @@ export function pivotTravelAnalysis(rs: TravelAnalysisBucketRes[]): TravelDayRow
   return order.map(d => byDate.get(d)!).filter(Boolean);
 }
 
-// sum every bucket of one travel-date row into a single count, optionally
-// narrowed to a single direction ("" = all directions, the view's default).
+// sum every bucket of one travel-date row. When direction is "" (the only
+// state the new grid uses) it returns the grand total across every
+// direction; a non-empty direction narrows to that direction's buckets.
 export function rowTotal(row: TravelDayRow, direction: string): number {
   if (direction === '') return row.total;
   const perQ = row.byDirection[direction];
@@ -68,18 +70,11 @@ export function rowTotal(row: TravelDayRow, direction: string): number {
 }
 
 // count of tickets in one (row, direction, quarter) cell, defaulting to 0
-// for missing buckets so the renderer can read straight from the pivot
+// for missing buckets so the renderer can read straight from the pivot.
+// The grid sums both directions per cell, so the typical call is
+// cellCount(r, "WToJ", q) + cellCount(r, "JToW", q).
 export function cellCount(row: TravelDayRow, direction: string, quarter: number): number {
   return row.byDirection[direction]?.[quarter] ?? 0;
-}
-
-// direction filter states the section supports — "All" maps to "" inside
-// the rest of the helpers and the URL
-export const TRAVEL_DIRECTIONS = ['', 'WToJ', 'JToW'] as const;
-export type TravelDirectionFilter = (typeof TRAVEL_DIRECTIONS)[number];
-
-export function isTravelDirection(v: string): v is TravelDirectionFilter {
-  return (TRAVEL_DIRECTIONS as readonly string[]).includes(v);
 }
 
 // zinc → ISO yyyy-mm-dd (UTC noon Date from parseTravelDate). Returns ""

@@ -1,6 +1,9 @@
 // Pure validation/shaping helpers for the KTMB ticket-cost admin card
-// (mirrors zinc's SetKtmbCostReqValidator: direction required, cost 0–10000
-// with ≤ 2 decimals, effectiveAt empty = immediate or a future instant).
+// (mirrors zinc's SetKtmbCostReqValidator: direction required, cost
+// greater than 0 and up to 10,000 with ≤ 2 decimals, effectiveAt empty =
+// immediate or a future instant). 0 is rejected on purpose — a free KTMB
+// ticket would be inconsistent with the recorded-actual-cost model the
+// sales analysis assumes.
 import type { KtmbCostRes } from '$lib/api/core/data-contracts';
 
 export type KtmbDraft = {
@@ -32,7 +35,7 @@ export function validateKtmbDraft(d: KtmbDraft, now: Date = new Date()): KtmbDra
 
   const costStr = d.cost.trim();
   const cost = Number(costStr);
-  if (costStr === '' || !Number.isFinite(cost) || cost < 0 || cost > 10_000 || !twoDecimals(cost)) {
+  if (costStr === '' || !Number.isFinite(cost) || cost <= 0 || cost > 10_000 || !twoDecimals(cost)) {
     errors.cost = 'costRange';
   }
 
