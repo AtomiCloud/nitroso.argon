@@ -744,17 +744,29 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
       ...params,
     });
   /**
-   * No description
+   * HAND-ADDED (zinc slot-aware eligibility) pending swagger regeneration —
+   * optional slot context (Direction WToJ|JToW, Date dd-MM-yyyy, Time
+   * HH:mm:ss, all three together or none) so hour-bounded policies and the
+   * slot cap apply to the timeslot about to be purchased.
    *
    * @tags Booking
    * @name VBookingPriorityEligibilityDetail
    * @request GET:/api/v{version}/Booking/priority/eligibility
    * @secure
    */
-  vBookingPriorityEligibilityDetail = (version: string, params: RequestParams = {}) =>
+  vBookingPriorityEligibilityDetail = (
+    version: string,
+    query?: {
+      Direction?: string;
+      Date?: string;
+      Time?: string;
+    },
+    params: RequestParams = {},
+  ) =>
     this.request<PriorityEligibilityRes, any>({
       path: `/api/v${version}/Booking/priority/eligibility`,
       method: 'GET',
+      query: query,
       secure: true,
       format: 'json',
       ...params,
