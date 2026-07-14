@@ -344,6 +344,11 @@
                                                 {$_('bookings.purchase.priorityBody', { locale: $lang, values: { fee: formatMoney(eligibility.fee ?? 0, $lang) } })}
                                             {/if}
                                         </div>
+                                        {#if eligibility.slotsLeft != null && eligibility.slotCap != null}
+                                            <div class="text-sm text-muted-foreground">
+                                                {$_('bookingActions.priority.slotsLeft', { locale: $lang, values: { left: eligibility.slotsLeft, cap: eligibility.slotCap } })}
+                                            </div>
+                                        {/if}
                                     </div>
                                 </div>
                                 <Switch bind:checked={priorityOptIn}

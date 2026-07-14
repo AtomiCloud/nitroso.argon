@@ -53,9 +53,16 @@ export const load = (async ({
   );
 
   // The priority opt-in is a bonus — if the eligibility read fails, the
-  // purchase flow must still work, so degrade to "not eligible".
+  // purchase flow must still work, so degrade to "not eligible". The slot
+  // being bought rides along (same zinc formats the cost summary sends) so
+  // hour-bounded policies and the slot cap apply to THIS timeslot; an older
+  // zinc simply ignores the extra params.
   const eligibility = await toResult(
-    () => api.vBookingPriorityEligibilityDetail('1'),
+    () =>
+      api.vBookingPriorityEligibilityDetail(
+        '1',
+        date && time && direction ? { Direction: direction, Date: date, Time: time } : undefined,
+      ),
     await loadError(locale, 'errors.load.priority'),
   ).match({
     ok: (e: PriorityEligibilityRes) => e,
