@@ -1616,6 +1616,28 @@
       "before": "Travel date to",
       "hint": "Travel-date range (default: from the latest milestone, else the last 90 days)"
     },
+    "travelDate": {
+      "title": "Secured by travel date",
+      "description": "Tickets SECURED for each travel date in the range, bucketed into 6-hour quarters of the day. The Sales Analysis \"By day\" tab groups by completion date — this answers \"how many tickets were secured for a given travel date\" instead.",
+      "range": {
+        "after": "Travel date from",
+        "before": "Travel date to",
+        "hint": "Default: today → today + 30 days"
+      },
+      "filter": {
+        "direction": "Direction"
+      },
+      "table": {
+        "date": "Travel date",
+        "q0": "00–06",
+        "q6": "06–12",
+        "q12": "12–18",
+        "q18": "18–24",
+        "total": "Total"
+      },
+      "empty": "No tickets secured in this range",
+      "loadError": "Couldn't load the travel-date analysis"
+    },
     "tabs": {
       "overview": "Overview",
       "matrix": "Day × Time",
