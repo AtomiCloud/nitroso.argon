@@ -11,6 +11,7 @@
     import CancelBooking from "$lib/components/entities/Bookings/CancelBooking.svelte";
     import ManualInterventionActions from "$lib/components/entities/Bookings/ManualInterventionActions.svelte";
     import QueuePosition from "$lib/components/entities/Bookings/QueuePosition.svelte";
+    import PriorityBadge from "$lib/components/entities/Bookings/PriorityBadge.svelte";
     import moment from "moment-timezone";
     import {_} from "svelte-i18n";
     import {lang, formatCalendarDate, formatClockTime} from "$lib/i18n";
@@ -92,7 +93,7 @@
             </div>
             <div class="flex gap-1.5 text-center">
                 {#if b.priority}
-                    <Badge class="bg-amber-500 text-amber-950">{$_('bookingActions.priority.badge', { locale: $lang })}</Badge>
+                    <PriorityBadge/>
                 {/if}
                 <Badge class="{BOOKING_STATUS[b.status].color}">{$_(`status.booking.${b.status}`, { locale: $lang })}</Badge>
             </div>
@@ -102,7 +103,7 @@
         <div class="flex flex-wrap justify-end gap-4 pt-4 w-full">
             {#if !isAdmin && queued}
                 <div class="flex items-center mr-auto">
-                    <QueuePosition bookingId={b.id}/>
+                    <QueuePosition bookingId={b.id} priority={b.priority}/>
                 </div>
             {/if}
             {#if b.status === "Pending"}

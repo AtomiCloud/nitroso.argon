@@ -15,8 +15,13 @@
     // (Pending/Buying/Recovering) — the PARENT decides when to render this.
     // Fetches GET Booking/{id}/queue on mount; manual refresh only, no polling.
     // When zinc reports the booking is no longer queued (position == null),
-    // renders nothing.
+    // renders nothing. The PriorityBadge next to the status pill already marks
+    // the booking itself — this widget names the QUEUE and the place in it.
     export let bookingId: string;
+
+    // whether THIS booking is priority — decides which of the two queues the
+    // name and per-queue position describe
+    export let priority: boolean = false;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     $: session = $page.data.session as any;
@@ -47,6 +52,20 @@
     onMount(refresh);
 
     $: isNext = queue?.position === 1;
+
+    // zinc >= 1.53 sends the priority/standard split; older versions don't —
+    // then we fall back to the combined position and skip the queue name
+    $: split = queue?.priorityTotal != null && queue?.normalTotal != null;
+    // the priority queue is always served first, so a priority booking's
+    // combined position IS its position in the priority queue, and a standard
+    // booking sits (combined - priority bookings) deep in the standard queue
+    $: groupPosition = split && queue?.position != null
+        ? (priority ? queue.position : queue.position - (queue.priorityTotal ?? 0))
+        : queue?.position;
+    $: groupTotal = split ? (priority ? queue?.priorityTotal : queue?.normalTotal) : queue?.total;
+
+    $: pTot = queue?.priorityTotal ?? 0;
+    $: nTot = queue?.normalTotal ?? 0;
 </script>
 
 {#if failed}
@@ -68,12 +87,18 @@
         </div>
     {/if}
 {:else if queue.position != null && queue.total != null}
-    <div class="flex flex-col items-center gap-1">
-        <div class="flex items-center justify-center gap-2 text-sm">
+    <div class="flex flex-col items-center gap-0.5">
+        <div class="flex items-center justify-center gap-1.5 text-sm">
             {#if isNext}
                 <PartyPopper class="h-4 w-4 text-green-600 dark:text-green-400"/>
                 <span class="font-medium text-green-600 dark:text-green-400">
                     {$_('bookingActions.queue.next', { locale: $lang })}
+                </span>
+            {:else if split}
+                <Users class="h-4 w-4 text-muted-foreground"/>
+                <span>
+                    {$_(priority ? 'bookingActions.queue.positionPriority' : 'bookingActions.queue.positionStandard',
+                        { locale: $lang, values: { position: groupPosition, total: groupTotal } })}
                 </span>
             {:else}
                 <Users class="h-4 w-4 text-muted-foreground"/>
@@ -81,22 +106,26 @@
                     {$_('bookingActions.queue.position', { locale: $lang, values: { position: queue.position, total: queue.total } })}
                 </span>
             {/if}
+        </div>
+        <div class="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+            {#if split}
+                <span>
+                    {$_('bookingActions.queue.countPriority', { locale: $lang, values: { n: pTot } })}
+                    ·
+                    {$_('bookingActions.queue.countStandard', { locale: $lang, values: { n: nTot } })}
+                </span>
+            {/if}
             <InfoTip label={$_('bookingActions.queue.tooltip', { locale: $lang })}>
                 {$_('bookingActions.queue.tooltip', { locale: $lang })}
             </InfoTip>
-            <Button variant="ghost" size="icon" class="h-6 w-6" disabled={loading} on:click={refresh}
+            <Button variant="ghost" size="icon" class="h-5 w-5" disabled={loading} on:click={refresh}
                     aria-label={$_('bookingActions.queue.refresh', { locale: $lang })}>
                 {#if loading}
-                    <LucideLoader class="h-3.5 w-3.5 animate-spin"/>
+                    <LucideLoader class="h-3 w-3 animate-spin"/>
                 {:else}
-                    <RotateCw class="h-3.5 w-3.5"/>
+                    <RotateCw class="h-3 w-3"/>
                 {/if}
             </Button>
         </div>
-        {#if queue.priorityTotal != null && queue.normalTotal != null}
-            <span class="text-xs text-muted-foreground">
-                {$_('bookingActions.queue.breakdown', { locale: $lang, values: { priority: queue.priorityTotal, normal: queue.normalTotal } })}
-            </span>
-        {/if}
     </div>
 {/if}

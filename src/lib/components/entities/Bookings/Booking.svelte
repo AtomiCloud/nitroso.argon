@@ -11,7 +11,7 @@
     import TerminateBooking from "$lib/components/entities/Bookings/TerminateBooking.svelte";
     import QueuePosition from "$lib/components/entities/Bookings/QueuePosition.svelte";
     import PrioritizeBooking from "$lib/components/entities/Bookings/PrioritizeBooking.svelte";
-    import {Zap} from "lucide-svelte";
+    import PriorityBadge from "$lib/components/entities/Bookings/PriorityBadge.svelte";
 
     import moment from "moment-timezone";
     import {page} from "$app/stores";
@@ -67,13 +67,10 @@
                 <div class="flex flex-col gap-1.5 text-center">
                     <Badge class="{BOOKING_STATUS[b.status].color} text-md">{$_(`status.booking.${b.status}`, { locale: $lang })}</Badge>
                     {#if b.priority}
-                        <Badge class="bg-amber-500 text-amber-950 flex justify-center gap-1">
-                            <Zap class="h-3 w-3"/>
-                            {$_('bookingActions.priority.badge', { locale: $lang })}
-                        </Badge>
+                        <PriorityBadge/>
                     {/if}
                     {#if queued}
-                        <QueuePosition bookingId={b.id}/>
+                        <QueuePosition bookingId={b.id} priority={b.priority}/>
                     {/if}
                 </div>
             </div>

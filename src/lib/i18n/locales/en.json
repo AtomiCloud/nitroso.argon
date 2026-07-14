@@ -267,36 +267,11 @@
       },
       "priority": {
         "title": "Priority queue",
-        "description": "Priority bookings are served before the regular queue. Configure the fee, who may opt in, and the purchase window.",
-        "feeLabel": "Priority fee",
-        "feeInvalid": "The fee must be a number between 0 and 10,000 with at most 2 decimals",
-        "allowAll": "Allow everyone",
-        "allowAllHint": "When off, only users on the allowlist below may opt in.",
-        "windowLabel": "Purchase window (SGT)",
-        "allDay": "All day",
-        "windowStart": "Start",
-        "windowEnd": "End",
-        "windowHint": "Priority can only be bought between these times (Singapore time).",
-        "save": "Save settings",
-        "saveSuccess": "Priority settings saved",
-        "saveError": "Failed to save priority settings",
-        "allowlistTitle": "Allowlist",
-        "userIdPlaceholder": "Paste a user ID...",
-        "add": "Add",
-        "addSuccess": "User added to the allowlist",
-        "addError": "Failed to add the user",
-        "addedOn": "Added {datetime}",
-        "remove": "Remove",
-        "removeTitle": "Remove from allowlist",
-        "removeBody": "Remove {userId} from the priority allowlist?",
-        "removeSuccess": "User removed from the allowlist",
-        "removeError": "Failed to remove the user",
-        "allowlistEmpty": "No users on the allowlist.",
+        "description": "One list of policies rules the whole priority queue: who may upgrade, when, at what fee, and how many priority slots each departure has. Rules run top to bottom — the first match decides; no match means no upgrade.",
+        "save": "Save policies",
+        "saveSuccess": "Priority policies saved",
+        "saveError": "Failed to save priority policies",
         "targets": {
-          "freeLabel": "Free boost for",
-          "freeHint": "Users matching this target upgrade to priority for free — no fee is charged. Off = nobody boosts free.",
-          "accessLabel": "Access",
-          "accessHint": "Overrides the allowlist when set; leave empty (off) to keep legacy allowlist behavior.",
           "mode": {
             "All": "All",
             "Any": "Any",
@@ -323,6 +298,33 @@
             "Any": "No rules yet — with \"Any\", an empty list matches nobody.",
             "None": "No rules needed — \"Everyone\" matches every user."
           }
+        },
+        "policies": {
+          "empty": "No policies yet — nobody can upgrade to priority until you add an Allow policy.",
+          "add": "Add policy",
+          "name": "Policy name",
+          "namePlaceholder": "e.g. VIPs boost anytime",
+          "allow": "Allow",
+          "deny": "Deny",
+          "whenLabel": "When it applies",
+          "anyTime": "Any time",
+          "minHours": "From (h before departure)",
+          "maxHours": "Until (h before departure)",
+          "hoursHint": "The rule applies when hours-to-departure is ≥ From and < Until (leave empty for no bound), and only inside the SGT time window above (leave unset for any time). Example: Deny with Until 6 blocks upgrades in the last 6 hours.",
+          "targetLabel": "Applies to",
+          "targetHint": "Off = this rule applies to everyone; on = only to users matching the target.",
+          "fee": "Fee",
+          "feeFlat": "Flat",
+          "feePercent": "%",
+          "feePercentHint": "% of the ticket price",
+          "feeFreeHint": "0 = the upgrade is free for matched users.",
+          "slotCap": "Priority slots per timeslot",
+          "slotCapUnlimited": "Unlimited",
+          "moveUp": "Move up",
+          "moveDown": "Move down",
+          "remove": "Remove policy",
+          "hint": "Rules run top to bottom — the first rule whose conditions all match decides. If none match, the upgrade is refused.",
+          "invalid": "Fix the highlighted policies: every policy needs a name, a paired time window, valid hour bounds (Until > From), a valid fee (flat ≤ 10,000 / percent ≤ 100) and a whole-number slot cap."
         }
       }
     }
@@ -411,7 +413,10 @@
     },
     "queue": {
       "position": "Position in queue: {position} of {total}",
-      "breakdown": "{priority} priority · {normal} standard in this queue",
+      "positionPriority": "#{position} of {total} in the priority queue",
+      "positionStandard": "#{position} of {total} in the standard queue",
+      "countPriority": "{n} priority",
+      "countStandard": "{n} standard",
       "next": "You're next!",
       "refresh": "Refresh queue position",
       "tooltip": "Your position updates as bookings ahead of yours are completed or cancelled — you move up as the tickets ahead of you are bought.",
@@ -428,7 +433,9 @@
       "upgradeConfirm": "Pay {fee} and upgrade",
       "upgradeTriggerFree": "Upgrade to priority (Free)",
       "upgradeBodyFree": "This booking moves into the priority queue and is served before the regular queue. This upgrade is free for you.",
-      "upgradeConfirmFree": "Upgrade for free"
+      "upgradeConfirmFree": "Upgrade for free",
+      "slotsLeft": "{left} of {cap} priority slots left for this timeslot",
+      "queueFull": "This timeslot's priority queue is full — no more upgrades are available."
     }
   },
   "bookings": {
@@ -1704,7 +1711,8 @@
       "monthly": "Monthly",
       "byDay": "By day",
       "boosts": "Boosts",
-      "payments": "Payments"
+      "payments": "Payments",
+      "costs": "Ticket costs"
     },
     "summary": {
       "totalTickets": "Total tickets",

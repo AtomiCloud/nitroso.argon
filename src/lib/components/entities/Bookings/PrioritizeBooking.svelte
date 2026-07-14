@@ -24,14 +24,30 @@
 
     let eligibility: PriorityEligibilityRes | null = null;
 
+    // owner-or-admin scoping shared by the eligibility read and prioritize
+    $: scope = session?.roles?.includes("admin")
+        ? {userId: booking.userId ?? undefined}
+        : {userId: $page.data.user?.principal?.id ?? ""};
+
     async function loadEligibility() {
-        await toResult(() => $api.vBookingPriorityEligibilityDetail("1"),
+        // booking-scoped (zinc PR #42): hour policies evaluated against THIS
+        // timeslot + slotCap/slotsLeft; degrades to the generic endpoint on
+        // an older zinc without the route
+        await toResult(() => $api.vBookingPriorityEligibilityDetail2(booking.id, "1", scope),
             $_('bookingActions.priority.error', { locale: $lang })).match({
             ok: (e: PriorityEligibilityRes) => {
                 eligibility = e;
             },
-            err: (e) => {
-                console.error(e);
+            err: async () => {
+                await toResult(() => $api.vBookingPriorityEligibilityDetail("1"),
+                    $_('bookingActions.priority.error', { locale: $lang })).match({
+                    ok: (e: PriorityEligibilityRes) => {
+                        eligibility = e;
+                    },
+                    err: (e) => {
+                        console.error(e);
+                    }
+                });
             }
         });
     }
@@ -41,6 +57,11 @@
     });
 
     $: show = booking.status === "Pending" && !booking.priority && eligibility?.eligible === true;
+    // the ONLY ineligible state worth surfacing: the timeslot's priority
+    // queue is full (a capacity fact, not a permission) — everything else
+    // stays hidden as before
+    $: slotsFull = booking.status === "Pending" && !booking.priority
+        && eligibility?.eligible === false && eligibility?.slotsLeft === 0;
 
     let dialogOpen = false;
     let submitting = false;
@@ -48,9 +69,7 @@
     async function prioritize() {
         submitting = true;
         // same owner-or-admin scoping as the other booking actions
-        const query = session?.roles?.includes("admin")
-            ? {userId: booking.userId ?? undefined}
-            : {userId: $page.data.user?.principal?.id ?? ""};
+        const query = scope;
         await toResult(() => $api.vBookingPrioritizeCreate(booking.id, "1", query),
             $_('bookingActions.priority.error', { locale: $lang })).match({
             ok: () => {
@@ -69,7 +88,11 @@
     }
 </script>
 
-{#if show && eligibility != null}
+{#if slotsFull}
+    <p class="text-sm text-muted-foreground">
+        {$_('bookingActions.priority.queueFull', { locale: $lang })}
+    </p>
+{:else if show && eligibility != null}
     <!-- free:true (zinc PR #37) = this user boosts free: every fee mention
          swaps to the "free" copy and no charge is implied -->
     {@const free = eligibility.free === true}
@@ -79,7 +102,7 @@
             {#if free}
                 {$_('bookingActions.priority.upgradeTriggerFree', { locale: $lang })}
             {:else}
-                {$_('bookingActions.priority.upgradeTrigger', { locale: $lang, values: { fee: formatMoney(eligibility.fee, $lang) } })}
+                {$_('bookingActions.priority.upgradeTrigger', { locale: $lang, values: { fee: formatMoney(eligibility.fee ?? 0, $lang) } })}
             {/if}
         </Dialog.Trigger>
         <Dialog.Content>
@@ -91,9 +114,14 @@
                             {#if free}
                                 {$_('bookingActions.priority.upgradeBodyFree', { locale: $lang })}
                             {:else}
-                                {$_('bookingActions.priority.upgradeBody', { locale: $lang, values: { fee: formatMoney(eligibility.fee, $lang) } })}
+                                {$_('bookingActions.priority.upgradeBody', { locale: $lang, values: { fee: formatMoney(eligibility.fee ?? 0, $lang) } })}
                             {/if}
                         </p>
+                        {#if eligibility.slotsLeft != null && eligibility.slotCap != null}
+                            <p class="text-sm text-muted-foreground">
+                                {$_('bookingActions.priority.slotsLeft', { locale: $lang, values: { left: eligibility.slotsLeft, cap: eligibility.slotCap } })}
+                            </p>
+                        {/if}
                         <Button class="my-2" on:click={prioritize} disabled={submitting}>
                             {#if submitting}
                                 <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
@@ -101,7 +129,7 @@
                             {#if free}
                                 {$_('bookingActions.priority.upgradeConfirmFree', { locale: $lang })}
                             {:else}
-                                {$_('bookingActions.priority.upgradeConfirm', { locale: $lang, values: { fee: formatMoney(eligibility.fee, $lang) } })}
+                                {$_('bookingActions.priority.upgradeConfirm', { locale: $lang, values: { fee: formatMoney(eligibility.fee ?? 0, $lang) } })}
                             {/if}
                         </Button>
                     </div>
