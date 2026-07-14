@@ -45,6 +45,8 @@ import type {
   GatewayFeeSyncRes,
   KtmbCostChangeRes,
   KtmbCostRes,
+  KtmbFxRateRes,
+  KtmbFxRes,
   LatestScheduleRes,
   MaterializedCostRes,
   MilestoneRes,
@@ -62,6 +64,7 @@ import type {
   ScheduleRecordReq,
   SetFeeReq,
   SetKtmbCostReq,
+  SetKtmbFxReq,
   SetPrioritySettingsReq,
   SetWithdrawalSettingsReq,
   TimingPrincipalRes,
@@ -356,6 +359,45 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
   vBookingKtmbCostCreate = (version: string, data: SetKtmbCostReq, params: RequestParams = {}) =>
     this.request<KtmbCostChangeRes, any>({
       path: `/api/v${version}/Booking/ktmb-cost`,
+      method: 'POST',
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc ktmb actual cost) pending swagger regeneration — the
+   * current MYR→SGD FX rate (SGD per 1 MYR) plus recent rate rows, used to
+   * convert each booking's actual recorded KTMB cost into SGD (AdminOrTin).
+   *
+   * @tags Booking
+   * @name VBookingKtmbFxDetail
+   * @request GET:/api/v{version}/Booking/ktmb-fx
+   * @secure
+   */
+  vBookingKtmbFxDetail = (version: string, params: RequestParams = {}) =>
+    this.request<KtmbFxRes, any>({
+      path: `/api/v${version}/Booking/ktmb-fx`,
+      method: 'GET',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc ktmb actual cost) pending swagger regeneration — insert
+   * a new MYR→SGD FX rate (SGD per 1 MYR, rate > 0), immediate when
+   * effectiveAt is omitted (OnlyAdmin; insert-only, effective-dated like the
+   * KTMB cost queue).
+   *
+   * @tags Booking
+   * @name VBookingKtmbFxCreate
+   * @request POST:/api/v{version}/Booking/ktmb-fx
+   * @secure
+   */
+  vBookingKtmbFxCreate = (version: string, data: SetKtmbFxReq, params: RequestParams = {}) =>
+    this.request<KtmbFxRateRes, any>({
+      path: `/api/v${version}/Booking/ktmb-fx`,
       method: 'POST',
       body: data,
       secure: true,

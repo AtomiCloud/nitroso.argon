@@ -42,6 +42,7 @@
     import {DIRECTIONS, DIR_DOT, DIR_TINT} from "../stats/stats";
     import {shortenId} from "$lib/components/entities/Withdrawals/withdrawal";
     import KtmbCostSection from "$lib/components/entities/Costs/KtmbCostSection.svelte";
+    import KtmbFxSection from "$lib/components/entities/Costs/KtmbFxSection.svelte";
     import {
         ANALYSIS_TABS,
         boostView,
@@ -543,6 +544,14 @@
                             <Card.Content class="p-4 flex flex-col gap-1">
                                 <span class="text-sm text-muted-foreground">{$_('analysis.summary.ktmbCost', { locale: $lang })}</span>
                                 <span class="text-2xl font-semibold">{formatMoney(summary.totalKtmbCost ?? 0, $lang)}</span>
+                                {#if summary.ktmbActualCoverage != null}
+                                    <span class="text-xs text-muted-foreground">
+                                        {$_('analysis.summary.actualCoverage', { locale: $lang, values: {
+                                            n: formatNumber(summary.ktmbActualCoverage.withActual, $lang),
+                                            m: formatNumber(summary.ktmbActualCoverage.total, $lang),
+                                        } })}
+                                    </span>
+                                {/if}
                             </Card.Content>
                         </Card.Root>
                         <Card.Root>
@@ -961,6 +970,7 @@
                      analysis it powers -->
                 <Tabs.Content value="costs" class="flex flex-col gap-4">
                     <KtmbCostSection/>
+                    <KtmbFxSection/>
                 </Tabs.Content>
             </Tabs.Root>
         {/if}
