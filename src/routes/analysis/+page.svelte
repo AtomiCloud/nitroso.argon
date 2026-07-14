@@ -28,6 +28,7 @@
     import {calendarDateForDisplay, parseZincDate, singaporeToday} from "$lib/time/singapore";
     import {ArrowLeftRight, CalendarIcon, ChevronLeft, ChevronRight, LucideLoader, RefreshCcw, RotateCw} from "lucide-svelte";
     import type {
+        BookingAnalysisPnlRowRes,
         BookingAnalysisRes,
         BookingBoostRes,
         CapturedPaymentRes,
@@ -55,8 +56,13 @@
         monthNet,
         pickParam,
         pivotProfitBuckets,
+        pnlCashNet,
+        pnlEarnedNet,
+        pnlTotals,
+        pnlZeroFill,
         rangeNet,
         sortMonthly,
+        type PnlMonthRow,
         urlDayParam,
     } from "./analysis";
 
@@ -110,6 +116,9 @@
     let profitRows: ReturnType<typeof pivotProfitBuckets> = [];
     let profitLoading = false;
     let profitFailed = false;
+    let pnlRows: PnlMonthRow[] = [];
+    let pnlLoading = false;
+    let pnlFailed = false;
     let loading = false;
     let failed = false;
 
@@ -154,6 +163,9 @@
         // by travel date (NOT completion date), so it tolerates its own
         // failure without blanking the page above
         loadProfit();
+        // the monthly P&L rollup fetches independently — it tolerates its
+        // own failure without blanking the rest of the page
+        loadPnl();
     }
 
     async function loadProfit() {
@@ -171,6 +183,26 @@
             }
         });
         profitLoading = false;
+    }
+
+    // ---- monthly P&L rollup (separate endpoint, cash + earned views) ----
+    let pnlRaw: BookingAnalysisPnlRowRes[] = [];
+
+    async function loadPnl() {
+        pnlLoading = true;
+        pnlFailed = false;
+        await toResult(() => $api.vBookingAnalysisPnlDetail("1", rangeQuery()),
+            $_('analysis.pnl.loadError', {locale: $lang})).match({
+            ok: (r) => {
+                pnlRaw = r;
+                pnlFailed = false;
+            },
+            err: (e) => {
+                console.error(e);
+                pnlFailed = true;
+            }
+        });
+        pnlLoading = false;
     }
 
     async function rangeChange() {
@@ -267,6 +299,18 @@
     $: components = analysis?.components ?? [];
     $: coverage = analysis?.componentsCoverage;
     $: monthly = sortMonthly(analysis?.monthly ?? []);
+
+    // the P&L rollup is zero-filled across the picked range so months with no
+    // activity still appear (otherwise the table jumps between active months
+    // and reading a "losing streak" is harder). Bounds are the same MM-yyyy
+    // labels the range picker produces; pnlZeroFill falls back to a plain
+    // sort when either bound is missing.
+    $: pnlBounds = {
+        from: after == null ? "" : `${String(after.month).padStart(2, "0")}-${after.year}`,
+        to: before == null ? "" : `${String(before.month).padStart(2, "0")}-${before.year}`,
+    };
+    $: pnlRows = pnlZeroFill(pnlRaw, pnlBounds.from, pnlBounds.to);
+    $: pnlTotal = pnlTotals(pnlRows);
 
     // component ranking: biggest earner at the top, biggest loser at the
     // bottom — the "what makes/loses money" reading order
@@ -559,6 +603,7 @@
                         <Tabs.Trigger value="profit" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.profit', { locale: $lang })}</Tabs.Trigger>
                         <Tabs.Trigger value="boosts" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.boosts', { locale: $lang })}</Tabs.Trigger>
                         <Tabs.Trigger value="payments" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.payments', { locale: $lang })}</Tabs.Trigger>
+                        <Tabs.Trigger value="pnl" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.pnl', { locale: $lang })}</Tabs.Trigger>
                         <Tabs.Trigger value="costs" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.costs', { locale: $lang })}</Tabs.Trigger>
                     </Tabs.List>
                 </div>
@@ -1088,7 +1133,120 @@
                     </Card.Root>
                 </Tabs.Content>
 
-                <!-- 6. FX rates: the MYR→SGD FX rate editor that powers the
+                <!-- 7. P&L: monthly cash + earned views of the picked range.
+                     CASH = deposits − withdrawals − gateway fees
+                     (in/out through BunnyBooker, including unspent float).
+                     EARNED = ticket revenue + withdrawal fee income −
+                     KTMB cost − gateway fees (operational P&L; principal
+                     flows don't reappear here). Months with no activity
+                     are zero-filled so the table reads as a continuous
+                     series. -->
+                <Tabs.Content value="pnl" class="flex flex-col gap-4">
+                    <Card.Root>
+                        <Card.Header class="p-4 sm:p-6">
+                            <Card.Title>{$_('analysis.pnl.title', { locale: $lang })}</Card.Title>
+                            <Card.Description>{$_('analysis.pnl.description', { locale: $lang })}</Card.Description>
+                        </Card.Header>
+                        <Card.Content class="px-2 sm:px-6">
+                            {#if pnlFailed}
+                                <div class="flex items-center gap-3 px-2">
+                                    <p class="text-sm text-destructive">{$_('analysis.pnl.loadError', { locale: $lang })}</p>
+                                    <Button variant="outline" size="sm" disabled={pnlLoading} on:click={loadPnl}>
+                                        {$_('analysis.reload', { locale: $lang })}
+                                    </Button>
+                                </div>
+                            {:else if pnlLoading && pnlRows.length === 0}
+                                <Loader/>
+                            {:else}
+                                <div class="overflow-x-auto">
+                                    <Table.Root>
+                                        <Table.Header>
+                                            <Table.Row>
+                                                <Table.Head class="h-9 px-2 whitespace-nowrap align-bottom">{$_('analysis.pnl.colMonth', { locale: $lang })}</Table.Head>
+                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap" colspan={4}>
+                                                    <span class="inline-flex items-center gap-1">
+                                                        {$_('analysis.pnl.cashTitle', { locale: $lang })}
+                                                        <InfoTip label={$_('analysis.pnl.cashTitle', { locale: $lang })}>
+                                                            {$_('analysis.pnl.cashHint', { locale: $lang })}
+                                                        </InfoTip>
+                                                    </span>
+                                                </Table.Head>
+                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap" colspan={4}>
+                                                    <span class="inline-flex items-center gap-1">
+                                                        {$_('analysis.pnl.earnedTitle', { locale: $lang })}
+                                                        <InfoTip label={$_('analysis.pnl.earnedTitle', { locale: $lang })}>
+                                                            {$_('analysis.pnl.earnedHint', { locale: $lang })}
+                                                        </InfoTip>
+                                                    </span>
+                                                </Table.Head>
+                                            </Table.Row>
+                                            <Table.Row>
+                                                <Table.Head class="h-8 px-2"></Table.Head>
+                                                <Table.Head class="h-8 px-2 text-right">{$_('analysis.pnl.colDeposits', { locale: $lang })}</Table.Head>
+                                                <Table.Head class="h-8 px-2 text-right">{$_('analysis.pnl.colWithdrawals', { locale: $lang })}</Table.Head>
+                                                <Table.Head class="h-8 px-2 text-right">{$_('analysis.pnl.colGwFees', { locale: $lang })}</Table.Head>
+                                                <Table.Head class="h-8 px-2 text-right">{$_('analysis.pnl.colCashNet', { locale: $lang })}</Table.Head>
+                                                <Table.Head class="h-8 px-2 text-right">{$_('analysis.pnl.colTicketRevenue', { locale: $lang })}</Table.Head>
+                                                <Table.Head class="h-8 px-2 text-right">{$_('analysis.pnl.colFeeIncome', { locale: $lang })}</Table.Head>
+                                                <Table.Head class="h-8 px-2 text-right">{$_('analysis.pnl.colKtmbCost', { locale: $lang })}</Table.Head>
+                                                <Table.Head class="h-8 px-2 text-right">{$_('analysis.pnl.colEarnedNet', { locale: $lang })}</Table.Head>
+                                            </Table.Row>
+                                        </Table.Header>
+                                        <Table.Body>
+                                            {#each pnlRows as r (r.month)}
+                                                {@const isEmpty = r.deposits === 0 && r.withdrawalTotal === 0 && r.ticketRevenue === 0 && r.ktmbCost === 0 && r.gatewayFees === 0 && r.withdrawalFeeIncome === 0}
+                                                <Table.Row class={isEmpty ? 'text-muted-foreground/60' : ''}>
+                                                    <Table.Cell class="px-2 py-1.5 font-medium whitespace-nowrap">{monthLabel(r.month)}</Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">{formatMoney(r.deposits, $lang)}</Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
+                                                        <span class="flex flex-col items-end leading-tight">
+                                                            <span>{$_('analysis.pnl.withdrawals', {
+                                                                locale: $lang,
+                                                                values: {
+                                                                    count: formatNumber(r.withdrawalCount, $lang),
+                                                                    total: formatMoney(r.withdrawalTotal, $lang),
+                                                                },
+                                                            })}</span>
+                                                        </span>
+                                                    </Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">{formatMoney(r.gatewayFees, $lang)}</Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(pnlCashNet(r))}">{formatMoney(pnlCashNet(r), $lang)}</Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">{formatMoney(r.ticketRevenue, $lang)}</Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">{formatMoney(r.withdrawalFeeIncome, $lang)}</Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">{formatMoney(r.ktmbCost, $lang)}</Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(pnlEarnedNet(r))}">{formatMoney(pnlEarnedNet(r), $lang)}</Table.Cell>
+                                                </Table.Row>
+                                            {/each}
+                                            <!-- range totals row -->
+                                            <Table.Row class="border-t-2 bg-muted/30">
+                                                <Table.Cell class="px-2 py-1.5 font-semibold whitespace-nowrap">{$_('analysis.pnl.total', { locale: $lang })}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">{formatMoney(pnlTotal.deposits, $lang)}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">
+                                                    {$_('analysis.pnl.withdrawals', {
+                                                        locale: $lang,
+                                                        values: {
+                                                            count: formatNumber(pnlTotal.withdrawalCount, $lang),
+                                                            total: formatMoney(pnlTotal.withdrawalTotal, $lang),
+                                                        },
+                                                    })}
+                                                </Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">{formatMoney(pnlTotal.gatewayFees, $lang)}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(pnlCashNet(pnlTotal))}">{formatMoney(pnlCashNet(pnlTotal), $lang)}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">{formatMoney(pnlTotal.ticketRevenue, $lang)}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">{formatMoney(pnlTotal.withdrawalFeeIncome, $lang)}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">{formatMoney(pnlTotal.ktmbCost, $lang)}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(pnlEarnedNet(pnlTotal))}">{formatMoney(pnlEarnedNet(pnlTotal), $lang)}</Table.Cell>
+                                            </Table.Row>
+                                        </Table.Body>
+                                    </Table.Root>
+                                </div>
+                                <p class="text-xs text-muted-foreground mt-3 px-2">{$_('analysis.pnl.cashNote', { locale: $lang })}</p>
+                            {/if}
+                        </Card.Content>
+                    </Card.Root>
+                </Tabs.Content>
+
+                <!-- 8. FX rates: the MYR→SGD FX rate editor that powers the
                      conversion of actual KTMB costs into SGD (configuration
                      lives WITH the analysis it powers) -->
                 <Tabs.Content value="costs" class="flex flex-col gap-4">
