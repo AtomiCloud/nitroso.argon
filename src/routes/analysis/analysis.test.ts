@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type {
   BookingAnalysisProfitBucketRes,
+  BookingAnalysisPnlRowRes,
   BookingAnalysisRowRes,
   BookingAnalysisSummaryRes,
   MonthlyAnalysisRes,
@@ -20,6 +21,10 @@ import {
   netOf,
   pickParam,
   pivotProfitBuckets,
+  pnlCashNet,
+  pnlEarnedNet,
+  pnlTotals,
+  pnlZeroFill,
   rangeNet,
   sortMonthly,
   urlDayParam,
@@ -388,5 +393,201 @@ describe('cellCostIncomplete', () => {
       false,
     );
     expect(cellCostIncomplete({ quarterStartHour: 0, tickets: 0, revenue: 0, cost: 0, withActualCost: 0 })).toBe(false);
+  });
+});
+
+function pnl(over: Partial<BookingAnalysisPnlRowRes>): BookingAnalysisPnlRowRes {
+  return {
+    month: '07-2026',
+    deposits: 0,
+    withdrawalCount: 0,
+    withdrawalTotal: 0,
+    withdrawalFeeIncome: 0,
+    gatewayFees: 0,
+    ticketRevenue: 0,
+    ktmbCost: 0,
+    ...over,
+  };
+}
+
+describe('pnlCashNet', () => {
+  it('subtracts NET payouts (gross − fee kept) and gateway fees from deposits', () => {
+    // withdrawalTotal is the gross wallet debit; only Amount − Fee leaves the
+    // bank — the fee stays with BunnyBooker, so cash out is the net payout.
+    expect(
+      pnlCashNet({
+        month: '',
+        deposits: 1000,
+        withdrawalCount: 5,
+        withdrawalTotal: 340,
+        withdrawalFeeIncome: 40,
+        gatewayFees: 12,
+        ticketRevenue: 0,
+        ktmbCost: 0,
+      }),
+    ).toBe(688);
+  });
+
+  it('negative when outflows + fees exceed deposits', () => {
+    expect(
+      pnlCashNet({
+        month: '',
+        deposits: 100,
+        withdrawalCount: 2,
+        withdrawalTotal: 200,
+        withdrawalFeeIncome: 0,
+        gatewayFees: 5,
+        ticketRevenue: 0,
+        ktmbCost: 0,
+      }),
+    ).toBe(-105);
+  });
+
+  it('does NOT subtract earned revenue (deposits include ticket-payments)', () => {
+    // A high-ticket-revenue month can have small deposits because customers
+    // paid straight through; the cash view must NOT credit the cash position
+    // with earned revenue — that double-counts and lives in the earned view.
+    const net = pnlCashNet({
+      month: '',
+      deposits: 0,
+      withdrawalCount: 0,
+      withdrawalTotal: 0,
+      withdrawalFeeIncome: 0,
+      gatewayFees: 0,
+      ticketRevenue: 9999,
+      ktmbCost: 0,
+    });
+    expect(net).toBe(0);
+  });
+});
+
+describe('pnlEarnedNet', () => {
+  it('is ticket revenue + withdrawal fee income − ktmb − gateway fees', () => {
+    expect(
+      pnlEarnedNet({
+        month: '',
+        deposits: 0,
+        withdrawalCount: 0,
+        withdrawalTotal: 0,
+        withdrawalFeeIncome: 25,
+        gatewayFees: 12,
+        ticketRevenue: 1000,
+        ktmbCost: 300,
+      }),
+    ).toBe(713);
+  });
+
+  it('negative when costs exceed earned revenue', () => {
+    expect(
+      pnlEarnedNet({
+        month: '',
+        deposits: 99999,
+        withdrawalCount: 0,
+        withdrawalTotal: 0,
+        withdrawalFeeIncome: 0,
+        gatewayFees: 10,
+        ticketRevenue: 100,
+        ktmbCost: 200,
+      }),
+    ).toBe(-110);
+  });
+
+  it('does NOT count deposits or withdrawal principal (those live in the cash view)', () => {
+    expect(
+      pnlEarnedNet({
+        month: '',
+        deposits: 50000,
+        withdrawalCount: 5,
+        withdrawalTotal: 340,
+        withdrawalFeeIncome: 0,
+        gatewayFees: 0,
+        ticketRevenue: 0,
+        ktmbCost: 0,
+      }),
+    ).toBe(0);
+  });
+});
+
+describe('pnlZeroFill', () => {
+  it('inserts an all-zeros row for every calendar month in the range', () => {
+    // zinc only returns months with activity; the page reads better as a
+    // continuous series, so the renderer wants one row per month.
+    const rows = pnlZeroFill([pnl({ month: '02-2026', deposits: 100 })], '01-2026', '04-2026');
+    expect(rows.map(r => r.month)).toEqual(['01-2026', '02-2026', '03-2026', '04-2026']);
+    expect(rows[0].deposits).toBe(0);
+    expect(rows[1].deposits).toBe(100);
+    expect(rows[2].deposits).toBe(0);
+    expect(rows[3].deposits).toBe(0);
+  });
+
+  it('keeps the payload verbatim when its months already cover the range', () => {
+    const rows = pnlZeroFill([pnl({ month: '03-2026' }), pnl({ month: '01-2026' })], '01-2026', '03-2026');
+    expect(rows.map(r => r.month)).toEqual(['01-2026', '02-2026', '03-2026']);
+    expect(rows[1].deposits).toBe(0);
+  });
+
+  it('handles year boundaries correctly', () => {
+    const rows = pnlZeroFill([pnl({ month: '01-2027', deposits: 50 })], '11-2026', '02-2027');
+    expect(rows.map(r => r.month)).toEqual(['11-2026', '12-2026', '01-2027', '02-2027']);
+    expect(rows[2].deposits).toBe(50);
+  });
+
+  it('falls back to a pass-through ascending sort when bounds are malformed', () => {
+    // the picker can't produce a bad label, but defensiveness pays off when
+    // zinc returns a single month and we ask it to fill a range it has no
+    // way to know about (e.g. bounds are empty strings)
+    const rows = pnlZeroFill([pnl({ month: '04-2026' }), pnl({ month: '02-2026' })], '', '');
+    expect(rows.map(r => r.month)).toEqual(['02-2026', '04-2026']);
+  });
+});
+
+describe('pnlTotals', () => {
+  it('sums every column across the rows', () => {
+    const total = pnlTotals([
+      {
+        month: '01-2026',
+        deposits: 100,
+        withdrawalCount: 1,
+        withdrawalTotal: 20,
+        withdrawalFeeIncome: 5,
+        gatewayFees: 3,
+        ticketRevenue: 200,
+        ktmbCost: 50,
+      },
+      {
+        month: '02-2026',
+        deposits: 300,
+        withdrawalCount: 2,
+        withdrawalTotal: 60,
+        withdrawalFeeIncome: 8,
+        gatewayFees: 7,
+        ticketRevenue: 400,
+        ktmbCost: 90,
+      },
+    ]);
+    expect(total.deposits).toBe(400);
+    expect(total.withdrawalCount).toBe(3);
+    expect(total.withdrawalTotal).toBe(80);
+    expect(total.withdrawalFeeIncome).toBe(13);
+    expect(total.gatewayFees).toBe(10);
+    expect(total.ticketRevenue).toBe(600);
+    expect(total.ktmbCost).toBe(140);
+    // totals compose with the same formulas (cash + earned views);
+    // cash subtracts NET payouts: 400 − (80 − 13) − 10 = 323
+    expect(pnlCashNet(total)).toBe(323);
+    expect(pnlEarnedNet(total)).toBe(463);
+  });
+
+  it('returns zeros for empty input', () => {
+    expect(pnlTotals([])).toEqual({
+      month: '',
+      deposits: 0,
+      withdrawalCount: 0,
+      withdrawalTotal: 0,
+      withdrawalFeeIncome: 0,
+      gatewayFees: 0,
+      ticketRevenue: 0,
+      ktmbCost: 0,
+    });
   });
 });
