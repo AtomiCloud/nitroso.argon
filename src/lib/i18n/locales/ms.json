@@ -1249,7 +1249,11 @@
       "filterByCompleterId": "Tapis mengikut ID penyelesai...",
       "filterByDateRange": "Tapis mengikut julat tarikh",
       "statusNone": "Tiada",
-      "notFound": "Pengeluaran tidak dijumpai"
+      "notFound": "Pengeluaran tidak dijumpai",
+      "searchPlaceholder": "Cari mengikut id, nombor PayNow, id pengesahan, atau jumlah",
+      "pageInfo": "Memaparkan {from}–{to} daripada {total}",
+      "prevPage": "Halaman sebelumnya",
+      "nextPage": "Halaman berikutnya"
     },
     "method": {
       "PayNow": "PayNow",
@@ -1270,7 +1274,13 @@
     },
     "card": {
       "amountToPayNow": "{amount} ke PayNow {payNowNumber}",
-      "amountToCard": "{amount} dibayar balik ke kad",
+      "amountToCard": "{amount} ke kad (bayaran balik belum diluluskan)",
+      "amountToCardPending": "{amount} ke kad — bayaran balik belum diluluskan",
+      "amountToCardProcessing": "{amount} bayaran balik ke kad melalui Airwallex (sedang diproses)",
+      "amountToCardCompleted": "{amount} dibayar balik ke kad",
+      "amountToCardCancelled": "{amount} bayaran balik ke kad dibatalkan",
+      "amountToCardRejected": "{amount} bayaran balik ke kad ditolak",
+      "amountToCardRmi": "{amount} bayaran balik ke kad memerlukan campur tangan manual",
       "viewDetails": "Lihat Butiran",
       "by": "Oleh",
       "completer": "Penyelesai",
@@ -1289,9 +1299,10 @@
       "trigger": "Lulus automatik (Airwallex)",
       "title": "Luluskan pengeluaran",
       "instructions": "Kelulusan akan memulakan pembayaran PayNow automatik melalui Airwallex ke {payNowNumber} untuk jumlah bersih ({amount} ditolak yuran pengeluaran). Pengeluaran akan bertukar ke status \"Sedang Diproses\" dan selesai secara automatik selepas Airwallex mengesahkan pemindahan.",
-      "instructionsCard": "Kelulusan akan membayar balik jumlah bersih ({amount} ditolak yuran pengeluaran) ke pembayaran kad yang membiayai dompet ini, yang terawal dahulu, melalui Airwallex. Pengeluaran akan bertukar ke status \"Sedang Diproses\" dan selesai secara automatik selepas semua bayaran balik diselesaikan.",
+      "instructionsCard": "Kelulusan akan MEMULAKAN bayaran balik ke kad bagi jumlah bersih ({amount} ditolak yuran pengeluaran), yang terawal dahulu, ke pembayaran kad yang membiayai dompet ini, melalui Airwallex. Pengeluaran akan bertukar ke status \"Sedang Diproses\" dan hanya akan bertukar ke \"Selesai\" selepas Airwallex mengesahkan setiap bayaran balik telah selesai — proses ini boleh mengambil masa beberapa hari bekerja, dan seberapa cepat kredit muncul pada kad bergantung kepada bank pengeluar kad.",
       "poolShrank": "Kumpulan boleh bayar balik tidak lagi mencukupi untuk pengeluaran ini: {required} diperlukan, hanya {available} boleh dibayar balik. Minta pengguna membatalkan dan memohon semula jumlah yang lebih kecil.",
       "success": "Pembayaran untuk pengeluaran {amount} telah dimulakan. Ia akan selesai secara automatik selepas pengesahan Airwallex.",
+      "successCard": "Bayaran balik ke kad untuk pengeluaran {amount} telah dimulakan. Kad hanya akan dikreditkan selepas Airwallex menyelesaikan transaksi — seberapa cepat ia muncul bergantung kepada bank pemegang kad.",
       "failed": "Gagal meluluskan pengeluaran"
     },
     "cancel": {

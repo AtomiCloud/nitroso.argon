@@ -3,6 +3,7 @@ import { waitLocale } from 'svelte-i18n';
 import { ZodError } from 'zod';
 import {
   DEFAULT_WITHDRAWAL_SETTINGS,
+  cardRefundTitleI18nKey,
   isCardRefund,
   makeCreateWithdrawalSchema,
   methodAvailability,
@@ -210,5 +211,35 @@ describe('REFUND_STATUS_BADGE', () => {
       Settled: 'bg-green-500',
       Failed: 'bg-red-500',
     });
+  });
+});
+
+describe('cardRefundTitleI18nKey', () => {
+  // The honest card-refund title must differentiate "the money has actually
+  // landed on the card" (Completed → "refunded") from "we initiated a refund
+  // against the card and are waiting on Airwallex" (everything else →
+  // "initiated" / "pending").
+  const INITIATED_STATES = ['Pending', 'Processing', 'Cancel', 'Rejected', 'RequireManualIntervention'] as const;
+
+  it('only Completed reads as fully "refunded"', () => {
+    expect(cardRefundTitleI18nKey('Completed')).toBe('withdrawals.card.amountToCardCompleted');
+  });
+
+  it('maps every non-Completed zinc status to a non-refunded phrasing', () => {
+    for (const status of INITIATED_STATES) {
+      const key = cardRefundTitleI18nKey(status);
+      expect(key).not.toBe('withdrawals.card.amountToCardCompleted');
+      expect(key.startsWith('withdrawals.card.amountToCard')).toBe(true);
+    }
+  });
+
+  it('falls back to the Pending key for unknown / null / undefined statuses so the UI never breaks', () => {
+    // The withdrawal row's status is typed `string | null | undefined` on
+    // the wire; unknown strings, null, and undefined must all land on the
+    // most conservative (Pending) wording — no claim about whether the
+    // refund is in flight.
+    expect(cardRefundTitleI18nKey('SomethingNew')).toBe('withdrawals.card.amountToCardPending');
+    expect(cardRefundTitleI18nKey(null)).toBe('withdrawals.card.amountToCardPending');
+    expect(cardRefundTitleI18nKey(undefined)).toBe('withdrawals.card.amountToCardPending');
   });
 });
