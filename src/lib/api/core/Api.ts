@@ -2086,7 +2086,7 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
     });
   /**
    * HAND-ADDED (partners page) pending swagger regeneration — every user with
-   * the 'partner' extraRole. Admin only. Legacy rows may carry an empty email
+   * the 'partner' extraRole. Owner only. Legacy rows may carry an empty email
    * string, so consumers must treat it as "no email on file" rather than
    * missing.
    *
@@ -2107,7 +2107,7 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
    * HAND-ADDED (partners page) pending swagger regeneration — monthly P&L for
    * one partner over an inclusive SGT date range (dd-MM-yyyy After/Before,
    * both optional). Returns one row per active month; the UI zero-fills the
-   * gaps. Admin only.
+   * gaps. Owner only.
    *
    * @tags User
    * @name VUserPnlDetail

@@ -5,10 +5,13 @@
 // unit-testable). Mirrors the pattern in analysis/analysis.ts — see
 // pnlZeroFill, pnlCashNet, pnlEarnedNet for the shared monthly-rollup math.
 //
-// margin here is CLIENT-side only (collected − ktmbCost), zinc returns the
-// raw inputs. We compute it once per row so the renderer can read straight
-// off the helper.
+// Margin and list-value comparisons are CLIENT-side only; zinc returns the
+// raw consumption and payment inputs. We compute the decision-ready values
+// once per row so the renderer can stay declarative.
 import type { UserPartnerPnlRowRes } from '$lib/api/core/data-contracts';
+
+/** Public BunnyBooker list price for one priority boost, in SGD. */
+export const LIST_BOOST_PRICE = 10;
 
 /** zinc's monthly bucket wire format, "MM-yyyy" → a sortable yyyyMM key.
  *  Defensive: rejects months outside 01-12 (the wire format is MM-yyyy and
@@ -26,19 +29,27 @@ export function monthSortKey(month: string): string {
 /**
  * A single partner's P&L row, in the shape the UI wants. Margin is derived
  * client-side from collected − ktmbCost (per task spec); zinc returns the
- * raw inputs only. boostCount / boostAmount are additive (zinc PR #54) —
- * completed bookings that consumed a priority boost, plus the sum of their
- * boost fees. lets the admin see both successful tickets and successful
- * boosts so we can price the partner against both.
+ * raw inputs only. boostCount / boostAmount / distinctPassengers are additive
+ * (zinc PR #57): every consumed boost (FREE included), what the partner paid,
+ * and the month's distinct passenger passports. Together they expose the
+ * consumption and reseller signals the owner needs for pricing.
  */
 export type PartnerPnlRow = {
   /** zinc wire format, MM-yyyy */
   month: string;
   bookings: number;
-  /** completed bookings that consumed a priority boost (zinc PR #54) */
+  /** collected / bookings; 0 when there are no completed tickets */
+  averageTicketPaid: number;
+  /** completed bookings that consumed a priority boost (FREE included) */
   boostCount: number;
-  /** sum of boost fees on those bookings (zinc PR #54) */
+  /** what the partner actually paid for those boosts */
   boostAmount: number;
+  /** boostCount × LIST_BOOST_PRICE */
+  boostListValue: number;
+  /** boostListValue − boostAmount; positive is an arbitrage signal */
+  boostListGap: number;
+  /** distinct non-empty passenger passports in the month's completed tickets */
+  distinctPassengers: number;
   collected: number;
   ktmbCost: number;
   /** collected − ktmbCost; positive = partner made BunnyBooker money */
@@ -49,6 +60,22 @@ export type PartnerPnlRow = {
   withdrawalGross: number;
   withdrawalFeeIncome: number;
 };
+
+/** Average negotiated ticket price actually paid; guards divide-by-zero. */
+export function partnerAverageTicketPaid(bookings: number, collected: number): number {
+  if (bookings === 0) return 0;
+  return collected / bookings;
+}
+
+/** Public list value of the boosts consumed in a row. */
+export function partnerBoostListValue(boostCount: number): number {
+  return boostCount * LIST_BOOST_PRICE;
+}
+
+/** How much higher list value is than what the partner actually paid. */
+export function partnerBoostListGap(boostCount: number, boostAmount: number): number {
+  return partnerBoostListValue(boostCount) - boostAmount;
+}
 
 /**
  * BunnyBooker's margin on a partner for one month = collected − ktmbCost.
@@ -76,8 +103,12 @@ export function toPartnerPnlRow(r: UserPartnerPnlRowRes): PartnerPnlRow {
   return {
     month: r.month,
     bookings: r.bookings,
+    averageTicketPaid: partnerAverageTicketPaid(r.bookings, r.collected),
     boostCount: r.boostCount,
     boostAmount: r.boostAmount,
+    boostListValue: partnerBoostListValue(r.boostCount),
+    boostListGap: partnerBoostListGap(r.boostCount, r.boostAmount),
+    distinctPassengers: r.distinctPassengers ?? 0,
     collected: r.collected,
     ktmbCost: r.ktmbCost,
     margin: partnerMargin(r),
@@ -92,8 +123,12 @@ function zeroPartnerPnlRow(month: string): PartnerPnlRow {
   return {
     month,
     bookings: 0,
+    averageTicketPaid: 0,
     boostCount: 0,
     boostAmount: 0,
+    boostListValue: 0,
+    boostListGap: 0,
+    distinctPassengers: 0,
     collected: 0,
     ktmbCost: 0,
     margin: 0,
@@ -139,25 +174,33 @@ export function partnerPnlZeroFill(rows: UserPartnerPnlRowRes[], from: string, t
 
 /** Sum every column across the rows — the totals row at the bottom. */
 export function partnerPnlTotals(rows: PartnerPnlRow[]): PartnerPnlRow {
-  return rows.reduce<PartnerPnlRow>(
-    (s, r) => ({
+  return rows.reduce<PartnerPnlRow>((s, r) => {
+    const bookings = s.bookings + r.bookings;
+    const boostCount = s.boostCount + r.boostCount;
+    const boostAmount = s.boostAmount + r.boostAmount;
+    const collected = s.collected + r.collected;
+    const margin = s.margin + r.margin;
+    return {
       month: '',
-      bookings: s.bookings + r.bookings,
-      boostCount: s.boostCount + r.boostCount,
-      boostAmount: s.boostAmount + r.boostAmount,
-      collected: s.collected + r.collected,
+      bookings,
+      averageTicketPaid: partnerAverageTicketPaid(bookings, collected),
+      boostCount,
+      boostAmount,
+      boostListValue: partnerBoostListValue(boostCount),
+      boostListGap: partnerBoostListGap(boostCount, boostAmount),
+      distinctPassengers: s.distinctPassengers + r.distinctPassengers,
+      collected,
       ktmbCost: s.ktmbCost + r.ktmbCost,
-      margin: s.margin + r.margin,
+      margin,
       // weighted average margin % over the summed collected, not the average
       // of monthly percentages — a slow month and a busy month with the same
       // % should produce one number, not be muddled by row counts
-      marginPct: s.collected + r.collected === 0 ? 0 : (s.margin + r.margin) / (s.collected + r.collected),
+      marginPct: collected === 0 ? 0 : margin / collected,
       deposits: s.deposits + r.deposits,
       withdrawalGross: s.withdrawalGross + r.withdrawalGross,
       withdrawalFeeIncome: s.withdrawalFeeIncome + r.withdrawalFeeIncome,
-    }),
-    zeroPartnerPnlRow(''),
-  );
+    };
+  }, zeroPartnerPnlRow(''));
 }
 
 /** URL param mirror for the date range: dd-MM-yyyy from the URL → DateValue. */
