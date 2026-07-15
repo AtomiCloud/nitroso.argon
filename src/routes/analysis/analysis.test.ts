@@ -323,6 +323,26 @@ describe('pivotProfitBuckets', () => {
     const rows = pivotProfitBuckets(rs);
     expect(rows.map(r => r.date)).toEqual(['02-07-2026', '01-07-2026']);
   });
+
+  it('merges duplicate (date, quarter) rows so cells stay in sync with day totals', () => {
+    // zinc pre-groups, but a duplicated bucket must not silently overwrite
+    // the cell while double-counting the day totals — the grid's Total
+    // column would no longer equal the sum of its cells
+    const rs = [
+      profit({ quarterStartHour: 6, tickets: 2, revenue: 60, cost: 10, withActualCost: 2 }),
+      profit({ quarterStartHour: 6, tickets: 3, revenue: 90, cost: 15, withActualCost: 1 }),
+    ];
+    const [row] = pivotProfitBuckets(rs);
+    expect(row.cells[6].tickets).toBe(5);
+    expect(row.cells[6].revenue).toBe(150);
+    expect(row.cells[6].cost).toBe(25);
+    expect(row.cells[6].withActualCost).toBe(3);
+    // cell sum equals day totals
+    expect(row.tickets).toBe(5);
+    expect(row.revenue).toBe(150);
+    expect(row.cost).toBe(25);
+    expect(row.withActualCost).toBe(3);
+  });
 });
 
 describe('cellProfit', () => {

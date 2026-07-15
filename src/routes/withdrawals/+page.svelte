@@ -7,7 +7,7 @@
     import Loader from "$lib/components/complex/loader.svelte";
     import {Input} from "$lib/components/ui/input";
     import {page} from "$app/stores";
-    import {goto} from "$app/navigation";
+    import {afterNavigate, goto} from "$app/navigation";
 
     //@ts-ignore
     import * as Card from "$lib/components/ui/card";
@@ -89,6 +89,40 @@
 
     let withdrawStatus: Selected<string> | undefined = WITHDRAWAL_STATUS[status];
 
+    // Browser back/forward re-runs the load (the list refreshes) but the
+    // component is NOT remounted, so the init-time filter state above goes
+    // stale: the inputs/select/date-range keep showing the previous entry's
+    // values over the new entry's rows. Re-seed them from the URL. Guarded
+    // by comparing against our own triggerSearch() serialization so
+    // self-inflicted navigations no-op (same treatment as /partners, #300).
+    afterNavigate(() => {
+        const q = $page.url.searchParams;
+        const urlUserId = q.get("userId") ?? "";
+        const urlCompleterId = q.get("completerId") ?? "";
+        const urlWithdrawalId = q.get("id") ?? "";
+        const urlMin = q.get("min");
+        const urlMax = q.get("max");
+        const urlSearch = q.get("search") ?? "";
+        const urlStatus = q.get("status") ?? "";
+        const urlAfter = q.get("after") || "";
+        const urlBefore = q.get("before") || "";
+        if (urlUserId !== userId) userId = urlUserId;
+        if (urlCompleterId !== completerId) completerId = urlCompleterId;
+        if (urlWithdrawalId !== withdrawalId) withdrawalId = urlWithdrawalId;
+        if ((urlMin ?? "") !== (min ?? "")) min = urlMin;
+        if ((urlMax ?? "") !== (max ?? "")) max = urlMax;
+        if (urlSearch !== searchTerm) searchTerm = urlSearch;
+        const urlPageRaw = parseInt(q.get("page") ?? "1", 10);
+        const urlPage = Number.isFinite(urlPageRaw) && urlPageRaw > 0 ? urlPageRaw : 1;
+        if (urlPage !== currentPage) currentPage = urlPage;
+        if (urlStatus !== (withdrawStatus?.value ?? "")) withdrawStatus = WITHDRAWAL_STATUS[urlStatus];
+        const curAfter = toZincDate(dateFilter.start);
+        const curBefore = toZincDate(dateFilter.end);
+        if (urlAfter !== curAfter || urlBefore !== curBefore) {
+            dateFilter = {start: toCalDate(urlAfter), end: toCalDate(urlBefore)};
+        }
+    });
+
     // Keep the closed-trigger label localized for deep-linked / language-switched
     // state; the menu items are already translated but `Selected.label` defaults
     // to the English constant.
@@ -128,10 +162,23 @@
     function triggerSearch() {
         clearTimeout(searchDebounce);
         currentPage = 1;
-        const v = withdrawStatus?.value ?? ""
         // Filter/sort changes reset to page 1 — the page param is only
         // meaningful when the result set is otherwise unchanged.
-        goto(`?status=${v}&userId=${userId}&completerId=${completerId}&id=${withdrawalId}&min=${min ?? ''}&max=${max ?? ''}&after=${toZincDate(dateFilter.start)}&before=${toZincDate(dateFilter.end)}&search=${searchTerm}&page=1`,
+        // URLSearchParams so free-text values with &, #, + or spaces can't
+        // corrupt the query string.
+        const q = new URLSearchParams({
+            status: withdrawStatus?.value ?? "",
+            userId,
+            completerId,
+            id: withdrawalId,
+            min: min ?? "",
+            max: max ?? "",
+            after: toZincDate(dateFilter.start),
+            before: toZincDate(dateFilter.end),
+            search: searchTerm,
+            page: "1",
+        });
+        goto(`?${q.toString()}`,
             {
                 keepFocus: true,
                 noScroll: true,

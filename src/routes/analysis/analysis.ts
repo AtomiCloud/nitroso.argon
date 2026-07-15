@@ -171,14 +171,24 @@ export function pivotProfitBuckets(rs: BookingAnalysisProfitBucketRes[]): Profit
       byDate.set(r.date, row);
       order.push(r.date);
     }
-    const cell: ProfitCell = {
-      quarterStartHour: r.quarterStartHour,
-      tickets: r.tickets,
-      revenue: r.revenue,
-      cost: r.cost,
-      withActualCost: r.withActualCost,
-    };
-    row.cells[r.quarterStartHour] = cell;
+    // merge duplicate (date, quarter) rows defensively (same treatment as
+    // groupByDay) — overwriting the cell while still adding to the day
+    // totals would silently desync the grid cells from the Total column
+    const existing = row.cells[r.quarterStartHour];
+    if (existing == null) {
+      row.cells[r.quarterStartHour] = {
+        quarterStartHour: r.quarterStartHour,
+        tickets: r.tickets,
+        revenue: r.revenue,
+        cost: r.cost,
+        withActualCost: r.withActualCost,
+      };
+    } else {
+      existing.tickets += r.tickets;
+      existing.revenue += r.revenue;
+      existing.cost += r.cost;
+      existing.withActualCost += r.withActualCost;
+    }
     row.tickets += r.tickets;
     row.revenue += r.revenue;
     row.cost += r.cost;
