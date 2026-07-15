@@ -50,7 +50,10 @@ export function pivotTravelAnalysis(rs: TravelAnalysisBucketRes[]): TravelDayRow
       order.push(r.date);
     }
     const perDir = row.byDirection[r.direction] ?? {};
-    perDir[r.quarterStartHour] = r.tickets;
+    // merge duplicate (date, direction, quarter) rows defensively —
+    // overwriting the bucket while still adding to the day total would
+    // silently desync the grid cells from the Total column
+    perDir[r.quarterStartHour] = (perDir[r.quarterStartHour] ?? 0) + r.tickets;
     row.byDirection[r.direction] = perDir;
     row.total += r.tickets;
   }
