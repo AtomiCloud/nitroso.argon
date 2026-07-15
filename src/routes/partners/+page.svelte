@@ -949,11 +949,11 @@
                                                                 {formatSgd(r.topUpOwed)}
                                                             </span>
                                                         {:else}
-                                                            <span
-                                                                class="cursor-help text-muted-foreground underline decoration-dotted underline-offset-4"
-                                                                title={$_("partners.pnl.topUpSettledHint", { locale: $lang })}
-                                                            >
-                                                                {formatSgd(0, 0)}
+                                                            <span class="inline-flex items-center justify-end gap-1 text-muted-foreground">
+                                                                <span>{formatSgd(0, 0)}</span>
+                                                                <InfoTip label={$_("partners.pnl.colTopUp", { locale: $lang })}>
+                                                                    {$_("partners.pnl.topUpSettledHint", { locale: $lang })}
+                                                                </InfoTip>
                                                             </span>
                                                         {/if}
                                                     </Table.Cell>
@@ -1115,11 +1115,11 @@
                                                             {formatSgd(pnlTotal.topUpOwed)}
                                                         </span>
                                                     {:else}
-                                                        <span
-                                                            class="cursor-help text-muted-foreground underline decoration-dotted underline-offset-4"
-                                                            title={$_("partners.pnl.topUpSettledHint", { locale: $lang })}
-                                                        >
-                                                            {formatSgd(0, 0)}
+                                                        <span class="inline-flex items-center justify-end gap-1 text-muted-foreground">
+                                                            <span>{formatSgd(0, 0)}</span>
+                                                            <InfoTip label={$_("partners.pnl.colTopUp", { locale: $lang })}>
+                                                                {$_("partners.pnl.topUpSettledHint", { locale: $lang })}
+                                                            </InfoTip>
                                                         </span>
                                                     {/if}
                                                 </Table.Cell>
