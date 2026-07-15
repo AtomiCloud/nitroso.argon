@@ -9,18 +9,23 @@ import type { WithdrawalPrincipalRes } from '$lib/api/core/data-contracts';
 export const WITHDRAWAL_PAGE_SIZE = 20;
 
 /**
- * Hard cap on rows we ask zinc for in a single GET Withdrawal call.
- *
- * The list endpoint supports `Limit`; the matrix says pagination
- * deserves client-side slicing, but pagination alone is useless
- * without search, and the endpoint has no username/email/confirmation
- * filter. Pull everything once (up to this many rows) so we can
- * match against fields the row actually carries. 1000 is well above
- * the realistic admin volume — one admin scan-month typically fits
- * in under a hundred — and stays small enough to avoid surprising
- * the user with a multi-megabyte payload.
+ * Rows per GET Withdrawal call while assembling the full client-side
+ * list. zinc's shared Limit validator rejects anything above 100, so
+ * the loader pages with Limit/Skip chunks of this size until a short
+ * page comes back.
  */
-export const WITHDRAWAL_FETCH_LIMIT = 1000;
+export const WITHDRAWAL_FETCH_PAGE = 100;
+
+/**
+ * Hard cap on TOTAL rows the loader assembles across chunked calls.
+ *
+ * Pagination alone is useless without search, and the endpoint has no
+ * username/email/confirmation filter — so we pull the history in
+ * WITHDRAWAL_FETCH_PAGE chunks and search client-side against fields
+ * the row actually carries. 5000 is well above the realistic admin
+ * volume and bounds the worst case to 50 requests.
+ */
+export const WITHDRAWAL_FETCH_LIMIT = 5000;
 
 /**
  * Whether a single withdrawal row matches the user-typed search term.
