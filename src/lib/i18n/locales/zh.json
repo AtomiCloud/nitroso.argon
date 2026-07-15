@@ -20,7 +20,8 @@
     "signIn": "登录",
     "fees": "手续费",
     "stats": "统计",
-    "analysis": "销售分析"
+    "analysis": "销售分析",
+    "partners": "合作伙伴"
   },
   "theme": {
     "toggle": "切换主题"
@@ -104,7 +105,8 @@
       "withdrawals": "获取提现失败",
       "withdrawal": "获取提现失败",
       "users": "获取用户失败",
-      "user": "获取用户失败"
+      "user": "获取用户失败",
+      "partners": "获取合作伙伴失败"
     }
   },
   "admin": {
@@ -1231,6 +1233,58 @@
       "descriptionAfter": " 的账户。",
       "successToast": "已成功向用户账户增加价值 {amount} 的促销积分。",
       "errorToast": "创建促销转账失败"
+    }
+  },
+  "partners": {
+    "title": "合作伙伴",
+    "loadError": "加载合作伙伴页面失败",
+    "reload": "刷新",
+    "list": {
+      "title": "合作伙伴账户",
+      "description": "{count} 个已标记的合作伙伴账户。点击一个以加载其 P&L。",
+      "empty": "暂无合作伙伴——可从下方搜索中标记。",
+      "noEmail": "(无邮箱记录)"
+    },
+    "tag": {
+      "title": "将用户标记为合作伙伴",
+      "description": "搜索最近的用户（管理员 /User 搜索）。已标记的合作伙伴会被隐藏。",
+      "searchPlaceholder": "按用户名或邮箱筛选…",
+      "button": "标记为合作伙伴",
+      "noMoreCandidates": "最近的每个用户都已是合作伙伴。",
+      "noMatch": "无匹配用户。",
+      "error": "标记合作伙伴失败",
+      "success": "已将 {username} 标记为合作伙伴"
+    },
+    "untag": {
+      "aria": "取消标记 {username} 为合作伙伴",
+      "title": "取消标记此合作伙伴？",
+      "body": "将从 {username} 中移除 'partner' 额外角色。其历史预订和钱包信息会保留；只是角色标签被移除。",
+      "confirm": "取消标记合作伙伴",
+      "error": "取消标记合作伙伴失败",
+      "success": "已取消标记 {username}"
+    },
+    "range": {
+      "after": "从",
+      "before": "至",
+      "hint": "所选范围内没有活动的月份会以零填充。"
+    },
+    "pnl": {
+      "title": "合作伙伴 P&L",
+      "description": "在左侧选择一个合作伙伴以加载其每月 P&L。",
+      "noSelection": "请从列表中选择一个合作伙伴以加载其 P&L。",
+      "loadError": "加载该合作伙伴的 P&L 失败",
+      "colMonth": "月份",
+      "colBookings": "预订数",
+      "colCollected": "收款",
+      "colKtmbCost": "我们的 KTMB 成本",
+      "colMargin": "我们的毛利",
+      "colMarginPct": "毛利率",
+      "colDeposits": "存款",
+      "colWithdrawalsGross": "提款（毛额）",
+      "colWithdrawalsFee": "提款（手续费收入）",
+      "marginHint": "该月收款 − 我们的 KTMB 成本。绿色 = 我们盈利，红色 = 我们在该合作伙伴的活动上亏损。",
+      "marginNote": "毛利在客户端按 收款 − KTMB 成本 计算。存款和提款一并追踪但不从毛利中扣除——它们是现金流，不是 P&L。",
+      "total": "合计"
     }
   },
   "withdrawals": {

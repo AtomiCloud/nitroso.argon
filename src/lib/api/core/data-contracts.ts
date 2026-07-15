@@ -613,6 +613,31 @@ export interface BookingAnalysisPnlRowRes {
 }
 
 /**
+ * HAND-ADDED (partners page) pending swagger regeneration — one monthly row
+ * of a single partner's P&L returned by GET /User/{id}/pnl. Mirrors the
+ * shape of the analysis P&L rollup but attributed to ONE user (the
+ * 'partner' extraRole tag). Sorted ascending by month (zinc guarantees the
+ * order). month is zinc's MM-yyyy wire format. Only months with activity
+ * are returned; the UI zero-fills the gaps across the picked range.
+ */
+export interface UserPartnerPnlRowRes {
+  /** @format string */
+  month: string;
+  /** @format int32 */
+  bookings: number;
+  /** @format double */
+  collected: number;
+  /** @format double */
+  ktmbCost: number;
+  /** @format double */
+  deposits: number;
+  /** @format double */
+  withdrawalGross: number;
+  /** @format double */
+  withdrawalFeeIncome: number;
+}
+
+/**
  * HAND-ADDED (zinc PR #39). One queued KTMB ticket-cost change
  * (insert-only, effective-dated like the withdrawal fee queue).
  */
