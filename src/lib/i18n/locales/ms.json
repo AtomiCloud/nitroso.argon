@@ -5,6 +5,10 @@
   "nav": {
     "bookNow": "Tempah Sekarang"
   },
+  "historyGate": {
+    "note": "Sejarah sebelum Jun 2026 hanya boleh dilihat oleh akaun pemilik — bulan yang lebih awal mungkin kelihatan kosong untuk peranan anda.",
+    "dismiss": "Tutup"
+  },
   "account": {
     "costs": "Kos",
     "discounts": "Diskaun",
@@ -1276,6 +1280,9 @@
       "loadError": "Gagal memuatkan P&L rakan kongsi ini",
       "colMonth": "Bulan",
       "colBookings": "Tempahan",
+      "colBoosts": "Lonjakan",
+      "cellBoosts": "{count} · {amount}",
+      "boostsHint": "Tempahan siap yang menggunakan lonjakan keutamaan, dan jumlah yuran lonjakan mereka. Tempahan dengan lonjakan yang digunakan dikira sekali dalam Tempahan dan sekali dalam Lonjakan.",
       "colCollected": "Dikumpul",
       "colKtmbCost": "Kos KTMB kami",
       "colMargin": "Margin kami",

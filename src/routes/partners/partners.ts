@@ -26,12 +26,19 @@ export function monthSortKey(month: string): string {
 /**
  * A single partner's P&L row, in the shape the UI wants. Margin is derived
  * client-side from collected − ktmbCost (per task spec); zinc returns the
- * raw inputs only.
+ * raw inputs only. boostCount / boostAmount are additive (zinc PR #54) —
+ * completed bookings that consumed a priority boost, plus the sum of their
+ * boost fees. lets the admin see both successful tickets and successful
+ * boosts so we can price the partner against both.
  */
 export type PartnerPnlRow = {
   /** zinc wire format, MM-yyyy */
   month: string;
   bookings: number;
+  /** completed bookings that consumed a priority boost (zinc PR #54) */
+  boostCount: number;
+  /** sum of boost fees on those bookings (zinc PR #54) */
+  boostAmount: number;
   collected: number;
   ktmbCost: number;
   /** collected − ktmbCost; positive = partner made BunnyBooker money */
@@ -69,6 +76,8 @@ export function toPartnerPnlRow(r: UserPartnerPnlRowRes): PartnerPnlRow {
   return {
     month: r.month,
     bookings: r.bookings,
+    boostCount: r.boostCount,
+    boostAmount: r.boostAmount,
     collected: r.collected,
     ktmbCost: r.ktmbCost,
     margin: partnerMargin(r),
@@ -83,6 +92,8 @@ function zeroPartnerPnlRow(month: string): PartnerPnlRow {
   return {
     month,
     bookings: 0,
+    boostCount: 0,
+    boostAmount: 0,
     collected: 0,
     ktmbCost: 0,
     margin: 0,
@@ -132,6 +143,8 @@ export function partnerPnlTotals(rows: PartnerPnlRow[]): PartnerPnlRow {
     (s, r) => ({
       month: '',
       bookings: s.bookings + r.bookings,
+      boostCount: s.boostCount + r.boostCount,
+      boostAmount: s.boostAmount + r.boostAmount,
       collected: s.collected + r.collected,
       ktmbCost: s.ktmbCost + r.ktmbCost,
       margin: s.margin + r.margin,
