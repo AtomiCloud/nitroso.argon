@@ -21,7 +21,8 @@
     "fees": "Yuran",
     "stats": "Statistik",
     "analysis": "Analisis",
-    "partners": "Rakan kongsi"
+    "partners": "Rakan kongsi",
+    "pnl": "Untung Rugi"
   },
   "theme": {
     "toggle": "Tukar tema"
@@ -1814,7 +1815,6 @@
       "profit": "Untung ikut hari perjalanan",
       "boosts": "Keutamaan",
       "payments": "Pembayaran",
-      "pnl": "Untung Rugi",
       "costs": "Kadar FX"
     },
     "summary": {
@@ -1924,27 +1924,47 @@
       "empty": "Tiada pembayaran ditangkap dalam julat ini",
       "loadError": "Gagal memuatkan pembayaran ditangkap",
       "copied": "ID niat pembayaran disalin"
+    }
+  },
+  "pnl": {
+    "title": "Untung Rugi",
+    "reload": "Muat semula",
+    "range": {
+      "after": "Dari",
+      "before": "Hingga",
+      "hint": "Tarikh kalendar SGT, termasuk; bulan tanpa aktiviti diisi sifar. Semua amaun dalam SGD."
     },
-    "pnl": {
-      "title": "Untung Rugi Bulanan",
-      "description": "Dua pandangan setiap bulan kalendar SGT — TUNAI (wang melalui BunnyBooker) dan DIPEROLEH (P&L operasi tidak termasuk aliran principal). Semua amaun dalam SGD.",
+    "tabs": {
+      "earned": "Diperoleh (EBITDA)",
+      "cash": "Tunai"
+    },
+    "colMonth": "Bulan",
+    "total": "Jumlah",
+    "detail": "{count} · {amount}",
+    "earned": {
+      "title": "Diperoleh (EBITDA)",
+      "description": "Untung Rugi acara terminal setiap bulan kalendar SGT — keuntungan diiktiraf apabila wang mencapai keadaan terminal (tempahan selesai, tempahan ditamatkan, atau pengeluaran dibayar keluar), dan setiap dolar yang didepositkan membawa bahagian fi gerbangnya ke acara terminalnya pada kadar campuran bulan itu.",
+      "loadError": "Gagal memuatkan Untung Rugi acara terminal",
+      "colCompleted": "Selesai",
+      "colTerminated": "Ditamatkan",
+      "colWithdrawals": "Pengeluaran",
+      "colEbitda": "EBITDA",
+      "completedHint": "dikutip − kos KTMB − kadar gerbang × dikutip",
+      "terminatedHint": "disimpan − kos KTMB bersih − kadar gerbang × disimpan",
+      "withdrawalsHint": "hasil fi − kadar gerbang × kasar − fi pembayaran keluar",
+      "gwRateHint": "Kadar fi gerbang campuran bulan itu: fi pembayaran ÷ deposit.",
+      "estimateNote": "pemulihan KTMB tempahan ditamatkan dianggarkan pada 50% untuk {n} daripada {m} tempahan"
+    },
+    "cash": {
+      "title": "Pandangan tunai",
+      "description": "Wang melalui BunnyBooker setiap bulan kalendar SGT: deposit − bayaran keluar bersih (pengeluaran kasar tolak fi yang kami simpan) − fi gerbang. Termasuk lebihan dompet yang belum dibelanjakan dalam deposit.",
       "loadError": "Gagal memuatkan ringkasan Untung Rugi bulanan",
-      "colMonth": "Bulan",
-      "cashTitle": "Pandangan tunai",
-      "cashHint": "Deposit − bayaran keluar bersih (pengeluaran kasar tolak fi yang kami simpan) − fi gerbang. Termasuk lebihan dompet yang belum dibelanjakan dalam deposit.",
-      "earnedTitle": "Pandangan diperoleh",
-      "earnedHint": "Hasil tiket + hasil fi pengeluaran − kos KTMB − fi gerbang. Pengeluaran sebagai aliran principal TIDAK di sini; ia muncul dalam pandangan tunai di atas.",
       "colDeposits": "Deposit",
       "colWithdrawals": "Pengeluaran",
       "colGwFees": "Fi gerbang",
       "colCashNet": "Bersih tunai",
-      "colTicketRevenue": "Hasil tiket",
-      "colFeeIncome": "Hasil fi",
-      "colKtmbCost": "Kos KTMB",
-      "colEarnedNet": "Bersih diperoleh",
       "withdrawals": "{count} · {total}",
-      "total": "Jumlah",
-      "cashNote": "Pandangan tunai mengira lebihan dompet yang belum dibelanjakan sebagai tunai BunnyBooker kerana deposit termasuk wang yang dibayar pengguna tetapi belum dikeluarkan. Untuk P&L operasi BunnyBooker gunakan pandangan diperoleh."
+      "cashNote": "Pandangan tunai mengira lebihan dompet yang belum dibelanjakan sebagai tunai BunnyBooker kerana deposit termasuk wang yang dibayar pengguna tetapi belum dikeluarkan. Untuk P&L operasi BunnyBooker gunakan pandangan Diperoleh (EBITDA)."
     }
   }
 }
