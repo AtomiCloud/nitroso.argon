@@ -22,7 +22,7 @@
     import {cn} from "$lib/utils";
     import {CalendarDate, type DateValue, getLocalTimeZone} from "@internationalized/date";
     import {singaporeToday} from "$lib/time/singapore";
-    import {CalendarIcon, LucideLoader, RotateCw} from "lucide-svelte";
+    import {CalendarIcon, ChevronDown, ChevronRight, LucideLoader, RotateCw} from "lucide-svelte";
     import type {
         BookingAnalysisPnlRowRes,
         BookingTerminalPnlRowRes,
@@ -196,6 +196,12 @@
         return `${(rate * 100).toFixed(1)}%`;
     }
 
+    // the detail panel's money-in rate line uses two decimals (the chip above
+    // is the one-decimal summary); "—" when there were no deposits to blend
+    function gwRateDetail(rate: number, deposits: number): string {
+        return deposits === 0 ? $_('pnl.earned.profitPctDash', {locale: $lang}) : `${(rate * 100).toFixed(2)}%`;
+    }
+
     function terminalRowEmpty(r: TerminalPnlRow): boolean {
         return r.deposits === 0 && r.collected === 0 && r.kept === 0 && r.withdrawalGross === 0
             && r.completedCount === 0 && r.terminatedCount === 0 && r.withdrawalCount === 0;
@@ -217,6 +223,13 @@
 
     // ---- tabs over the shared state ----
     let tab = "earned";
+
+    // one Earned-tab month expanded into its detail sub-row at a time; "" = none.
+    // Toggling a month closes any other that was open (accordion behaviour).
+    let expandedMonth = "";
+    function toggleExpand(month: string) {
+        expandedMonth = expandedMonth === month ? "" : month;
+    }
 
     // ---- URL-encoded view state ----
     // Same pattern as /analysis and /partners (applyUrl/serializeUrl/syncUrl
@@ -436,6 +449,16 @@
                                             <Table.Row class={terminalRowEmpty(r) ? 'text-muted-foreground/60' : ''}>
                                                 <Table.Cell class="px-2 py-1.5 font-medium whitespace-nowrap">
                                                     <span class="inline-flex items-center gap-1.5">
+                                                        <Button variant="ghost" size="sm" class="h-6 w-6 p-0 shrink-0"
+                                                                aria-label={$_('pnl.earned.detailToggle', { locale: $lang })}
+                                                                title={$_('pnl.earned.detailToggle', { locale: $lang })}
+                                                                on:click={() => toggleExpand(r.month)}>
+                                                            {#if expandedMonth === r.month}
+                                                                <ChevronDown class="h-4 w-4"/>
+                                                            {:else}
+                                                                <ChevronRight class="h-4 w-4"/>
+                                                            {/if}
+                                                        </Button>
                                                         {monthLabel(r.month)}
                                                         <Badge variant="outline" class="px-1.5 py-0 text-[10px] font-normal tabular-nums"
                                                                title={$_('pnl.earned.gwRateHint', { locale: $lang })}>
@@ -478,14 +501,6 @@
                                                                 amount: formatMoney(r.withdrawalGross, $lang),
                                                             } })}
                                                         </span>
-                                                        {#if r.withdrawalGross > 0 || r.feeIncome > 0}
-                                                            {@const b = pnlWithdrawalBreakdown(r)}
-                                                            <span class="text-[10px] text-muted-foreground/70 leading-tight">
-                                                                {$_('pnl.earned.wdFeeIncome', { locale: $lang, values: { amount: formatMoney(b.feeIncome, $lang) } })}<br/>
-                                                                {$_('pnl.earned.wdDepositFee', { locale: $lang, values: { amount: formatMoney(b.depositFee, $lang) } })}<br/>
-                                                                {$_('pnl.earned.wdPayoutFees', { locale: $lang, values: { amount: formatMoney(b.payoutFees, $lang) } })}
-                                                            </span>
-                                                        {/if}
                                                     </div>
                                                 </Table.Cell>
                                                 <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(ebitda(r))}">{formatMoney(ebitda(r), $lang)}</Table.Cell>
@@ -501,6 +516,59 @@
                                                     {/if}
                                                 </Table.Cell>
                                             </Table.Row>
+                                            {#if expandedMonth === r.month}
+                                                {@const b = pnlWithdrawalBreakdown(r)}
+                                                {@const wdNet = withdrawalProfit(r)}
+                                                <Table.Row>
+                                                    <Table.Cell colspan={8} class="p-0">
+                                                        <div class="m-1 rounded-lg bg-muted/50 p-4">
+                                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                <!-- (a) Withdrawal cost breakdown: how the
+                                                                     withdrawal line's net profit is composed -->
+                                                                <div class="flex flex-col gap-1.5">
+                                                                    <p class="text-xs font-medium text-muted-foreground">{$_('pnl.earned.detailWdTitle', { locale: $lang })}</p>
+                                                                    <div class="flex flex-col gap-1 text-sm tabular-nums">
+                                                                        <div class="flex justify-between gap-3">
+                                                                            <span class="text-muted-foreground">{$_('pnl.earned.detailWdFeeIncome', { locale: $lang })}</span>
+                                                                            <span class="text-green-600 dark:text-green-400">{formatMoney(b.feeIncome, $lang)}</span>
+                                                                        </div>
+                                                                        <div class="flex justify-between gap-3">
+                                                                            <span class="text-muted-foreground">{$_('pnl.earned.detailWdDepositFee', { locale: $lang })}</span>
+                                                                            <span class="text-red-600 dark:text-red-400">−{formatMoney(b.depositFee, $lang)}</span>
+                                                                        </div>
+                                                                        <div class="flex justify-between gap-3">
+                                                                            <span class="text-muted-foreground">{$_('pnl.earned.detailWdPayoutFees', { locale: $lang })}</span>
+                                                                            <span class="text-red-600 dark:text-red-400">−{formatMoney(b.payoutFees, $lang)}</span>
+                                                                        </div>
+                                                                        <div class="flex justify-between gap-3 border-t pt-1 font-bold">
+                                                                            <span>{$_('pnl.earned.detailWdNet', { locale: $lang })}</span>
+                                                                            <span class={deltaClass(wdNet)}>{formatMoney(wdNet, $lang)}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <!-- (b) Money-in cost (gwRate): the blended
+                                                                     gateway rate that materializes the deposit fee -->
+                                                                <div class="flex flex-col gap-1.5">
+                                                                    <p class="text-xs font-medium text-muted-foreground">{$_('pnl.earned.detailGwTitle', { locale: $lang })}</p>
+                                                                    <div class="flex flex-col gap-1 text-sm tabular-nums">
+                                                                        <div class="flex justify-between gap-3">
+                                                                            <span class="text-muted-foreground">{$_('pnl.earned.detailGwPaymentFees', { locale: $lang })}</span>
+                                                                            <span>{formatMoney(r.paymentFees, $lang)}</span>
+                                                                        </div>
+                                                                        <div class="flex justify-between gap-3">
+                                                                            <span class="text-muted-foreground">{$_('pnl.earned.detailGwDeposits', { locale: $lang })}</span>
+                                                                            <span>{formatMoney(r.deposits, $lang)}</span>
+                                                                        </div>
+                                                                        <div class="flex justify-between gap-3 text-muted-foreground">
+                                                                            <span>{$_('pnl.earned.detailGwRate', { locale: $lang, values: { rate: gwRateDetail(r.gwRate, r.deposits) } })}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </Table.Cell>
+                                                </Table.Row>
+                                            {/if}
                                         {/each}
                                         <!-- range totals row: profit lines are SUMS of the
                                              monthly profits (each month keeps its own
@@ -551,14 +619,6 @@
                                                             amount: formatMoney(terminalTotal.withdrawalGross, $lang),
                                                         } })}
                                                     </span>
-                                                    {#if terminalTotal.withdrawalGross > 0 || terminalTotal.feeIncome > 0}
-                                                        {@const b = pnlWithdrawalBreakdown(terminalTotal)}
-                                                        <span class="text-[10px] text-muted-foreground/70 leading-tight">
-                                                            {$_('pnl.earned.wdFeeIncome', { locale: $lang, values: { amount: formatMoney(b.feeIncome, $lang) } })}<br/>
-                                                            {$_('pnl.earned.wdDepositFee', { locale: $lang, values: { amount: formatMoney(b.depositFee, $lang) } })}<br/>
-                                                            {$_('pnl.earned.wdPayoutFees', { locale: $lang, values: { amount: formatMoney(b.payoutFees, $lang) } })}
-                                                        </span>
-                                                    {/if}
                                                 </div>
                                             </Table.Cell>
                                             <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(terminalTotal.ebitda)}">{formatMoney(terminalTotal.ebitda, $lang)}</Table.Cell>

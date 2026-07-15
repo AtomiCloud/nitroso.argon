@@ -11,6 +11,7 @@ import type {
   BookingBoostRes,
   MonthlyAnalysisRes,
 } from '$lib/api/core/data-contracts';
+import { withdrawalLossAmount, type TerminalPnlRow } from '$lib/pnl/terminal';
 
 export type SlotRow = {
   direction: string;
@@ -123,6 +124,41 @@ export function rangeNet(s: BookingAnalysisSummaryRes): number {
 /** Monthly rows sorted newest month first for the P&L table. */
 export function sortMonthly(monthly: MonthlyAnalysisRes[]): MonthlyAnalysisRes[] {
   return [...monthly].sort((a, b) => monthSortKey(b.month).localeCompare(monthSortKey(a.month)));
+}
+
+// ---- withdrawal cost join (Monthly tab columns + Overview card) ----
+// The Monthly P&L table and the Overview stat card surface the withdrawal
+// channel cost from the SAME terminal endpoint the Withdrawals tab uses,
+// joined onto the analysis monthly rollup by MM-yyyy month. Pure + tested so
+// the join (and its zero-default for an unmatched month) stays correct as both
+// payloads evolve.
+
+export type MonthlyWithdrawalCost = {
+  /** net withdrawal cost for the month (positive = a loss BunnyBooker absorbs) */
+  cost: number;
+  count: number;
+  gross: number;
+};
+
+/**
+ * Build a month (MM-yyyy) → {cost, count, gross} lookup from the terminal
+ * payload. The terminal rows are already zero-filled across the picked range,
+ * so every month in range has an entry — a no-activity month joins to zeros,
+ * not to a hole. The renderer looks up each analysis monthly month; a month
+ * absent from the map (defensive — only if the two payloads disagree) reads as
+ * a zero cost. `cost` uses withdrawalLossAmount so the sign matches the
+ * Withdrawals tab (positive = a loss).
+ */
+export function joinMonthlyWithdrawalCost(terminal: TerminalPnlRow[]): Map<string, MonthlyWithdrawalCost> {
+  const byMonth = new Map<string, MonthlyWithdrawalCost>();
+  for (const r of terminal) {
+    byMonth.set(r.month, {
+      cost: withdrawalLossAmount(r),
+      count: r.withdrawalCount,
+      gross: r.withdrawalGross,
+    });
+  }
+  return byMonth;
 }
 
 // ---- profit by travel day (separate endpoint, bucketed by 6h of day) ----
