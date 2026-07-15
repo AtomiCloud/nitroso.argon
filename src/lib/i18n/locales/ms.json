@@ -156,6 +156,36 @@
         "removeConfirm": "Buang tag",
         "removeSuccess": "Tag '{role}' dibuang",
         "removeError": "Gagal membuang tag"
+      },
+      "wipe": {
+        "dangerZoneTitle": "Zon bahaya",
+        "dangerZoneDescription": "Padam secara kekal data peribadi pengguna ini atas permintaan PDPA. Tindakan ini tidak boleh dibuat asal.",
+        "deletesHeading": "Apa yang dipadam",
+        "deletesPassengers": "Penumpang — nama dan butiran pasport",
+        "deletesTickets": "PDF tiket tempahan",
+        "deletesIdentity": "Identiti akaun — nama pengguna ditukar kepada \"deleted-xxxxxxxx\", e-mel dibuang dan log masuk disekat",
+        "keptHeading": "Apa yang disimpan (dan sebabnya)",
+        "keptBody": "Dompet, transaksi, pembayaran dan rekod pengeluaran — termasuk rujukan PayNow, nombor pengesahan dan resit — disimpan untuk perakaunan (penyimpanan 5 tahun IRAS) dan untuk mengenal pasti penerima bayaran.",
+        "descopeReminder": "Juga padam identiti log masuk dalam Descope — platform tidak boleh melakukannya secara automatik.",
+        "trigger": "Padam akaun",
+        "dialogTitle": "Padam akaun ini?",
+        "dialogBody": "Ini memadam data peribadi {username} secara kekal. Untuk sahkan, taip nama pengguna dengan tepat dan tandakan kotak di bawah.",
+        "dialogTypeLead": "Taip nama pengguna",
+        "dialogTypeTrail": "untuk teruskan",
+        "dialogCannotUndo": "Saya faham ini tidak boleh dibuat asal",
+        "dialogTypeMismatch": "Nama pengguna tidak sepadan",
+        "dialogConfirm": "Padam akaun",
+        "success": "Akaun dipadam",
+        "error": "Gagal memadam akaun",
+        "conflict": {
+          "walletNotEmpty": "Dompet masih ada baki — bayar pengguna dahulu sebelum memadam.",
+          "withdrawalInFlight": "Pengeluaran masih belum selesai atau sedang diproses — biarkan ia selesai dahulu.",
+          "alreadyWiped": "Akaun ini telah dipadam."
+        }
+      },
+      "wiped": {
+        "title": "Akaun ini telah dipadam",
+        "body": "Data peribadi pengguna telah dipadam secara kekal atas permintaan PDPA. Dompet, transaksi dan rekod pengeluaran kekal untuk perakaunan. Log masuk disekat, dan identiti log masuk masih perlu dipadam dalam Descope."
       }
     },
     "costs": {

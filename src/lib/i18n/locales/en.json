@@ -156,6 +156,36 @@
         "removeConfirm": "Remove tag",
         "removeSuccess": "Removed tag '{role}'",
         "removeError": "Failed to remove tag"
+      },
+      "wipe": {
+        "dangerZoneTitle": "Danger zone",
+        "dangerZoneDescription": "Permanently wipe this user's personal data for a PDPA request. This cannot be undone.",
+        "deletesHeading": "What gets deleted",
+        "deletesPassengers": "Passengers — names and passport details",
+        "deletesTickets": "Booking ticket PDFs",
+        "deletesIdentity": "Account identity — username becomes \"deleted-xxxxxxxx\", the email is removed and sign-in is blocked",
+        "keptHeading": "What is kept (and why)",
+        "keptBody": "Wallets, transactions, payments and withdrawal records — including PayNow references, confirmation numbers and receipts — are kept for accounting (IRAS 5-year retention) and to identify payees.",
+        "descopeReminder": "Also delete the login identity in Descope — the platform cannot do this automatically.",
+        "trigger": "Wipe account",
+        "dialogTitle": "Wipe this account?",
+        "dialogBody": "This permanently deletes {username}'s personal data. To confirm, type the username exactly and tick the box below.",
+        "dialogTypeLead": "Type the username",
+        "dialogTypeTrail": "to continue",
+        "dialogCannotUndo": "I understand this cannot be undone",
+        "dialogTypeMismatch": "Username does not match",
+        "dialogConfirm": "Wipe account",
+        "success": "Account wiped",
+        "error": "Failed to wipe the account",
+        "conflict": {
+          "walletNotEmpty": "The wallet still holds money — pay the user out before wiping.",
+          "withdrawalInFlight": "A withdrawal is still pending or processing — let it finish first.",
+          "alreadyWiped": "This account has already been wiped."
+        }
+      },
+      "wiped": {
+        "title": "This account was wiped",
+        "body": "The user's personal data has been permanently deleted for a PDPA request. Wallets, transactions and withdrawal records remain for accounting. Sign-in is blocked, and the login identity still needs to be deleted in Descope."
       }
     },
     "costs": {
