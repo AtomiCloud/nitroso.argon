@@ -5,12 +5,13 @@ import { toResult } from '$lib/utility';
 import { loadError } from '$lib/i18n';
 import type { PageLoad } from './$types';
 
-// Server-side load for /partners. Two independent payloads:
+// Owner-only /partners load (the server guard runs first). Two independent
+// payloads:
 //   1. partners  — every user with the 'partner' extraRole. The page can
 //      NOT render without this; a failure here blanks the page.
 //   2. candidates — the recent-user pool the tag-as-partner form picks
 //      from. A failure here ONLY hides the tag form; the partners list
-//      and P&L table still render. We intentionally do NOT use Res.all
+//      and arbitrage table still render. We intentionally do NOT use Res.all
 //      (which would collapse both into a single failure).
 export const load = (async ({
   parent,
@@ -32,7 +33,7 @@ export const load = (async ({
   }
 
   // Tag-as-partner candidates: soft requirement. On failure, fall back to
-  // an empty list so the page still renders the partners + P&L table.
+  // an empty list so the page still renders the partners + arbitrage table.
   const candidatesSerial = await toResult(
     () => api.vUserDetail('1', { Limit: 100 }),
     await loadError(locale, 'errors.load.users'),

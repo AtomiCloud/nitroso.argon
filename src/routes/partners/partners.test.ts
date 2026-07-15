@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { UserPartnerPnlRowRes } from '$lib/api/core/data-contracts';
 import {
+  LIST_BOOST_PRICE,
   monthSortKey,
+  partnerAverageTicketPaid,
+  partnerBoostListGap,
+  partnerBoostListValue,
   partnerMargin,
   partnerMarginPct,
   partnerPnlTotals,
@@ -20,6 +24,7 @@ function row(over: Partial<UserPartnerPnlRowRes>): UserPartnerPnlRowRes {
     withdrawalFeeIncome: 0,
     boostCount: 0,
     boostAmount: 0,
+    distinctPassengers: 0,
     ...over,
   };
 }
@@ -44,6 +49,25 @@ describe('monthSortKey', () => {
     expect(monthSortKey('13-2026')).toBe('');
     expect(monthSortKey('00-2026')).toBe('');
     expect(monthSortKey('99-2026')).toBe('');
+  });
+});
+
+describe('partner arbitrage helpers', () => {
+  it('names the public boost list price as S$10', () => {
+    expect(LIST_BOOST_PRICE).toBe(10);
+  });
+
+  it('computes average ticket price paid and guards divide-by-zero', () => {
+    expect(partnerAverageTicketPaid(4, 100)).toBe(25);
+    expect(partnerAverageTicketPaid(0, 100)).toBe(0);
+    expect(partnerAverageTicketPaid(0, 0)).toBe(0);
+  });
+
+  it('values consumed boosts at list and exposes the gap versus paid', () => {
+    expect(partnerBoostListValue(4)).toBe(40);
+    expect(partnerBoostListGap(4, 0)).toBe(40);
+    expect(partnerBoostListGap(4, 15)).toBe(25);
+    expect(partnerBoostListGap(4, 45)).toBe(-5);
   });
 });
 
@@ -96,6 +120,7 @@ describe('toPartnerPnlRow', () => {
     );
     expect(r.month).toBe('07-2026');
     expect(r.bookings).toBe(12);
+    expect(r.averageTicketPaid).toBeCloseTo(1000 / 12, 5);
     expect(r.collected).toBe(1000);
     expect(r.ktmbCost).toBe(200);
     expect(r.margin).toBe(800);
@@ -103,25 +128,31 @@ describe('toPartnerPnlRow', () => {
     expect(r.deposits).toBe(500);
     expect(r.withdrawalGross).toBe(100);
     expect(r.withdrawalFeeIncome).toBe(10);
-    // boostCount / boostAmount are additive (zinc PR #54) — passed through
-    // verbatim, since they're already shape-correct numbers
+    // boostCount / boostAmount / distinctPassengers are additive (zinc PR
+    // #57) — passed through before the list-value fields are derived
     expect(r.boostCount).toBe(0);
     expect(r.boostAmount).toBe(0);
+    expect(r.boostListValue).toBe(0);
+    expect(r.boostListGap).toBe(0);
+    expect(r.distinctPassengers).toBe(0);
   });
 
-  it('passes boostCount + boostAmount through unchanged', () => {
-    // a booking with a consumed priority boost contributes 1 to boostCount
-    // and its fee to boostAmount — the helper only re-shapes, never derives
+  it('keeps FREE boost consumption and passenger signals visible', () => {
+    // Four consumed FREE boosts have a zero paid amount but S$40 list value.
     const r = toPartnerPnlRow(
       row({
         month: '08-2026',
         bookings: 5,
-        boostCount: 3,
-        boostAmount: 45,
+        boostCount: 4,
+        boostAmount: 0,
+        distinctPassengers: 5,
       }),
     );
-    expect(r.boostCount).toBe(3);
-    expect(r.boostAmount).toBe(45);
+    expect(r.boostCount).toBe(4);
+    expect(r.boostAmount).toBe(0);
+    expect(r.boostListValue).toBe(40);
+    expect(r.boostListGap).toBe(40);
+    expect(r.distinctPassengers).toBe(5);
   });
 });
 
@@ -172,19 +203,16 @@ describe('partnerPnlZeroFill', () => {
     expect(rows.map(r => r.month)).toEqual(['11-2025', '01-2026', '02-2026']);
   });
 
-  it('zero-fills boostCount + boostAmount together with the rest', () => {
-    // a partner boosted 4 of 10 July bookings (40 MYR in boost fees).
-    // The other months in the range had no boosted bookings at all —
-    // their zero rows must carry zero boost fields, not undefined.
+  it('zero-fills boost and passenger signals together with the rest', () => {
     const rows = partnerPnlZeroFill(
-      [row({ month: '07-2026', bookings: 10, boostCount: 4, boostAmount: 40 })],
+      [row({ month: '07-2026', bookings: 10, boostCount: 4, boostAmount: 0, distinctPassengers: 7 })],
       '06-2026',
       '08-2026',
     );
-    expect(rows.map(r => ({ m: r.month, b: r.boostCount, a: r.boostAmount }))).toEqual([
-      { m: '06-2026', b: 0, a: 0 },
-      { m: '07-2026', b: 4, a: 40 },
-      { m: '08-2026', b: 0, a: 0 },
+    expect(rows.map(r => ({ m: r.month, b: r.boostCount, list: r.boostListValue, p: r.distinctPassengers }))).toEqual([
+      { m: '06-2026', b: 0, list: 0, p: 0 },
+      { m: '07-2026', b: 4, list: 40, p: 7 },
+      { m: '08-2026', b: 0, list: 0, p: 0 },
     ]);
   });
 });
@@ -192,36 +220,42 @@ describe('partnerPnlZeroFill', () => {
 describe('partnerPnlTotals', () => {
   it('sums every column across the rows', () => {
     const total = partnerPnlTotals([
-      {
-        month: '01-2026',
-        bookings: 5,
-        boostCount: 2,
-        boostAmount: 30,
-        collected: 1000,
-        ktmbCost: 200,
-        margin: 800,
-        marginPct: 0.8,
-        deposits: 500,
-        withdrawalGross: 100,
-        withdrawalFeeIncome: 10,
-      },
-      {
-        month: '02-2026',
-        bookings: 3,
-        boostCount: 1,
-        boostAmount: 15,
-        collected: 400,
-        ktmbCost: 100,
-        margin: 300,
-        marginPct: 0.75,
-        deposits: 200,
-        withdrawalGross: 50,
-        withdrawalFeeIncome: 5,
-      },
+      toPartnerPnlRow(
+        row({
+          month: '01-2026',
+          bookings: 5,
+          boostCount: 2,
+          boostAmount: 30,
+          distinctPassengers: 4,
+          collected: 1000,
+          ktmbCost: 200,
+          deposits: 500,
+          withdrawalGross: 100,
+          withdrawalFeeIncome: 10,
+        }),
+      ),
+      toPartnerPnlRow(
+        row({
+          month: '02-2026',
+          bookings: 3,
+          boostCount: 1,
+          boostAmount: 15,
+          distinctPassengers: 2,
+          collected: 400,
+          ktmbCost: 100,
+          deposits: 200,
+          withdrawalGross: 50,
+          withdrawalFeeIncome: 5,
+        }),
+      ),
     ]);
     expect(total.bookings).toBe(8);
+    expect(total.averageTicketPaid).toBe(175);
     expect(total.boostCount).toBe(3);
     expect(total.boostAmount).toBe(45);
+    expect(total.boostListValue).toBe(30);
+    expect(total.boostListGap).toBe(-15);
+    expect(total.distinctPassengers).toBe(6);
     expect(total.collected).toBe(1400);
     expect(total.ktmbCost).toBe(300);
     expect(total.margin).toBe(1100);
@@ -237,8 +271,12 @@ describe('partnerPnlTotals', () => {
     expect(partnerPnlTotals([])).toEqual({
       month: '',
       bookings: 0,
+      averageTicketPaid: 0,
       boostCount: 0,
       boostAmount: 0,
+      boostListValue: 0,
+      boostListGap: 0,
+      distinctPassengers: 0,
       collected: 0,
       ktmbCost: 0,
       margin: 0,
@@ -253,32 +291,8 @@ describe('partnerPnlTotals', () => {
     // zero-revenue months: the weighted-average ratio would NaN without
     // the guard, so the totals row stays at 0% instead
     const total = partnerPnlTotals([
-      {
-        month: '01-2026',
-        bookings: 0,
-        boostCount: 0,
-        boostAmount: 0,
-        collected: 0,
-        ktmbCost: 0,
-        margin: 0,
-        marginPct: 0,
-        deposits: 0,
-        withdrawalGross: 0,
-        withdrawalFeeIncome: 0,
-      },
-      {
-        month: '02-2026',
-        bookings: 0,
-        boostCount: 0,
-        boostAmount: 0,
-        collected: 0,
-        ktmbCost: 0,
-        margin: 0,
-        marginPct: 0,
-        deposits: 0,
-        withdrawalGross: 0,
-        withdrawalFeeIncome: 0,
-      },
+      toPartnerPnlRow(row({ month: '01-2026' })),
+      toPartnerPnlRow(row({ month: '02-2026' })),
     ]);
     expect(total.marginPct).toBe(0);
     expect(total.collected).toBe(0);

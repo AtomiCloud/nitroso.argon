@@ -98,11 +98,13 @@
                     {$_('account.users', { locale: $lang })}
                 </DropdownMenu.Item>
             </a>
-            <a href="/partners">
-                <DropdownMenu.Item>
-                    {$_('account.partners', { locale: $lang })}
-                </DropdownMenu.Item>
-            </a>
+            {#if session?.roles?.includes("owner")}
+                <a href="/partners">
+                    <DropdownMenu.Item>
+                        {$_('account.partners', { locale: $lang })}
+                    </DropdownMenu.Item>
+                </a>
+            {/if}
             {/if}
             <DropdownMenu.Separator/>
             <a href="/wallets/{$page.data.user.wallet.id}">
