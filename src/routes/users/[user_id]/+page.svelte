@@ -17,13 +17,18 @@
     import {toResult} from "$lib/utility";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
-    import {CreditCard, LucideLoader, LucidePlus, Ticket, Users, Wallet as WalletIcon, X} from "lucide-svelte";
+    import {AlertTriangle, CreditCard, LucideLoader, LucidePlus, Ticket, Users, Wallet as WalletIcon, X} from "lucide-svelte";
     import {_} from "svelte-i18n";
     import {lang} from "$lib/i18n";
     //@ts-ignore
     import * as Card from "$lib/components/ui/card";
     //@ts-ignore
     import * as Dialog from "$lib/components/ui/dialog";
+    //@ts-ignore
+    import * as Alert from "$lib/components/ui/alert";
+    import {Checkbox} from "$lib/components/ui/checkbox";
+    import {Label} from "$lib/components/ui/label";
+    import {isWipedUser, wipeConflictReason} from "./wipe";
 
     export let data: PageData;
 
@@ -86,6 +91,48 @@
         roleSubmitting = false;
     }
 
+    // ---- account wipe (admin): POST User/{id}/wipe. Irreversibly removes a
+    // user's personal data (PDPA); wallets / transactions / withdrawals are
+    // kept for accounting. The detail endpoint does not yet expose wipedAt, so
+    // the wiped state is inferred from a 'deleted-' username. ----
+    let wipeOpen = false;
+    let wipeConfirm = "";
+    let wipeAcknowledged = false;
+    let wipeSubmitting = false;
+
+    function openWipe() {
+        wipeConfirm = "";
+        wipeAcknowledged = false;
+        wipeOpen = true;
+    }
+
+    async function wipeAccount(userId: string) {
+        wipeSubmitting = true;
+        await toResult(() => $api.vUserWipeCreate(userId, "1"),
+            $_("admin.users.wipe.error", {locale: $lang})).match({
+            ok: () => {
+                toast.success($_("admin.users.wipe.success", {locale: $lang}));
+                wipeOpen = false;
+                invalidateAll();
+            },
+            err: (e) => {
+                const reason = wipeConflictReason(e);
+                if (reason === "wallet_not_empty") {
+                    toast.error($_("admin.users.wipe.conflict.walletNotEmpty", {locale: $lang}));
+                } else if (reason === "withdrawal_in_flight") {
+                    toast.error($_("admin.users.wipe.conflict.withdrawalInFlight", {locale: $lang}));
+                } else if (reason === "already_wiped") {
+                    // already wiped — reload the detail so the wiped banner shows
+                    wipeOpen = false;
+                    invalidateAll();
+                } else {
+                    toast.error(e.detail ?? e.type);
+                }
+            }
+        });
+        wipeSubmitting = false;
+    }
+
     $: user = (Res.fromSerial<UserRes, ProblemDetails>(data.result)
         .match({
             ok: (a: UserRes): UserRes => {
@@ -146,7 +193,19 @@
                     <!-- Roles: token roles (filled) vs admin-granted extra
                          roles (outlined, removable). Extra roles only steer
                          pricing/discount targeting — never permissions. -->
-                    {#if session?.roles?.includes("admin")}
+                    {#if isWipedUser(u.principal)}
+                        <Card.Root class="border-destructive/40 bg-destructive/5">
+                            <Card.Content class="pt-6">
+                                <Alert.Root variant="destructive">
+                                    <AlertTriangle class="h-4 w-4"/>
+                                    <Alert.Title>{$_("admin.users.wiped.title", {locale: $lang})}</Alert.Title>
+                                    <Alert.Description>{$_("admin.users.wiped.body", {locale: $lang})}</Alert.Description>
+                                </Alert.Root>
+                            </Card.Content>
+                        </Card.Root>
+                    {/if}
+
+                    {#if session?.roles?.includes("admin") && !isWipedUser(u.principal)}
                         <Card.Root>
                             <Card.Header>
                                 <Card.Title>{$_("admin.users.rolesCard.title", {locale: $lang})}</Card.Title>
@@ -223,6 +282,82 @@
                                     {/if}
                                     {$_("admin.users.rolesCard.removeConfirm", {locale: $lang})}
                                 </Button>
+                            </Dialog.Content>
+                        </Dialog.Root>
+
+                        <!-- Danger zone: irreversibly wipe personal data (PDPA). -->
+                        <Card.Root class="border-destructive/40">
+                            <Card.Header>
+                                <Card.Title class="flex items-center gap-2 text-destructive">
+                                    <AlertTriangle class="h-5 w-5"/>
+                                    {$_("admin.users.wipe.dangerZoneTitle", {locale: $lang})}
+                                </Card.Title>
+                                <Card.Description>{$_("admin.users.wipe.dangerZoneDescription", {locale: $lang})}</Card.Description>
+                            </Card.Header>
+                            <Card.Content>
+                                <div class="flex flex-col gap-6">
+                                    <div class="grid gap-6 md:grid-cols-2">
+                                        <div class="flex flex-col gap-2">
+                                            <h4 class="font-medium text-destructive">{$_("admin.users.wipe.deletesHeading", {locale: $lang})}</h4>
+                                            <ul class="flex flex-col gap-1 text-sm text-muted-foreground">
+                                                <li>{$_("admin.users.wipe.deletesPassengers", {locale: $lang})}</li>
+                                                <li>{$_("admin.users.wipe.deletesTickets", {locale: $lang})}</li>
+                                                <li>{$_("admin.users.wipe.deletesIdentity", {locale: $lang})}</li>
+                                            </ul>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <h4 class="font-medium">{$_("admin.users.wipe.keptHeading", {locale: $lang})}</h4>
+                                            <p class="text-sm text-muted-foreground">{$_("admin.users.wipe.keptBody", {locale: $lang})}</p>
+                                        </div>
+                                    </div>
+                                    <Alert.Root>
+                                        <AlertTriangle class="h-4 w-4"/>
+                                        <Alert.Description>{$_("admin.users.wipe.descopeReminder", {locale: $lang})}</Alert.Description>
+                                    </Alert.Root>
+                                    <Button variant="destructive" class="self-start" on:click={openWipe}>
+                                        <AlertTriangle class="mr-2 h-4 w-4"/>
+                                        {$_("admin.users.wipe.trigger", {locale: $lang})}
+                                    </Button>
+                                </div>
+                            </Card.Content>
+                        </Card.Root>
+
+                        <Dialog.Root bind:open={wipeOpen}>
+                            <Dialog.Content class="max-w-md">
+                                <Dialog.Header>
+                                    <Dialog.Title>{$_("admin.users.wipe.dialogTitle", {locale: $lang})}</Dialog.Title>
+                                    <Dialog.Description>
+                                        {$_("admin.users.wipe.dialogBody", {locale: $lang, values: {username: u.principal.username ?? ""}})}
+                                    </Dialog.Description>
+                                </Dialog.Header>
+                                <div class="flex flex-col gap-4">
+                                    <div class="flex flex-col gap-2">
+                                        <div class="text-sm text-muted-foreground">
+                                            {$_("admin.users.wipe.dialogTypeLead", {locale: $lang})}
+                                            <code class="mx-1 rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold text-foreground">{u.principal.username ?? ""}</code>
+                                            {$_("admin.users.wipe.dialogTypeTrail", {locale: $lang})}
+                                        </div>
+                                        <Input autocapitalize="none" autocorrect="off" spellcheck={false}
+                                               bind:value={wipeConfirm}/>
+                                        <p class="text-sm text-destructive {wipeConfirm === "" || wipeConfirm === (u.principal.username ?? "") ? "hidden" : ""}">
+                                            {$_("admin.users.wipe.dialogTypeMismatch", {locale: $lang})}
+                                        </p>
+                                    </div>
+                                    <div class="flex items-start gap-2">
+                                        <Checkbox id="wipe-ack" bind:checked={wipeAcknowledged} class="mt-0.5"/>
+                                        <Label for="wipe-ack" class="font-normal cursor-pointer leading-tight">
+                                            {$_("admin.users.wipe.dialogCannotUndo", {locale: $lang})}
+                                        </Label>
+                                    </div>
+                                    <Button variant="destructive"
+                                            on:click={() => wipeAccount(u.principal.id ?? "")}
+                                            disabled={wipeSubmitting || wipeConfirm !== (u.principal.username ?? "") || wipeConfirm === "" || !wipeAcknowledged}>
+                                        {#if wipeSubmitting}
+                                            <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
+                                        {/if}
+                                        {$_("admin.users.wipe.dialogConfirm", {locale: $lang})}
+                                    </Button>
+                                </div>
                             </Dialog.Content>
                         </Dialog.Root>
                     {/if}

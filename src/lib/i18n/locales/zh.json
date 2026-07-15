@@ -156,6 +156,36 @@
         "removeConfirm": "移除标签",
         "removeSuccess": "已移除标签 '{role}'",
         "removeError": "移除标签失败"
+      },
+      "wipe": {
+        "dangerZoneTitle": "危险区",
+        "dangerZoneDescription": "应 PDPA 要求永久清除该用户的个人资料。此操作不可撤销。",
+        "deletesHeading": "会被删除的内容",
+        "deletesPassengers": "乘客 — 姓名与护照资料",
+        "deletesTickets": "订票机票 PDF",
+        "deletesIdentity": "账户身份 — 用户名变为 \"deleted-xxxxxxxx\"，移除电邮并封锁登录",
+        "keptHeading": "会保留的内容（及原因）",
+        "keptBody": "钱包、交易、付款与提款记录 — 包括 PayNow 参考号、确认编号与收据 — 予以保留以作会计之用（IRAS 五年保存期）并识别收款人。",
+        "descopeReminder": "还需在 Descope 中删除登录身份 — 平台无法自动完成此操作。",
+        "trigger": "清除账户",
+        "dialogTitle": "确定清除此账户？",
+        "dialogBody": "这将永久删除 {username} 的个人资料。为确认，请准确输入用户名并勾选下方选框。",
+        "dialogTypeLead": "请输入用户名",
+        "dialogTypeTrail": "以继续",
+        "dialogCannotUndo": "我了解此操作不可撤销",
+        "dialogTypeMismatch": "用户名不匹配",
+        "dialogConfirm": "清除账户",
+        "success": "账户已清除",
+        "error": "清除账户失败",
+        "conflict": {
+          "walletNotEmpty": "钱包仍有余额 — 请先向用户付款再清除。",
+          "withdrawalInFlight": "有一笔提款仍在待处理或处理中 — 请先等待其完成。",
+          "alreadyWiped": "此账户已被清除。"
+        }
+      },
+      "wiped": {
+        "title": "此账户已被清除",
+        "body": "应 PDPA 要求，该用户的个人资料已被永久删除。钱包、交易与提款记录予以保留以作会计之用。登录已被封锁，登录身份仍需在 Descope 中删除。"
       }
     },
     "costs": {
