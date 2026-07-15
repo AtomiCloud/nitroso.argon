@@ -1249,7 +1249,11 @@
       "filterByCompleterId": "Filter by completer ID...",
       "filterByDateRange": "Filter by date range",
       "statusNone": "None",
-      "notFound": "Withdrawals not found"
+      "notFound": "Withdrawals not found",
+      "searchPlaceholder": "Search by id, PayNow number, confirmation id, or amount",
+      "pageInfo": "Showing {from}–{to} of {total}",
+      "prevPage": "Previous page",
+      "nextPage": "Next page"
     },
     "method": {
       "PayNow": "PayNow",
@@ -1270,7 +1274,13 @@
     },
     "card": {
       "amountToPayNow": "{amount} to PayNow {payNowNumber}",
-      "amountToCard": "{amount} refunded to card",
+      "amountToCard": "{amount} to card (refund pending approval)",
+      "amountToCardPending": "{amount} to card — refund pending approval",
+      "amountToCardProcessing": "{amount} refund to card via Airwallex (processing)",
+      "amountToCardCompleted": "{amount} refunded to card",
+      "amountToCardCancelled": "{amount} card refund cancelled",
+      "amountToCardRejected": "{amount} card refund rejected",
+      "amountToCardRmi": "{amount} card refund requires manual intervention",
       "viewDetails": "View Details",
       "by": "By",
       "completer": "Completer",
@@ -1289,9 +1299,10 @@
       "trigger": "Auto approve (Airwallex)",
       "title": "Approve withdrawal",
       "instructions": "Approving will initiate an automated PayNow payout via Airwallex to {payNowNumber} for the net amount ({amount} minus the withdrawal fee). The withdrawal will move to \"Processing\" and complete automatically once Airwallex confirms the transfer.",
-      "instructionsCard": "Approving will refund the net amount ({amount} minus the withdrawal fee) back onto the card payments that funded this wallet, oldest first, via Airwallex. The withdrawal will move to \"Processing\" and complete automatically once every refund settles.",
+      "instructionsCard": "Approving will INITIATE a card refund of the net amount ({amount} minus the withdrawal fee), oldest first, back onto the card payments that funded this wallet, via Airwallex. The withdrawal will move to \"Processing\" and will only move to \"Completed\" once Airwallex confirms every refund settled — that can take several business days, and how quickly the credit appears on the card depends on the cardholder's issuing bank.",
       "poolShrank": "The refundable pool can no longer cover this withdrawal: {required} needed, only {available} refundable. Ask the user to cancel and re-request a smaller amount.",
       "success": "Payout initiated for the withdrawal of {amount}. It will complete automatically once Airwallex confirms.",
+      "successCard": "Card refund initiated for the withdrawal of {amount}. The cards will only be credited once Airwallex settles — how quickly that shows up depends on the cardholder's bank.",
       "failed": "Failed to approve withdrawal"
     },
     "cancel": {

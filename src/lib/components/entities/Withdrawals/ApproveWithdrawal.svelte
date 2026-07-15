@@ -29,7 +29,14 @@
         await toResult(() => $api.vWithdrawalApproveCreate(withdrawal.id, "1.0"
         ), $_('withdrawals.approve.failed', { locale: $lang })).match({
             ok: () => {
-                toast.info($_('withdrawals.approve.success', { locale: $lang, values: { amount: formatMoney(withdrawal.record?.amount ?? 0, $lang) } }));
+                // PayNow and CardRefund share the trigger button but produce
+                // very different honesty: PayNow is a one-shot transfer;
+                // CardRefund is INITIATED here — funds only land when
+                // Airwallex settles every fragment, which can take days.
+                const successKey = isCardRefund(withdrawal.record)
+                    ? 'withdrawals.approve.successCard'
+                    : 'withdrawals.approve.success';
+                toast.info($_(successKey, { locale: $lang, values: { amount: formatMoney(withdrawal.record?.amount ?? 0, $lang) } }));
                 dialogOpen = false;
                 invalidateAll();
             },
