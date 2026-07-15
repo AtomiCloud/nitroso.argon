@@ -34,6 +34,15 @@ describe('monthSortKey', () => {
     expect(monthSortKey('')).toBe('');
     expect(monthSortKey('garbage')).toBe('');
   });
+
+  it('rejects out-of-range months (defensive: 13-2026 must not produce a sort key)', () => {
+    // structurally matches the regex but is semantically wrong — would
+    // otherwise produce a nonsense key and let partnerPnlZeroFill's cursor
+    // math loop forever on the from-key comparison
+    expect(monthSortKey('13-2026')).toBe('');
+    expect(monthSortKey('00-2026')).toBe('');
+    expect(monthSortKey('99-2026')).toBe('');
+  });
 });
 
 describe('partnerMargin', () => {
@@ -127,6 +136,19 @@ describe('partnerPnlZeroFill', () => {
     // usable table from whatever zinc returned
     const rows = partnerPnlZeroFill([row({ month: '04-2026' }), row({ month: '02-2026' })], '', '');
     expect(rows.map(r => r.month)).toEqual(['02-2026', '04-2026']);
+  });
+
+  it('fallback sort orders correctly across year boundaries', () => {
+    // localeCompare on "MM-yyyy" happens to give the right order for
+    // 12-2025 < 01-2026 (12 < 01 in the first two chars, "12-2025" < "01-2026"
+    // is true lexicographically), but it's accidental and brittle — the
+    // sort must use the numeric yyyyMM key, which is the only correct way
+    const rows = partnerPnlZeroFill(
+      [row({ month: '01-2026' }), row({ month: '11-2025' }), row({ month: '02-2026' })],
+      '',
+      '',
+    );
+    expect(rows.map(r => r.month)).toEqual(['11-2025', '01-2026', '02-2026']);
   });
 });
 

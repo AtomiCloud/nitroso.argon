@@ -110,12 +110,13 @@
     let candidates: UserPrincipalRes[] = [];
     let loadFailed = false;
 
-    // The loader returns either [partners, candidates] or an error. Same
+    // The loader returns either a single err (partners list failed) or
+    // [partners, candidates] (candidates may be [] on soft failure). Same
     // pattern as the /users page: Res.fromSerial(...).match() yields a
     // Promise; we await it via {#await} in the template. The err branch
     // is "unreachable" in the type (returns null as never) but still runs
     // to set the failure flag.
-    $: loadOutcome = (Res.fromSerial<[UserPrincipalRes[], UserPrincipalRes[]], ProblemDetails[]>(data.result).match({
+    $: loadOutcome = (Res.fromSerial<[UserPrincipalRes[], UserPrincipalRes[]], ProblemDetails>(data.result).match({
         ok: ([p, c]) => {
             loadFailed = false;
             return [p, c] as [UserPrincipalRes[], UserPrincipalRes[]];
@@ -164,8 +165,14 @@
     async function loadPnl() {
         if (selectedId === "") {
             pnlRows = [];
+            pnlRaw = [];
             return;
         }
+        // race guard: if the admin clicks a new partner (or changes the
+        // range) before the in-flight request resolves, the late response
+        // would clobber pnlRaw / pnlFailed for the current selection. The
+        // token bumps on every call; only the latest may write.
+        const myToken = ++pnlToken;
         pnlLoading = true;
         pnlFailed = false;
         await toResult(
@@ -173,16 +180,23 @@
             $_("partners.pnl.loadError", { locale: $lang }),
         ).match({
             ok: (r: UserPartnerPnlRowRes[]) => {
+                if (myToken !== pnlToken) return;
                 pnlRaw = r;
                 pnlFailed = false;
             },
             err: e => {
+                if (myToken !== pnlToken) return;
                 console.error(e);
                 pnlFailed = true;
             },
         });
-        pnlLoading = false;
+        if (myToken === pnlToken) pnlLoading = false;
     }
+
+    // Bumped on every loadPnl() invocation; readers compare their captured
+    // token to drop stale responses (the page is admin-only with a single
+    // selection at a time, but rapid clicks would otherwise race).
+    let pnlToken = 0;
 
     let pnlRaw: UserPartnerPnlRowRes[] = [];
 
@@ -299,6 +313,17 @@
     let urlReady = false;
     let lastSelected = "";
 
+    // The picker operates on day-level dates, but the URL round-trips the
+    // range as MM-yyyy (we use the month boundaries for the P&L table
+    // zero-fill). When seeding the picker from a URL `to=MM-yyyy`, the
+    // `before` DateValue must point at the LAST day of the picked month —
+    // not day 28, which would silently truncate the last 1-3 days of
+    // 29/30/31-day months (the P&L endpoint treats the bound as inclusive).
+    function lastDayOfMonth(month: number, year: number): number {
+        // 0th day of (month+1) = last day of `month` in Date arithmetic
+        return new Date(Date.UTC(year, month, 0)).getUTCDate();
+    }
+
     function applyUrl(q: URLSearchParams) {
         const id = q.get("selected") ?? "";
         selectedId = id;
@@ -308,14 +333,13 @@
         const parsedFrom = from ? monthSortKey(from) : "";
         const parsedTo = to ? monthSortKey(to) : "";
         if (parsedFrom !== "" && parsedTo !== "" && parsedFrom <= parsedTo) {
-            // from/to are MM-yyyy here; turn them into CalendarDates for the
-            // picker. The picker operates on day-level dates; we anchor to
-            // day 1 of the picked month.
             const fm = /^(\d{2})-(\d{4})$/.exec(from ?? "");
             const tm = /^(\d{2})-(\d{4})$/.exec(to ?? "");
             if (fm && tm) {
+                const toMonth = Number(tm[1]);
+                const toYear = Number(tm[2]);
                 after = new CalendarDate(Number(fm[2]), Number(fm[1]), 1);
-                before = new CalendarDate(Number(tm[2]), Number(tm[1]), 28);
+                before = new CalendarDate(toYear, toMonth, lastDayOfMonth(toMonth, toYear));
             }
         } else {
             after = fromApiDate(defAfterStr) ?? undefined;

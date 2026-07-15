@@ -10,10 +10,17 @@
 // off the helper.
 import type { UserPartnerPnlRowRes } from '$lib/api/core/data-contracts';
 
-/** zinc's monthly bucket wire format, "MM-yyyy" → a sortable yyyyMM key. */
+/** zinc's monthly bucket wire format, "MM-yyyy" → a sortable yyyyMM key.
+ *  Defensive: rejects months outside 01-12 (the wire format is MM-yyyy and
+ *  "13-2026" is structurally valid for the regex but semantically wrong —
+ *  a malformed URL or bad payload would otherwise produce a nonsense sort
+ *  key and let partnerPnlZeroFill's cursor math loop forever). */
 export function monthSortKey(month: string): string {
   const m = /^(\d{2})-(\d{4})$/.exec(month);
-  return m ? `${m[2]}${m[1]}` : '';
+  if (m == null) return '';
+  const mm = Number(m[1]);
+  if (mm < 1 || mm > 12) return '';
+  return `${m[2]}${m[1]}`;
 }
 
 /**
@@ -98,7 +105,11 @@ export function partnerPnlZeroFill(rows: UserPartnerPnlRowRes[], from: string, t
   const fromKey = monthSortKey(from);
   const toKey = monthSortKey(to);
   if (fromKey === '' || toKey === '' || fromKey > toKey) {
-    return [...rows].map(toPartnerPnlRow).sort((a, b) => a.month.localeCompare(b.month));
+    // sort by the numeric yyyyMM key (NOT localeCompare on the "MM-yyyy"
+    // string — that gets year boundaries wrong: "12-2025".localeCompare
+    // ("01-2026") < 0 is true by accident here, but "11-2025" < "02-2026"
+    // is luckier than it looks and breaks with shorter prefixes)
+    return [...rows].map(toPartnerPnlRow).sort((a, b) => monthSortKey(a.month).localeCompare(monthSortKey(b.month)));
   }
   // yyyyMM → MM-yyyy
   const label = (k: string) => `${k.slice(4, 6)}-${k.slice(0, 4)}`;
