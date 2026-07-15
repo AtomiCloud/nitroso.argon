@@ -20,7 +20,8 @@
     "signIn": "Sign in",
     "fees": "Fees",
     "stats": "Statistics",
-    "analysis": "Analysis"
+    "analysis": "Analysis",
+    "partners": "Partners"
   },
   "theme": {
     "toggle": "Toggle theme"
@@ -104,7 +105,8 @@
       "withdrawals": "Fail to get withdrawals",
       "withdrawal": "Fail to get withdrawal",
       "users": "Fail to get users",
-      "user": "Fail to get user"
+      "user": "Fail to get user",
+      "partners": "Fail to get partners"
     }
   },
   "admin": {
@@ -1231,6 +1233,58 @@
       "descriptionAfter": "'s account.",
       "successToast": "Successfully added {amount} worth of Promo Credit to user's account.",
       "errorToast": "Failed to create promo transfer"
+    }
+  },
+  "partners": {
+    "title": "Partners",
+    "loadError": "Failed to load the partners page",
+    "reload": "Reload",
+    "list": {
+      "title": "Partner accounts",
+      "description": "{count} partner-tagged account(s). Click one to load their P&L.",
+      "empty": "No partners yet — tag one from the search below.",
+      "noEmail": "(no email on file)"
+    },
+    "tag": {
+      "title": "Tag a user as partner",
+      "description": "Searches recent users (admin /User search). Already-tagged partners are hidden.",
+      "searchPlaceholder": "Filter by username or email…",
+      "button": "Tag as partner",
+      "noMoreCandidates": "Every recent user is already a partner.",
+      "noMatch": "No matching users.",
+      "error": "Failed to tag user as partner",
+      "success": "Tagged {username} as partner"
+    },
+    "untag": {
+      "aria": "Untag {username} as partner",
+      "title": "Untag this partner?",
+      "body": "Removes the 'partner' extraRole from {username}. Their past bookings and wallet history stay; the role tag is gone.",
+      "confirm": "Untag partner",
+      "error": "Failed to untag partner",
+      "success": "Untagged {username}"
+    },
+    "range": {
+      "after": "From",
+      "before": "To",
+      "hint": "Months with no activity are zero-filled across the picked range."
+    },
+    "pnl": {
+      "title": "Partner P&L",
+      "description": "Pick a partner on the left to load their monthly P&L.",
+      "noSelection": "Pick a partner from the list to load their P&L.",
+      "loadError": "Failed to load this partner's P&L",
+      "colMonth": "Month",
+      "colBookings": "Bookings",
+      "colCollected": "Collected",
+      "colKtmbCost": "Our KTMB cost",
+      "colMargin": "Our margin",
+      "colMarginPct": "Margin %",
+      "colDeposits": "Deposits",
+      "colWithdrawalsGross": "Withdrawals (gross)",
+      "colWithdrawalsFee": "Withdrawals (fee income)",
+      "marginHint": "Collected − our KTMB cost for that month. Green = we made money, red = we lost money on this partner's activity.",
+      "marginNote": "Margin is computed client-side as collected − our KTMB cost. Deposits and withdrawals are tracked alongside but not subtracted from margin — they're cash-flow, not P&L.",
+      "total": "Total"
     }
   },
   "withdrawals": {

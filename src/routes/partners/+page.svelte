@@ -1,0 +1,804 @@
+<script lang="ts">
+    import { onMount, tick } from "svelte";
+    import { page } from "$app/stores";
+    import { goto } from "$app/navigation";
+    import { api } from "../../store";
+    import { invalidateAll } from "$app/navigation";
+
+    //@ts-ignore
+    import * as Card from "$lib/components/ui/card";
+    //@ts-ignore
+    import * as Dialog from "$lib/components/ui/dialog";
+    //@ts-ignore
+    import * as Popover from "$lib/components/ui/popover";
+    //@ts-ignore
+    import * as Table from "$lib/components/ui/table";
+
+    import { Calendar } from "$lib/components/ui/calendar";
+    import { Button } from "$lib/components/ui/button";
+    import { Input } from "$lib/components/ui/input";
+    import { cn } from "$lib/utils";
+    import { CalendarDate, type DateValue, getLocalTimeZone } from "@internationalized/date";
+    import { singaporeToday } from "$lib/time/singapore";
+    import { CalendarIcon, ChevronLeft, ChevronRight, LucideLoader, RotateCw, Search, Tag, X } from "lucide-svelte";
+    import type { ProblemDetails } from "../../errors/problem_details";
+    import type { UserPartnerPnlRowRes, UserPrincipalRes } from "$lib/api/core/data-contracts";
+    import { Res } from "$lib/core/result";
+    import { toResult } from "$lib/utility";
+    import Loader from "$lib/components/complex/loader.svelte";
+    import InfoTip from "$lib/components/core/InfoTip.svelte";
+    import { toast } from "svelte-sonner";
+    import { _ } from "svelte-i18n";
+    import { formatCalendarDate, formatMoney, formatNumber, lang } from "$lib/i18n";
+    import type { PageData } from "./$types";
+    import {
+        type PartnerPnlRow,
+        monthSortKey,
+        partnerPnlTotals,
+        partnerPnlZeroFill,
+    } from "./partners";
+
+    export let data: PageData;
+
+    // Admin-only partner P&L page. Resellers are tagged with the 'partner'
+    // extraRole via POST /User/{id}/roles/partner; this page lists every
+    // partner-tagged user and lets the admin drill into their monthly P&L.
+    //
+    // Layout: a partner list on the left + a P&L table on the right. The
+    // date range picker filters the P&L table; the picked partner survives a
+    // range change. Tag-as-partner uses the same /User search the /users
+    // page uses, so admins can pick from the recent-user pool without
+    // having to type. Untag uses an AlertDialog confirm (irreversible —
+    // removes the role from the user).
+    //
+    // The selected partner ID and date bounds are mirrored into the URL
+    // query string (selected/from/to, defaults omitted) so back / refresh /
+    // share reproduce the exact view. The partner list is loaded by the
+    // page loader (see +page.ts); the per-partner P&L fetch happens
+    // client-side on selection.
+
+    function toApiDate(d: DateValue): string {
+        const dd = String(d.day).padStart(2, "0");
+        const mm = String(d.month).padStart(2, "0");
+        return `${dd}-${mm}-${d.year}`;
+    }
+
+    function fromApiDate(s: string | null | undefined): DateValue | null {
+        const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(s ?? "");
+        return m ? new CalendarDate(Number(m[3]), Number(m[2]), Number(m[1])) : null;
+    }
+
+    // "MM-yyyy" → a localized label like "Jul 2026" (zinc's monthly buckets)
+    function monthLabel(month: string): string {
+        const m = /^(\d{2})-(\d{4})$/.exec(month);
+        if (m == null) return month;
+        return formatCalendarDate(new Date(Number(m[2]), Number(m[1]) - 1, 1), $lang, {
+            month: "short",
+            year: "numeric",
+        });
+    }
+
+    function deltaClass(delta: number): string {
+        if (delta > 0) return "text-green-600 dark:text-green-400";
+        if (delta < 0) return "text-red-600 dark:text-red-400";
+        return "";
+    }
+
+    function signedPct(pct: number): string {
+        const sign = pct > 0 ? "+" : pct < 0 ? "−" : "";
+        return `${sign}${(Math.abs(pct) * 100).toFixed(1)}%`;
+    }
+
+    // Default range = the last 6 months ending in Singapore today (partners
+    // are a low-volume cohort — going beyond 6 months just makes the table
+    // noisier without telling a different story).
+    const today = singaporeToday();
+    let after: DateValue | undefined = today.subtract({ months: 6 });
+    let before: DateValue | undefined = today;
+
+    function rangeQuery() {
+        return {
+            ...(after == null ? {} : { After: toApiDate(after) }),
+            ...(before == null ? {} : { Before: toApiDate(before) }),
+        };
+    }
+
+    // the page loader returns [partners, candidate-users-for-tagging] — keep
+    // both so the tag-as-partner form can be rebuilt after the partner list
+    // refreshes without losing the search pool
+    let partners: UserPrincipalRes[] = [];
+    let candidates: UserPrincipalRes[] = [];
+    let loadFailed = false;
+
+    // The loader returns either a single err (partners list failed) or
+    // [partners, candidates] (candidates may be [] on soft failure). Same
+    // pattern as the /users page: Res.fromSerial(...).match() yields a
+    // Promise; we await it via {#await} in the template. The err branch
+    // is "unreachable" in the type (returns null as never) but still runs
+    // to set the failure flag.
+    $: loadOutcome = (Res.fromSerial<[UserPrincipalRes[], UserPrincipalRes[]], ProblemDetails>(data.result).match({
+        ok: ([p, c]) => {
+            loadFailed = false;
+            return [p, c] as [UserPrincipalRes[], UserPrincipalRes[]];
+        },
+        err: e => {
+            console.error(e);
+            loadFailed = true;
+            return null as never;
+        },
+    }) satisfies Promise<[UserPrincipalRes[], UserPrincipalRes[]]>);
+
+    function applyLoaded(v: [UserPrincipalRes[], UserPrincipalRes[]]) {
+        partners = v[0];
+        candidates = v[1];
+        // if the URL-seeded selection no longer points at a partner (someone
+        // untagged while the page was open), drop it
+        if (selectedId !== "" && !partners.some(p => p.id === selectedId)) {
+            selectedId = "";
+        }
+    }
+
+    // selected partner (URL-mirrored)
+    let selectedId = "";
+
+    $: selectedPartner = partners.find(p => p.id === selectedId) ?? null;
+
+    // per-partner P&L state
+    let pnlRows: PartnerPnlRow[] = [];
+    let pnlLoading = false;
+    let pnlFailed = false;
+
+    // candidate users that are NOT already partners (the tag-as-partner
+    // search filters out anyone who's already tagged)
+    let tagQuery = "";
+    $: nonPartnerCandidates = candidates.filter(
+        c => !(c.extraRoles ?? []).includes("partner") && (c.id ?? "") !== "",
+    );
+    $: visibleCandidates = (() => {
+        const q = tagQuery.trim().toLowerCase();
+        if (q === "") return nonPartnerCandidates.slice(0, 10);
+        return nonPartnerCandidates
+            .filter(c => (c.username ?? "").toLowerCase().includes(q) || (c.email ?? "").toLowerCase().includes(q))
+            .slice(0, 10);
+    })();
+
+    async function loadPnl() {
+        if (selectedId === "") {
+            pnlRows = [];
+            pnlRaw = [];
+            return;
+        }
+        // race guard: if the admin clicks a new partner (or changes the
+        // range) before the in-flight request resolves, the late response
+        // would clobber pnlRaw / pnlFailed for the current selection. The
+        // token bumps on every call; only the latest may write.
+        const myToken = ++pnlToken;
+        pnlLoading = true;
+        pnlFailed = false;
+        await toResult(
+            () => $api.vUserPnlDetail(selectedId, "1", rangeQuery()),
+            $_("partners.pnl.loadError", { locale: $lang }),
+        ).match({
+            ok: (r: UserPartnerPnlRowRes[]) => {
+                if (myToken !== pnlToken) return;
+                pnlRaw = r;
+                pnlFailed = false;
+            },
+            err: e => {
+                if (myToken !== pnlToken) return;
+                console.error(e);
+                pnlFailed = true;
+            },
+        });
+        if (myToken === pnlToken) pnlLoading = false;
+    }
+
+    // Bumped on every loadPnl() invocation; readers compare their captured
+    // token to drop stale responses (the page is admin-only with a single
+    // selection at a time, but rapid clicks would otherwise race).
+    let pnlToken = 0;
+
+    let pnlRaw: UserPartnerPnlRowRes[] = [];
+
+    // P&L is zero-filled across the picked range so months with no activity
+    // still appear (matches the /analysis P&L tab convention — see
+    // pnlZeroFill). Bounds are MM-yyyy labels derived from the same date
+    // picker the rest of the page uses.
+    $: pnlBounds = {
+        from: after == null ? "" : `${String(after.month).padStart(2, "0")}-${after.year}`,
+        to: before == null ? "" : `${String(before.month).padStart(2, "0")}-${before.year}`,
+    };
+    $: pnlRows = partnerPnlZeroFill(pnlRaw, pnlBounds.from, pnlBounds.to);
+    $: pnlTotal = partnerPnlTotals(pnlRows);
+
+    async function rangeChange() {
+        await tick();
+        await loadPnl();
+        syncUrl();
+    }
+
+    function pickPartner(id: string) {
+        selectedId = id;
+        loadPnl();
+        syncUrl();
+    }
+
+    // ---- tag-as-partner ----
+    let tagging = false;
+    async function tagPartner(user: UserPrincipalRes) {
+        const id = user.id ?? "";
+        if (id === "") return;
+        tagging = true;
+        await toResult(
+            () => $api.vUserRolesCreate(id, "partner", "1"),
+            $_("partners.tag.error", { locale: $lang }),
+        ).match({
+            ok: () => {
+                toast.success(
+                    $_("partners.tag.success", {
+                        locale: $lang,
+                        values: { username: user.username ?? "" },
+                    }),
+                );
+                tagQuery = "";
+                // refresh the partner list + the candidate pool (the new
+                // partner drops out of the search)
+                invalidateAll().then(() => {
+                    // select the freshly tagged partner so the admin sees
+                    // the empty P&L table immediately
+                    selectedId = id;
+                    loadPnl();
+                });
+            },
+            err: e => {
+                console.error(e);
+                toast.error(e.detail ?? e.type);
+            },
+        });
+        tagging = false;
+    }
+
+    // ---- untag-with-confirm ----
+    let untagTarget: UserPrincipalRes | null = null;
+    let untagging = false;
+
+    function confirmUntag(p: UserPrincipalRes) {
+        untagTarget = p;
+    }
+
+    async function doUntag() {
+        if (untagTarget == null) return;
+        const id = untagTarget.id ?? "";
+        if (id === "") return;
+        untagging = true;
+        await toResult(
+            () => $api.vUserRolesDelete(id, "partner", "1"),
+            $_("partners.untag.error", { locale: $lang }),
+        ).match({
+            ok: () => {
+                toast.success(
+                    $_("partners.untag.success", {
+                        locale: $lang,
+                        values: { username: untagTarget?.username ?? "" },
+                    }),
+                );
+                const wasSelected = selectedId === id;
+                untagTarget = null;
+                invalidateAll().then(() => {
+                    if (wasSelected) {
+                        selectedId = "";
+                        pnlRows = [];
+                        pnlRaw = [];
+                    }
+                    syncUrl();
+                });
+            },
+            err: e => {
+                console.error(e);
+                toast.error(e.detail ?? e.type);
+            },
+        });
+        untagging = false;
+    }
+
+    function cancelUntag() {
+        untagTarget = null;
+    }
+
+    // ---- URL state mirroring ----
+    // selected/from/to — defaults omitted, tab changes replace history so
+    // back walks the partner trail
+    const defAfterStr = toApiDate(after);
+    const defBeforeStr = toApiDate(before);
+    let urlReady = false;
+    let lastSelected = "";
+
+    // The picker operates on day-level dates, but the URL round-trips the
+    // range as MM-yyyy (we use the month boundaries for the P&L table
+    // zero-fill). When seeding the picker from a URL `to=MM-yyyy`, the
+    // `before` DateValue must point at the LAST day of the picked month —
+    // not day 28, which would silently truncate the last 1-3 days of
+    // 29/30/31-day months (the P&L endpoint treats the bound as inclusive).
+    function lastDayOfMonth(month: number, year: number): number {
+        // 0th day of (month+1) = last day of `month` in Date arithmetic
+        return new Date(Date.UTC(year, month, 0)).getUTCDate();
+    }
+
+    function applyUrl(q: URLSearchParams) {
+        const id = q.get("selected") ?? "";
+        selectedId = id;
+        lastSelected = id;
+        const from = q.get("from");
+        const to = q.get("to");
+        const parsedFrom = from ? monthSortKey(from) : "";
+        const parsedTo = to ? monthSortKey(to) : "";
+        if (parsedFrom !== "" && parsedTo !== "" && parsedFrom <= parsedTo) {
+            const fm = /^(\d{2})-(\d{4})$/.exec(from ?? "");
+            const tm = /^(\d{2})-(\d{4})$/.exec(to ?? "");
+            if (fm && tm) {
+                const toMonth = Number(tm[1]);
+                const toYear = Number(tm[2]);
+                after = new CalendarDate(Number(fm[2]), Number(fm[1]), 1);
+                before = new CalendarDate(toYear, toMonth, lastDayOfMonth(toMonth, toYear));
+            }
+        } else {
+            after = fromApiDate(defAfterStr) ?? undefined;
+            before = fromApiDate(defBeforeStr) ?? undefined;
+        }
+    }
+
+    function serializeUrl(): string {
+        const q = new URLSearchParams();
+        if (selectedId !== "") q.set("selected", selectedId);
+        if (after != null && toApiDate(after) !== defAfterStr) {
+            q.set("from", `${String(after.month).padStart(2, "0")}-${after.year}`);
+        }
+        if (before != null && toApiDate(before) !== defBeforeStr) {
+            q.set("to", `${String(before.month).padStart(2, "0")}-${before.year}`);
+        }
+        return q.toString();
+    }
+
+    function syncUrl() {
+        if (!urlReady) return;
+        const search = serializeUrl();
+        const push = selectedId !== lastSelected;
+        lastSelected = selectedId;
+        if (search === $page.url.searchParams.toString()) return;
+        goto(`${$page.url.pathname}${search ? `?${search}` : ""}`, {
+            replaceState: !push,
+            keepFocus: true,
+            noScroll: true,
+        });
+    }
+
+    function onUrlChange(u: URL) {
+        if (u.searchParams.toString() === serializeUrl()) return;
+        const prevA = after == null ? "" : toApiDate(after);
+        const prevB = before == null ? "" : toApiDate(before);
+        applyUrl(u.searchParams);
+        const nextA = after == null ? "" : toApiDate(after);
+        const nextB = before == null ? "" : toApiDate(before);
+        if (nextA !== prevA || nextB !== prevB || selectedId !== lastSelected) {
+            loadPnl();
+        }
+    }
+
+    onMount(async () => {
+        applyUrl($page.url.searchParams);
+        urlReady = true;
+        await loadPnl();
+    });
+</script>
+
+<div class="flex flex-col">
+    <div class="border-b bg-muted">
+        <div
+            class="flex justify-center sm:justify-between gap-4 flex-wrap py-8 items-center text-foreground max-w-[1400px] w-11/12 mx-auto"
+        >
+            <div class="text-3xl lg:text-4xl">
+                {$_("partners.title", { locale: $lang })}
+            </div>
+            <Button
+                variant="outline"
+                disabled={false}
+                on:click={() => invalidateAll().then(() => loadPnl())}
+            >
+                <RotateCw class="mr-2 h-4 w-4" />
+                {$_("partners.reload", { locale: $lang })}
+            </Button>
+        </div>
+    </div>
+
+    <div class="flex flex-col gap-4 w-full px-2 sm:px-0 sm:w-11/12 max-w-[1400px] mx-auto my-4 sm:my-8">
+        {#if loadFailed}
+            <div class="flex flex-col items-center gap-4 py-12">
+                <p class="text-muted-foreground">{$_("partners.loadError", { locale: $lang })}</p>
+            </div>
+        {:else}
+            {#await loadOutcome then loaded}
+                {applyLoaded(loaded)}
+                <div class="grid gap-4 grid-cols-1 lg:grid-cols-[minmax(280px,360px)_1fr]">
+                <!-- LEFT: partner list + tag-as-partner form -->
+                <div class="flex flex-col gap-4">
+                    <Card.Root>
+                        <Card.Header class="p-4">
+                            <Card.Title class="text-base">
+                                {$_("partners.list.title", { locale: $lang })}
+                            </Card.Title>
+                            <Card.Description>
+                                {$_("partners.list.description", {
+                                    locale: $lang,
+                                    values: { count: formatNumber(partners.length, $lang) },
+                                })}
+                            </Card.Description>
+                        </Card.Header>
+                        <Card.Content class="px-2 pb-2 sm:px-4 sm:pb-4">
+                            {#if partners.length === 0}
+                                <p class="text-sm text-muted-foreground px-2">
+                                    {$_("partners.list.empty", { locale: $lang })}
+                                </p>
+                            {:else}
+                                <div class="flex flex-col gap-1">
+                                    {#each partners as p (p.id)}
+                                        <div
+                                            class="flex items-center gap-2 rounded-md border px-2 py-2 cursor-pointer hover:bg-muted/40 transition-colors {selectedId ===
+                                            p.id
+                                                ? 'border-primary bg-primary/5'
+                                                : ''}"
+                                            role="button"
+                                            tabindex="0"
+                                            on:click={() => pickPartner(p.id ?? "")}
+                                            on:keydown={e => {
+                                                if (e.key === "Enter" || e.key === " ") pickPartner(p.id ?? "");
+                                            }}
+                                        >
+                                            <div class="flex-1 min-w-0">
+                                                <div class="font-medium truncate">{p.username ?? ""}</div>
+                                                <div class="text-xs text-muted-foreground truncate">
+                                                    {p.email || $_("partners.list.noEmail", { locale: $lang })}
+                                                </div>
+                                            </div>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                class="h-7 w-7 shrink-0"
+                                                aria-label={$_("partners.untag.aria", {
+                                                    locale: $lang,
+                                                    values: { username: p.username ?? "" },
+                                                })}
+                                                title={$_("partners.untag.aria", {
+                                                    locale: $lang,
+                                                    values: { username: p.username ?? "" },
+                                                })}
+                                                on:click={e => {
+                                                    e.stopPropagation();
+                                                    confirmUntag(p);
+                                                }}
+                                            >
+                                                <X class="h-3.5 w-3.5" />
+                                            </Button>
+                                        </div>
+                                    {/each}
+                                </div>
+                            {/if}
+                        </Card.Content>
+                    </Card.Root>
+
+                    <Card.Root>
+                        <Card.Header class="p-4">
+                            <Card.Title class="text-base">
+                                {$_("partners.tag.title", { locale: $lang })}
+                            </Card.Title>
+                            <Card.Description>{$_("partners.tag.description", { locale: $lang })}</Card.Description>
+                        </Card.Header>
+                        <Card.Content class="px-4 pb-4">
+                            <div class="flex flex-col gap-2">
+                                <div class="relative">
+                                    <Search
+                                        class="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground"
+                                    />
+                                    <Input
+                                        class="pl-7 h-9"
+                                        placeholder={$_("partners.tag.searchPlaceholder", { locale: $lang })}
+                                        bind:value={tagQuery}
+                                    />
+                                </div>
+                                {#if visibleCandidates.length === 0}
+                                    <p class="text-sm text-muted-foreground px-1 py-1">
+                                        {tagQuery.trim() === ""
+                                            ? $_("partners.tag.noMoreCandidates", { locale: $lang })
+                                            : $_("partners.tag.noMatch", { locale: $lang })}
+                                    </p>
+                                {:else}
+                                    <ul class="flex flex-col divide-y border rounded-md max-h-72 overflow-y-auto">
+                                        {#each visibleCandidates as c (c.id)}
+                                            <li class="flex items-center gap-2 px-2 py-1.5 text-sm">
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="font-medium truncate">{c.username ?? ""}</div>
+                                                    <div class="text-xs text-muted-foreground truncate">{c.email ?? ""}</div>
+                                                </div>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    disabled={tagging}
+                                                    on:click={() => tagPartner(c)}
+                                                >
+                                                    {#if tagging}
+                                                        <LucideLoader class="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                                                    {:else}
+                                                        <Tag class="mr-1.5 h-3.5 w-3.5" />
+                                                    {/if}
+                                                    {$_("partners.tag.button", { locale: $lang })}
+                                                </Button>
+                                            </li>
+                                        {/each}
+                                    </ul>
+                                {/if}
+                            </div>
+                        </Card.Content>
+                    </Card.Root>
+                </div>
+
+                <!-- RIGHT: P&L table for the selected partner -->
+                <div class="flex flex-col gap-4">
+                    <Card.Root>
+                        <Card.Header class="p-4 sm:p-6">
+                            <div class="flex flex-wrap justify-between items-start gap-3">
+                                <div class="flex flex-col gap-1">
+                                    <Card.Title>
+                                        {#if selectedPartner != null}
+                                            {selectedPartner.username ?? ""}
+                                        {:else}
+                                            {$_("partners.pnl.title", { locale: $lang })}
+                                        {/if}
+                                    </Card.Title>
+                                    <Card.Description>
+                                        {#if selectedPartner != null}
+                                            {selectedPartner.email || $_("partners.list.noEmail", { locale: $lang })}
+                                        {:else}
+                                            {$_("partners.pnl.description", { locale: $lang })}
+                                        {/if}
+                                    </Card.Description>
+                                </div>
+                            </div>
+                        </Card.Header>
+                        <Card.Content class="px-2 sm:px-6">
+                            <!-- date-range picker; same convention as /analysis -->
+                            <div
+                                class="-mx-2 px-2 py-2 sm:mx-0 sm:px-3 bg-background border-y sm:border sm:rounded-lg flex flex-wrap gap-2 items-center mb-4"
+                            >
+                                <Popover.Root>
+                                    <Popover.Trigger asChild let:builder>
+                                        <Button
+                                            variant="outline"
+                                            class={cn(
+                                                "h-8 px-2 text-xs justify-start font-normal shrink-0",
+                                                !after && "text-muted-foreground",
+                                            )}
+                                            builders={[builder]}
+                                        >
+                                            <CalendarIcon class="mr-1.5 h-3.5 w-3.5" />
+                                            {after
+                                                ? formatCalendarDate(after.toDate(getLocalTimeZone()), $lang, {
+                                                      day: "numeric",
+                                                      month: "short",
+                                                      year: "2-digit",
+                                                  })
+                                                : $_("partners.range.after", { locale: $lang })}
+                                        </Button>
+                                    </Popover.Trigger>
+                                    <Popover.Content class="w-auto p-0" align="start">
+                                        <Calendar bind:value={after} onValueChange={rangeChange} />
+                                    </Popover.Content>
+                                </Popover.Root>
+                                <span class="text-muted-foreground text-xs">→</span>
+                                <Popover.Root>
+                                    <Popover.Trigger asChild let:builder>
+                                        <Button
+                                            variant="outline"
+                                            class={cn(
+                                                "h-8 px-2 text-xs justify-start font-normal shrink-0",
+                                                !before && "text-muted-foreground",
+                                            )}
+                                            builders={[builder]}
+                                        >
+                                            <CalendarIcon class="mr-1.5 h-3.5 w-3.5" />
+                                            {before
+                                                ? formatCalendarDate(before.toDate(getLocalTimeZone()), $lang, {
+                                                      day: "numeric",
+                                                      month: "short",
+                                                      year: "2-digit",
+                                                  })
+                                                : $_("partners.range.before", { locale: $lang })}
+                                        </Button>
+                                    </Popover.Trigger>
+                                    <Popover.Content class="w-auto p-0" align="start">
+                                        <Calendar bind:value={before} onValueChange={rangeChange} />
+                                    </Popover.Content>
+                                </Popover.Root>
+                                <span class="text-xs text-muted-foreground">
+                                    {$_("partners.range.hint", { locale: $lang })}
+                                </span>
+                            </div>
+
+                            {#if selectedId === ""}
+                                <p class="text-sm text-muted-foreground px-2 py-8 text-center">
+                                    {$_("partners.pnl.noSelection", { locale: $lang })}
+                                </p>
+                            {:else if pnlFailed}
+                                <div class="flex items-center gap-3 px-2">
+                                    <p class="text-sm text-destructive">
+                                        {$_("partners.pnl.loadError", { locale: $lang })}
+                                    </p>
+                                    <Button variant="outline" size="sm" disabled={pnlLoading} on:click={loadPnl}>
+                                        {$_("partners.reload", { locale: $lang })}
+                                    </Button>
+                                </div>
+                            {:else if pnlLoading && pnlRows.length === 0}
+                                <Loader />
+                            {:else}
+                                <div class="overflow-x-auto">
+                                    <Table.Root>
+                                        <Table.Header>
+                                            <Table.Row>
+                                                <Table.Head class="h-9 px-2 whitespace-nowrap">
+                                                    {$_("partners.pnl.colMonth", { locale: $lang })}
+                                                </Table.Head>
+                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
+                                                    {$_("partners.pnl.colBookings", { locale: $lang })}
+                                                </Table.Head>
+                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
+                                                    {$_("partners.pnl.colCollected", { locale: $lang })}
+                                                </Table.Head>
+                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
+                                                    {$_("partners.pnl.colKtmbCost", { locale: $lang })}
+                                                </Table.Head>
+                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
+                                                    <span class="inline-flex items-center gap-1">
+                                                        {$_("partners.pnl.colMargin", { locale: $lang })}
+                                                        <InfoTip label={$_("partners.pnl.colMargin", { locale: $lang })}>
+                                                            {$_("partners.pnl.marginHint", { locale: $lang })}
+                                                        </InfoTip>
+                                                    </span>
+                                                </Table.Head>
+                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
+                                                    {$_("partners.pnl.colMarginPct", { locale: $lang })}
+                                                </Table.Head>
+                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
+                                                    {$_("partners.pnl.colDeposits", { locale: $lang })}
+                                                </Table.Head>
+                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
+                                                    {$_("partners.pnl.colWithdrawalsGross", { locale: $lang })}
+                                                </Table.Head>
+                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
+                                                    {$_("partners.pnl.colWithdrawalsFee", { locale: $lang })}
+                                                </Table.Head>
+                                            </Table.Row>
+                                        </Table.Header>
+                                        <Table.Body>
+                                            {#each pnlRows as r (r.month)}
+                                                {@const isEmpty =
+                                                    r.bookings === 0 &&
+                                                    r.collected === 0 &&
+                                                    r.ktmbCost === 0 &&
+                                                    r.deposits === 0 &&
+                                                    r.withdrawalGross === 0 &&
+                                                    r.withdrawalFeeIncome === 0}
+                                                <Table.Row class={isEmpty ? "text-muted-foreground/60" : ""}>
+                                                    <Table.Cell class="px-2 py-1.5 font-medium whitespace-nowrap">
+                                                        {monthLabel(r.month)}
+                                                    </Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
+                                                        {formatNumber(r.bookings, $lang)}
+                                                    </Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
+                                                        {formatMoney(r.collected, $lang)}
+                                                    </Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
+                                                        {formatMoney(r.ktmbCost, $lang)}
+                                                    </Table.Cell>
+                                                    <Table.Cell
+                                                        class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(
+                                                            r.margin,
+                                                        )}"
+                                                    >
+                                                        {formatMoney(r.margin, $lang)}
+                                                    </Table.Cell>
+                                                    <Table.Cell
+                                                        class="px-2 py-1.5 text-right tabular-nums text-xs {deltaClass(
+                                                            r.margin,
+                                                        )}"
+                                                    >
+                                                        {signedPct(r.marginPct)}
+                                                    </Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
+                                                        {formatMoney(r.deposits, $lang)}
+                                                    </Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
+                                                        {formatMoney(r.withdrawalGross, $lang)}
+                                                    </Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
+                                                        {formatMoney(r.withdrawalFeeIncome, $lang)}
+                                                    </Table.Cell>
+                                                </Table.Row>
+                                            {/each}
+                                            <!-- range totals row -->
+                                            <Table.Row class="border-t-2 bg-muted/30">
+                                                <Table.Cell class="px-2 py-1.5 font-semibold whitespace-nowrap">
+                                                    {$_("partners.pnl.total", { locale: $lang })}
+                                                </Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">
+                                                    {formatNumber(pnlTotal.bookings, $lang)}
+                                                </Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">
+                                                    {formatMoney(pnlTotal.collected, $lang)}
+                                                </Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">
+                                                    {formatMoney(pnlTotal.ktmbCost, $lang)}
+                                                </Table.Cell>
+                                                <Table.Cell
+                                                    class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(
+                                                        pnlTotal.margin,
+                                                    )}"
+                                                >
+                                                    {formatMoney(pnlTotal.margin, $lang)}
+                                                </Table.Cell>
+                                                <Table.Cell
+                                                    class="px-2 py-1.5 text-right tabular-nums text-xs font-semibold {deltaClass(
+                                                        pnlTotal.margin,
+                                                    )}"
+                                                >
+                                                    {signedPct(pnlTotal.marginPct)}
+                                                </Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">
+                                                    {formatMoney(pnlTotal.deposits, $lang)}
+                                                </Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">
+                                                    {formatMoney(pnlTotal.withdrawalGross, $lang)}
+                                                </Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">
+                                                    {formatMoney(pnlTotal.withdrawalFeeIncome, $lang)}
+                                                </Table.Cell>
+                                            </Table.Row>
+                                        </Table.Body>
+                                    </Table.Root>
+                                </div>
+                                <p class="text-xs text-muted-foreground mt-3 px-2">
+                                    {$_("partners.pnl.marginNote", { locale: $lang })}
+                                </p>
+                            {/if}
+                        </Card.Content>
+                    </Card.Root>
+                </div>
+            </div>
+            {/await}
+        {/if}
+    </div>
+</div>
+
+<!-- Untag confirm dialog -->
+<Dialog.Root open={untagTarget != null} onOpenChange={o => { if (!o) cancelUntag(); }}>
+    <Dialog.Content class="max-w-md">
+        <Dialog.Header>
+            <Dialog.Title>{$_("partners.untag.title", { locale: $lang })}</Dialog.Title>
+            <Dialog.Description>
+                {$_("partners.untag.body", {
+                    locale: $lang,
+                    values: { username: untagTarget?.username ?? "" },
+                })}
+            </Dialog.Description>
+        </Dialog.Header>
+        <div class="flex flex-wrap gap-2 justify-end">
+            <Button variant="outline" on:click={cancelUntag} disabled={untagging}>
+                {$_("actions.cancel", { locale: $lang })}
+            </Button>
+            <Button variant="destructive" on:click={doUntag} disabled={untagging}>
+                {#if untagging}
+                    <LucideLoader class="mr-2 h-4 w-4 animate-spin" />
+                {/if}
+                {$_("partners.untag.confirm", { locale: $lang })}
+            </Button>
+        </div>
+    </Dialog.Content>
+</Dialog.Root>

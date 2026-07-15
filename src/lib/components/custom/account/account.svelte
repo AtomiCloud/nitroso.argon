@@ -93,6 +93,11 @@
                     {$_('account.users', { locale: $lang })}
                 </DropdownMenu.Item>
             </a>
+            <a href="/partners">
+                <DropdownMenu.Item>
+                    {$_('account.partners', { locale: $lang })}
+                </DropdownMenu.Item>
+            </a>
             {/if}
             <DropdownMenu.Separator/>
             <a href="/wallets/{$page.data.user.wallet.id}">
