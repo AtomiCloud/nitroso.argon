@@ -21,17 +21,11 @@ export const load = (async ({
 
   const api = NewApi({ data: { session }, fetch });
 
-  const partners = toResult(
-    () => api.vUserPartnersDetail('1'),
-    await loadError(locale, 'errors.load.partners'),
-  );
+  const partners = toResult(() => api.vUserPartnersDetail('1'), await loadError(locale, 'errors.load.partners'));
   // Re-use the same admin search the /users page uses. We pull a
   // broad sample (Limit: 100, no filter) so the admin can pick from the
   // recent-user pool without typing. The tag form filters client-side.
-  const candidates = toResult(
-    () => api.vUserDetail('1', { Limit: 100 }),
-    await loadError(locale, 'errors.load.users'),
-  );
+  const candidates = toResult(() => api.vUserDetail('1', { Limit: 100 }), await loadError(locale, 'errors.load.users'));
 
   const result = await Res.all(partners, candidates).serial();
   return { result };
