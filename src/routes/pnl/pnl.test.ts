@@ -1,15 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import type { BookingAnalysisPnlRowRes, BookingTerminalPnlRowRes } from '$lib/api/core/data-contracts';
 import {
+  INFRA_COST_MONTHLY,
   PNL_TABS,
   completedProfit,
   ebitda,
   estimatedRecoveryCount,
+  grossRevenue,
   monthSortKey,
+  netAfterInfra,
+  netAfterInfraTotals,
   pickParam,
   pnlCashNet,
   pnlTotals,
+  pnlWithdrawalBreakdown,
   pnlZeroFill,
+  profitPct,
+  profitPctTotals,
   terminalTotals,
   terminalZeroFill,
   terminatedProfit,
@@ -94,6 +101,47 @@ describe('withdrawalProfit', () => {
 
   it('negative when fee income does not cover the channel costs', () => {
     expect(withdrawalProfit({ feeIncome: 1, withdrawalGross: 500, gwRate: 0.03, payoutFees: 5 })).toBeCloseTo(-19);
+  });
+});
+
+describe('pnlWithdrawalBreakdown', () => {
+  it('returns the three signed components of withdrawalProfit', () => {
+    // 40 kept, 0.03×340=10.2 gateway share, 8 payout fees
+    expect(pnlWithdrawalBreakdown({ feeIncome: 40, withdrawalGross: 340, gwRate: 0.03, payoutFees: 8 })).toEqual({
+      feeIncome: 40,
+      depositFee: 10.2,
+      payoutFees: 8,
+    });
+  });
+
+  it('its feeIncome − depositFee − payoutFees equals withdrawalProfit', () => {
+    // the breakdown is purely a presentation of withdrawalProfit's parts;
+    // summing the three components must reproduce it exactly (otherwise the
+    // renderer can't show the breakdown as a faithful decomposition)
+    const r = { feeIncome: 40, withdrawalGross: 340, gwRate: 0.03, payoutFees: 8 };
+    const b = pnlWithdrawalBreakdown(r);
+    expect(b.feeIncome - b.depositFee - b.payoutFees).toBeCloseTo(withdrawalProfit(r));
+  });
+
+  it('zero on an all-zeros row (no activity, no fee, no channel costs)', () => {
+    expect(pnlWithdrawalBreakdown({ feeIncome: 0, withdrawalGross: 0, gwRate: 0, payoutFees: 0 })).toEqual({
+      feeIncome: 0,
+      depositFee: 0,
+      payoutFees: 0,
+    });
+  });
+
+  it('exposes the dominant cost on a high-volume month', () => {
+    // typical shape: deposit fee materialized >> fee income kept — the
+    // reason the withdrawal line is normally a small net number despite the
+    // 4% gross fee: gwRate ≈ 0.033 on a gross of 1000 alone is 33, while
+    // feeIncome (4% of 1000) is 40. Sums to a thin +7 before payout fees.
+    const b = pnlWithdrawalBreakdown({ feeIncome: 40, withdrawalGross: 1000, gwRate: 0.033, payoutFees: 5 });
+    expect(b.feeIncome).toBe(40);
+    expect(b.depositFee).toBeCloseTo(33);
+    expect(b.payoutFees).toBe(5);
+    // deposit fee should dwarf payout fees (it's the dominant channel cost)
+    expect(b.depositFee).toBeGreaterThan(b.payoutFees);
   });
 });
 
@@ -398,5 +446,155 @@ describe('pickParam', () => {
     expect(pickParam('earned', PNL_TABS)).toBe('earned');
     expect(pickParam('bogus', PNL_TABS)).toBe('');
     expect(pickParam(null, PNL_TABS)).toBe('');
+  });
+});
+
+describe('INFRA_COST_MONTHLY', () => {
+  it('is the manually-set flat monthly infra cost in SGD', () => {
+    expect(INFRA_COST_MONTHLY).toBe(500);
+  });
+});
+
+describe('grossRevenue', () => {
+  it('sums collected + kept + feeIncome', () => {
+    expect(grossRevenue({ collected: 1000, kept: 200, feeIncome: 40 })).toBe(1240);
+  });
+
+  it('zero on an all-zeros row', () => {
+    expect(grossRevenue({ collected: 0, kept: 0, feeIncome: 0 })).toBe(0);
+  });
+});
+
+describe('netAfterInfra', () => {
+  it('subtracts the monthly infra cost from EBITDA', () => {
+    // ebitda = 835.8 (from the ebitda test above) − 500 = 335.8
+    const r = toTerminalPnlRow(
+      terminal({
+        gwRate: 0.03,
+        completed: { count: 10, collected: 1000, ktmbCost: 300 },
+        terminated: { count: 2, kept: 200, ktmbCostNet: 50, withExactRefund: 2 },
+        withdrawals: { count: 5, gross: 340, feeIncome: 40, payoutFees: 8 },
+      }),
+    );
+    expect(netAfterInfra(r)).toBeCloseTo(ebitda(r) - 500);
+  });
+
+  it('negative when EBITDA itself is below the monthly infra burn', () => {
+    const r = toTerminalPnlRow(
+      terminal({
+        gwRate: 0,
+        completed: { count: 1, collected: 100, ktmbCost: 50 },
+      }),
+    );
+    // EBITDA = 100 − 50 − 0 = 50; net = 50 − 500 = −450
+    expect(netAfterInfra(r)).toBe(-450);
+  });
+});
+
+describe('profitPct', () => {
+  it('is (ebitda − infra) ÷ grossRevenue as a fraction', () => {
+    const r = {
+      collected: 1000,
+      kept: 200,
+      feeIncome: 40,
+      ebitda: 835.8,
+    };
+    // (835.8 − 500) / (1000 + 200 + 40) = 335.8 / 1240 ≈ 0.2708
+    expect(profitPct(r)).toBeCloseTo(335.8 / 1240);
+  });
+
+  it('returns null when there is no recognized revenue (avoids NaN%)', () => {
+    expect(profitPct({ collected: 0, kept: 0, feeIncome: 0, ebitda: 0 })).toBeNull();
+    // even when EBITDA itself is non-zero, with no revenue there's no margin
+    // to express (e.g. refunds-only month) — the UI shows an em-dash
+    expect(profitPct({ collected: 0, kept: 0, feeIncome: 0, ebitda: -500 })).toBeNull();
+  });
+
+  it('negative when infra eats more than EBITDA produces', () => {
+    const r = { collected: 100, kept: 0, feeIncome: 0, ebitda: 50 };
+    // (50 − 500) / 100 = −4.5 (−450% — large negative, still a number)
+    expect(profitPct(r)).toBeCloseTo(-4.5);
+  });
+});
+
+describe('netAfterInfraTotals', () => {
+  const rows = terminalZeroFill(
+    [
+      terminal({
+        month: '01-2026',
+        deposits: 1000,
+        paymentFees: 30,
+        gwRate: 0.03,
+        completed: { count: 10, collected: 800, ktmbCost: 200 },
+        terminated: { count: 2, kept: 100, ktmbCostNet: 20, withExactRefund: 1 },
+        withdrawals: { count: 3, gross: 300, feeIncome: 30, payoutFees: 6 },
+      }),
+      terminal({
+        month: '02-2026',
+        deposits: 500,
+        paymentFees: 25,
+        gwRate: 0.05,
+        completed: { count: 5, collected: 450, ktmbCost: 100 },
+        terminated: { count: 1, kept: 50, ktmbCostNet: 10, withExactRefund: 1 },
+        withdrawals: { count: 1, gross: 100, feeIncome: 10, payoutFees: 2 },
+      }),
+    ],
+    '01-2026',
+    '02-2026',
+  );
+
+  it('subtracts infra × row count from summed EBITDA', () => {
+    // month 01-2026: completed=576, terminated=77, withdrawal=15 → ebitda=668
+    //   (576 = 800−200−24, 77 = 100−20−3, 15 = 30−9−6)
+    // month 02-2026: completed=327.5, terminated=37.5, withdrawal=3 → ebitda=368
+    //   (327.5 = 450−100−22.5, 37.5 = 50−10−2.5, 3 = 10−5−2)
+    // Σ EBITDA = 668 + 368 = 1036
+    // net = 1036 − 500 × 2 = 36
+    const sumEbitda = rows.reduce((s, r) => s + ebitda(r), 0);
+    expect(sumEbitda).toBeCloseTo(1036);
+    expect(netAfterInfraTotals(rows)).toBeCloseTo(36);
+  });
+
+  it('includes zero-activity months in the infra burn (3 months, all zero)', () => {
+    // a quiet quarter still costs 500 × 3 in infra
+    const quiet = terminalZeroFill(
+      [terminal({ month: '02-2026' }), terminal({ month: '03-2026' })],
+      '01-2026',
+      '03-2026',
+    );
+    expect(quiet.length).toBe(3);
+    expect(netAfterInfraTotals(quiet)).toBe(-1500);
+  });
+});
+
+describe('profitPctTotals', () => {
+  it('is (Σ EBITDA − infra × months) ÷ Σ grossRevenue', () => {
+    const rows = terminalZeroFill(
+      [
+        terminal({
+          month: '01-2026',
+          deposits: 1000,
+          paymentFees: 30,
+          gwRate: 0.03,
+          completed: { count: 10, collected: 800, ktmbCost: 200 },
+          terminated: { count: 2, kept: 100, ktmbCostNet: 20, withExactRefund: 1 },
+          withdrawals: { count: 3, gross: 300, feeIncome: 30, payoutFees: 6 },
+        }),
+      ],
+      '01-2026',
+      '02-2026',
+    );
+    // Σ EBITDA = 668 (zero month 02 contributes 0)
+    //   (completed=576, terminated=77, withdrawal=15)
+    // Σ revenue = 800 + 100 + 30 = 930 (zero month contributes 0)
+    // months = 2 (zero-filled range)
+    // (668 − 500 × 2) / 930 = −332 / 930 ≈ −0.357
+    expect(profitPctTotals(rows)).toBeCloseTo(-332 / 930);
+  });
+
+  it('returns null when there is no revenue in the range', () => {
+    expect(profitPctTotals([])).toBeNull();
+    const quiet = terminalZeroFill([terminal({ month: '01-2026' })], '01-2026', '03-2026');
+    expect(profitPctTotals(quiet)).toBeNull();
   });
 });

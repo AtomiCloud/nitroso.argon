@@ -1822,6 +1822,7 @@
       "profit": "Untung ikut hari perjalanan",
       "boosts": "Keutamaan",
       "payments": "Pembayaran",
+      "withdrawals": "Pengeluaran",
       "costs": "Kadar FX"
     },
     "summary": {
@@ -1931,6 +1932,22 @@
       "empty": "Tiada pembayaran ditangkap dalam julat ini",
       "loadError": "Gagal memuatkan pembayaran ditangkap",
       "copied": "ID niat pembayaran disalin"
+    },
+    "withdrawals": {
+      "title": "Pengeluaran",
+      "description": "Pecahan acara terminal pengeluaran berbayar setiap bulan kalendar SGT: setiap dolar yang dikeluarkan merealisasikan fi deposit (kadar gerbang × kasar) dan menambah fi pembayaran keluar / pemulangan; fi pengeluaran 4% mengimbangi sebahagiannya. %% kerugian campuran ialah kos saluran bersih setiap dolar dibayar keluar — positif apabila BunnyBooker kehilangan wang pada pembayaran keluar itu.",
+      "loadError": "Gagal memuatkan pecahan pengeluaran",
+      "empty": "Tiada pengeluaran dalam julat ini",
+      "colMonth": "Bulan",
+      "colCount": "Bilangan",
+      "colGross": "Kasar dibayar keluar",
+      "colFeeIncome": "Hasil fi (4%)",
+      "colDepositFee": "Fi deposit direalisasikan",
+      "colPayoutFees": "Fi pembayaran keluar",
+      "colNetLoss": "Kerugian bersih",
+      "colBlendedLossPct": "Kerugian campuran %",
+      "blendedLossDash": "—",
+      "grossNote": "Kasar dibayar keluar ialah debit dompet (Amaun + Fi); hanya Amaun − Fi benar-benar meninggalkan bank. Fi deposit yang direalisasikan dan fi pembayaran keluar ialah kos saluran yang BunnyBooker tanggung. Lajur kerugian bersih adalah positif apabila BunnyBooker kehilangan wang pada pembayaran keluar bulan itu dan negatif apabila fi 4% melebihi kos saluran."
     }
   },
   "pnl": {
@@ -1959,7 +1976,18 @@
       "completedHint": "dikutip − kos KTMB − kadar gerbang × dikutip",
       "terminatedHint": "disimpan − kos KTMB bersih − kadar gerbang × disimpan",
       "withdrawalsHint": "hasil fi − kadar gerbang × kasar − fi pembayaran keluar",
-      "gwRateHint": "Kadar fi gerbang campuran bulan itu: fi pembayaran ÷ deposit.",
+      "wdFeeIncome": "+ hasil fi dikekalkan (4%): {amount}",
+      "wdDepositFee": "− fi deposit direalisasikan (kadar gerbang × kasar): {amount}",
+      "wdPayoutFees": "− fi pembayaran keluar: {amount}",
+      "gwRateHint": "Kadar fi gerbang campuran bulan itu mencampurkan fi kad peratusan dan fi tetap setiap transaksi / akaun Airwallex: fi pembayaran ÷ deposit.",
+      "colInfra": "Infrastruktur",
+      "colNet": "Bersih",
+      "colProfitPct": "Untung %",
+      "infraLine": "− infrastruktur S${amount}",
+      "infraTotal": "− infrastruktur S${amount} ({months} bulan)",
+      "infraNote": "Anggaran kos operasi tetap S$500 / bulan ditolak daripada EBITDA untuk mencapai Bersih. Baris jumlah menolak S$500 setiap bulan dalam julat dipilih, termasuk bulan tanpa aktiviti.",
+      "profitPctDash": "—",
+      "profitPctHint": "Margin untung bersih: (EBITDA − infrastruktur bulanan) ÷ hasil kasar yang diiktiraf (dikutip + disimpan + hasil fi). Tanda empuk apabila tiada hasil yang diiktiraf pada bulan itu.",
       "estimateNote": "pemulihan KTMB tempahan ditamatkan dianggarkan pada 50% untuk {n} daripada {m} tempahan"
     },
     "cash": {
