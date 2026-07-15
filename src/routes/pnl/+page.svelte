@@ -30,6 +30,7 @@
     import {toResult} from "$lib/utility";
     import Loader from "$lib/components/complex/loader.svelte";
     import InfoTip from "$lib/components/core/InfoTip.svelte";
+    import HistoryGateNote from "$lib/components/complex/HistoryGateNote.svelte";
     import {_} from "svelte-i18n";
     import {lang, formatCalendarDate, formatMoney, formatNumber} from "$lib/i18n";
     import {
@@ -334,6 +335,7 @@
             </Popover.Root>
             <span class="text-xs text-muted-foreground">{$_('pnl.range.hint', { locale: $lang })}</span>
         </div>
+        <HistoryGateNote from={after} />
 
         <Tabs.Root bind:value={tab}>
             <div class="overflow-x-auto">

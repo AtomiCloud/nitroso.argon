@@ -18,6 +18,8 @@ function row(over: Partial<UserPartnerPnlRowRes>): UserPartnerPnlRowRes {
     deposits: 0,
     withdrawalGross: 0,
     withdrawalFeeIncome: 0,
+    boostCount: 0,
+    boostAmount: 0,
     ...over,
   };
 }
@@ -101,6 +103,25 @@ describe('toPartnerPnlRow', () => {
     expect(r.deposits).toBe(500);
     expect(r.withdrawalGross).toBe(100);
     expect(r.withdrawalFeeIncome).toBe(10);
+    // boostCount / boostAmount are additive (zinc PR #54) — passed through
+    // verbatim, since they're already shape-correct numbers
+    expect(r.boostCount).toBe(0);
+    expect(r.boostAmount).toBe(0);
+  });
+
+  it('passes boostCount + boostAmount through unchanged', () => {
+    // a booking with a consumed priority boost contributes 1 to boostCount
+    // and its fee to boostAmount — the helper only re-shapes, never derives
+    const r = toPartnerPnlRow(
+      row({
+        month: '08-2026',
+        bookings: 5,
+        boostCount: 3,
+        boostAmount: 45,
+      }),
+    );
+    expect(r.boostCount).toBe(3);
+    expect(r.boostAmount).toBe(45);
   });
 });
 
@@ -150,6 +171,22 @@ describe('partnerPnlZeroFill', () => {
     );
     expect(rows.map(r => r.month)).toEqual(['11-2025', '01-2026', '02-2026']);
   });
+
+  it('zero-fills boostCount + boostAmount together with the rest', () => {
+    // a partner boosted 4 of 10 July bookings (40 MYR in boost fees).
+    // The other months in the range had no boosted bookings at all —
+    // their zero rows must carry zero boost fields, not undefined.
+    const rows = partnerPnlZeroFill(
+      [row({ month: '07-2026', bookings: 10, boostCount: 4, boostAmount: 40 })],
+      '06-2026',
+      '08-2026',
+    );
+    expect(rows.map(r => ({ m: r.month, b: r.boostCount, a: r.boostAmount }))).toEqual([
+      { m: '06-2026', b: 0, a: 0 },
+      { m: '07-2026', b: 4, a: 40 },
+      { m: '08-2026', b: 0, a: 0 },
+    ]);
+  });
 });
 
 describe('partnerPnlTotals', () => {
@@ -158,6 +195,8 @@ describe('partnerPnlTotals', () => {
       {
         month: '01-2026',
         bookings: 5,
+        boostCount: 2,
+        boostAmount: 30,
         collected: 1000,
         ktmbCost: 200,
         margin: 800,
@@ -169,6 +208,8 @@ describe('partnerPnlTotals', () => {
       {
         month: '02-2026',
         bookings: 3,
+        boostCount: 1,
+        boostAmount: 15,
         collected: 400,
         ktmbCost: 100,
         margin: 300,
@@ -179,6 +220,8 @@ describe('partnerPnlTotals', () => {
       },
     ]);
     expect(total.bookings).toBe(8);
+    expect(total.boostCount).toBe(3);
+    expect(total.boostAmount).toBe(45);
     expect(total.collected).toBe(1400);
     expect(total.ktmbCost).toBe(300);
     expect(total.margin).toBe(1100);
@@ -194,6 +237,8 @@ describe('partnerPnlTotals', () => {
     expect(partnerPnlTotals([])).toEqual({
       month: '',
       bookings: 0,
+      boostCount: 0,
+      boostAmount: 0,
       collected: 0,
       ktmbCost: 0,
       margin: 0,
@@ -211,6 +256,8 @@ describe('partnerPnlTotals', () => {
       {
         month: '01-2026',
         bookings: 0,
+        boostCount: 0,
+        boostAmount: 0,
         collected: 0,
         ktmbCost: 0,
         margin: 0,
@@ -222,6 +269,8 @@ describe('partnerPnlTotals', () => {
       {
         month: '02-2026',
         bookings: 0,
+        boostCount: 0,
+        boostAmount: 0,
         collected: 0,
         ktmbCost: 0,
         margin: 0,

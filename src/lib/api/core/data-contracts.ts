@@ -686,12 +686,17 @@ export interface BookingTerminalPnlRowRes {
 }
 
 /**
- * HAND-ADDED (partners page) pending swagger regeneration — one monthly row
- * of a single partner's P&L returned by GET /User/{id}/pnl. Mirrors the
- * shape of the analysis P&L rollup but attributed to ONE user (the
- * 'partner' extraRole tag). Sorted ascending by month (zinc guarantees the
- * order). month is zinc's MM-yyyy wire format. Only months with activity
+ * HAND-ADDED (partners page + zinc PR #54) pending swagger regeneration —
+ * one monthly row of a single partner's P&L returned by GET /User/{id}/pnl.
+ * Mirrors the shape of the analysis P&L rollup but attributed to ONE user
+ * (the 'partner' extraRole tag). Sorted ascending by month (zinc guarantees
+ * the order). month is zinc's MM-yyyy wire format. Only months with activity
  * are returned; the UI zero-fills the gaps across the picked range.
+ *
+ * boostCount / boostAmount are additive (zinc PR #54): completed bookings
+ * that consumed a priority boost, plus the sum of the boost fees the
+ * partner paid for them. Lets the admin price partners against successful
+ * tickets vs successful boosts.
  */
 export interface UserPartnerPnlRowRes {
   /** @format string */
@@ -708,6 +713,10 @@ export interface UserPartnerPnlRowRes {
   withdrawalGross: number;
   /** @format double */
   withdrawalFeeIncome: number;
+  /** @format int32 */
+  boostCount: number;
+  /** @format double */
+  boostAmount: number;
 }
 
 /**

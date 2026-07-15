@@ -5,6 +5,10 @@
   "nav": {
     "bookNow": "立即预订"
   },
+  "historyGate": {
+    "note": "2026 年 6 月之前的历史仅对 owner 账户可见——您的角色下更早的月份可能显示为空。",
+    "dismiss": "关闭"
+  },
   "account": {
     "costs": "费用",
     "discounts": "折扣",
@@ -1276,6 +1280,9 @@
       "loadError": "加载该合作伙伴的 P&L 失败",
       "colMonth": "月份",
       "colBookings": "预订数",
+      "colBoosts": "优先加成",
+      "cellBoosts": "{count} · {amount}",
+      "boostsHint": "已完成的预订中使用了优先加成的数量，以及它们的加成费总和。一笔使用了优先加成的预订，在预订数列与加成列中各计一次。",
       "colCollected": "收款",
       "colKtmbCost": "我们的 KTMB 成本",
       "colMargin": "我们的毛利",

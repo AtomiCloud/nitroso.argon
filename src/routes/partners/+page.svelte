@@ -27,6 +27,7 @@
     import { toResult } from "$lib/utility";
     import Loader from "$lib/components/complex/loader.svelte";
     import InfoTip from "$lib/components/core/InfoTip.svelte";
+    import HistoryGateNote from "$lib/components/complex/HistoryGateNote.svelte";
     import { toast } from "svelte-sonner";
     import { _ } from "svelte-i18n";
     import { formatCalendarDate, formatMoney, formatNumber, lang } from "$lib/i18n";
@@ -629,6 +630,7 @@
                                     {$_("partners.range.hint", { locale: $lang })}
                                 </span>
                             </div>
+                            <HistoryGateNote from={after} />
 
                             {#if selectedId === ""}
                                 <p class="text-sm text-muted-foreground px-2 py-8 text-center">
@@ -655,6 +657,14 @@
                                                 </Table.Head>
                                                 <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
                                                     {$_("partners.pnl.colBookings", { locale: $lang })}
+                                                </Table.Head>
+                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
+                                                    <span class="inline-flex items-center gap-1">
+                                                        {$_("partners.pnl.colBoosts", { locale: $lang })}
+                                                        <InfoTip label={$_("partners.pnl.colBoosts", { locale: $lang })}>
+                                                            {$_("partners.pnl.boostsHint", { locale: $lang })}
+                                                        </InfoTip>
+                                                    </span>
                                                 </Table.Head>
                                                 <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
                                                     {$_("partners.pnl.colCollected", { locale: $lang })}
@@ -688,6 +698,8 @@
                                             {#each pnlRows as r (r.month)}
                                                 {@const isEmpty =
                                                     r.bookings === 0 &&
+                                                    r.boostCount === 0 &&
+                                                    r.boostAmount === 0 &&
                                                     r.collected === 0 &&
                                                     r.ktmbCost === 0 &&
                                                     r.deposits === 0 &&
@@ -699,6 +711,19 @@
                                                     </Table.Cell>
                                                     <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
                                                         {formatNumber(r.bookings, $lang)}
+                                                    </Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums text-xs whitespace-nowrap">
+                                                        {#if r.boostCount === 0}
+                                                            —
+                                                        {:else}
+                                                            {$_("partners.pnl.cellBoosts", {
+                                                                locale: $lang,
+                                                                values: {
+                                                                    count: formatNumber(r.boostCount, $lang),
+                                                                    amount: formatMoney(r.boostAmount, $lang),
+                                                                },
+                                                            })}
+                                                        {/if}
                                                     </Table.Cell>
                                                     <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
                                                         {formatMoney(r.collected, $lang)}
@@ -738,6 +763,19 @@
                                                 </Table.Cell>
                                                 <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">
                                                     {formatNumber(pnlTotal.bookings, $lang)}
+                                                </Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums text-xs font-semibold whitespace-nowrap">
+                                                    {#if pnlTotal.boostCount === 0}
+                                                        —
+                                                    {:else}
+                                                        {$_("partners.pnl.cellBoosts", {
+                                                            locale: $lang,
+                                                            values: {
+                                                                count: formatNumber(pnlTotal.boostCount, $lang),
+                                                                amount: formatMoney(pnlTotal.boostAmount, $lang),
+                                                            },
+                                                        })}
+                                                    {/if}
                                                 </Table.Cell>
                                                 <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">
                                                     {formatMoney(pnlTotal.collected, $lang)}
