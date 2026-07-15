@@ -84,6 +84,7 @@ import type {
   UserPartnerPnlRowRes,
   UserPrincipalRes,
   UserRes,
+  UserWipeRes,
   WalletPrincipalRes,
   WalletRes,
   WithdrawalPrincipalRes,
@@ -2055,6 +2056,30 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
     this.request<UserPrincipalRes, any>({
       path: `/api/v${version}/User/${id}/roles/${role}`,
       method: 'DELETE',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc user-wipe, v1.64.x) pending swagger regeneration —
+   * irreversibly wipe a user's personal data for a PDPA request: passengers
+   * (names/passports), booking ticket PDFs and the account identity (username
+   * becomes 'deleted-xxxxxxxx', email removed, sign-in blocked). Admin only.
+   * Wallets, transactions, payments and withdrawal records (incl. PayNow /
+   * confirmation / receipts) are retained for accounting (IRAS 5-year
+   * retention) and payee identification. Returns 409 problem type
+   * 'invalid_user_wipe_operation' when blocked — data.reason ∈ wallet_not_empty
+   * | withdrawal_in_flight | already_wiped.
+   *
+   * @tags User
+   * @name VUserWipeCreate
+   * @request POST:/api/v{version}/User/{id}/wipe
+   * @secure
+   */
+  vUserWipeCreate = (id: string, version: string, params: RequestParams = {}) =>
+    this.request<UserWipeRes, any>({
+      path: `/api/v${version}/User/${id}/wipe`,
+      method: 'POST',
       secure: true,
       format: 'json',
       ...params,
