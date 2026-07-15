@@ -1822,6 +1822,7 @@
       "profit": "按出行日的利润",
       "boosts": "优先加购",
       "payments": "付款",
+      "withdrawals": "提现",
       "costs": "汇率"
     },
     "summary": {
@@ -1931,6 +1932,22 @@
       "empty": "此范围内没有已捕获的付款",
       "loadError": "加载已捕获付款失败",
       "copied": "已复制付款意向 ID"
+    },
+    "withdrawals": {
+      "title": "提现",
+      "description": "按 SGT 日历月展示已支付提现的终态事件拆解：每提取一元都会落实充值通道费（通道费率 × 提现总额）并叠加打款 / 退款费用；4% 的提现手续费可部分抵消。混合亏损 %% 是每支付一元所承担的净渠道成本——当 BunnyBooker 在该次打款上亏钱时为正。",
+      "loadError": "加载提现拆解失败",
+      "empty": "此范围内没有提现",
+      "colMonth": "月份",
+      "colCount": "笔数",
+      "colGross": "支付总额",
+      "colFeeIncome": "手续费收入（4%）",
+      "colDepositFee": "已落实的充值通道费",
+      "colPayoutFees": "打款费",
+      "colNetLoss": "净亏损",
+      "colBlendedLossPct": "混合亏损 %",
+      "blendedLossDash": "—",
+      "grossNote": "支付总额是钱包扣款（金额 + 手续费）；实际离开银行的只有金额 − 手续费。已落实的充值通道费和打款费是 BunnyBooker 承担的渠道成本。当 BunnyBooker 在当月打款上亏钱时净亏损列为正，4% 手续费超过渠道成本时为负。"
     }
   },
   "pnl": {
@@ -1959,7 +1976,18 @@
       "completedHint": "已收款 − KTMB 成本 − 通道费率 × 已收款",
       "terminatedHint": "留存 − 净 KTMB 成本 − 通道费率 × 留存",
       "withdrawalsHint": "费收入 − 通道费率 × 提现总额 − 打款费",
-      "gwRateHint": "当月混合通道费率：支付通道费 ÷ 充值。",
+      "wdFeeIncome": "+ 保留的手续费收入（4%）：{amount}",
+      "wdDepositFee": "− 已实现的充值通道费（通道费率 × 提现总额）：{amount}",
+      "wdPayoutFees": "− 打款费：{amount}",
+      "gwRateHint": "当月混合通道费率混合了按比例的刷卡通道费与 Airwallex 固定的每笔交易 / 账户费用：支付通道费 ÷ 充值。",
+      "colInfra": "基础设施",
+      "colNet": "净",
+      "colProfitPct": "利润率",
+      "infraLine": "− 基础设施 S${amount}",
+      "infraTotal": "− 基础设施 S${amount}（{months} 个月）",
+      "infraNote": "从 EBITDA 中扣减的每月固定运营成本估算 S$500，以得出净利润。合计行按所选区间内的每个月扣减 S$500，包括无活动的月份。",
+      "profitPctDash": "—",
+      "profitPctHint": "净利润率：(EBITDA − 每月基础设施) ÷ 已确认的总收入（已收款 + 留存 + 手续费收入）。当月无已确认收入时显示破折号。",
       "estimateNote": "{m} 笔已终止预订中有 {n} 笔的 KTMB 回收按 50% 估算"
     },
     "cash": {
