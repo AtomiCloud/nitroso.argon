@@ -53,6 +53,7 @@
         daysPresent,
         dayProfitNet,
         groupByDay,
+        joinMonthlyWithdrawalCost,
         monthNet,
         pickParam,
         pivotProfitBuckets,
@@ -192,6 +193,10 @@
                 if (myToken !== withdrawalToken) return;
                 console.error(e);
                 withdrawalsFailed = true;
+                // the Monthly + Overview tabs degrade this fetch to an em-dash;
+                // toast once (only when the primary analysis loaded) so the
+                // admin knows the withdrawal cost is unavailable
+                if (analysis != null) toast.error($_('analysis.withdrawals.loadError', {locale: $lang}));
             }
         });
         if (myToken === withdrawalToken) withdrawalsLoading = false;
@@ -317,6 +322,17 @@
         from: after == null ? "" : `${String(after.month).padStart(2, "0")}-${after.year}`,
         to: before == null ? "" : `${String(before.month).padStart(2, "0")}-${before.year}`,
     };
+
+    // withdrawal cost for the Monthly tab columns + the Overview card, fed by
+    // the same terminal fetch as the Withdrawals tab. null when the fetch
+    // failed (or hasn't completed) so the renderer shows an em-dash, never a
+    // misleading 0. withdrawalRaw is already zero-filled across the range.
+    $: wdCostByMonth = withdrawalRaw != null && !withdrawalsFailed
+        ? joinMonthlyWithdrawalCost(withdrawalRaw)
+        : null;
+    $: wdRangeLoss = withdrawalRaw != null && !withdrawalsFailed
+        ? withdrawalTotals(withdrawalRaw).netLoss
+        : null;
 
     // component ranking: biggest earner at the top, biggest loser at the
     // bottom — the "what makes/loses money" reading order
@@ -686,6 +702,18 @@
                                 <span class="text-xs text-muted-foreground">{$_('analysis.summary.netHint', { locale: $lang })}</span>
                             </Card.Content>
                         </Card.Root>
+                        <!-- withdrawal net cost: range total of the terminal-event
+                             loss, same fetch as the Withdrawals tab. Em-dash when
+                             the terminal fetch failed so the card never lies -->
+                        <Card.Root>
+                            <Card.Content class="p-4 flex flex-col gap-1">
+                                <span class="text-sm text-muted-foreground">{$_('analysis.overview.wdCostTitle', { locale: $lang })}</span>
+                                <span class="text-2xl font-bold {wdRangeLoss == null ? '' : deltaClass(wdRangeLoss)}">
+                                    {wdRangeLoss == null ? $_('analysis.overview.wdCostDash', { locale: $lang }) : formatMoney(wdRangeLoss, $lang)}
+                                </span>
+                                <span class="text-xs text-muted-foreground">{$_('analysis.overview.wdCostHint', { locale: $lang })}</span>
+                            </Card.Content>
+                        </Card.Root>
                     </div>
                     <p class="text-xs text-muted-foreground">{$_('analysis.grossNote', { locale: $lang })}</p>
 
@@ -822,6 +850,15 @@
                                                         </InfoTip>
                                                     </span>
                                                 </Table.Head>
+                                                <Table.Head class="h-8 px-2 text-right whitespace-nowrap">
+                                                    <span class="inline-flex items-center gap-1">
+                                                        {$_('analysis.monthly.colWdCost', { locale: $lang })}
+                                                        <InfoTip label={$_('analysis.monthly.colWdCost', { locale: $lang })}>
+                                                            {$_('analysis.monthly.wdCostHint', { locale: $lang })}
+                                                        </InfoTip>
+                                                    </span>
+                                                </Table.Head>
+                                                <Table.Head class="h-8 px-2 text-right whitespace-nowrap">{$_('analysis.monthly.colWithdrawals', { locale: $lang })}</Table.Head>
                                                 <Table.Head class="h-8 px-2 text-right">{$_('analysis.monthly.colNet', { locale: $lang })}</Table.Head>
                                             </Table.Row>
                                         </Table.Header>
@@ -834,6 +871,29 @@
                                                     <Table.Cell class="px-2 py-1.5 text-right tabular-nums">{formatMoney(m.gatewayPaymentFees, $lang)}</Table.Cell>
                                                     <Table.Cell class="px-2 py-1.5 text-right tabular-nums">{formatMoney(m.gatewayPayoutFees, $lang)}</Table.Cell>
                                                     <Table.Cell class="px-2 py-1.5 text-right tabular-nums text-muted-foreground">{formatMoney(m.internalFees, $lang)}</Table.Cell>
+                                                    <!-- withdrawal cost (terminal-event loss) +
+                                                         the count · gross subtitle, joined by month
+                                                         from the same terminal fetch as the
+                                                         Withdrawals tab; em-dash on fetch failure -->
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
+                                                        {#if wdCostByMonth == null}
+                                                            {$_('analysis.monthly.wdCostDash', { locale: $lang })}
+                                                        {:else}
+                                                            {@const wd = wdCostByMonth.get(m.month)}
+                                                            <span class="font-medium {deltaClass(wd?.cost ?? 0)}">{formatMoney(wd?.cost ?? 0, $lang)}</span>
+                                                        {/if}
+                                                    </Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums text-muted-foreground">
+                                                        {#if wdCostByMonth == null}
+                                                            {$_('analysis.monthly.wdCostDash', { locale: $lang })}
+                                                        {:else}
+                                                            {@const wd = wdCostByMonth.get(m.month)}
+                                                            {$_('analysis.monthly.wdCount', { locale: $lang, values: {
+                                                                count: formatNumber(wd?.count ?? 0, $lang),
+                                                                gross: formatMoney(wd?.gross ?? 0, $lang),
+                                                            } })}
+                                                        {/if}
+                                                    </Table.Cell>
                                                     <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(monthNet(m))}">{formatMoney(monthNet(m), $lang)}</Table.Cell>
                                                 </Table.Row>
                                                 <!-- per-direction sub-rows (muted; follow the
@@ -849,7 +909,7 @@
                                                         </Table.Cell>
                                                         <Table.Cell class="px-2 py-1 text-right tabular-nums text-muted-foreground">{formatMoney(d.gross, $lang)}</Table.Cell>
                                                         <Table.Cell class="px-2 py-1 text-right tabular-nums text-muted-foreground">{formatMoney(d.ktmbCost, $lang)}</Table.Cell>
-                                                        <Table.Cell class="px-2 py-1" colspan={4}></Table.Cell>
+                                                        <Table.Cell class="px-2 py-1" colspan={6}></Table.Cell>
                                                     </Table.Row>
                                                 {/each}
                                             {/each}

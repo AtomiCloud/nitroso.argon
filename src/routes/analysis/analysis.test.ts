@@ -3,8 +3,10 @@ import type {
   BookingAnalysisProfitBucketRes,
   BookingAnalysisRowRes,
   BookingAnalysisSummaryRes,
+  BookingTerminalPnlRowRes,
   MonthlyAnalysisRes,
 } from '$lib/api/core/data-contracts';
+import { toTerminalPnlRow } from '$lib/pnl/terminal';
 import {
   PROFIT_QUARTERS,
   boostView,
@@ -15,6 +17,7 @@ import {
   dayProfitNet,
   daysPresent,
   groupByDay,
+  joinMonthlyWithdrawalCost,
   monthNet,
   monthSortKey,
   netOf,
@@ -24,6 +27,19 @@ import {
   sortMonthly,
   urlDayParam,
 } from './analysis';
+
+function terminal(over: Partial<BookingTerminalPnlRowRes>): BookingTerminalPnlRowRes {
+  return {
+    month: '07-2026',
+    deposits: 0,
+    paymentFees: 0,
+    gwRate: 0,
+    completed: { count: 0, collected: 0, ktmbCost: 0 },
+    terminated: { count: 0, kept: 0, ktmbCostNet: 0, withExactRefund: 0 },
+    withdrawals: { count: 0, gross: 0, feeIncome: 0, payoutFees: 0 },
+    ...over,
+  };
+}
 
 function row(over: Partial<BookingAnalysisRowRes>): BookingAnalysisRowRes {
   return {
@@ -388,5 +404,57 @@ describe('cellCostIncomplete', () => {
       false,
     );
     expect(cellCostIncomplete({ quarterStartHour: 0, tickets: 0, revenue: 0, cost: 0, withActualCost: 0 })).toBe(false);
+  });
+});
+
+describe('joinMonthlyWithdrawalCost', () => {
+  it('keys the withdrawal cost by MM-yyyy month (cost = gwRate×gross + payoutFees − feeIncome)', () => {
+    const rows = [
+      toTerminalPnlRow(
+        terminal({
+          month: '07-2026',
+          gwRate: 0.03,
+          withdrawals: { count: 2, gross: 300, feeIncome: 12, payoutFees: 4 },
+        }),
+      ),
+      toTerminalPnlRow(
+        terminal({
+          month: '06-2026',
+          gwRate: 0.05,
+          withdrawals: { count: 1, gross: 100, feeIncome: 4, payoutFees: 1 },
+        }),
+      ),
+    ];
+    const byMonth = joinMonthlyWithdrawalCost(rows);
+    // 07-2026: 0.03×300 + 4 − 12 = 9 + 4 − 12 = 1 (a small loss)
+    expect(byMonth.get('07-2026')?.cost).toBeCloseTo(1);
+    expect(byMonth.get('07-2026')?.count).toBe(2);
+    expect(byMonth.get('07-2026')?.gross).toBe(300);
+    // 06-2026: 0.05×100 + 1 − 4 = 5 + 1 − 4 = 2
+    expect(byMonth.get('06-2026')?.cost).toBeCloseTo(2);
+  });
+
+  it('cost is positive when channel costs exceed the 4% fee income (matches the Withdrawals tab sign)', () => {
+    const rows = [
+      toTerminalPnlRow(
+        terminal({
+          month: '07-2026',
+          gwRate: 0.03,
+          withdrawals: { count: 3, gross: 500, feeIncome: 1, payoutFees: 5 },
+        }),
+      ),
+    ];
+    expect(joinMonthlyWithdrawalCost(rows).get('07-2026')?.cost).toBeGreaterThan(0);
+  });
+
+  it('keeps a zero cost on a zero-filled (no-activity) month rather than dropping it', () => {
+    // the terminal payload is zero-filled across the range, so a quiet month
+    // still has a row — the join must surface it as a zero, not a hole
+    const byMonth = joinMonthlyWithdrawalCost([toTerminalPnlRow(terminal({ month: '05-2026' }))]);
+    expect(byMonth.get('05-2026')).toEqual({ cost: 0, count: 0, gross: 0 });
+  });
+
+  it('returns an empty map for no terminal rows', () => {
+    expect(joinMonthlyWithdrawalCost([]).size).toBe(0);
   });
 });
