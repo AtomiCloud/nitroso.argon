@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount, tick } from "svelte";
     import { page } from "$app/stores";
-    import { goto } from "$app/navigation";
+    import { afterNavigate, goto } from "$app/navigation";
     import { api } from "../../store";
     import { invalidateAll } from "$app/navigation";
 
@@ -388,6 +388,14 @@
         applyUrl($page.url.searchParams);
         urlReady = true;
         await loadPnl();
+    });
+
+    // browser back/forward moves the URL without remounting — reapply the
+    // selection/range it encodes (syncUrl's own goto()s serialize to the
+    // same params, so onUrlChange no-ops for self-inflicted navigations)
+    afterNavigate(() => {
+        if (!urlReady) return;
+        onUrlChange($page.url);
     });
 </script>
 

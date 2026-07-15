@@ -613,12 +613,12 @@ export interface BookingAnalysisPnlRowRes {
 }
 
 /**
- * HAND-ADDED (partners page). One monthly row of a single partner's P&L
- * returned by GET /User/{id}/pnl. Mirrors the shape of the analysis P&L
- * rollup but attributed to ONE user (the 'partner' extraRole tag). Sorted
- * ascending by month (zinc guarantees the order). month is zinc's MM-yyyy
- * wire format. Only months with activity are returned; the UI zero-fills
- * the gaps across the picked range.
+ * HAND-ADDED (partners page) pending swagger regeneration — one monthly row
+ * of a single partner's P&L returned by GET /User/{id}/pnl. Mirrors the
+ * shape of the analysis P&L rollup but attributed to ONE user (the
+ * 'partner' extraRole tag). Sorted ascending by month (zinc guarantees the
+ * order). month is zinc's MM-yyyy wire format. Only months with activity
+ * are returned; the UI zero-fills the gaps across the picked range.
  */
 export interface UserPartnerPnlRowRes {
   /** @format string */
