@@ -5,6 +5,10 @@
   "nav": {
     "bookNow": "Book Now"
   },
+  "historyGate": {
+    "note": "History before June 2026 is visible to owner accounts only — earlier months may show empty for your role.",
+    "dismiss": "Dismiss"
+  },
   "account": {
     "costs": "Costs",
     "discounts": "Discounts",
@@ -1276,6 +1280,9 @@
       "loadError": "Failed to load this partner's P&L",
       "colMonth": "Month",
       "colBookings": "Bookings",
+      "colBoosts": "Boosts",
+      "cellBoosts": "{count} · {amount}",
+      "boostsHint": "Completed bookings that consumed a priority boost, and the sum of their boost fees. A booking with a consumed boost counts once in Bookings and once in Boosts.",
       "colCollected": "Collected",
       "colKtmbCost": "Our KTMB cost",
       "colMargin": "Our margin",

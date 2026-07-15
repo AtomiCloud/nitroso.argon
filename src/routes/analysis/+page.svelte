@@ -36,6 +36,7 @@
     import {toResult} from "$lib/utility";
     import Loader from "$lib/components/complex/loader.svelte";
     import InfoTip from "$lib/components/core/InfoTip.svelte";
+    import HistoryGateNote from "$lib/components/complex/HistoryGateNote.svelte";
     import {toast} from "svelte-sonner";
     import {_} from "svelte-i18n";
     import {lang, formatCalendarDate, formatMoney, formatNumber, formatDateTime} from "$lib/i18n";
@@ -538,6 +539,7 @@
             {/if}
             <span class="text-xs text-muted-foreground">{$_('analysis.range.hint', { locale: $lang })}</span>
         </div>
+        <HistoryGateNote from={after} />
 
         {#if failed}
             <div class="flex flex-col items-center gap-4 py-12">
