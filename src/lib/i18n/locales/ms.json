@@ -20,7 +20,8 @@
     "signIn": "Log masuk",
     "fees": "Yuran",
     "stats": "Statistik",
-    "analysis": "Analisis"
+    "analysis": "Analisis",
+    "partners": "Rakan kongsi"
   },
   "theme": {
     "toggle": "Tukar tema"
@@ -104,7 +105,8 @@
       "withdrawals": "Gagal mendapatkan pengeluaran",
       "withdrawal": "Gagal mendapatkan pengeluaran",
       "users": "Gagal mendapatkan pengguna",
-      "user": "Gagal mendapatkan pengguna"
+      "user": "Gagal mendapatkan pengguna",
+      "partners": "Gagal mendapatkan rakan kongsi"
     }
   },
   "admin": {
@@ -1231,6 +1233,58 @@
       "descriptionAfter": " akaun.",
       "successToast": "Berjaya menambah kredit promosi bernilai {amount} ke akaun pengguna.",
       "errorToast": "Gagal mencipta pemindahan promosi"
+    }
+  },
+  "partners": {
+    "title": "Rakan kongsi",
+    "loadError": "Gagal memuatkan halaman rakan kongsi",
+    "reload": "Muat semula",
+    "list": {
+      "title": "Akaun rakan kongsi",
+      "description": "{count} akaun bertag rakan kongsi. Klik satu untuk memuatkan P&L mereka.",
+      "empty": "Belum ada rakan kongsi — tag satu dari carian di bawah.",
+      "noEmail": "(tiada e-mel)"
+    },
+    "tag": {
+      "title": "Tag pengguna sebagai rakan kongsi",
+      "description": "Mencari pengguna terkini (carian /User admin). Rakan kongsi yang sudah ditag disembunyikan.",
+      "searchPlaceholder": "Tapis mengikut nama pengguna atau e-mel…",
+      "button": "Tag sebagai rakan kongsi",
+      "noMoreCandidates": "Setiap pengguna terkini sudah menjadi rakan kongsi.",
+      "noMatch": "Tiada pengguna yang sepadan.",
+      "error": "Gagal menanda pengguna sebagai rakan kongsi",
+      "success": "{username} telah ditag sebagai rakan kongsi"
+    },
+    "untag": {
+      "aria": "Nyah-tag {username} sebagai rakan kongsi",
+      "title": "Nyah-tag rakan kongsi ini?",
+      "body": "Mengalih keluar extraRole 'partner' daripada {username}. Sejarah tempahan dan dompet mereka kekal; tag peranan sahaja yang hilang.",
+      "confirm": "Nyah-tag rakan kongsi",
+      "error": "Gagal menyah-tag rakan kongsi",
+      "success": "{username} telah dinyah-tag"
+    },
+    "range": {
+      "after": "Dari",
+      "before": "Hingga",
+      "hint": "Bulan tanpa aktiviti diisi sifar merentasi julat yang dipilih."
+    },
+    "pnl": {
+      "title": "P&L rakan kongsi",
+      "description": "Pilih rakan kongsi di sebelah kiri untuk memuatkan P&L bulanan mereka.",
+      "noSelection": "Pilih rakan kongsi dari senarai untuk memuatkan P&L mereka.",
+      "loadError": "Gagal memuatkan P&L rakan kongsi ini",
+      "colMonth": "Bulan",
+      "colBookings": "Tempahan",
+      "colCollected": "Dikumpul",
+      "colKtmbCost": "Kos KTMB kami",
+      "colMargin": "Margin kami",
+      "colMarginPct": "Margin %",
+      "colDeposits": "Deposit",
+      "colWithdrawalsGross": "Pengeluaran (kasar)",
+      "colWithdrawalsFee": "Pengeluaran (pendapatan yuran)",
+      "marginHint": "Dikumpul − kos KTMB kami untuk bulan itu. Hijau = kami untung, merah = kami rugi atas aktiviti rakan kongsi ini.",
+      "marginNote": "Margin dikira di sebelah pelanggan sebagai dikumpul − kos KTMB kami. Deposit dan pengeluaran dijejaki bersama tetapi tidak ditolak daripada margin — itu aliran tunai, bukan P&L.",
+      "total": "Jumlah"
     }
   },
   "withdrawals": {
