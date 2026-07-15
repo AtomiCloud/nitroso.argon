@@ -613,6 +613,79 @@ export interface BookingAnalysisPnlRowRes {
 }
 
 /**
+ * HAND-ADDED (zinc terminal P&L, 1.62.x) pending swagger regeneration —
+ * the completed-bookings leg of one terminal P&L month: bookings whose
+ * money reached the "completed" terminal state, the SGD collected for them
+ * and the KTMB cost of delivering them.
+ */
+export interface BookingTerminalPnlCompletedRes {
+  /** @format int32 */
+  count: number;
+  /** @format double */
+  collected: number;
+  /** @format double */
+  ktmbCost: number;
+}
+
+/**
+ * HAND-ADDED (zinc terminal P&L, 1.62.x) pending swagger regeneration —
+ * the terminated-bookings leg of one terminal P&L month: what BunnyBooker
+ * kept from terminated bookings, net of the KTMB cost NOT recovered.
+ * withExactRefund counts bookings whose KTMB refund is known exactly; the
+ * remainder use zinc's 50% recovery estimate and the UI marks the month.
+ */
+export interface BookingTerminalPnlTerminatedRes {
+  /** @format int32 */
+  count: number;
+  /** @format double */
+  kept: number;
+  /** @format double */
+  ktmbCostNet: number;
+  /** @format int32 */
+  withExactRefund: number;
+}
+
+/**
+ * HAND-ADDED (zinc terminal P&L, 1.62.x) pending swagger regeneration —
+ * the withdrawals leg of one terminal P&L month: gross wallet debits, the
+ * withdrawal fee BunnyBooker kept and the Airwallex payout fees paid.
+ */
+export interface BookingTerminalPnlWithdrawalsRes {
+  /** @format int32 */
+  count: number;
+  /** @format double */
+  gross: number;
+  /** @format double */
+  feeIncome: number;
+  /** @format double */
+  payoutFees: number;
+}
+
+/**
+ * HAND-ADDED (zinc terminal P&L, 1.62.x) pending swagger regeneration — one
+ * month of the terminal-event P&L returned by GET Booking/pnl/terminal.
+ * Profit is recognized when money reaches a terminal state (booking
+ * completed, booking terminated, withdrawal paid out); every deposited
+ * dollar carries its gateway-fee share to its terminal event via the
+ * month's blended gwRate (paymentFees ÷ deposits, a fraction like 0.033).
+ * Sorted ascending by month (zinc guarantees the order); month is zinc's
+ * MM-yyyy wire format. Empty months are omitted; the UI zero-fills gaps.
+ */
+export interface BookingTerminalPnlRowRes {
+  /** @format string */
+  month: string;
+  /** @format double */
+  deposits: number;
+  /** @format double */
+  paymentFees: number;
+  /** @format double */
+  gwRate: number;
+  completed: BookingTerminalPnlCompletedRes;
+  terminated: BookingTerminalPnlTerminatedRes;
+  withdrawals: BookingTerminalPnlWithdrawalsRes;
+}
+
+/**
  * HAND-ADDED (partners page) pending swagger regeneration — one monthly row
  * of a single partner's P&L returned by GET /User/{id}/pnl. Mirrors the
  * shape of the analysis P&L rollup but attributed to ONE user (the

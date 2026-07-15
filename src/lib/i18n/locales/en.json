@@ -21,7 +21,8 @@
     "fees": "Fees",
     "stats": "Statistics",
     "analysis": "Analysis",
-    "partners": "Partners"
+    "partners": "Partners",
+    "pnl": "P&L"
   },
   "theme": {
     "toggle": "Toggle theme"
@@ -1814,7 +1815,6 @@
       "profit": "Profit by travel day",
       "boosts": "Boosts",
       "payments": "Payments",
-      "pnl": "P&L",
       "costs": "FX rates"
     },
     "summary": {
@@ -1924,27 +1924,47 @@
       "empty": "No captured payments in this range",
       "loadError": "Failed to load captured payments",
       "copied": "Payment intent ID copied"
+    }
+  },
+  "pnl": {
+    "title": "P&L",
+    "reload": "Reload",
+    "range": {
+      "after": "From",
+      "before": "To",
+      "hint": "SGT calendar dates, inclusive; months with no activity are zero-filled. All amounts in SGD."
     },
-    "pnl": {
-      "title": "Monthly P&L",
-      "description": "Two views of each SGT calendar month — CASH (money through BunnyBooker) and EARNED (operational P&L excluding principal flows). All amounts in SGD.",
+    "tabs": {
+      "earned": "Earned (EBITDA)",
+      "cash": "Cash"
+    },
+    "colMonth": "Month",
+    "total": "Total",
+    "detail": "{count} · {amount}",
+    "earned": {
+      "title": "Earned (EBITDA)",
+      "description": "Terminal-event P&L per SGT calendar month — profit is recognized when money reaches a terminal state (a booking completes, a booking terminates, or a withdrawal pays out), and every deposited dollar carries its gateway-fee share to its terminal event at the month's blended rate.",
+      "loadError": "Failed to load the terminal-event P&L",
+      "colCompleted": "Completed",
+      "colTerminated": "Terminated",
+      "colWithdrawals": "Withdrawals",
+      "colEbitda": "EBITDA",
+      "completedHint": "collected − KTMB cost − gateway rate × collected",
+      "terminatedHint": "kept − net KTMB cost − gateway rate × kept",
+      "withdrawalsHint": "fee income − gateway rate × gross − payout fees",
+      "gwRateHint": "The month's blended gateway-fee rate: payment fees ÷ deposits.",
+      "estimateNote": "terminated KTMB recovery estimated at 50% for {n} of {m} bookings"
+    },
+    "cash": {
+      "title": "Cash view",
+      "description": "Money through BunnyBooker per SGT calendar month: deposits − net payouts (gross withdrawals minus the fee we keep) − gateway fees. Includes unspent wallet float sitting inside deposits.",
       "loadError": "Failed to load the monthly P&L rollup",
-      "colMonth": "Month",
-      "cashTitle": "Cash view",
-      "cashHint": "Deposits − net payouts (gross withdrawals minus the fee we keep) − gateway fees. Includes unspent wallet float sitting inside deposits.",
-      "earnedTitle": "Earned view",
-      "earnedHint": "Ticket revenue + withdrawal fee income − KTMB cost − gateway fees. Withdrawals as principal flows are NOT here; they appear in the cash view above.",
       "colDeposits": "Deposits",
       "colWithdrawals": "Withdrawals",
       "colGwFees": "Gateway fees",
       "colCashNet": "Cash net",
-      "colTicketRevenue": "Ticket revenue",
-      "colFeeIncome": "Fee income",
-      "colKtmbCost": "KTMB cost",
-      "colEarnedNet": "Earned net",
       "withdrawals": "{count} · {total}",
-      "total": "Total",
-      "cashNote": "The cash view counts unspent wallet float as BunnyBooker cash because deposits include money users paid in but haven't withdrawn yet. For BunnyBooker's operational P&L use the earned view."
+      "cashNote": "The cash view counts unspent wallet float as BunnyBooker cash because deposits include money users paid in but haven't withdrawn yet. For BunnyBooker's operational P&L use the Earned (EBITDA) view."
     }
   }
 }

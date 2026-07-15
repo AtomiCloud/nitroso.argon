@@ -6,7 +6,6 @@
 // unit-testable).
 import type {
   BookingAnalysisProfitBucketRes,
-  BookingAnalysisPnlRowRes,
   BookingAnalysisRowRes,
   BookingAnalysisSummaryRes,
   BookingBoostRes,
@@ -239,7 +238,7 @@ export function boostView(b: Pick<BookingBoostRes, 'free' | 'fee' | 'grantedBy'>
 
 // ---- URL-state parsing (pure slices of the /stats pattern) ----
 
-export const ANALYSIS_TABS = ['overview', 'monthly', 'byday', 'profit', 'boosts', 'payments', 'pnl', 'costs'];
+export const ANALYSIS_TABS = ['overview', 'monthly', 'byday', 'profit', 'boosts', 'payments', 'costs'];
 
 export function pickParam(v: string | null, allowed: string[]): string {
   return v != null && allowed.includes(v) ? v : '';
@@ -257,118 +256,4 @@ export function urlDayParam(s: string | null): string {
   // fails the round-trip comparison
   const d = new Date(Date.UTC(year, month - 1, day));
   return d.getUTCFullYear() === year && d.getUTCMonth() === month - 1 && d.getUTCDate() === day ? (s as string) : '';
-}
-
-// ---- P&L tab (separate endpoint, monthly rollup of cash + earned views) ----
-
-export type PnlMonthRow = {
-  /** zinc wire format, MM-yyyy */
-  month: string;
-  deposits: number;
-  withdrawalCount: number;
-  withdrawalTotal: number;
-  withdrawalFeeIncome: number;
-  gatewayFees: number;
-  ticketRevenue: number;
-  ktmbCost: number;
-};
-
-/**
- * CASH view net = deposits − (withdrawalTotal − withdrawalFeeIncome) − gatewayFees.
- * Captures movement of money through BunnyBooker: in (deposits), out
- * (withdrawals), and the channel cost of moving it (gateway fees).
- * withdrawalTotal is GROSS (the wallet debit) but only Amount − Fee actually
- * leaves the bank — the fee stays with BunnyBooker — so cash out is the net
- * payout. Wallet float that hasn't been withdrawn still sits inside deposits,
- * so this view counts unspent float as BunnyBooker cash — the "what's in our
- * pockets today" reading.
- */
-export function pnlCashNet(r: PnlMonthRow): number {
-  return r.deposits - (r.withdrawalTotal - r.withdrawalFeeIncome) - r.gatewayFees;
-}
-
-/**
- * EARNED view net = ticketRevenue + withdrawalFeeIncome − ktmbCost − gatewayFees.
- * Captures the operational P&L: revenue BunnyBooker earned (ticket sales
- * + admin withdrawal fees) minus the cost of delivering it (KTMB tickets
- * + Airwallex channel cost). Withdrawals as principal flows are NOT here —
- * they appear in the CASH view above.
- */
-export function pnlEarnedNet(r: PnlMonthRow): number {
-  return r.ticketRevenue + r.withdrawalFeeIncome - r.ktmbCost - r.gatewayFees;
-}
-
-/**
- * Zero-fill the P&L payload across every SGT calendar month between from
- * (inclusive) and to (inclusive). Missing months get an all-zeros row so the
- * table renders a continuous series instead of jumping between activity
- * months. zinc returns ascending by month; we preserve that ordering.
- *
- * Malformed bounds fall back to a pass-through sort of the input so the
- * caller still gets a usable table instead of an empty one.
- */
-export function pnlZeroFill(rows: BookingAnalysisPnlRowRes[], from: string, to: string): PnlMonthRow[] {
-  const fromKey = monthSortKey(from);
-  const toKey = monthSortKey(to);
-  if (fromKey === '' || toKey === '' || fromKey > toKey) {
-    return [...rows].map(toPnlMonthRow).sort((a, b) => a.month.localeCompare(b.month));
-  }
-  // yyyyMM → MM-yyyy
-  const label = (k: string) => `${k.slice(4, 6)}-${k.slice(0, 4)}`;
-  const months: string[] = [];
-  let cursor = fromKey;
-  // advance by one calendar month at a time (UTC arithmetic keeps SGT
-  // midnight edge cases out of the year/month boundary math)
-  while (cursor <= toKey) {
-    months.push(label(cursor));
-    const y = Number(cursor.slice(0, 4));
-    const m = Number(cursor.slice(4, 6));
-    const next = m === 12 ? `${y + 1}01` : `${y}${String(m + 1).padStart(2, '0')}`;
-    cursor = next;
-  }
-  const byMonth = new Map(rows.map(r => [r.month, toPnlMonthRow(r)] as const));
-  return months.map(m => byMonth.get(m) ?? zeroPnlMonthRow(m));
-}
-
-function toPnlMonthRow(r: BookingAnalysisPnlRowRes): PnlMonthRow {
-  return {
-    month: r.month,
-    deposits: r.deposits,
-    withdrawalCount: r.withdrawalCount,
-    withdrawalTotal: r.withdrawalTotal,
-    withdrawalFeeIncome: r.withdrawalFeeIncome,
-    gatewayFees: r.gatewayFees,
-    ticketRevenue: r.ticketRevenue,
-    ktmbCost: r.ktmbCost,
-  };
-}
-
-function zeroPnlMonthRow(month: string): PnlMonthRow {
-  return {
-    month,
-    deposits: 0,
-    withdrawalCount: 0,
-    withdrawalTotal: 0,
-    withdrawalFeeIncome: 0,
-    gatewayFees: 0,
-    ticketRevenue: 0,
-    ktmbCost: 0,
-  };
-}
-
-/** Sum every P&L column across rows — the totals row at the bottom of the table. */
-export function pnlTotals(rows: PnlMonthRow[]): PnlMonthRow {
-  return rows.reduce<PnlMonthRow>(
-    (s, r) => ({
-      month: '',
-      deposits: s.deposits + r.deposits,
-      withdrawalCount: s.withdrawalCount + r.withdrawalCount,
-      withdrawalTotal: s.withdrawalTotal + r.withdrawalTotal,
-      withdrawalFeeIncome: s.withdrawalFeeIncome + r.withdrawalFeeIncome,
-      gatewayFees: s.gatewayFees + r.gatewayFees,
-      ticketRevenue: s.ticketRevenue + r.ticketRevenue,
-      ktmbCost: s.ktmbCost + r.ktmbCost,
-    }),
-    zeroPnlMonthRow(''),
-  );
 }
