@@ -1192,6 +1192,37 @@ export interface UserRes {
   wallet: WalletPrincipalRes;
 }
 
+/**
+ * HAND-ADDED (zinc user-wipe, v1.64.x) pending swagger regeneration — success
+ * body of POST /api/v{version}/User/{id}/wipe: the wiped user's id and the
+ * moment the account was wiped.
+ */
+export interface UserWipeRes {
+  id?: string | null;
+  /** @format date-time */
+  wipedAt?: string | null;
+}
+
+/**
+ * HAND-ADDED (zinc user-wipe, v1.64.x) pending swagger regeneration — the
+ * `data` payload of the 409 problem (type 'invalid_user_wipe_operation')
+ * returned by POST /api/v{version}/User/{id}/wipe when the wipe is blocked.
+ * `reason` tells the operator why.
+ */
+export interface UserWipeConflict {
+  detail?: string | null;
+  userId?: string | null;
+  reason?: UserWipeConflictReason | null;
+}
+
+export type UserWipeConflictReason =
+  /** The wallet still holds a balance — pay the user out first. */
+  | 'wallet_not_empty'
+  /** A withdrawal is still pending or processing. */
+  | 'withdrawal_in_flight'
+  /** The account has already been wiped. */
+  | 'already_wiped';
+
 export interface WalletPrincipalRes {
   /** @format uuid */
   id: string;
