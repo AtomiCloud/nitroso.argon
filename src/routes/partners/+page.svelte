@@ -33,6 +33,7 @@
     import type { PageData } from "./$types";
     import {
         LIST_BOOST_PRICE,
+        LIST_TICKET_PRICE,
         type PartnerPnlRow,
         monthSortKey,
         partnerPnlTotals,
@@ -85,13 +86,22 @@
         return "";
     }
 
-    function signedPct(pct: number): string {
-        const sign = pct > 0 ? "+" : pct < 0 ? "−" : "";
-        return `${sign}${(Math.abs(pct) * 100).toFixed(1)}%`;
+    function formatSgd(amount: number, fractionDigits = 2): string {
+        const sign = amount < 0 ? "−" : "";
+        return `${sign}S$${formatNumber(Math.abs(amount), $lang, {
+            minimumFractionDigits: fractionDigits,
+            maximumFractionDigits: fractionDigits,
+        })}`;
     }
 
     function signedMoney(amount: number): string {
-        return `${amount > 0 ? "+" : ""}${formatMoney(amount, $lang)}`;
+        return `${amount > 0 ? "+" : ""}${formatSgd(amount)}`;
+    }
+
+    function listMarginClass(amount: number, hasActivity = true): string {
+        if (!hasActivity || amount === 0) return "text-muted-foreground";
+        if (amount > 0) return "text-amber-600 dark:text-amber-400";
+        return "text-green-600 dark:text-green-400";
     }
 
     // Default range = the last 6 months ending in Singapore today (partners
@@ -687,13 +697,28 @@
                                 <Loader />
                             {:else}
                                 <div class="overflow-hidden rounded-lg border">
-                                    <Table.Root class="min-w-[1120px]">
+                                    <Table.Root class="min-w-[1380px]">
                                         <Table.Caption
                                             class="caption-top mt-0 border-b border-amber-200/70 bg-amber-50/70 px-4 py-3 text-left text-sm leading-relaxed text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-100"
                                         >
-                                            {$_("partners.pnl.caption", { locale: $lang })}
+                                            {$_("partners.pnl.caption", {
+                                                locale: $lang,
+                                                values: {
+                                                    ticketPrice: formatSgd(LIST_TICKET_PRICE, 0),
+                                                    boostPrice: formatSgd(LIST_BOOST_PRICE, 0),
+                                                },
+                                            })}
                                         </Table.Caption>
                                         <Table.Header class="bg-muted/40">
+                                            <Table.Row class="border-b-0">
+                                                <Table.Head colspan={4} class="h-8 px-3"></Table.Head>
+                                                <Table.Head
+                                                    colspan={5}
+                                                    class="h-8 border-l border-amber-200/70 bg-amber-50/60 px-3 text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-200"
+                                                >
+                                                    {$_("partners.pnl.settlementGroup", { locale: $lang })}
+                                                </Table.Head>
+                                            </Table.Row>
                                             <Table.Row>
                                                 <Table.Head class="h-11 min-w-[150px] px-3 whitespace-nowrap">
                                                     <span class="inline-flex items-center gap-1">
@@ -716,17 +741,6 @@
                                                         {$_("partners.pnl.colBoosts", { locale: $lang })}
                                                         <InfoTip label={$_("partners.pnl.colBoosts", { locale: $lang })}>
                                                             {$_("partners.pnl.boostsHint", { locale: $lang })}
-                                                        </InfoTip>
-                                                    </span>
-                                                </Table.Head>
-                                                <Table.Head class="h-11 min-w-[165px] px-3 text-right whitespace-nowrap">
-                                                    <span class="inline-flex w-full items-center justify-end gap-1">
-                                                        {$_("partners.pnl.colBoostList", { locale: $lang })}
-                                                        <InfoTip label={$_("partners.pnl.colBoostList", { locale: $lang })}>
-                                                            {$_("partners.pnl.boostListHint", {
-                                                                locale: $lang,
-                                                                values: { price: formatMoney(LIST_BOOST_PRICE, $lang) },
-                                                            })}
                                                         </InfoTip>
                                                     </span>
                                                 </Table.Head>
@@ -754,11 +768,33 @@
                                                         </InfoTip>
                                                     </span>
                                                 </Table.Head>
-                                                <Table.Head class="h-11 min-w-[130px] px-3 text-right whitespace-nowrap">
+                                                <Table.Head class="h-11 min-w-[135px] px-3 text-right whitespace-nowrap">
                                                     <span class="inline-flex w-full items-center justify-end gap-1">
-                                                        {$_("partners.pnl.colMargin", { locale: $lang })}
-                                                        <InfoTip label={$_("partners.pnl.colMargin", { locale: $lang })}>
-                                                            {$_("partners.pnl.marginHint", { locale: $lang })}
+                                                        {$_("partners.pnl.colWeEarned", { locale: $lang })}
+                                                        <InfoTip label={$_("partners.pnl.colWeEarned", { locale: $lang })}>
+                                                            {$_("partners.pnl.weEarnedHint", { locale: $lang })}
+                                                        </InfoTip>
+                                                    </span>
+                                                </Table.Head>
+                                                <Table.Head class="h-11 min-w-[205px] px-3 text-right whitespace-nowrap">
+                                                    <span class="inline-flex w-full items-center justify-end gap-1">
+                                                        {$_("partners.pnl.colTheyProfitEst", { locale: $lang })}
+                                                        <InfoTip label={$_("partners.pnl.colTheyProfitEst", { locale: $lang })}>
+                                                            {$_("partners.pnl.theyProfitEstHint", {
+                                                                locale: $lang,
+                                                                values: {
+                                                                    ticketPrice: formatSgd(LIST_TICKET_PRICE, 0),
+                                                                    boostPrice: formatSgd(LIST_BOOST_PRICE, 0),
+                                                                },
+                                                            })}
+                                                        </InfoTip>
+                                                    </span>
+                                                </Table.Head>
+                                                <Table.Head class="h-11 min-w-[160px] px-3 text-right whitespace-nowrap">
+                                                    <span class="inline-flex w-full items-center justify-end gap-1">
+                                                        {$_("partners.pnl.colTopUp", { locale: $lang })}
+                                                        <InfoTip label={$_("partners.pnl.colTopUp", { locale: $lang })}>
+                                                            {$_("partners.pnl.topUpHint", { locale: $lang })}
                                                         </InfoTip>
                                                     </span>
                                                 </Table.Head>
@@ -817,52 +853,109 @@
                                                         </div>
                                                     </Table.Cell>
                                                     <Table.Cell class="px-3 py-2 text-right tabular-nums whitespace-nowrap">
-                                                        {$_("partners.pnl.cellTickets", {
-                                                            locale: $lang,
-                                                            values: {
-                                                                count: formatNumber(r.bookings, $lang),
-                                                                average: formatMoney(r.averageTicketPaid, $lang),
-                                                            },
-                                                        })}
+                                                        <div class="flex flex-col items-end leading-tight">
+                                                            {#if r.bookings === 0}
+                                                                <span class="font-bold">—</span>
+                                                            {:else}
+                                                                <span class="font-bold">
+                                                                    {$_("partners.pnl.cellTicketPrice", {
+                                                                        locale: $lang,
+                                                                        values: {
+                                                                            average: formatSgd(r.averageTicketPaid),
+                                                                        },
+                                                                    })}
+                                                                </span>
+                                                            {/if}
+                                                            <span class="mt-1 text-[11px] text-muted-foreground">
+                                                                {$_("partners.pnl.cellTicketCount", {
+                                                                    locale: $lang,
+                                                                    values: { count: formatNumber(r.bookings, $lang) },
+                                                                })}
+                                                            </span>
+                                                        </div>
                                                     </Table.Cell>
                                                     <Table.Cell class="px-3 py-2 text-right tabular-nums whitespace-nowrap">
                                                         {$_("partners.pnl.cellBoosts", {
                                                             locale: $lang,
                                                             values: {
                                                                 count: formatNumber(r.boostCount, $lang),
-                                                                paid: formatMoney(r.boostAmount, $lang),
+                                                                paid: formatSgd(r.boostAmount),
                                                             },
                                                         })}
-                                                    </Table.Cell>
-                                                    <Table.Cell class="px-3 py-2 text-right tabular-nums whitespace-nowrap">
-                                                        <div class="flex flex-col items-end leading-tight">
-                                                            <span>{formatMoney(r.boostListValue, $lang)}</span>
-                                                            <span
-                                                                class={r.boostListGap > 0
-                                                                    ? "mt-1 text-[11px] font-medium text-amber-600 dark:text-amber-400"
-                                                                    : "mt-1 text-[11px] text-muted-foreground"}
-                                                            >
-                                                                {$_("partners.pnl.listDelta", {
-                                                                    locale: $lang,
-                                                                    values: { delta: signedMoney(r.boostListGap) },
-                                                                })}
-                                                            </span>
-                                                        </div>
                                                     </Table.Cell>
                                                     <Table.Cell class="px-3 py-2 text-right tabular-nums">
                                                         {formatNumber(r.distinctPassengers, $lang)}
                                                     </Table.Cell>
                                                     <Table.Cell class="px-3 py-2 text-right tabular-nums">
-                                                        {formatMoney(r.collected, $lang)}
+                                                        {formatSgd(r.paidTotal)}
                                                     </Table.Cell>
                                                     <Table.Cell class="px-3 py-2 text-right tabular-nums">
-                                                        {formatMoney(r.ktmbCost, $lang)}
+                                                        {formatSgd(r.ktmbCost)}
                                                     </Table.Cell>
                                                     <Table.Cell class="px-3 py-2 text-right tabular-nums">
-                                                        <div class="flex flex-col items-end leading-tight {deltaClass(r.margin)}">
-                                                            <span class="font-bold">{formatMoney(r.margin, $lang)}</span>
-                                                            <span class="mt-1 text-[11px] font-medium">{signedPct(r.marginPct)}</span>
+                                                        <span class="font-bold {deltaClass(r.weEarned)}">
+                                                            {formatSgd(r.weEarned)}
+                                                        </span>
+                                                    </Table.Cell>
+                                                    <Table.Cell class="px-3 py-2 text-right tabular-nums">
+                                                        <div class="flex flex-col items-end leading-tight">
+                                                            <span
+                                                                class="font-bold {listMarginClass(
+                                                                    r.theyProfitEst,
+                                                                    r.bookings > 0 || r.boostCount > 0,
+                                                                )}"
+                                                            >
+                                                                {formatSgd(r.theyProfitEst)}
+                                                            </span>
+                                                            <div class="mt-1 flex flex-wrap justify-end gap-x-2 text-[11px] font-medium">
+                                                                <span
+                                                                    class={listMarginClass(
+                                                                        r.ticketMarginAtList,
+                                                                        r.bookings > 0,
+                                                                    )}
+                                                                >
+                                                                    {$_("partners.pnl.ticketMarginLine", {
+                                                                        locale: $lang,
+                                                                        values: {
+                                                                            margin:
+                                                                                r.bookings === 0
+                                                                                    ? "—"
+                                                                                    : signedMoney(r.ticketMarginAtList),
+                                                                        },
+                                                                    })}
+                                                                </span>
+                                                                <span
+                                                                    class={listMarginClass(
+                                                                        r.boostListGap,
+                                                                        r.boostCount > 0,
+                                                                    )}
+                                                                >
+                                                                    {$_("partners.pnl.boostMarginLine", {
+                                                                        locale: $lang,
+                                                                        values: {
+                                                                            margin:
+                                                                                r.boostCount === 0
+                                                                                    ? "—"
+                                                                                    : signedMoney(r.boostListGap),
+                                                                        },
+                                                                    })}
+                                                                </span>
+                                                            </div>
                                                         </div>
+                                                    </Table.Cell>
+                                                    <Table.Cell class="px-3 py-2 text-right tabular-nums">
+                                                        {#if r.topUpOwed > 0}
+                                                            <span class="font-bold text-amber-600 dark:text-amber-400">
+                                                                {formatSgd(r.topUpOwed)}
+                                                            </span>
+                                                        {:else}
+                                                            <span class="inline-flex items-center justify-end gap-1 text-muted-foreground">
+                                                                <span>{formatSgd(0, 0)}</span>
+                                                                <InfoTip label={$_("partners.pnl.colTopUp", { locale: $lang })}>
+                                                                    {$_("partners.pnl.topUpSettledHint", { locale: $lang })}
+                                                                </InfoTip>
+                                                            </span>
+                                                        {/if}
                                                     </Table.Cell>
                                                 </Table.Row>
                                                 {#if isExpanded}
@@ -870,7 +963,7 @@
                                                         id={`partner-money-${r.month}`}
                                                         class="bg-muted/20 hover:bg-muted/20"
                                                     >
-                                                        <Table.Cell colspan={8} class="px-3 py-3">
+                                                        <Table.Cell colspan={9} class="px-3 py-3">
                                                             <div
                                                                 class="ml-7 rounded-md border border-dashed bg-background/80 px-3 py-2.5"
                                                             >
@@ -922,56 +1015,113 @@
                                                     {$_("partners.pnl.total", { locale: $lang })}
                                                 </Table.Cell>
                                                 <Table.Cell class="px-3 py-2.5 text-right tabular-nums font-semibold whitespace-nowrap">
-                                                    {$_("partners.pnl.cellTickets", {
-                                                        locale: $lang,
-                                                        values: {
-                                                            count: formatNumber(pnlTotal.bookings, $lang),
-                                                            average: formatMoney(pnlTotal.averageTicketPaid, $lang),
-                                                        },
-                                                    })}
+                                                    <div class="flex flex-col items-end leading-tight">
+                                                        {#if pnlTotal.bookings === 0}
+                                                            <span class="font-bold">—</span>
+                                                        {:else}
+                                                            <span class="font-bold">
+                                                                {$_("partners.pnl.cellTicketPrice", {
+                                                                    locale: $lang,
+                                                                    values: {
+                                                                        average: formatSgd(
+                                                                            pnlTotal.averageTicketPaid,
+                                                                        ),
+                                                                    },
+                                                                })}
+                                                            </span>
+                                                        {/if}
+                                                        <span class="mt-1 text-[11px] text-muted-foreground">
+                                                            {$_("partners.pnl.cellTicketCount", {
+                                                                locale: $lang,
+                                                                values: { count: formatNumber(pnlTotal.bookings, $lang) },
+                                                            })}
+                                                        </span>
+                                                    </div>
                                                 </Table.Cell>
                                                 <Table.Cell class="px-3 py-2.5 text-right tabular-nums font-semibold whitespace-nowrap">
                                                     {$_("partners.pnl.cellBoosts", {
                                                         locale: $lang,
                                                         values: {
                                                             count: formatNumber(pnlTotal.boostCount, $lang),
-                                                            paid: formatMoney(pnlTotal.boostAmount, $lang),
+                                                            paid: formatSgd(pnlTotal.boostAmount),
                                                         },
                                                     })}
-                                                </Table.Cell>
-                                                <Table.Cell class="px-3 py-2.5 text-right tabular-nums font-semibold whitespace-nowrap">
-                                                    <div class="flex flex-col items-end leading-tight">
-                                                        <span>{formatMoney(pnlTotal.boostListValue, $lang)}</span>
-                                                        <span
-                                                            class={pnlTotal.boostListGap > 0
-                                                                ? "mt-1 text-[11px] font-medium text-amber-600 dark:text-amber-400"
-                                                                : "mt-1 text-[11px] text-muted-foreground"}
-                                                        >
-                                                            {$_("partners.pnl.listDelta", {
-                                                                locale: $lang,
-                                                                values: { delta: signedMoney(pnlTotal.boostListGap) },
-                                                            })}
-                                                        </span>
-                                                    </div>
                                                 </Table.Cell>
                                                 <Table.Cell class="px-3 py-2.5 text-right tabular-nums font-semibold">
                                                     {formatNumber(pnlTotal.distinctPassengers, $lang)}
                                                 </Table.Cell>
                                                 <Table.Cell class="px-3 py-2.5 text-right tabular-nums font-semibold">
-                                                    {formatMoney(pnlTotal.collected, $lang)}
+                                                    {formatSgd(pnlTotal.paidTotal)}
                                                 </Table.Cell>
                                                 <Table.Cell class="px-3 py-2.5 text-right tabular-nums font-semibold">
-                                                    {formatMoney(pnlTotal.ktmbCost, $lang)}
+                                                    {formatSgd(pnlTotal.ktmbCost)}
                                                 </Table.Cell>
                                                 <Table.Cell class="px-3 py-2.5 text-right tabular-nums">
-                                                    <div
-                                                        class="flex flex-col items-end leading-tight font-semibold {deltaClass(
-                                                            pnlTotal.margin,
-                                                        )}"
-                                                    >
-                                                        <span class="font-bold">{formatMoney(pnlTotal.margin, $lang)}</span>
-                                                        <span class="mt-1 text-[11px]">{signedPct(pnlTotal.marginPct)}</span>
+                                                    <span class="font-bold {deltaClass(pnlTotal.weEarned)}">
+                                                        {formatSgd(pnlTotal.weEarned)}
+                                                    </span>
+                                                </Table.Cell>
+                                                <Table.Cell class="px-3 py-2.5 text-right tabular-nums">
+                                                    <div class="flex flex-col items-end leading-tight">
+                                                        <span
+                                                            class="font-bold {listMarginClass(
+                                                                pnlTotal.theyProfitEst,
+                                                                pnlTotal.bookings > 0 || pnlTotal.boostCount > 0,
+                                                            )}"
+                                                        >
+                                                            {formatSgd(pnlTotal.theyProfitEst)}
+                                                        </span>
+                                                        <div class="mt-1 flex flex-wrap justify-end gap-x-2 text-[11px] font-medium">
+                                                            <span
+                                                                class={listMarginClass(
+                                                                    pnlTotal.ticketMarginAtList,
+                                                                    pnlTotal.bookings > 0,
+                                                                )}
+                                                            >
+                                                                {$_("partners.pnl.ticketMarginLine", {
+                                                                    locale: $lang,
+                                                                    values: {
+                                                                        margin:
+                                                                            pnlTotal.bookings === 0
+                                                                                ? "—"
+                                                                                : signedMoney(
+                                                                                      pnlTotal.ticketMarginAtList,
+                                                                                  ),
+                                                                    },
+                                                                })}
+                                                            </span>
+                                                            <span
+                                                                class={listMarginClass(
+                                                                    pnlTotal.boostListGap,
+                                                                    pnlTotal.boostCount > 0,
+                                                                )}
+                                                            >
+                                                                {$_("partners.pnl.boostMarginLine", {
+                                                                    locale: $lang,
+                                                                    values: {
+                                                                        margin:
+                                                                            pnlTotal.boostCount === 0
+                                                                                ? "—"
+                                                                                : signedMoney(pnlTotal.boostListGap),
+                                                                    },
+                                                                })}
+                                                            </span>
+                                                        </div>
                                                     </div>
+                                                </Table.Cell>
+                                                <Table.Cell class="px-3 py-2.5 text-right tabular-nums">
+                                                    {#if pnlTotal.topUpOwed > 0}
+                                                        <span class="font-bold text-amber-600 dark:text-amber-400">
+                                                            {formatSgd(pnlTotal.topUpOwed)}
+                                                        </span>
+                                                    {:else}
+                                                        <span class="inline-flex items-center justify-end gap-1 text-muted-foreground">
+                                                            <span>{formatSgd(0, 0)}</span>
+                                                            <InfoTip label={$_("partners.pnl.colTopUp", { locale: $lang })}>
+                                                                {$_("partners.pnl.topUpSettledHint", { locale: $lang })}
+                                                            </InfoTip>
+                                                        </span>
+                                                    {/if}
                                                 </Table.Cell>
                                             </Table.Row>
                                         </Table.Body>

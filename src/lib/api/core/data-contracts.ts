@@ -693,10 +693,12 @@ export interface BookingTerminalPnlRowRes {
  * the order). month is zinc's MM-yyyy wire format. Only months with activity
  * are returned; the UI zero-fills the gaps across the picked range.
  *
+ * collected contains completed booking-request ticket payments only;
  * boostCount / boostAmount count every consumed boost (FREE included) and
- * what the partner actually paid. distinctPassengers counts distinct,
- * non-empty passenger passports in that month's completed tickets — an
- * additive reseller signal for the owner-only arbitrage view.
+ * the separately reported amount the partner paid for boosts.
+ * distinctPassengers counts distinct, non-empty passenger passports in that
+ * month's completed tickets — an additive reseller signal for the owner-only
+ * settlement view.
  */
 export interface UserPartnerPnlRowRes {
   /** @format string */

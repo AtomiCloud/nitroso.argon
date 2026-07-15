@@ -2,14 +2,19 @@ import { describe, expect, it } from 'vitest';
 import type { UserPartnerPnlRowRes } from '$lib/api/core/data-contracts';
 import {
   LIST_BOOST_PRICE,
+  LIST_TICKET_PRICE,
   monthSortKey,
   partnerAverageTicketPaid,
   partnerBoostListGap,
   partnerBoostListValue,
-  partnerMargin,
-  partnerMarginPct,
+  partnerPaidTotal,
   partnerPnlTotals,
   partnerPnlZeroFill,
+  partnerStreetValue,
+  partnerTheyProfitEst,
+  partnerTicketMarginAtList,
+  partnerTopUpOwed,
+  partnerWeEarned,
   toPartnerPnlRow,
 } from './partners';
 
@@ -53,7 +58,8 @@ describe('monthSortKey', () => {
 });
 
 describe('partner arbitrage helpers', () => {
-  it('names the public boost list price as S$10', () => {
+  it('names the public ticket and boost list prices as S$10', () => {
+    expect(LIST_TICKET_PRICE).toBe(10);
     expect(LIST_BOOST_PRICE).toBe(10);
   });
 
@@ -61,6 +67,12 @@ describe('partner arbitrage helpers', () => {
     expect(partnerAverageTicketPaid(4, 100)).toBe(25);
     expect(partnerAverageTicketPaid(0, 100)).toBe(0);
     expect(partnerAverageTicketPaid(0, 0)).toBe(0);
+  });
+
+  it('computes ticket margin at list without clamping and guards zero tickets', () => {
+    expect(partnerTicketMarginAtList(4, 24)).toBe(16);
+    expect(partnerTicketMarginAtList(4, 48)).toBe(-8);
+    expect(partnerTicketMarginAtList(0, 0)).toBe(0);
   });
 
   it('values consumed boosts at list and exposes the gap versus paid', () => {
@@ -71,42 +83,50 @@ describe('partner arbitrage helpers', () => {
   });
 });
 
-describe('partnerMargin', () => {
-  it('is collected − ktmbCost', () => {
-    expect(partnerMargin(row({ collected: 1000, ktmbCost: 200 }))).toBe(800);
-    expect(partnerMargin(row({ collected: 100, ktmbCost: 0 }))).toBe(100);
-    expect(partnerMargin(row({ collected: 0, ktmbCost: 0 }))).toBe(0);
+describe('partner settlement helpers', () => {
+  const settlement = row({
+    bookings: 6,
+    collected: 42,
+    boostCount: 2,
+    boostAmount: 10,
+    ktmbCost: 30,
   });
 
-  it('is negative when ktmb cost exceeds collected (rare: partner undercut us)', () => {
-    expect(partnerMargin(row({ collected: 50, ktmbCost: 80 }))).toBe(-30);
-  });
-});
-
-describe('partnerMarginPct', () => {
-  it('is margin / collected', () => {
-    expect(partnerMarginPct(row({ collected: 1000, ktmbCost: 200 }))).toBe(0.8);
-    expect(partnerMarginPct(row({ collected: 100, ktmbCost: 50 }))).toBe(0.5);
-    // exactly 100% margin
-    expect(partnerMarginPct(row({ collected: 100, ktmbCost: 0 }))).toBe(1);
-    // exactly 0% margin
-    expect(partnerMarginPct(row({ collected: 100, ktmbCost: 100 }))).toBe(0);
+  it('combines ticket and boost payments and computes street value from named list prices', () => {
+    expect(partnerPaidTotal(settlement)).toBe(52);
+    expect(partnerStreetValue(settlement)).toBe(80);
   });
 
-  it('guards divide-by-zero: returns 0 when collected is 0', () => {
-    // the partner had no bookings — no revenue, no margin percentage
-    // (NaN would render as "NaN%" — useless and alarming)
-    expect(partnerMarginPct(row({ collected: 0, ktmbCost: 0 }))).toBe(0);
-    expect(partnerMarginPct(row({ collected: 0, ktmbCost: 50 }))).toBe(0);
+  it('computes what we earned, their estimated profit, and the 50/50 top-up', () => {
+    expect(partnerWeEarned(settlement)).toBe(22);
+    expect(partnerTheyProfitEst(settlement)).toBe(28);
+    expect(partnerTopUpOwed(settlement)).toBe(3);
   });
 
-  it('returns a negative percentage when ktmb cost exceeds collected', () => {
-    expect(partnerMarginPct(row({ collected: 50, ktmbCost: 80 }))).toBeCloseTo(-0.6, 5);
+  it('floors the top-up at zero when we are already at or above our half', () => {
+    const weAreAhead = row({ bookings: 10, collected: 90, ktmbCost: 10 });
+    expect(partnerWeEarned(weAreAhead)).toBe(80);
+    expect(partnerTheyProfitEst(weAreAhead)).toBe(10);
+    expect(partnerTopUpOwed(weAreAhead)).toBe(0);
+  });
+
+  it('does not clamp their estimated profit when they paid above street value', () => {
+    const aboveList = row({ bookings: 1, collected: 12 });
+    expect(partnerStreetValue(aboveList)).toBe(10);
+    expect(partnerTheyProfitEst(aboveList)).toBe(-2);
+    expect(partnerTopUpOwed(aboveList)).toBe(0);
+  });
+
+  it('keeps an exactly balanced settlement at zero', () => {
+    const balanced = row({ bookings: 10, collected: 80, ktmbCost: 60 });
+    expect(partnerWeEarned(balanced)).toBe(20);
+    expect(partnerTheyProfitEst(balanced)).toBe(20);
+    expect(partnerTopUpOwed(balanced)).toBe(0);
   });
 });
 
 describe('toPartnerPnlRow', () => {
-  it('shapes zinc payload into the UI row with margin + marginPct derived', () => {
+  it('shapes zinc payload into the UI row with settlement values derived', () => {
     const r = toPartnerPnlRow(
       row({
         month: '07-2026',
@@ -121,10 +141,14 @@ describe('toPartnerPnlRow', () => {
     expect(r.month).toBe('07-2026');
     expect(r.bookings).toBe(12);
     expect(r.averageTicketPaid).toBeCloseTo(1000 / 12, 5);
+    expect(r.ticketMarginAtList).toBe(-880);
     expect(r.collected).toBe(1000);
+    expect(r.paidTotal).toBe(1000);
     expect(r.ktmbCost).toBe(200);
-    expect(r.margin).toBe(800);
-    expect(r.marginPct).toBe(0.8);
+    expect(r.streetValue).toBe(120);
+    expect(r.weEarned).toBe(800);
+    expect(r.theyProfitEst).toBe(-880);
+    expect(r.topUpOwed).toBe(0);
     expect(r.deposits).toBe(500);
     expect(r.withdrawalGross).toBe(100);
     expect(r.withdrawalFeeIncome).toBe(10);
@@ -153,6 +177,9 @@ describe('toPartnerPnlRow', () => {
     expect(r.boostListValue).toBe(40);
     expect(r.boostListGap).toBe(40);
     expect(r.distinctPassengers).toBe(5);
+    expect(r.streetValue).toBe(90);
+    expect(r.theyProfitEst).toBe(90);
+    expect(r.topUpOwed).toBe(45);
   });
 });
 
@@ -166,9 +193,10 @@ describe('partnerPnlZeroFill', () => {
     expect(rows[1].collected).toBe(100);
     expect(rows[2].collected).toBe(0);
     expect(rows[3].collected).toBe(0);
-    // zero rows also carry zero margin + zero marginPct (no divide-by-zero)
-    expect(rows[0].margin).toBe(0);
-    expect(rows[0].marginPct).toBe(0);
+    // zero rows also carry a zeroed settlement
+    expect(rows[0].weEarned).toBe(0);
+    expect(rows[0].theyProfitEst).toBe(0);
+    expect(rows[0].topUpOwed).toBe(0);
   });
 
   it('keeps the payload verbatim when its months already cover the range', () => {
@@ -251,17 +279,19 @@ describe('partnerPnlTotals', () => {
     ]);
     expect(total.bookings).toBe(8);
     expect(total.averageTicketPaid).toBe(175);
+    expect(total.ticketMarginAtList).toBe(-1320);
     expect(total.boostCount).toBe(3);
     expect(total.boostAmount).toBe(45);
     expect(total.boostListValue).toBe(30);
     expect(total.boostListGap).toBe(-15);
     expect(total.distinctPassengers).toBe(6);
     expect(total.collected).toBe(1400);
+    expect(total.paidTotal).toBe(1445);
     expect(total.ktmbCost).toBe(300);
-    expect(total.margin).toBe(1100);
-    // weighted-average margin %, not the average of monthly percentages
-    // (sum margin / sum collected = 1100 / 1400 ≈ 0.7857)
-    expect(total.marginPct).toBeCloseTo(1100 / 1400, 5);
+    expect(total.streetValue).toBe(110);
+    expect(total.weEarned).toBe(1145);
+    expect(total.theyProfitEst).toBe(-1335);
+    expect(total.topUpOwed).toBe(0);
     expect(total.deposits).toBe(700);
     expect(total.withdrawalGross).toBe(150);
     expect(total.withdrawalFeeIncome).toBe(15);
@@ -272,29 +302,39 @@ describe('partnerPnlTotals', () => {
       month: '',
       bookings: 0,
       averageTicketPaid: 0,
+      ticketMarginAtList: 0,
       boostCount: 0,
       boostAmount: 0,
       boostListValue: 0,
       boostListGap: 0,
       distinctPassengers: 0,
       collected: 0,
+      paidTotal: 0,
       ktmbCost: 0,
-      margin: 0,
-      marginPct: 0,
+      streetValue: 0,
+      weEarned: 0,
+      theyProfitEst: 0,
+      topUpOwed: 0,
       deposits: 0,
       withdrawalGross: 0,
       withdrawalFeeIncome: 0,
     });
   });
 
-  it('marginPct falls back to 0 when summed collected is 0', () => {
-    // zero-revenue months: the weighted-average ratio would NaN without
-    // the guard, so the totals row stays at 0% instead
-    const total = partnerPnlTotals([
-      toPartnerPnlRow(row({ month: '01-2026' })),
-      toPartnerPnlRow(row({ month: '02-2026' })),
-    ]);
-    expect(total.marginPct).toBe(0);
-    expect(total.collected).toBe(0);
+  it('re-derives the range top-up instead of summing monthly floors', () => {
+    const rows = [
+      toPartnerPnlRow(row({ month: '01-2026', bookings: 10, collected: 60, ktmbCost: 60 })),
+      toPartnerPnlRow(row({ month: '02-2026', bookings: 10, collected: 100, ktmbCost: 60 })),
+    ];
+
+    // January says they are S$20 ahead; February puts us S$40 ahead. Across
+    // the selected range both sides earned S$40, so no settlement is owed.
+    expect(rows.map(r => r.topUpOwed)).toEqual([20, 0]);
+    expect(rows.reduce((sum, r) => sum + r.topUpOwed, 0)).toBe(20);
+
+    const total = partnerPnlTotals(rows);
+    expect(total.weEarned).toBe(40);
+    expect(total.theyProfitEst).toBe(40);
+    expect(total.topUpOwed).toBe(0);
   });
 });
