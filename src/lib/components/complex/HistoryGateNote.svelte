@@ -12,9 +12,9 @@
     // caller has, so the note is purely range-triggered: when the picked
     // range starts before June 2026, show it once per page-load per range.
     //
-    // Dismissal is per-instance (component-local state), not persisted —
-    // a reload brings the note back, which matches the policy "every time
-    // the admin picks a range that crosses the gate, remind them once".
+    // Dismissal is persisted in sessionStorage under one shared key, so
+    // dismissing the note on any of the three pages silences it everywhere
+    // for the rest of the browser tab session (a new tab brings it back).
     export let from: YearMonth | null | undefined = null;
 
     const storageKey = "historyGateNote.dismissed";

@@ -129,7 +129,13 @@
         };
     }
 
+    // race guard (same pattern as /pnl): rapid range changes put several
+    // load()s in flight; only the latest may write, or an older range's
+    // slower response repaints the page under the newer pickers
+    let loadToken = 0;
+
     async function load() {
+        const myToken = ++loadToken;
         loading = true;
         const range = rangeQuery();
         const a = await toResult(() => $api.vBookingAnalysisDetail("1", range),
@@ -140,6 +146,7 @@
                 return null;
             }
         });
+        if (myToken !== loadToken) return;
         // capture evidence is secondary — its failure degrades to an empty
         // list with a toast rather than blanking the whole page
         const c = await toResult(() => $api.vPaymentCapturedDetail("1", {...range, Limit: 100}),
@@ -151,6 +158,7 @@
                 return [];
             }
         });
+        if (myToken !== loadToken) return;
         analysis = a;
         captured = c;
         failed = a == null;
@@ -197,21 +205,26 @@
         if (myToken === withdrawalToken) withdrawalsLoading = false;
     }
 
+    let profitToken = 0;
+
     async function loadProfit() {
+        const myToken = ++profitToken;
         profitLoading = true;
         profitFailed = false;
         await toResult(() => $api.vBookingAnalysisProfitDetail("1", rangeQuery()),
             $_('analysis.profit.loadError', {locale: $lang})).match({
             ok: (r) => {
+                if (myToken !== profitToken) return;
                 profitRows = pivotProfitBuckets(r);
                 profitFailed = false;
             },
             err: (e) => {
+                if (myToken !== profitToken) return;
                 console.error(e);
                 profitFailed = true;
             }
         });
-        profitLoading = false;
+        if (myToken === profitToken) profitLoading = false;
     }
 
     async function rangeChange() {
@@ -228,7 +241,10 @@
     let boostsLoading = false;
     let boostsFailed = false;
 
+    let boostToken = 0;
+
     async function loadBoosts() {
+        const myToken = ++boostToken;
         boostsLoading = true;
         boostsFailed = false;
         await toResult(() => $api.vBookingAnalysisBoostsDetail("1", {
@@ -237,15 +253,17 @@
             Skip: boostSkip,
         }), $_('analysis.boosts.loadError', {locale: $lang})).match({
             ok: (r) => {
+                if (myToken !== boostToken) return;
                 boosts = r.items;
                 boostTotal = r.total;
             },
             err: (e) => {
+                if (myToken !== boostToken) return;
                 console.error(e);
                 boostsFailed = true;
             }
         });
-        boostsLoading = false;
+        if (myToken === boostToken) boostsLoading = false;
     }
 
     function boostPage(delta: number) {
@@ -1201,7 +1219,9 @@
                                                     <Table.Cell class="px-2 py-1.5 text-right tabular-nums text-muted-foreground">{formatMoney(b.feeIncome, $lang)}</Table.Cell>
                                                     <Table.Cell class="px-2 py-1.5 text-right tabular-nums text-muted-foreground">{formatMoney(b.depositFee, $lang)}</Table.Cell>
                                                     <Table.Cell class="px-2 py-1.5 text-right tabular-nums text-muted-foreground">{formatMoney(b.payoutFees, $lang)}</Table.Cell>
-                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-medium {deltaClass(netLoss)}">{formatMoney(netLoss, $lang)}</Table.Cell>
+                                                    <!-- netLoss is a LOSS figure (positive = money lost), so the
+                                                         delta color inverts: red for a loss, green for a gain -->
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-medium {deltaClass(-netLoss)}">{formatMoney(netLoss, $lang)}</Table.Cell>
                                                     <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
                                                         {#if blended == null}
                                                             {$_('analysis.withdrawals.blendedLossDash', { locale: $lang })}
@@ -1221,7 +1241,7 @@
                                                 <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold text-muted-foreground">{formatMoney(wdTotal.feeIncome, $lang)}</Table.Cell>
                                                 <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold text-muted-foreground">{formatMoney(wdTotal.depositFee, $lang)}</Table.Cell>
                                                 <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold text-muted-foreground">{formatMoney(wdTotal.payoutFees, $lang)}</Table.Cell>
-                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(wdTotal.netLoss)}">{formatMoney(wdTotal.netLoss, $lang)}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(-wdTotal.netLoss)}">{formatMoney(wdTotal.netLoss, $lang)}</Table.Cell>
                                                 <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">
                                                     {#if wdTotal.blendedLossPct == null}
                                                         {$_('analysis.withdrawals.blendedLossDash', { locale: $lang })}
