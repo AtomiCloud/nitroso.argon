@@ -114,7 +114,20 @@
     }
 
 
+    // SERVER-side filter changes only: navigating re-runs the chunked load
+    // (the whole history re-downloads), so free-text search and pagination
+    // must never come through here — they are pure client state below.
+    // Text-input filters funnel through the debounced wrapper so a keystroke
+    // burst costs one reload, not one per key.
+    let searchDebounce: ReturnType<typeof setTimeout> | undefined;
+    function debouncedTriggerSearch() {
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(triggerSearch, 400);
+    }
+
     function triggerSearch() {
+        clearTimeout(searchDebounce);
+        currentPage = 1;
         const v = withdrawStatus?.value ?? ""
         // Filter/sort changes reset to page 1 — the page param is only
         // meaningful when the result set is otherwise unchanged.
@@ -125,16 +138,12 @@
             });
     }
 
-    // Page navigation preserves every other query param as-is so the user
-    // does not have to re-type filters when paging through long histories.
+    // Pagination is pure client state: navigating would re-run the chunked
+    // load (re-downloading the whole history) AND this component would keep
+    // its stale init-time page. Deep links (?page=N) still seed the initial
+    // value above; the URL simply no longer tracks subsequent clicks.
     function gotoPage(p: number) {
-        const params = new URLSearchParams($page.url.searchParams);
-        const safe = Number.isFinite(p) && p > 0 ? Math.floor(p) : 1;
-        params.set("page", `${safe}`);
-        goto(`?${params.toString()}`, {
-            keepFocus: true,
-            noScroll: true,
-        });
+        currentPage = Number.isFinite(p) && p > 0 ? Math.floor(p) : 1;
     }
 
     const session: any = $page.data.session;
@@ -162,11 +171,11 @@
              number, or the row's amount as a string. Username / email
              are not searchable here because the list endpoint does not
              surface them on the row. -->
-        <Input placeholder={$_('withdrawals.list.searchPlaceholder', { locale: $lang })} bind:value={searchTerm} on:input={triggerSearch}/>
+        <Input placeholder={$_('withdrawals.list.searchPlaceholder', { locale: $lang })} bind:value={searchTerm} on:input={() => (currentPage = 1)}/>
         {#if session?.roles?.includes("admin")}
-            <Input placeholder={$_('withdrawals.list.filterById', { locale: $lang })} bind:value={withdrawalId} on:input={triggerSearch}/>
-            <Input placeholder={$_('withdrawals.list.filterByUserId', { locale: $lang })} bind:value={userId} on:input={triggerSearch}/>
-            <Input placeholder={$_('withdrawals.list.filterByCompleterId', { locale: $lang })} bind:value={completerId} on:input={triggerSearch}/>
+            <Input placeholder={$_('withdrawals.list.filterById', { locale: $lang })} bind:value={withdrawalId} on:input={debouncedTriggerSearch}/>
+            <Input placeholder={$_('withdrawals.list.filterByUserId', { locale: $lang })} bind:value={userId} on:input={debouncedTriggerSearch}/>
+            <Input placeholder={$_('withdrawals.list.filterByCompleterId', { locale: $lang })} bind:value={completerId} on:input={debouncedTriggerSearch}/>
         {/if}
         <div class="flex flex-wrap gap-4 w-full">
             <DateRangePicker
