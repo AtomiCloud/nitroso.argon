@@ -238,7 +238,7 @@ export function boostView(b: Pick<BookingBoostRes, 'free' | 'fee' | 'grantedBy'>
 
 // ---- URL-state parsing (pure slices of the /stats pattern) ----
 
-export const ANALYSIS_TABS = ['overview', 'monthly', 'byday', 'profit', 'boosts', 'payments', 'costs'];
+export const ANALYSIS_TABS = ['overview', 'monthly', 'byday', 'profit', 'boosts', 'payments', 'withdrawals', 'costs'];
 
 export function pickParam(v: string | null, allowed: string[]): string {
   return v != null && allowed.includes(v) ? v : '';

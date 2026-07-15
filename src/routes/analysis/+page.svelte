@@ -60,6 +60,14 @@
         sortMonthly,
         urlDayParam,
     } from "./analysis";
+    import {
+        blendedLossPct,
+        pnlWithdrawalBreakdown,
+        terminalZeroFill,
+        withdrawalLossAmount,
+        withdrawalTotals,
+        type TerminalPnlRow,
+    } from "$lib/pnl/terminal";
 
     // Admin-only sales/revenue analytics (server-side gated like /stats).
     // Zinc PR #39 turned GET Booking/analysis into the full P&L source: rows
@@ -155,6 +163,38 @@
         // by travel date (NOT completion date), so it tolerates its own
         // failure without blanking the page above
         loadProfit();
+        // the withdrawals tab fetches the same terminal endpoint /pnl uses
+        // and tolerates its own failure — admin can still see the other tabs
+        loadWithdrawals();
+    }
+
+    // ---- Withdrawals tab: reuses the terminal endpoint /pnl uses so the
+    // withdrawal breakdown stays consistent across both pages. Race-guarded
+    // like loadProfit / loadBoosts so rapid range changes can't clobber a
+    // newer response. ----
+    let withdrawalRaw: TerminalPnlRow[] | null = null;
+    let withdrawalsLoading = false;
+    let withdrawalsFailed = false;
+    let withdrawalToken = 0;
+
+    async function loadWithdrawals() {
+        const myToken = ++withdrawalToken;
+        withdrawalsLoading = true;
+        withdrawalsFailed = false;
+        await toResult(() => $api.vBookingPnlTerminalDetail("1", rangeQuery()),
+            $_('analysis.withdrawals.loadError', {locale: $lang})).match({
+            ok: (r) => {
+                if (myToken !== withdrawalToken) return;
+                withdrawalRaw = terminalZeroFill(r, bounds.from, bounds.to);
+                withdrawalsFailed = false;
+            },
+            err: (e) => {
+                if (myToken !== withdrawalToken) return;
+                console.error(e);
+                withdrawalsFailed = true;
+            }
+        });
+        if (myToken === withdrawalToken) withdrawalsLoading = false;
     }
 
     async function loadProfit() {
@@ -268,6 +308,15 @@
     $: components = analysis?.components ?? [];
     $: coverage = analysis?.componentsCoverage;
     $: monthly = sortMonthly(analysis?.monthly ?? []);
+
+    // the withdrawals tab fetches the terminal endpoint and zero-fills
+    // across the picked range like /pnl does. bounds fall back to "" when
+    // the picker has not seeded a date yet — terminalZeroFill passes those
+    // straight through with an ascending sort
+    $: bounds = {
+        from: after == null ? "" : `${String(after.month).padStart(2, "0")}-${after.year}`,
+        to: before == null ? "" : `${String(before.month).padStart(2, "0")}-${before.year}`,
+    };
 
     // component ranking: biggest earner at the top, biggest loser at the
     // bottom — the "what makes/loses money" reading order
@@ -561,6 +610,7 @@
                         <Tabs.Trigger value="profit" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.profit', { locale: $lang })}</Tabs.Trigger>
                         <Tabs.Trigger value="boosts" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.boosts', { locale: $lang })}</Tabs.Trigger>
                         <Tabs.Trigger value="payments" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.payments', { locale: $lang })}</Tabs.Trigger>
+                        <Tabs.Trigger value="withdrawals" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.withdrawals', { locale: $lang })}</Tabs.Trigger>
                         <Tabs.Trigger value="costs" class="text-xs sm:text-sm px-2.5">{$_('analysis.tabs.costs', { locale: $lang })}</Tabs.Trigger>
                     </Tabs.List>
                 </div>
@@ -1090,7 +1140,106 @@
                     </Card.Root>
                 </Tabs.Content>
 
-                <!-- 7. FX rates: the MYR→SGD FX rate editor that powers the
+                <!-- 7. Withdrawals: terminal-event breakdown of paid-out
+                     withdrawals per SGT calendar month, fed by the same
+                     /pnl/terminal endpoint /pnl uses. Shows why withdrawals
+                     are a structural loss — every withdrawn dollar
+                     materializes the deposit fee (gwRate × gross) and adds
+                     payout fees, while the 4% withdrawal fee offsets only
+                     part of it. -->
+                {#if tab === "withdrawals"}
+                    {@const wdRows = withdrawalRaw ?? []}
+                    {@const wdTotal = withdrawalTotals(wdRows)}
+                    <Card.Root>
+                        <Card.Header class="p-4 sm:p-6">
+                            <Card.Title>{$_('analysis.withdrawals.title', { locale: $lang })}</Card.Title>
+                            <Card.Description>{$_('analysis.withdrawals.description', { locale: $lang })}</Card.Description>
+                        </Card.Header>
+                        <Card.Content class="px-2 sm:px-6">
+                            {#if withdrawalsFailed}
+                                <div class="flex items-center gap-3 px-2">
+                                    <p class="text-sm text-destructive">{$_('analysis.withdrawals.loadError', { locale: $lang })}</p>
+                                    <Button variant="outline" size="sm" disabled={withdrawalsLoading} on:click={loadWithdrawals}>
+                                        {$_('analysis.reload', { locale: $lang })}
+                                    </Button>
+                                </div>
+                            {:else if withdrawalsLoading && withdrawalRaw == null}
+                                <Loader/>
+                            {:else if wdRows.length === 0}
+                                <p class="text-sm text-muted-foreground px-2">{$_('analysis.withdrawals.empty', { locale: $lang })}</p>
+                            {:else}
+                                <div class="overflow-x-auto">
+                                    <Table.Root>
+                                        <Table.Header>
+                                            <Table.Row>
+                                                <Table.Head class="h-8 px-2 whitespace-nowrap">{$_('analysis.withdrawals.colMonth', { locale: $lang })}</Table.Head>
+                                                <Table.Head class="h-8 px-2 text-right whitespace-nowrap">{$_('analysis.withdrawals.colCount', { locale: $lang })}</Table.Head>
+                                                <Table.Head class="h-8 px-2 text-right whitespace-nowrap">{$_('analysis.withdrawals.colGross', { locale: $lang })}</Table.Head>
+                                                <Table.Head class="h-8 px-2 text-right whitespace-nowrap">{$_('analysis.withdrawals.colFeeIncome', { locale: $lang })}</Table.Head>
+                                                <Table.Head class="h-8 px-2 text-right whitespace-nowrap">{$_('analysis.withdrawals.colDepositFee', { locale: $lang })}</Table.Head>
+                                                <Table.Head class="h-8 px-2 text-right whitespace-nowrap">{$_('analysis.withdrawals.colPayoutFees', { locale: $lang })}</Table.Head>
+                                                <Table.Head class="h-8 px-2 text-right whitespace-nowrap">
+                                                    <span class="inline-flex items-center gap-1">
+                                                        {$_('analysis.withdrawals.colNetLoss', { locale: $lang })}
+                                                        <InfoTip label={$_('analysis.withdrawals.colNetLoss', { locale: $lang })}>
+                                                            {$_('analysis.withdrawals.grossNote', { locale: $lang })}
+                                                        </InfoTip>
+                                                    </span>
+                                                </Table.Head>
+                                                <Table.Head class="h-8 px-2 text-right whitespace-nowrap">{$_('analysis.withdrawals.colBlendedLossPct', { locale: $lang })}</Table.Head>
+                                            </Table.Row>
+                                        </Table.Header>
+                                        <Table.Body>
+                                            {#each wdRows as r (r.month)}
+                                                {@const b = pnlWithdrawalBreakdown(r)}
+                                                {@const netLoss = withdrawalLossAmount(r)}
+                                                {@const blended = blendedLossPct(r)}
+                                                <Table.Row class={r.withdrawalGross === 0 && r.feeIncome === 0 ? 'text-muted-foreground/60' : ''}>
+                                                    <Table.Cell class="px-2 py-1.5 font-medium whitespace-nowrap">{monthLabel(r.month)}</Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">{formatNumber(r.withdrawalCount, $lang)}</Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">{formatMoney(r.withdrawalGross, $lang)}</Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums text-muted-foreground">{formatMoney(b.feeIncome, $lang)}</Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums text-muted-foreground">{formatMoney(b.depositFee, $lang)}</Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums text-muted-foreground">{formatMoney(b.payoutFees, $lang)}</Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-medium {deltaClass(netLoss)}">{formatMoney(netLoss, $lang)}</Table.Cell>
+                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
+                                                        {#if blended == null}
+                                                            {$_('analysis.withdrawals.blendedLossDash', { locale: $lang })}
+                                                        {:else}
+                                                            {(blended * 100).toFixed(1)}%
+                                                        {/if}
+                                                    </Table.Cell>
+                                                </Table.Row>
+                                            {/each}
+                                            <!-- range totals: each month keeps its own
+                                                 gwRate, so blendedLossPct is re-derived on
+                                                 the summed gross rather than summed -->
+                                            <Table.Row class="border-t-2 bg-muted/30">
+                                                <Table.Cell class="px-2 py-1.5 font-semibold whitespace-nowrap">{$_('pnl.total', { locale: $lang })}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">{formatNumber(wdTotal.count, $lang)}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">{formatMoney(wdTotal.gross, $lang)}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold text-muted-foreground">{formatMoney(wdTotal.feeIncome, $lang)}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold text-muted-foreground">{formatMoney(wdTotal.depositFee, $lang)}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold text-muted-foreground">{formatMoney(wdTotal.payoutFees, $lang)}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(wdTotal.netLoss)}">{formatMoney(wdTotal.netLoss, $lang)}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">
+                                                    {#if wdTotal.blendedLossPct == null}
+                                                        {$_('analysis.withdrawals.blendedLossDash', { locale: $lang })}
+                                                    {:else}
+                                                        {(wdTotal.blendedLossPct * 100).toFixed(1)}%
+                                                    {/if}
+                                                </Table.Cell>
+                                            </Table.Row>
+                                        </Table.Body>
+                                    </Table.Root>
+                                </div>
+                                <p class="text-xs text-muted-foreground mt-3 px-2">{$_('analysis.withdrawals.grossNote', { locale: $lang })}</p>
+                            {/if}
+                        </Card.Content>
+                    </Card.Root>
+                {/if}
+
+                <!-- 8. FX rates: the MYR→SGD FX rate editor that powers the
                      conversion of actual KTMB costs into SGD (configuration
                      lives WITH the analysis it powers) -->
                 <Tabs.Content value="costs" class="flex flex-col gap-4">

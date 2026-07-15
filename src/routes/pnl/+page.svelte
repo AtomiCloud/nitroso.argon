@@ -34,14 +34,20 @@
     import {_} from "svelte-i18n";
     import {lang, formatCalendarDate, formatMoney, formatNumber} from "$lib/i18n";
     import {
+        INFRA_COST_MONTHLY,
         PNL_TABS,
         completedProfit,
         ebitda,
         estimatedRecoveryCount,
+        netAfterInfra,
+        netAfterInfraTotals,
         pickParam,
         pnlCashNet,
         pnlTotals,
+        pnlWithdrawalBreakdown,
         pnlZeroFill,
+        profitPct,
+        profitPctTotals,
         terminalTotals,
         terminalZeroFill,
         terminatedProfit,
@@ -399,6 +405,30 @@
                                                 </span>
                                             </Table.Head>
                                             <Table.Head class="h-8 px-2 text-right whitespace-nowrap">{$_('pnl.earned.colEbitda', { locale: $lang })}</Table.Head>
+                                            <Table.Head class="h-8 px-2 text-right whitespace-nowrap">
+                                                <span class="inline-flex items-center gap-1">
+                                                    {$_('pnl.earned.colInfra', { locale: $lang })}
+                                                    <InfoTip label={$_('pnl.earned.colInfra', { locale: $lang })}>
+                                                        {$_('pnl.earned.infraNote', { locale: $lang })}
+                                                    </InfoTip>
+                                                </span>
+                                            </Table.Head>
+                                            <Table.Head class="h-8 px-2 text-right whitespace-nowrap">
+                                                <span class="inline-flex items-center gap-1">
+                                                    {$_('pnl.earned.colNet', { locale: $lang })}
+                                                    <InfoTip label={$_('pnl.earned.colNet', { locale: $lang })}>
+                                                        {$_('pnl.earned.infraNote', { locale: $lang })}
+                                                    </InfoTip>
+                                                </span>
+                                            </Table.Head>
+                                            <Table.Head class="h-8 px-2 text-right whitespace-nowrap">
+                                                <span class="inline-flex items-center gap-1">
+                                                    {$_('pnl.earned.colProfitPct', { locale: $lang })}
+                                                    <InfoTip label={$_('pnl.earned.colProfitPct', { locale: $lang })}>
+                                                        {$_('pnl.earned.profitPctHint', { locale: $lang })}
+                                                    </InfoTip>
+                                                </span>
+                                            </Table.Head>
                                         </Table.Row>
                                     </Table.Header>
                                     <Table.Body>
@@ -448,9 +478,28 @@
                                                                 amount: formatMoney(r.withdrawalGross, $lang),
                                                             } })}
                                                         </span>
+                                                        {#if r.withdrawalGross > 0 || r.feeIncome > 0}
+                                                            {@const b = pnlWithdrawalBreakdown(r)}
+                                                            <span class="text-[10px] text-muted-foreground/70 leading-tight">
+                                                                {$_('pnl.earned.wdFeeIncome', { locale: $lang, values: { amount: formatMoney(b.feeIncome, $lang) } })}<br/>
+                                                                {$_('pnl.earned.wdDepositFee', { locale: $lang, values: { amount: formatMoney(b.depositFee, $lang) } })}<br/>
+                                                                {$_('pnl.earned.wdPayoutFees', { locale: $lang, values: { amount: formatMoney(b.payoutFees, $lang) } })}
+                                                            </span>
+                                                        {/if}
                                                     </div>
                                                 </Table.Cell>
                                                 <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(ebitda(r))}">{formatMoney(ebitda(r), $lang)}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums text-muted-foreground">
+                                                    {$_('pnl.earned.infraLine', { locale: $lang, values: { amount: formatNumber(INFRA_COST_MONTHLY, $lang) } })}
+                                                </Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(netAfterInfra(r))}">{formatMoney(netAfterInfra(r), $lang)}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums {deltaClass(profitPct({ ...r, ebitda: ebitda(r) }) ?? 0)}">
+                                                    {#if profitPct({ ...r, ebitda: ebitda(r) }) == null}
+                                                        {$_('pnl.earned.profitPctDash', { locale: $lang })}
+                                                    {:else}
+                                                        {(profitPct({ ...r, ebitda: ebitda(r) }) ?? 0) >= 0 ? '+' : '−'}{(Math.abs(profitPct({ ...r, ebitda: ebitda(r) }) ?? 0) * 100).toFixed(1)}%
+                                                    {/if}
+                                                </Table.Cell>
                                             </Table.Row>
                                         {/each}
                                         <!-- range totals row: profit lines are SUMS of the
@@ -502,13 +551,40 @@
                                                             amount: formatMoney(terminalTotal.withdrawalGross, $lang),
                                                         } })}
                                                     </span>
+                                                    {#if terminalTotal.withdrawalGross > 0 || terminalTotal.feeIncome > 0}
+                                                        {@const b = pnlWithdrawalBreakdown(terminalTotal)}
+                                                        <span class="text-[10px] text-muted-foreground/70 leading-tight">
+                                                            {$_('pnl.earned.wdFeeIncome', { locale: $lang, values: { amount: formatMoney(b.feeIncome, $lang) } })}<br/>
+                                                            {$_('pnl.earned.wdDepositFee', { locale: $lang, values: { amount: formatMoney(b.depositFee, $lang) } })}<br/>
+                                                            {$_('pnl.earned.wdPayoutFees', { locale: $lang, values: { amount: formatMoney(b.payoutFees, $lang) } })}
+                                                        </span>
+                                                    {/if}
                                                 </div>
                                             </Table.Cell>
                                             <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(terminalTotal.ebitda)}">{formatMoney(terminalTotal.ebitda, $lang)}</Table.Cell>
+                                            <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold text-muted-foreground">
+                                                {$_('pnl.earned.infraTotal', { locale: $lang, values: {
+                                                    amount: formatNumber(INFRA_COST_MONTHLY * terminalRows.length, $lang),
+                                                    months: formatNumber(terminalRows.length, $lang),
+                                                } })}
+                                            </Table.Cell>
+                                            <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(netAfterInfraTotals(terminalRows))}">{formatMoney(netAfterInfraTotals(terminalRows), $lang)}</Table.Cell>
+                                            <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold {deltaClass(profitPctTotals(terminalRows) ?? 0)}">
+                                                {#if profitPctTotals(terminalRows) == null}
+                                                    {$_('pnl.earned.profitPctDash', { locale: $lang })}
+                                                {:else}
+                                                    {(profitPctTotals(terminalRows) ?? 0) >= 0 ? '+' : '−'}{(Math.abs(profitPctTotals(terminalRows) ?? 0) * 100).toFixed(1)}%
+                                                {/if}
+                                            </Table.Cell>
                                         </Table.Row>
                                     </Table.Body>
                                 </Table.Root>
                             </div>
+                            <!-- gwRate now blends percentage card fees with
+                                 Airwallex's flat per-transaction / account fees;
+                                 the badge tooltip and this caption share the
+                                 same i18n string so they can't drift apart. -->
+                            <p class="text-xs text-muted-foreground mt-3 px-2">{$_('pnl.earned.gwRateHint', { locale: $lang })}</p>
                         {/if}
                     </Card.Content>
                 </Card.Root>

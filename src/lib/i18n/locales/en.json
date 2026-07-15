@@ -1822,6 +1822,7 @@
       "profit": "Profit by travel day",
       "boosts": "Boosts",
       "payments": "Payments",
+      "withdrawals": "Withdrawals",
       "costs": "FX rates"
     },
     "summary": {
@@ -1931,6 +1932,22 @@
       "empty": "No captured payments in this range",
       "loadError": "Failed to load captured payments",
       "copied": "Payment intent ID copied"
+    },
+    "withdrawals": {
+      "title": "Withdrawals",
+      "description": "Terminal-event breakdown of paid-out withdrawals per SGT calendar month: every withdrawn dollar materializes the deposit fee (gwRate × gross) and adds payout / refund fees; the 4% withdrawal fee offsets part of it. The blended loss %% is the net channel cost per paid-out dollar — positive when BunnyBooker loses money on the payout.",
+      "loadError": "Failed to load the withdrawals breakdown",
+      "empty": "No withdrawals in this range",
+      "colMonth": "Month",
+      "colCount": "Count",
+      "colGross": "Gross paid out",
+      "colFeeIncome": "Fee income (4%)",
+      "colDepositFee": "Deposit fee materialized",
+      "colPayoutFees": "Payout fees",
+      "colNetLoss": "Net loss",
+      "colBlendedLossPct": "Blended loss %",
+      "blendedLossDash": "—",
+      "grossNote": "Gross paid out is the wallet debit (Amount + Fee); only Amount − Fee actually leaves the bank. The deposit fee materialized and payout fees are the channel costs BunnyBooker absorbs. The net loss column is positive when BunnyBooker lost money on the payout that month and negative when the 4% fee exceeded the channel costs."
     }
   },
   "pnl": {
@@ -1959,7 +1976,18 @@
       "completedHint": "collected − KTMB cost − gateway rate × collected",
       "terminatedHint": "kept − net KTMB cost − gateway rate × kept",
       "withdrawalsHint": "fee income − gateway rate × gross − payout fees",
-      "gwRateHint": "The month's blended gateway-fee rate: payment fees ÷ deposits.",
+      "wdFeeIncome": "+ fee income kept (4%): {amount}",
+      "wdDepositFee": "− deposit fee materialized (gateway rate × gross): {amount}",
+      "wdPayoutFees": "− payout fees: {amount}",
+      "gwRateHint": "The month's blended gateway-fee rate blends percentage card fees and Airwallex's flat per-transaction / account fees: payment fees ÷ deposits.",
+      "colInfra": "Infra",
+      "colNet": "Net",
+      "colProfitPct": "Profit %",
+      "infraLine": "− infra S${amount}",
+      "infraTotal": "− infra S${amount} ({months} months)",
+      "infraNote": "Flat S$500 / month operating-cost estimate subtracted from EBITDA to reach Net. The totals row subtracts S$500 per month in the picked range, including zero-activity months.",
+      "profitPctDash": "—",
+      "profitPctHint": "Net profit margin: (EBITDA − monthly infra) ÷ gross recognized revenue (collected + kept + fee income). Em-dash when there was no recognized revenue that month.",
       "estimateNote": "terminated KTMB recovery estimated at 50% for {n} of {m} bookings"
     },
     "cash": {
