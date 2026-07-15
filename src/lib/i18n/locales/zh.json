@@ -1249,7 +1249,11 @@
       "filterByCompleterId": "按处理人 ID 筛选...",
       "filterByDateRange": "按日期范围筛选",
       "statusNone": "无",
-      "notFound": "未找到提款记录"
+      "notFound": "未找到提款记录",
+      "searchPlaceholder": "按 ID、PayNow 编号、确认号或金额搜索",
+      "pageInfo": "显示第 {from}–{to} 条，共 {total} 条",
+      "prevPage": "上一页",
+      "nextPage": "下一页"
     },
     "method": {
       "PayNow": "PayNow",
@@ -1270,7 +1274,13 @@
     },
     "card": {
       "amountToPayNow": "{amount} 至 PayNow {payNowNumber}",
-      "amountToCard": "{amount} 退回银行卡",
+      "amountToCard": "{amount} 至银行卡（退款待批准）",
+      "amountToCardPending": "{amount} 至银行卡 — 退款待批准",
+      "amountToCardProcessing": "{amount} 通过 Airwallex 退回银行卡（处理中）",
+      "amountToCardCompleted": "{amount} 已退回银行卡",
+      "amountToCardCancelled": "{amount} 银行卡退款已取消",
+      "amountToCardRejected": "{amount} 银行卡退款已拒绝",
+      "amountToCardRmi": "{amount} 银行卡退款需要人工处理",
       "viewDetails": "查看详情",
       "by": "由",
       "completer": "处理人",
@@ -1289,9 +1299,10 @@
       "trigger": "自动批准（Airwallex）",
       "title": "批准提款",
       "instructions": "批准后将通过 Airwallex 向 {payNowNumber} 发起自动 PayNow 付款，金额为净额（{amount} 减去提款手续费）。提款将进入“处理中”状态，并在 Airwallex 确认转账后自动完成。",
-      "instructionsCard": "批准后将通过 Airwallex 把净额（{amount} 减去提款手续费）按最早付款优先的顺序退回为该钱包充值的银行卡。提款将进入“处理中”状态，并在所有退款到账后自动完成。",
+      "instructionsCard": "批准后将通过 Airwallex 按最早付款优先的顺序，对为该钱包充值的银行卡发起净额（{amount} 减去提款手续费）的退款。提款将进入“处理中”状态，并且只有在 Airwallex 确认所有退款到账后才会变为“已完成”——这可能需要数个工作日，款项显示在卡上的速度取决于持卡人所在银行的处理时间。",
       "poolShrank": "可退款额度已不足以覆盖这笔提款：需要 {required}，目前仅可退 {available}。请让用户取消后重新申请较小的金额。",
       "success": "已为 {amount} 的提款启动付款，Airwallex 确认后将自动完成。",
+      "successCard": "已为 {amount} 的提款启动银行卡退款。银行卡只有在 Airwallex 完成退款结算后才会入账，显示时间取决于持卡人所在银行。",
       "failed": "批准提款失败"
     },
     "cancel": {

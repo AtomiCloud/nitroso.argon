@@ -19,7 +19,7 @@
     import RequeueWithdrawal from "$lib/components/entities/Withdrawals/RequeueWithdrawal.svelte";
     import WithdrawalPayoutDetails from "$lib/components/entities/Withdrawals/WithdrawalPayoutDetails.svelte";
     import WithdrawalRefunds from "$lib/components/entities/Withdrawals/WithdrawalRefunds.svelte";
-    import {isCardRefund} from "$lib/components/entities/Withdrawals/withdrawal";
+    import {cardRefundTitleI18nKey, isCardRefund} from "$lib/components/entities/Withdrawals/withdrawal";
     import {toResult} from "$lib/utility";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
@@ -62,7 +62,10 @@
                 <div>
                     <Card.Title>
                         {#if isCardRefund(withdrawal.principal.record)}
-                            {$_('withdrawals.card.amountToCard', { locale: $lang, values: { amount: formatMoney(withdrawal.principal.record.amount, $lang) } })}
+                            {$_(cardRefundTitleI18nKey(withdrawal.principal.status.status ?? 'Pending'), {
+                                locale: $lang,
+                                values: { amount: formatMoney(withdrawal.principal.record.amount, $lang) }
+                            })}
                         {:else}
                             {$_('withdrawals.card.amountToPayNow', { locale: $lang, values: { amount: formatMoney(withdrawal.principal.record.amount, $lang), payNowNumber: withdrawal.principal.record.payNowNumber } })}
                         {/if}
