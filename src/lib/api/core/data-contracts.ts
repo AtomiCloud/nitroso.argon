@@ -586,6 +586,33 @@ export interface BookingAnalysisProfitBucketRes {
 }
 
 /**
+ * HAND-ADDED (zinc P&L tab) pending swagger regeneration — one month of the
+ * P&L rollup returned by GET Booking/analysis/pnl. Sorted ascending by month
+ * (zinc guarantees the order). month is zinc's MM-yyyy wire format. Only
+ * months with activity are returned; the UI zero-fills the gaps across the
+ * picked range. gatewayFees may be 0 while the Airwallex fee backfill is
+ * still running.
+ */
+export interface BookingAnalysisPnlRowRes {
+  /** @format string */
+  month: string;
+  /** @format double */
+  deposits: number;
+  /** @format int32 */
+  withdrawalCount: number;
+  /** @format double */
+  withdrawalTotal: number;
+  /** @format double */
+  withdrawalFeeIncome: number;
+  /** @format double */
+  gatewayFees: number;
+  /** @format double */
+  ticketRevenue: number;
+  /** @format double */
+  ktmbCost: number;
+}
+
+/**
  * HAND-ADDED (zinc PR #39). One queued KTMB ticket-cost change
  * (insert-only, effective-dated like the withdrawal fee queue).
  */

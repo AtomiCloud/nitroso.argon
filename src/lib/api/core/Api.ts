@@ -16,6 +16,7 @@ import type {
   AnnouncementSendRes,
   BookingAnalysisRes,
   BookingAnalysisProfitBucketRes,
+  BookingAnalysisPnlRowRes,
   BookingBoostPageRes,
   BookingCountRes,
   BookingPrincipalRes,
@@ -380,6 +381,35 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
   ) =>
     this.request<BookingAnalysisProfitBucketRes[], any>({
       path: `/api/v${version}/Booking/analysis/profit`,
+      method: 'GET',
+      query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc P&L tab) pending swagger regeneration — monthly P&L
+   * rollup (deposits, withdrawals + their fee income, gateway fees,
+   * ticket revenue, KTMB cost) sorted ascending by month. After/Before are
+   * dd-MM-yyyy, inclusive, on the SGT completion calendar. Only months with
+   * activity are returned; the UI zero-fills gaps. gatewayFees may be 0
+   * while the Airwallex fee backfill is still running. OnlyAdmin.
+   *
+   * @tags Booking
+   * @name VBookingAnalysisPnlDetail
+   * @request GET:/api/v{version}/Booking/analysis/pnl
+   * @secure
+   */
+  vBookingAnalysisPnlDetail = (
+    version: string,
+    query?: {
+      After?: string;
+      Before?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<BookingAnalysisPnlRowRes[], any>({
+      path: `/api/v${version}/Booking/analysis/pnl`,
       method: 'GET',
       query: query,
       secure: true,
