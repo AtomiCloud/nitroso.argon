@@ -20,19 +20,19 @@
     import { cn } from "$lib/utils";
     import { CalendarDate, type DateValue, getLocalTimeZone } from "@internationalized/date";
     import { singaporeToday } from "$lib/time/singapore";
-    import { CalendarIcon, ChevronLeft, ChevronRight, LucideLoader, RotateCw, Search, Tag, X } from "lucide-svelte";
+    import { CalendarIcon, ChevronRight, LucideLoader, RotateCw, Search, Tag, X } from "lucide-svelte";
     import type { ProblemDetails } from "../../errors/problem_details";
     import type { UserPartnerPnlRowRes, UserPrincipalRes } from "$lib/api/core/data-contracts";
     import { Res } from "$lib/core/result";
     import { toResult } from "$lib/utility";
     import Loader from "$lib/components/complex/loader.svelte";
     import InfoTip from "$lib/components/core/InfoTip.svelte";
-    import HistoryGateNote from "$lib/components/complex/HistoryGateNote.svelte";
     import { toast } from "svelte-sonner";
     import { _ } from "svelte-i18n";
     import { formatCalendarDate, formatMoney, formatNumber, lang } from "$lib/i18n";
     import type { PageData } from "./$types";
     import {
+        LIST_BOOST_PRICE,
         type PartnerPnlRow,
         monthSortKey,
         partnerPnlTotals,
@@ -41,21 +41,21 @@
 
     export let data: PageData;
 
-    // Admin-only partner P&L page. Resellers are tagged with the 'partner'
+    // Owner-only partner arbitrage page. Resellers are tagged with the 'partner'
     // extraRole via POST /User/{id}/roles/partner; this page lists every
-    // partner-tagged user and lets the admin drill into their monthly P&L.
+    // partner-tagged user and lets the owner inspect monthly arbitrage signals.
     //
-    // Layout: a partner list on the left + a P&L table on the right. The
-    // date range picker filters the P&L table; the picked partner survives a
+    // Layout: a partner list on the left + an arbitrage table on the right. The
+    // date range picker filters the table; the picked partner survives a
     // range change. Tag-as-partner uses the same /User search the /users
-    // page uses, so admins can pick from the recent-user pool without
+    // page uses, so owners can pick from the recent-user pool without
     // having to type. Untag uses an AlertDialog confirm (irreversible —
     // removes the role from the user).
     //
     // The selected partner ID and date bounds are mirrored into the URL
     // query string (selected/from/to, defaults omitted) so back / refresh /
     // share reproduce the exact view. The partner list is loaded by the
-    // page loader (see +page.ts); the per-partner P&L fetch happens
+    // page loader (see +page.ts); the per-partner monthly fetch happens
     // client-side on selection.
 
     function toApiDate(d: DateValue): string {
@@ -88,6 +88,10 @@
     function signedPct(pct: number): string {
         const sign = pct > 0 ? "+" : pct < 0 ? "−" : "";
         return `${sign}${(Math.abs(pct) * 100).toFixed(1)}%`;
+    }
+
+    function signedMoney(amount: number): string {
+        return `${amount > 0 ? "+" : ""}${formatMoney(amount, $lang)}`;
     }
 
     // Default range = the last 6 months ending in Singapore today (partners
@@ -169,7 +173,7 @@
             pnlRaw = [];
             return;
         }
-        // race guard: if the admin clicks a new partner (or changes the
+        // race guard: if the owner clicks a new partner (or changes the
         // range) before the in-flight request resolves, the late response
         // would clobber pnlRaw / pnlFailed for the current selection. The
         // token bumps on every call; only the latest may write.
@@ -195,7 +199,7 @@
     }
 
     // Bumped on every loadPnl() invocation; readers compare their captured
-    // token to drop stale responses (the page is admin-only with a single
+    // token to drop stale responses (the page is owner-only with a single
     // selection at a time, but rapid clicks would otherwise race).
     let pnlToken = 0;
 
@@ -212,14 +216,29 @@
     $: pnlRows = partnerPnlZeroFill(pnlRaw, pnlBounds.from, pnlBounds.to);
     $: pnlTotal = partnerPnlTotals(pnlRows);
 
+    let expandedMoneyMonths = new Set<string>();
+
+    function toggleMoneyMovement(month: string) {
+        const next = new Set(expandedMoneyMonths);
+        if (next.has(month)) next.delete(month);
+        else next.add(month);
+        expandedMoneyMonths = next;
+    }
+
+    function collapseMoneyMovement() {
+        expandedMoneyMonths = new Set();
+    }
+
     async function rangeChange() {
         await tick();
+        collapseMoneyMovement();
         await loadPnl();
         syncUrl();
     }
 
     function pickPartner(id: string) {
         selectedId = id;
+        collapseMoneyMovement();
         loadPnl();
         syncUrl();
     }
@@ -245,8 +264,8 @@
                 // refresh the partner list + the candidate pool (the new
                 // partner drops out of the search)
                 invalidateAll().then(() => {
-                    // select the freshly tagged partner so the admin sees
-                    // the empty P&L table immediately
+                    // select the freshly tagged partner so the owner sees
+                    // the empty arbitrage table immediately
                     selectedId = id;
                     loadPnl();
                 });
@@ -288,6 +307,7 @@
                 invalidateAll().then(() => {
                     if (wasSelected) {
                         selectedId = "";
+                        collapseMoneyMovement();
                         pnlRows = [];
                         pnlRaw = [];
                     }
@@ -549,7 +569,7 @@
                     </Card.Root>
                 </div>
 
-                <!-- RIGHT: P&L table for the selected partner -->
+                <!-- RIGHT: arbitrage table for the selected partner -->
                 <div class="flex flex-col gap-4">
                     <Card.Root>
                         <Card.Header class="p-4 sm:p-6">
@@ -630,8 +650,6 @@
                                     {$_("partners.range.hint", { locale: $lang })}
                                 </span>
                             </div>
-                            <HistoryGateNote from={after} />
-
                             {#if selectedId === ""}
                                 <p class="text-sm text-muted-foreground px-2 py-8 text-center">
                                     {$_("partners.pnl.noSelection", { locale: $lang })}
@@ -648,171 +666,297 @@
                             {:else if pnlLoading && pnlRows.length === 0}
                                 <Loader />
                             {:else}
-                                <div class="overflow-x-auto">
-                                    <Table.Root>
-                                        <Table.Header>
+                                <div class="overflow-hidden rounded-lg border">
+                                    <Table.Root class="min-w-[1120px]">
+                                        <Table.Caption
+                                            class="caption-top mt-0 border-b border-amber-200/70 bg-amber-50/70 px-4 py-3 text-left text-sm leading-relaxed text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-100"
+                                        >
+                                            {$_("partners.pnl.caption", { locale: $lang })}
+                                        </Table.Caption>
+                                        <Table.Header class="bg-muted/40">
                                             <Table.Row>
-                                                <Table.Head class="h-9 px-2 whitespace-nowrap">
-                                                    {$_("partners.pnl.colMonth", { locale: $lang })}
-                                                </Table.Head>
-                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
-                                                    {$_("partners.pnl.colBookings", { locale: $lang })}
-                                                </Table.Head>
-                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
+                                                <Table.Head class="h-11 min-w-[150px] px-3 whitespace-nowrap">
                                                     <span class="inline-flex items-center gap-1">
+                                                        {$_("partners.pnl.colMonth", { locale: $lang })}
+                                                        <InfoTip label={$_("partners.pnl.colMonth", { locale: $lang })}>
+                                                            {$_("partners.pnl.monthHint", { locale: $lang })}
+                                                        </InfoTip>
+                                                    </span>
+                                                </Table.Head>
+                                                <Table.Head class="h-11 min-w-[150px] px-3 text-right whitespace-nowrap">
+                                                    <span class="inline-flex w-full items-center justify-end gap-1">
+                                                        {$_("partners.pnl.colTickets", { locale: $lang })}
+                                                        <InfoTip label={$_("partners.pnl.colTickets", { locale: $lang })}>
+                                                            {$_("partners.pnl.ticketsHint", { locale: $lang })}
+                                                        </InfoTip>
+                                                    </span>
+                                                </Table.Head>
+                                                <Table.Head class="h-11 min-w-[145px] px-3 text-right whitespace-nowrap">
+                                                    <span class="inline-flex w-full items-center justify-end gap-1">
                                                         {$_("partners.pnl.colBoosts", { locale: $lang })}
                                                         <InfoTip label={$_("partners.pnl.colBoosts", { locale: $lang })}>
                                                             {$_("partners.pnl.boostsHint", { locale: $lang })}
                                                         </InfoTip>
                                                     </span>
                                                 </Table.Head>
-                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
-                                                    {$_("partners.pnl.colCollected", { locale: $lang })}
+                                                <Table.Head class="h-11 min-w-[165px] px-3 text-right whitespace-nowrap">
+                                                    <span class="inline-flex w-full items-center justify-end gap-1">
+                                                        {$_("partners.pnl.colBoostList", { locale: $lang })}
+                                                        <InfoTip label={$_("partners.pnl.colBoostList", { locale: $lang })}>
+                                                            {$_("partners.pnl.boostListHint", {
+                                                                locale: $lang,
+                                                                values: { price: formatMoney(LIST_BOOST_PRICE, $lang) },
+                                                            })}
+                                                        </InfoTip>
+                                                    </span>
                                                 </Table.Head>
-                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
-                                                    {$_("partners.pnl.colKtmbCost", { locale: $lang })}
+                                                <Table.Head class="h-11 min-w-[150px] px-3 text-right whitespace-nowrap">
+                                                    <span class="inline-flex w-full items-center justify-end gap-1">
+                                                        {$_("partners.pnl.colPassengers", { locale: $lang })}
+                                                        <InfoTip label={$_("partners.pnl.colPassengers", { locale: $lang })}>
+                                                            {$_("partners.pnl.passengersHint", { locale: $lang })}
+                                                        </InfoTip>
+                                                    </span>
                                                 </Table.Head>
-                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
-                                                    <span class="inline-flex items-center gap-1">
+                                                <Table.Head class="h-11 min-w-[125px] px-3 text-right whitespace-nowrap">
+                                                    <span class="inline-flex w-full items-center justify-end gap-1">
+                                                        {$_("partners.pnl.colCollected", { locale: $lang })}
+                                                        <InfoTip label={$_("partners.pnl.colCollected", { locale: $lang })}>
+                                                            {$_("partners.pnl.collectedHint", { locale: $lang })}
+                                                        </InfoTip>
+                                                    </span>
+                                                </Table.Head>
+                                                <Table.Head class="h-11 min-w-[135px] px-3 text-right whitespace-nowrap">
+                                                    <span class="inline-flex w-full items-center justify-end gap-1">
+                                                        {$_("partners.pnl.colKtmbCost", { locale: $lang })}
+                                                        <InfoTip label={$_("partners.pnl.colKtmbCost", { locale: $lang })}>
+                                                            {$_("partners.pnl.ktmbCostHint", { locale: $lang })}
+                                                        </InfoTip>
+                                                    </span>
+                                                </Table.Head>
+                                                <Table.Head class="h-11 min-w-[130px] px-3 text-right whitespace-nowrap">
+                                                    <span class="inline-flex w-full items-center justify-end gap-1">
                                                         {$_("partners.pnl.colMargin", { locale: $lang })}
                                                         <InfoTip label={$_("partners.pnl.colMargin", { locale: $lang })}>
                                                             {$_("partners.pnl.marginHint", { locale: $lang })}
                                                         </InfoTip>
                                                     </span>
                                                 </Table.Head>
-                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
-                                                    {$_("partners.pnl.colMarginPct", { locale: $lang })}
-                                                </Table.Head>
-                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
-                                                    {$_("partners.pnl.colDeposits", { locale: $lang })}
-                                                </Table.Head>
-                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
-                                                    {$_("partners.pnl.colWithdrawalsGross", { locale: $lang })}
-                                                </Table.Head>
-                                                <Table.Head class="h-9 px-2 text-right whitespace-nowrap">
-                                                    {$_("partners.pnl.colWithdrawalsFee", { locale: $lang })}
-                                                </Table.Head>
                                             </Table.Row>
                                         </Table.Header>
                                         <Table.Body>
                                             {#each pnlRows as r (r.month)}
+                                                {@const isExpanded = expandedMoneyMonths.has(r.month)}
                                                 {@const isEmpty =
                                                     r.bookings === 0 &&
                                                     r.boostCount === 0 &&
                                                     r.boostAmount === 0 &&
+                                                    r.distinctPassengers === 0 &&
                                                     r.collected === 0 &&
                                                     r.ktmbCost === 0 &&
                                                     r.deposits === 0 &&
                                                     r.withdrawalGross === 0 &&
                                                     r.withdrawalFeeIncome === 0}
                                                 <Table.Row class={isEmpty ? "text-muted-foreground/60" : ""}>
-                                                    <Table.Cell class="px-2 py-1.5 font-medium whitespace-nowrap">
-                                                        {monthLabel(r.month)}
+                                                    <Table.Cell class="px-2 py-2 font-medium whitespace-nowrap">
+                                                        <div class="flex items-center gap-1">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                class="h-7 w-7 shrink-0"
+                                                                aria-expanded={isExpanded}
+                                                                aria-controls={`partner-money-${r.month}`}
+                                                                aria-label={$_(
+                                                                    isExpanded
+                                                                        ? "partners.pnl.hideMoneyMovement"
+                                                                        : "partners.pnl.showMoneyMovement",
+                                                                    {
+                                                                        locale: $lang,
+                                                                        values: { month: monthLabel(r.month) },
+                                                                    },
+                                                                )}
+                                                                title={$_(
+                                                                    isExpanded
+                                                                        ? "partners.pnl.hideMoneyMovement"
+                                                                        : "partners.pnl.showMoneyMovement",
+                                                                    {
+                                                                        locale: $lang,
+                                                                        values: { month: monthLabel(r.month) },
+                                                                    },
+                                                                )}
+                                                                on:click={() => toggleMoneyMovement(r.month)}
+                                                            >
+                                                                <ChevronRight
+                                                                    class={cn(
+                                                                        "h-3.5 w-3.5 transition-transform",
+                                                                        isExpanded && "rotate-90",
+                                                                    )}
+                                                                />
+                                                            </Button>
+                                                            <span>{monthLabel(r.month)}</span>
+                                                        </div>
                                                     </Table.Cell>
-                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
-                                                        {formatNumber(r.bookings, $lang)}
+                                                    <Table.Cell class="px-3 py-2 text-right tabular-nums whitespace-nowrap">
+                                                        {$_("partners.pnl.cellTickets", {
+                                                            locale: $lang,
+                                                            values: {
+                                                                count: formatNumber(r.bookings, $lang),
+                                                                average: formatMoney(r.averageTicketPaid, $lang),
+                                                            },
+                                                        })}
                                                     </Table.Cell>
-                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums text-xs whitespace-nowrap">
-                                                        {#if r.boostCount === 0}
-                                                            —
-                                                        {:else}
-                                                            {$_("partners.pnl.cellBoosts", {
-                                                                locale: $lang,
-                                                                values: {
-                                                                    count: formatNumber(r.boostCount, $lang),
-                                                                    amount: formatMoney(r.boostAmount, $lang),
-                                                                },
-                                                            })}
-                                                        {/if}
-                                                    </Table.Cell>
-                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
-                                                        {formatMoney(r.collected, $lang)}
-                                                    </Table.Cell>
-                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
-                                                        {formatMoney(r.ktmbCost, $lang)}
-                                                    </Table.Cell>
-                                                    <Table.Cell
-                                                        class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(
-                                                            r.margin,
-                                                        )}"
-                                                    >
-                                                        {formatMoney(r.margin, $lang)}
-                                                    </Table.Cell>
-                                                    <Table.Cell
-                                                        class="px-2 py-1.5 text-right tabular-nums text-xs {deltaClass(
-                                                            r.margin,
-                                                        )}"
-                                                    >
-                                                        {signedPct(r.marginPct)}
-                                                    </Table.Cell>
-                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
-                                                        {formatMoney(r.deposits, $lang)}
-                                                    </Table.Cell>
-                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
-                                                        {formatMoney(r.withdrawalGross, $lang)}
-                                                    </Table.Cell>
-                                                    <Table.Cell class="px-2 py-1.5 text-right tabular-nums">
-                                                        {formatMoney(r.withdrawalFeeIncome, $lang)}
-                                                    </Table.Cell>
-                                                </Table.Row>
-                                            {/each}
-                                            <!-- range totals row -->
-                                            <Table.Row class="border-t-2 bg-muted/30">
-                                                <Table.Cell class="px-2 py-1.5 font-semibold whitespace-nowrap">
-                                                    {$_("partners.pnl.total", { locale: $lang })}
-                                                </Table.Cell>
-                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">
-                                                    {formatNumber(pnlTotal.bookings, $lang)}
-                                                </Table.Cell>
-                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums text-xs font-semibold whitespace-nowrap">
-                                                    {#if pnlTotal.boostCount === 0}
-                                                        —
-                                                    {:else}
+                                                    <Table.Cell class="px-3 py-2 text-right tabular-nums whitespace-nowrap">
                                                         {$_("partners.pnl.cellBoosts", {
                                                             locale: $lang,
                                                             values: {
-                                                                count: formatNumber(pnlTotal.boostCount, $lang),
-                                                                amount: formatMoney(pnlTotal.boostAmount, $lang),
+                                                                count: formatNumber(r.boostCount, $lang),
+                                                                paid: formatMoney(r.boostAmount, $lang),
                                                             },
                                                         })}
-                                                    {/if}
+                                                    </Table.Cell>
+                                                    <Table.Cell class="px-3 py-2 text-right tabular-nums whitespace-nowrap">
+                                                        <div class="flex flex-col items-end leading-tight">
+                                                            <span>{formatMoney(r.boostListValue, $lang)}</span>
+                                                            <span
+                                                                class={r.boostListGap > 0
+                                                                    ? "mt-1 text-[11px] font-medium text-amber-600 dark:text-amber-400"
+                                                                    : "mt-1 text-[11px] text-muted-foreground"}
+                                                            >
+                                                                {$_("partners.pnl.listDelta", {
+                                                                    locale: $lang,
+                                                                    values: { delta: signedMoney(r.boostListGap) },
+                                                                })}
+                                                            </span>
+                                                        </div>
+                                                    </Table.Cell>
+                                                    <Table.Cell class="px-3 py-2 text-right tabular-nums">
+                                                        {formatNumber(r.distinctPassengers, $lang)}
+                                                    </Table.Cell>
+                                                    <Table.Cell class="px-3 py-2 text-right tabular-nums">
+                                                        {formatMoney(r.collected, $lang)}
+                                                    </Table.Cell>
+                                                    <Table.Cell class="px-3 py-2 text-right tabular-nums">
+                                                        {formatMoney(r.ktmbCost, $lang)}
+                                                    </Table.Cell>
+                                                    <Table.Cell class="px-3 py-2 text-right tabular-nums">
+                                                        <div class="flex flex-col items-end leading-tight {deltaClass(r.margin)}">
+                                                            <span class="font-bold">{formatMoney(r.margin, $lang)}</span>
+                                                            <span class="mt-1 text-[11px] font-medium">{signedPct(r.marginPct)}</span>
+                                                        </div>
+                                                    </Table.Cell>
+                                                </Table.Row>
+                                                {#if isExpanded}
+                                                    <Table.Row
+                                                        id={`partner-money-${r.month}`}
+                                                        class="bg-muted/20 hover:bg-muted/20"
+                                                    >
+                                                        <Table.Cell colspan={8} class="px-3 py-3">
+                                                            <div
+                                                                class="ml-7 rounded-md border border-dashed bg-background/80 px-3 py-2.5"
+                                                            >
+                                                                <div class="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+                                                                    <span class="text-xs font-semibold uppercase tracking-[0.16em] text-foreground">
+                                                                        {$_("partners.pnl.moneyMovement", { locale: $lang })}
+                                                                    </span>
+                                                                    <span class="text-xs text-muted-foreground">
+                                                                        {$_("partners.pnl.moneyMovementHint", { locale: $lang })}
+                                                                    </span>
+                                                                </div>
+                                                                <div class="grid gap-2 sm:grid-cols-3">
+                                                                    <div class="rounded-md bg-muted/40 px-3 py-2">
+                                                                        <div class="text-xs text-muted-foreground">
+                                                                            {$_("partners.pnl.deposits", { locale: $lang })}
+                                                                        </div>
+                                                                        <div class="mt-0.5 font-medium tabular-nums">
+                                                                            {formatMoney(r.deposits, $lang)}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="rounded-md bg-muted/40 px-3 py-2">
+                                                                        <div class="text-xs text-muted-foreground">
+                                                                            {$_("partners.pnl.withdrawalsGross", {
+                                                                                locale: $lang,
+                                                                            })}
+                                                                        </div>
+                                                                        <div class="mt-0.5 font-medium tabular-nums">
+                                                                            {formatMoney(r.withdrawalGross, $lang)}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="rounded-md bg-muted/40 px-3 py-2">
+                                                                        <div class="text-xs text-muted-foreground">
+                                                                            {$_("partners.pnl.withdrawalFeeIncome", {
+                                                                                locale: $lang,
+                                                                            })}
+                                                                        </div>
+                                                                        <div class="mt-0.5 font-medium tabular-nums">
+                                                                            {formatMoney(r.withdrawalFeeIncome, $lang)}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </Table.Cell>
+                                                    </Table.Row>
+                                                {/if}
+                                            {/each}
+                                            <Table.Row class="border-t-2 bg-muted/50 hover:bg-muted/50">
+                                                <Table.Cell class="px-3 py-2.5 pl-11 font-semibold whitespace-nowrap">
+                                                    {$_("partners.pnl.total", { locale: $lang })}
                                                 </Table.Cell>
-                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">
+                                                <Table.Cell class="px-3 py-2.5 text-right tabular-nums font-semibold whitespace-nowrap">
+                                                    {$_("partners.pnl.cellTickets", {
+                                                        locale: $lang,
+                                                        values: {
+                                                            count: formatNumber(pnlTotal.bookings, $lang),
+                                                            average: formatMoney(pnlTotal.averageTicketPaid, $lang),
+                                                        },
+                                                    })}
+                                                </Table.Cell>
+                                                <Table.Cell class="px-3 py-2.5 text-right tabular-nums font-semibold whitespace-nowrap">
+                                                    {$_("partners.pnl.cellBoosts", {
+                                                        locale: $lang,
+                                                        values: {
+                                                            count: formatNumber(pnlTotal.boostCount, $lang),
+                                                            paid: formatMoney(pnlTotal.boostAmount, $lang),
+                                                        },
+                                                    })}
+                                                </Table.Cell>
+                                                <Table.Cell class="px-3 py-2.5 text-right tabular-nums font-semibold whitespace-nowrap">
+                                                    <div class="flex flex-col items-end leading-tight">
+                                                        <span>{formatMoney(pnlTotal.boostListValue, $lang)}</span>
+                                                        <span
+                                                            class={pnlTotal.boostListGap > 0
+                                                                ? "mt-1 text-[11px] font-medium text-amber-600 dark:text-amber-400"
+                                                                : "mt-1 text-[11px] text-muted-foreground"}
+                                                        >
+                                                            {$_("partners.pnl.listDelta", {
+                                                                locale: $lang,
+                                                                values: { delta: signedMoney(pnlTotal.boostListGap) },
+                                                            })}
+                                                        </span>
+                                                    </div>
+                                                </Table.Cell>
+                                                <Table.Cell class="px-3 py-2.5 text-right tabular-nums font-semibold">
+                                                    {formatNumber(pnlTotal.distinctPassengers, $lang)}
+                                                </Table.Cell>
+                                                <Table.Cell class="px-3 py-2.5 text-right tabular-nums font-semibold">
                                                     {formatMoney(pnlTotal.collected, $lang)}
                                                 </Table.Cell>
-                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">
+                                                <Table.Cell class="px-3 py-2.5 text-right tabular-nums font-semibold">
                                                     {formatMoney(pnlTotal.ktmbCost, $lang)}
                                                 </Table.Cell>
-                                                <Table.Cell
-                                                    class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(
-                                                        pnlTotal.margin,
-                                                    )}"
-                                                >
-                                                    {formatMoney(pnlTotal.margin, $lang)}
-                                                </Table.Cell>
-                                                <Table.Cell
-                                                    class="px-2 py-1.5 text-right tabular-nums text-xs font-semibold {deltaClass(
-                                                        pnlTotal.margin,
-                                                    )}"
-                                                >
-                                                    {signedPct(pnlTotal.marginPct)}
-                                                </Table.Cell>
-                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">
-                                                    {formatMoney(pnlTotal.deposits, $lang)}
-                                                </Table.Cell>
-                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">
-                                                    {formatMoney(pnlTotal.withdrawalGross, $lang)}
-                                                </Table.Cell>
-                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold">
-                                                    {formatMoney(pnlTotal.withdrawalFeeIncome, $lang)}
+                                                <Table.Cell class="px-3 py-2.5 text-right tabular-nums">
+                                                    <div
+                                                        class="flex flex-col items-end leading-tight font-semibold {deltaClass(
+                                                            pnlTotal.margin,
+                                                        )}"
+                                                    >
+                                                        <span class="font-bold">{formatMoney(pnlTotal.margin, $lang)}</span>
+                                                        <span class="mt-1 text-[11px]">{signedPct(pnlTotal.marginPct)}</span>
+                                                    </div>
                                                 </Table.Cell>
                                             </Table.Row>
                                         </Table.Body>
                                     </Table.Root>
                                 </div>
-                                <p class="text-xs text-muted-foreground mt-3 px-2">
-                                    {$_("partners.pnl.marginNote", { locale: $lang })}
-                                </p>
                             {/if}
                         </Card.Content>
                     </Card.Root>
