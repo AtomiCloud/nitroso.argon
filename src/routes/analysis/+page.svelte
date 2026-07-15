@@ -708,7 +708,9 @@
                         <Card.Root>
                             <Card.Content class="p-4 flex flex-col gap-1">
                                 <span class="text-sm text-muted-foreground">{$_('analysis.overview.wdCostTitle', { locale: $lang })}</span>
-                                <span class="text-2xl font-bold {wdRangeLoss == null ? '' : deltaClass(wdRangeLoss)}">
+                                <!-- wdRangeLoss is LOSS-signed (positive = losing money);
+                                     deltaClass colors positive green, so negate -->
+                                <span class="text-2xl font-bold {wdRangeLoss == null ? '' : deltaClass(-wdRangeLoss)}">
                                     {wdRangeLoss == null ? $_('analysis.overview.wdCostDash', { locale: $lang }) : formatMoney(wdRangeLoss, $lang)}
                                 </span>
                                 <span class="text-xs text-muted-foreground">{$_('analysis.overview.wdCostHint', { locale: $lang })}</span>
@@ -880,7 +882,8 @@
                                                             {$_('analysis.monthly.wdCostDash', { locale: $lang })}
                                                         {:else}
                                                             {@const wd = wdCostByMonth.get(m.month)}
-                                                            <span class="font-medium {deltaClass(wd?.cost ?? 0)}">{formatMoney(wd?.cost ?? 0, $lang)}</span>
+                                                            <!-- cost is LOSS-signed — negate for deltaClass -->
+                                                            <span class="font-medium {deltaClass(-(wd?.cost ?? 0))}">{formatMoney(wd?.cost ?? 0, $lang)}</span>
                                                         {/if}
                                                     </Table.Cell>
                                                     <Table.Cell class="px-2 py-1.5 text-right tabular-nums text-muted-foreground">
