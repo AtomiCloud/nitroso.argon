@@ -24,6 +24,7 @@ import type {
   BookingRes,
   BookingSearchCountRes,
   BookingStatRes,
+  BookingTerminalPnlRowRes,
   TravelAnalysisBucketRes,
   CancelWithdrawalReq,
   CapturedPaymentRes,
@@ -411,6 +412,36 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
   ) =>
     this.request<BookingAnalysisPnlRowRes[], any>({
       path: `/api/v${version}/Booking/analysis/pnl`,
+      method: 'GET',
+      query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * HAND-ADDED (zinc terminal P&L, 1.62.x) pending swagger regeneration —
+   * terminal-event monthly P&L: profit recognized when money reaches a
+   * terminal state (completed booking, terminated booking, paid-out
+   * withdrawal), with every deposited dollar carrying its gateway-fee share
+   * via the month's blended gwRate. After/Before are dd-MM-yyyy, inclusive,
+   * on the SGT calendar. Sorted ascending by month; empty months are
+   * omitted and the UI zero-fills gaps. OnlyAdmin.
+   *
+   * @tags Booking
+   * @name VBookingPnlTerminalDetail
+   * @request GET:/api/v{version}/Booking/pnl/terminal
+   * @secure
+   */
+  vBookingPnlTerminalDetail = (
+    version: string,
+    query?: {
+      After?: string;
+      Before?: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<BookingTerminalPnlRowRes[], any>({
+      path: `/api/v${version}/Booking/pnl/terminal`,
       method: 'GET',
       query: query,
       secure: true,
