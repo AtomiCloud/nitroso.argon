@@ -162,3 +162,46 @@ export const REFUND_STATUS_BADGE: Record<string, string> = {
   Settled: 'bg-green-500',
   Failed: 'bg-red-500',
 };
+
+/**
+ * Card-refund terminal/issue states that we still label as "initiated" rather
+ * than "refunded" — the money only reaches the card once Airwallex confirms
+ * via webhook (`refund.settled`). Anything short of `Completed` is "initiated".
+ */
+export type CardRefundTitleStatus =
+  | 'Pending'
+  | 'Processing'
+  | 'Completed'
+  | 'Cancel'
+  | 'Rejected'
+  | 'RequireManualIntervention';
+
+/**
+ * The honest card-refund title for a withdrawal row.
+ *
+ * Airwallex refunds SETTLE DAYS LATER — we get a `refund.settled` webhook long
+ * after the admin approves. Only a withdrawal that has actually `Completed`
+ * may read "refunded to card"; every other state talks about a refund that
+ * has been *initiated* (and points the user at Airwallex for the timeline).
+ *
+ * Accepts a loose `string | null | undefined` so callers don't have to
+ * narrow `WithdrawalStatusRes.status` first; unknown values fall back to
+ * the most conservative (Pending) wording rather than inventing a state.
+ */
+export function cardRefundTitleI18nKey(status: string | null | undefined): string {
+  switch (status) {
+    case 'Completed':
+      return 'withdrawals.card.amountToCardCompleted';
+    case 'Processing':
+      return 'withdrawals.card.amountToCardProcessing';
+    case 'Cancel':
+      return 'withdrawals.card.amountToCardCancelled';
+    case 'Rejected':
+      return 'withdrawals.card.amountToCardRejected';
+    case 'RequireManualIntervention':
+      return 'withdrawals.card.amountToCardRmi';
+    case 'Pending':
+    default:
+      return 'withdrawals.card.amountToCardPending';
+  }
+}

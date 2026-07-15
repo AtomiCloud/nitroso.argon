@@ -32,7 +32,13 @@
     import RejectWithdrawal from "$lib/components/entities/Withdrawals/RejectWithdrawal.svelte";
     import CancelWithdrawal from "$lib/components/entities/Withdrawals/CancelWithdrawal.svelte";
     import WithdrawalPayoutDetails from "$lib/components/entities/Withdrawals/WithdrawalPayoutDetails.svelte";
-    import {isCardRefund} from "$lib/components/entities/Withdrawals/withdrawal";
+    import {isCardRefund, cardRefundTitleI18nKey} from "$lib/components/entities/Withdrawals/withdrawal";
+    import {
+        WITHDRAWAL_PAGE_SIZE,
+        paginateWithdrawals,
+        totalPages as computeTotalPages,
+        withdrawalMatchesSearch,
+    } from "$lib/components/entities/Withdrawals/withdrawal-list";
     import type {PageData} from "./$types";
     import {format, parse} from "date-fns";
     import {_} from "svelte-i18n";
@@ -72,6 +78,13 @@
     let min = $page.url.searchParams.get("min");
     let max = $page.url.searchParams.get("max");
 
+    // Client-side search + pagination state. Search is applied to rows
+    // returned by the (server-side-filtered) load; pagination is purely
+    // client-side at WITHDRAWAL_PAGE_SIZE per page.
+    let searchTerm = $page.url.searchParams.get("search") ?? "";
+    const rawPage = parseInt($page.url.searchParams.get("page") ?? "1", 10);
+    let currentPage: number = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+
     let status = $page.url.searchParams.get("status") ?? "";
 
     let withdrawStatus: Selected<string> | undefined = WITHDRAWAL_STATUS[status];
@@ -103,11 +116,25 @@
 
     function triggerSearch() {
         const v = withdrawStatus?.value ?? ""
-        goto(`?status=${v}&userId=${userId}&completerId=${completerId}&id=${withdrawalId}&min=${min ?? ''}&max=${max ?? ''}&after=${toZincDate(dateFilter.start)}&before=${toZincDate(dateFilter.end)}`,
+        // Filter/sort changes reset to page 1 — the page param is only
+        // meaningful when the result set is otherwise unchanged.
+        goto(`?status=${v}&userId=${userId}&completerId=${completerId}&id=${withdrawalId}&min=${min ?? ''}&max=${max ?? ''}&after=${toZincDate(dateFilter.start)}&before=${toZincDate(dateFilter.end)}&search=${searchTerm}&page=1`,
             {
                 keepFocus: true,
                 noScroll: true,
             });
+    }
+
+    // Page navigation preserves every other query param as-is so the user
+    // does not have to re-type filters when paging through long histories.
+    function gotoPage(p: number) {
+        const params = new URLSearchParams($page.url.searchParams);
+        const safe = Number.isFinite(p) && p > 0 ? Math.floor(p) : 1;
+        params.set("page", `${safe}`);
+        goto(`?${params.toString()}`, {
+            keepFocus: true,
+            noScroll: true,
+        });
     }
 
     const session: any = $page.data.session;
@@ -130,6 +157,12 @@
 
     </div>
     <div class="flex flex-col gap-4 w-11/12 max-w-[1200px] mx-auto my-12">
+        <!-- Free-text client search across the rows the load returned:
+             matches withdrawal id, PayNow number, payout confirmation
+             number, or the row's amount as a string. Username / email
+             are not searchable here because the list endpoint does not
+             surface them on the row. -->
+        <Input placeholder={$_('withdrawals.list.searchPlaceholder', { locale: $lang })} bind:value={searchTerm} on:input={triggerSearch}/>
         {#if session?.roles?.includes("admin")}
             <Input placeholder={$_('withdrawals.list.filterById', { locale: $lang })} bind:value={withdrawalId} on:input={triggerSearch}/>
             <Input placeholder={$_('withdrawals.list.filterByUserId', { locale: $lang })} bind:value={userId} on:input={triggerSearch}/>
@@ -166,14 +199,27 @@
         {#await withdrawals}
             <Loader/>
         {:then ws}
-            <Page notFoundMessage={$_('withdrawals.list.notFound', { locale: $lang })} empty={ws.length === 0}>
+            <!-- Apply client-side search, then slice the visible page.
+                 Pagination is 20/page — matches the bookings list convention. -->
+            {@const filtered = ws.filter(w => withdrawalMatchesSearch(w, searchTerm))}
+            {@const totalFilteredRows = filtered.length}
+            {@const maxPage = computeTotalPages(filtered, WITHDRAWAL_PAGE_SIZE)}
+            <!-- Clamp the URL-driven page to the now-computed total so an
+                 out-of-range deep link lands on the last page, not an
+                 empty one. -->
+            {@const safePage = Math.min(currentPage, maxPage)}
+            {@const pageRows = paginateWithdrawals(filtered, safePage, WITHDRAWAL_PAGE_SIZE)}
+            <Page notFoundMessage={$_('withdrawals.list.notFound', { locale: $lang })} empty={filtered.length === 0}>
                 <div class="flex flex-col gap-4 my-4">
-                    {#each ws as w}
+                    {#each pageRows as w}
                         <Card.Root>
                             <Card.Header>
                                 <Card.Title>
                                     {#if isCardRefund(w.record)}
-                                        {$_('withdrawals.card.amountToCard', { locale: $lang, values: { amount: formatMoney(w.record.amount, $lang) } })}
+                                        {$_(cardRefundTitleI18nKey(w.status.status ?? 'Pending'), {
+                                            locale: $lang,
+                                            values: { amount: formatMoney(w.record.amount, $lang) }
+                                        })}
                                     {:else}
                                         {$_('withdrawals.card.amountToPayNow', { locale: $lang, values: { amount: formatMoney(w.record.amount, $lang), payNowNumber: w.record.payNowNumber } })}
                                     {/if}
@@ -218,6 +264,30 @@
                     {/each}
                 </div>
             </Page>
+            <!-- Prev / next pagination, only meaningful when the filtered
+                 result set spans more than one page. -->
+            {#if totalFilteredRows > WITHDRAWAL_PAGE_SIZE}
+                <div class="flex flex-col items-center gap-2 my-6">
+                    <div class="text-sm text-muted-foreground">
+                        {$_('withdrawals.list.pageInfo', {
+                            locale: $lang,
+                            values: {
+                                from: totalFilteredRows === 0 ? 0 : (safePage - 1) * WITHDRAWAL_PAGE_SIZE + 1,
+                                to: Math.min(safePage * WITHDRAWAL_PAGE_SIZE, totalFilteredRows),
+                                total: totalFilteredRows,
+                            }
+                        })}
+                    </div>
+                    <div class="flex justify-center items-center gap-2 flex-wrap">
+                        <Button variant="outline" size="sm" disabled={safePage <= 1} on:click={() => gotoPage(safePage - 1)}>
+                            {$_('withdrawals.list.prevPage', { locale: $lang })}
+                        </Button>
+                        <Button variant="outline" size="sm" disabled={safePage >= maxPage} on:click={() => gotoPage(safePage + 1)}>
+                            {$_('withdrawals.list.nextPage', { locale: $lang })}
+                        </Button>
+                    </div>
+                </div>
+            {/if}
         {/await}
     </div>
 </div>
