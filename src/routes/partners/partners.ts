@@ -94,11 +94,7 @@ function zeroPartnerPnlRow(month: string): PartnerPnlRow {
  * ordering. Malformed bounds fall back to a pass-through sort so the caller
  * still gets a usable table.
  */
-export function partnerPnlZeroFill(
-  rows: UserPartnerPnlRowRes[],
-  from: string,
-  to: string,
-): PartnerPnlRow[] {
+export function partnerPnlZeroFill(rows: UserPartnerPnlRowRes[], from: string, to: string): PartnerPnlRow[] {
   const fromKey = monthSortKey(from);
   const toKey = monthSortKey(to);
   if (fromKey === '' || toKey === '' || fromKey > toKey) {
