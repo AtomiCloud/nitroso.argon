@@ -3,10 +3,7 @@ import type { WithdrawalPrincipalRes } from '$lib/api/core/data-contracts';
 import { NewApi } from '../../store';
 import { toResult } from '$lib/utility';
 import { loadError } from '$lib/i18n';
-import {
-  WITHDRAWAL_FETCH_LIMIT,
-  WITHDRAWAL_FETCH_PAGE,
-} from '$lib/components/entities/Withdrawals/withdrawal-list';
+import { WITHDRAWAL_FETCH_LIMIT, WITHDRAWAL_FETCH_PAGE } from '$lib/components/entities/Withdrawals/withdrawal-list';
 import type { PageLoad } from './$types';
 
 export const load = (async ({
