@@ -79,6 +79,16 @@ describe('pivotTravelAnalysis', () => {
     expect(row.byDirection.WToJ[18]).toBe(5);
     expect(row.byDirection.WToJ[0]).toBeUndefined();
   });
+
+  it('merges duplicate (date, direction, quarter) rows so cells stay in sync with the total', () => {
+    // a duplicated bucket must not silently overwrite the cell while
+    // double-counting row.total — the grid's Total column would no longer
+    // equal the sum of its cells
+    const rs = [bucket({ quarterStartHour: 6, tickets: 2 }), bucket({ quarterStartHour: 6, tickets: 3 })];
+    const [row] = pivotTravelAnalysis(rs);
+    expect(row.byDirection.WToJ[6]).toBe(5);
+    expect(row.total).toBe(5);
+  });
 });
 
 describe('cellCount', () => {

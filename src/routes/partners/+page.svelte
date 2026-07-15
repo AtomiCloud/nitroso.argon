@@ -129,7 +129,10 @@
         },
     }) satisfies Promise<[UserPrincipalRes[], UserPrincipalRes[]]>);
 
-    function applyLoaded(v: [UserPrincipalRes[], UserPrincipalRes[]]) {
+    // Returns "" because it is invoked from a template text expression
+    // ({applyLoaded(loaded)} inside the {#await}); returning undefined would
+    // render the literal text "undefined" above the grid.
+    function applyLoaded(v: [UserPrincipalRes[], UserPrincipalRes[]]): string {
         partners = v[0];
         candidates = v[1];
         // if the URL-seeded selection no longer points at a partner (someone
@@ -137,6 +140,7 @@
         if (selectedId !== "" && !partners.some(p => p.id === selectedId)) {
             selectedId = "";
         }
+        return "";
     }
 
     // selected partner (URL-mirrored)
@@ -165,6 +169,9 @@
 
     async function loadPnl() {
         if (selectedId === "") {
+            // invalidate any in-flight fetch too — its late response must
+            // not repopulate the table after the selection was cleared
+            ++pnlToken;
             pnlRows = [];
             pnlRaw = [];
             return;
@@ -249,6 +256,9 @@
                     // the empty P&L table immediately
                     selectedId = id;
                     loadPnl();
+                    // mirror the selection into the URL like pickPartner does,
+                    // so refresh/share right after tagging keeps the selection
+                    syncUrl();
                 });
             },
             err: e => {
@@ -377,10 +387,15 @@
         if (u.searchParams.toString() === serializeUrl()) return;
         const prevA = after == null ? "" : toApiDate(after);
         const prevB = before == null ? "" : toApiDate(before);
+        // capture BEFORE applyUrl — it assigns both selectedId and
+        // lastSelected, so comparing them after the fact never fires and a
+        // back/forward that only moves the selection would keep rendering
+        // the previous partner's P&L rows under the new partner's name
+        const prevSelected = selectedId;
         applyUrl(u.searchParams);
         const nextA = after == null ? "" : toApiDate(after);
         const nextB = before == null ? "" : toApiDate(before);
-        if (nextA !== prevA || nextB !== prevB || selectedId !== lastSelected) {
+        if (nextA !== prevA || nextB !== prevB || selectedId !== prevSelected) {
             loadPnl();
         }
     }
@@ -645,7 +660,12 @@
                                         {$_("partners.reload", { locale: $lang })}
                                     </Button>
                                 </div>
-                            {:else if pnlLoading && pnlRows.length === 0}
+                            {:else if pnlLoading && pnlRaw.length === 0}
+                                <!-- guard on the RAW payload (matches /pnl): the
+                                     zero-filled rows are never empty for a valid
+                                     range, so gating on pnlRows would render a
+                                     fake all-zero table instead of the loader
+                                     while the first fetch is in flight -->
                                 <Loader />
                             {:else}
                                 <div class="overflow-x-auto">

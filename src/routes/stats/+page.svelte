@@ -108,22 +108,30 @@
     let loading = false;
     let failed = false;
 
+    // race guard (same pattern as /pnl): rapid range changes put several
+    // load()s in flight; only the latest may write, or an older range's
+    // slower response repaints the tables under the newer pickers
+    let loadToken = 0;
+
     async function load() {
+        const myToken = ++loadToken;
         loading = true;
         await toResult(() => $api.vBookingStatsDetail("1", {
             ...(after == null ? {} : {after: toApiDate(after)}),
             ...(before == null ? {} : {before: toApiDate(before)}),
         }), $_('stats.loadError', { locale: $lang })).match({
             ok: (r: BookingStatRes[]) => {
+                if (myToken !== loadToken) return;
                 rows = r;
                 failed = false;
             },
             err: (e) => {
+                if (myToken !== loadToken) return;
                 console.error(e);
                 failed = true;
             }
         });
-        loading = false;
+        if (myToken === loadToken) loading = false;
     }
 
     // ---- milestones (range-start presets; newest date first from zinc) ----
@@ -614,15 +622,20 @@
         };
     }
 
+    let travelToken = 0;
+
     async function loadTravel() {
+        const myToken = ++travelToken;
         travelLoading = true;
         await toResult(() => $api.vBookingAnalysisTravelDetail("1", travelRangeQuery()),
             $_('stats.travelDate.loadError', { locale: $lang })).match({
             ok: (r) => {
+                if (myToken !== travelToken) return;
                 travelRows = pivotTravelAnalysis(r);
                 travelUnsupported = false;
             },
             err: (e) => {
+                if (myToken !== travelToken) return;
                 // older zinc returns 404; degrade gracefully — the main
                 // /stats view keeps working, this tab just stays hidden
                 if (e.status === 404) {
@@ -633,7 +646,7 @@
                 }
             }
         });
-        travelLoading = false;
+        if (myToken === travelToken) travelLoading = false;
     }
 
     async function travelRangeChange() {
