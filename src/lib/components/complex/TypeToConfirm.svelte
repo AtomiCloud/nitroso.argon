@@ -16,7 +16,7 @@
     $: cleanTarget = target.trim();
     $: valid = confirmMatches(value, target);
     $: progress = confirmProgress(value, target);
-    $: ({cells, overflow, caret, correct: correctCount} = progress);
+    $: ({cells, overflow, correct: correctCount} = progress);
 
     // Render spaces with a fixed-width glyph so they stay visible when coloured.
     const show = (ch: string) => (ch === " " ? " " : ch);
@@ -28,7 +28,9 @@
     }
 </script>
 
-<div class="flex flex-col gap-2">
+<!-- px-1.5 keeps the input's focus ring (ring-offset-2 extends ~4px past the
+     box) clear of the dialog's overflow container, which would otherwise clip it. -->
+<div class="flex flex-col gap-2 px-1.5">
     <!-- Live "typeracer" mirror of the confirmation text. Decorative: the real
          input below is what carries value + accessibility. -->
     <div
@@ -38,17 +40,11 @@
             aria-hidden="true"
     >
         {#each cells as cell, i (i)}
-            {#if i === caret && !valid}
-                <span class="inline-block h-5 w-[2px] bg-primary animate-pulse"></span>
-            {/if}
             <span class="px-[1px] {stateClass(cell.state)}">{show(cell.ch)}</span>
         {/each}
         {#if overflow}
             <span class="rounded-sm bg-red-500/20 px-[1px] text-red-600 line-through dark:text-red-400"
             >{overflow.replace(/ /g, " ")}</span>
-        {/if}
-        {#if caret >= cleanTarget.length && !overflow && !valid}
-            <span class="inline-block h-5 w-[2px] bg-primary animate-pulse"></span>
         {/if}
     </div>
 
