@@ -100,6 +100,8 @@
         if (errors.length === 0) {
             await createPassenger({
                 ...val,
+                fullName: val.fullName.trim(),
+                passportNumber: val.passportNumber.trim(),
                 passportExpiry: format(val.passportExpiry, "dd-MM-yyyy"),
             });
 

@@ -14,7 +14,7 @@
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
-    import {Input} from "$lib/components/ui/input";
+    import TypeToConfirm from "$lib/components/complex/TypeToConfirm.svelte";
     import {page} from "$app/stores";
     import {tick} from "svelte";
     import {_} from "svelte-i18n";
@@ -86,7 +86,9 @@
     }
 
     let confirm = "";
-    $: valid = confirm === booking.passenger.fullName;
+    // Validity is computed inside TypeToConfirm (trimmed + case-insensitive) and
+    // bound back here so the confirm button stays gated.
+    let valid = false;
     
     // Only scroll to top when dialog first opens or when switching between steps
     let lastDialogState = false;
@@ -196,8 +198,10 @@
                         </p>
 
                         <div class="flex flex-col gap-4">
-                            <Input placeholder={$_('fields.name', { locale: $lang })}
-                                   bind:value={confirm}
+                            <TypeToConfirm target={booking.passenger.fullName}
+                                           placeholder={$_('fields.name', { locale: $lang })}
+                                           bind:value={confirm}
+                                           bind:valid
                             />
                             <div class="text-base text-destructive {valid ? 'opacity-0' : 'opacity-1'}">
                                 {$_('bookingActions.cancel.typeNameError', { locale: $lang })}
