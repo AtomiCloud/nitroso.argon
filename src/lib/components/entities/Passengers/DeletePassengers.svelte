@@ -12,7 +12,7 @@
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
-    import {Input} from "$lib/components/ui/input";
+    import TypeToConfirm from "$lib/components/complex/TypeToConfirm.svelte";
     import {_} from "svelte-i18n";
     import {lang} from "$lib/i18n";
 
@@ -45,9 +45,9 @@
     }
 
     let confirm = "";
-
-
-    $: valid = confirm === passenger.fullName;
+    // Validity is computed inside TypeToConfirm (trimmed + case-insensitive) and
+    // bound back here so the delete button stays gated.
+    let valid = false;
 
 </script>
 
@@ -78,9 +78,11 @@
                     </code> {$_('passengers.delete.confirmTrail', { locale: $lang })}
                     </p>
 
-                    <div class="flex flex-col">
-                        <Input placeholder={$_('fields.name', { locale: $lang })}
-                               bind:value={confirm}
+                    <div class="flex flex-col gap-2">
+                        <TypeToConfirm target={passenger.fullName}
+                                       placeholder={$_('fields.name', { locale: $lang })}
+                                       bind:value={confirm}
+                                       bind:valid
                         />
                         <div class="text-sm text-destructive {valid ? 'opacity-0' : 'opacity-1'}">
                             {$_('passengers.delete.confirmHint', { locale: $lang })}
