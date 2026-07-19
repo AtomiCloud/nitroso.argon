@@ -410,7 +410,7 @@
       "stillCancel": "Still Cancel",
       "intro": "Cancel this booking for {name}. All money paid will be refunded. This action cannot be undone.",
       "takeNoteTitle": "Take Note!",
-      "takeNoteBody": "Cancelling a booking will invalid all discounts applied to it. If you were to rebook, you will have to reapply the discounts, and you will be pushed to the back of the queue.",
+      "takeNoteBody": "Cancelling a booking will invalidate all discounts applied to it. If you rebook, you will have to reapply the discounts, and you will be pushed to the back of the queue.",
       "typeNameBefore": "Please type the name of the passenger,",
       "typeNameAfter": "to proceed.",
       "typeNameError": "Please type the name of the passenger of the booking to proceed.",
