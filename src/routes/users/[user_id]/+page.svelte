@@ -8,6 +8,7 @@
 
     import Loader from "$lib/components/complex/loader.svelte";
     import Wallet from "$lib/components/entities/Wallets/Wallet.svelte";
+    import UserPayments from "$lib/components/entities/Payments/UserPayments.svelte";
     import type {PageData} from "./$types";
     import {page} from "$app/stores";
     import {Button} from "$lib/components/ui/button";
@@ -367,6 +368,10 @@
                             wallet={u.wallet}
                             admin={session?.roles?.includes("admin")}
                     />
+
+                    {#if session?.roles?.includes("admin")}
+                        <UserPayments walletId={u.wallet.id}/>
+                    {/if}
                 </div>
             {/await}
         </div>
