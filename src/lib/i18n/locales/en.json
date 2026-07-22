@@ -186,6 +186,20 @@
       "wiped": {
         "title": "This account was wiped",
         "body": "The user's personal data has been permanently deleted for a PDPA request. Wallets, transactions and withdrawal records remain for accounting. Sign-in is blocked, and the login identity still needs to be deleted in Descope."
+      },
+      "paymentsCard": {
+        "title": "Payments",
+        "description": "Every gateway payment on this user's wallet — click an ID to copy it. Amount = intent total, Captured = money actually taken.",
+        "colDate": "Date",
+        "colPaymentId": "Payment ID",
+        "colReference": "Airwallex ref",
+        "colAmount": "Amount",
+        "colCaptured": "Captured",
+        "colStatus": "Status",
+        "empty": "No payments on this wallet yet",
+        "loadError": "Failed to load payments",
+        "loadMore": "Load more",
+        "copied": "Copied to clipboard"
       }
     },
     "costs": {
