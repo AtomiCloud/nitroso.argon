@@ -33,7 +33,11 @@
             $_('admin.users.paymentsCard.loadError', {locale: $lang})).match({
             ok: (r: PaymentPrincipalRes[]) => {
                 failed = false;
-                payments = [...payments, ...r];
+                // zinc orders LastUpdated DESC before Skip/Take, but a payment
+                // updated between pages shifts rows — drop rows we already
+                // hold, or duplicate ids would crash the keyed each-block
+                const seen = new Set(payments.map(p => p.id));
+                payments = [...payments, ...r.filter(p => !seen.has(p.id))];
                 hasMore = r.length === PAGE;
             },
             err: (e) => {
