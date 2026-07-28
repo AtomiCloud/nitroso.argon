@@ -26,6 +26,8 @@
     import {WITHDRAWAL_STATUS, WITHDRAWAL_STATUS_BADGE} from "./withdrawal_status";
     import {Button} from "$lib/components/ui/button";
     import CreateWithdrawal from "$lib/components/entities/Withdrawals/CreateWithdrawal.svelte";
+    import ExportWithdrawals from "$lib/components/entities/Withdrawals/ExportWithdrawals.svelte";
+    import {withdrawalFiltersFromUrl} from "$lib/components/entities/Withdrawals/withdrawal-export";
     import {Badge} from "$lib/components/ui/badge";
     import ApproveWithdrawal from "$lib/components/entities/Withdrawals/ApproveWithdrawal.svelte";
     import CompleteWithdrawalManual from "$lib/components/entities/Withdrawals/CompleteWithdrawalManual.svelte";
@@ -195,6 +197,22 @@
 
     const session: any = $page.data.session;
 
+    // Case-insensitive on purpose: zinc gates the export with
+    // GuardRoleIgnoreCaseAsync because Descope role casing is not guaranteed.
+    // An exact match here would hide the button from an owner the API would
+    // happily serve.
+    $: isOwner = session?.roles?.some((r: string) => r.toLowerCase() === "owner") ?? false;
+
+    // Filters for the CSV export, read off the URL rather than the live input
+    // state so the download matches the applied server-side result set (the
+    // text inputs are debounced — the URL is the applied set). Same casing as
+    // the `vWithdrawalDetail` call in `+page.ts`, minus Limit/Skip.
+    //
+    // `search` is deliberately absent: it is a client-only filter over rows
+    // the load already returned, and the endpoint has no equivalent — the
+    // export covers the server-side filtered set.
+    $: exportFilters = withdrawalFiltersFromUrl($page.url);
+
 </script>
 
 <div class="flex flex-col">
@@ -249,6 +267,24 @@
                         userId={$page.data.user.principal.id}
                         wallet={$page.data.user.wallet}
                 />
+            {/if}
+
+            <!-- Ledger CSV for tax reporting. The endpoint is owner-only, so
+                 the button only exists for owners — everyone else would just
+                 get a 403. Matched case-insensitively to agree with zinc, whose
+                 own guard notes that Descope role casing is not guaranteed; an
+                 exact match would silently hide the button from a legitimate
+                 owner carrying "Owner", and nobody reports a button they cannot
+                 see. -->
+            {#if isOwner}
+                <div class="flex flex-col gap-1 w-full lg:max-w-60">
+                    <ExportWithdrawals filters={exportFilters}/>
+                    {#if searchTerm.trim() !== ""}
+                        <p class="text-xs text-muted-foreground">
+                            {$_('withdrawals.export.searchHint', { locale: $lang })}
+                        </p>
+                    {/if}
+                </div>
             {/if}
         </div>
 

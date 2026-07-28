@@ -1536,6 +1536,14 @@
         "success": "Pengeluaran {amount} telah diatur semula untuk pembayaran automatik.",
         "failed": "Gagal mengatur semula pengeluaran"
       }
+    },
+    "export": {
+      "trigger": "Eksport CSV",
+      "exporting": "Sedang mengeksport...",
+      "forbidden": "Hanya pemilik boleh mengeksport lejar pengeluaran.",
+      "unavailable": "Eksport pengeluaran belum tersedia dalam persekitaran ini.",
+      "failed": "Gagal mengeksport pengeluaran",
+      "searchHint": "Eksport menggunakan penapis pada pelayan dan tidak merangkumi carian teks."
     }
   },
   "status": {

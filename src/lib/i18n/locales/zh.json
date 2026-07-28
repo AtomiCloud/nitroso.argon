@@ -1536,6 +1536,14 @@
         "success": "已将 {amount} 的提款重新排队等待自动付款。",
         "failed": "重新排队提款失败"
       }
+    },
+    "export": {
+      "trigger": "导出 CSV",
+      "exporting": "正在导出...",
+      "forbidden": "只有所有者可以导出提款账目。",
+      "unavailable": "此环境暂不支持提款导出。",
+      "failed": "导出提款记录失败",
+      "searchHint": "导出使用服务器端筛选条件，不包含文本搜索。"
     }
   },
   "status": {
