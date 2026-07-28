@@ -197,6 +197,12 @@
 
     const session: any = $page.data.session;
 
+    // Case-insensitive on purpose: zinc gates the export with
+    // GuardRoleIgnoreCaseAsync because Descope role casing is not guaranteed.
+    // An exact match here would hide the button from an owner the API would
+    // happily serve.
+    $: isOwner = session?.roles?.some((r: string) => r.toLowerCase() === "owner") ?? false;
+
     // Filters for the CSV export, read off the URL rather than the live input
     // state so the download matches the applied server-side result set (the
     // text inputs are debounced — the URL is the applied set). Same casing as
@@ -263,10 +269,14 @@
                 />
             {/if}
 
-            <!-- Ledger CSV for tax reporting. The endpoint is admin-only, so
-                 the button only exists for admins — everyone else would just
-                 get a 403. -->
-            {#if session?.roles?.includes("admin")}
+            <!-- Ledger CSV for tax reporting. The endpoint is owner-only, so
+                 the button only exists for owners — everyone else would just
+                 get a 403. Matched case-insensitively to agree with zinc, whose
+                 own guard notes that Descope role casing is not guaranteed; an
+                 exact match would silently hide the button from a legitimate
+                 owner carrying "Owner", and nobody reports a button they cannot
+                 see. -->
+            {#if isOwner}
                 <div class="flex flex-col gap-1 w-full lg:max-w-60">
                     <ExportWithdrawals filters={exportFilters}/>
                     {#if searchTerm.trim() !== ""}

@@ -1540,7 +1540,7 @@
     "export": {
       "trigger": "Export CSV",
       "exporting": "Exporting...",
-      "forbidden": "Only admins can export the withdrawal ledger.",
+      "forbidden": "Only owners can export the withdrawal ledger.",
       "unavailable": "Withdrawal export is not available in this environment yet.",
       "failed": "Failed to export withdrawals",
       "searchHint": "Export uses the server-side filters and does not include the text search."
