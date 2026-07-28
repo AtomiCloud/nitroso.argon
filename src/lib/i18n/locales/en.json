@@ -1536,6 +1536,14 @@
         "success": "Withdrawal of {amount} requeued for automated payout.",
         "failed": "Failed to requeue withdrawal"
       }
+    },
+    "export": {
+      "trigger": "Export CSV",
+      "exporting": "Exporting...",
+      "forbidden": "Only admins can export the withdrawal ledger.",
+      "unavailable": "Withdrawal export is not available in this environment yet.",
+      "failed": "Failed to export withdrawals",
+      "searchHint": "Export uses the server-side filters and does not include the text search."
     }
   },
   "status": {
