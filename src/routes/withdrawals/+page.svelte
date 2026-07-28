@@ -263,10 +263,10 @@
                 />
             {/if}
 
-            <!-- Ledger CSV for tax reporting. The endpoint is admin-only, so
-                 the button only exists for admins — everyone else would just
+            <!-- Ledger CSV for tax reporting. The endpoint is owner-only, so
+                 the button only exists for owners — everyone else would just
                  get a 403. -->
-            {#if session?.roles?.includes("admin")}
+            {#if session?.roles?.includes("owner")}
                 <div class="flex flex-col gap-1 w-full lg:max-w-60">
                     <ExportWithdrawals filters={exportFilters}/>
                     {#if searchTerm.trim() !== ""}
