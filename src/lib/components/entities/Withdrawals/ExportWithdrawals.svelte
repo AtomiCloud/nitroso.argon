@@ -55,7 +55,13 @@
                 fetch,
                 download: triggerDownload,
             });
-            if (result.ok === false) toast.error(result.message);
+            if (result.ok === false) {
+                // The server rejected a bearer the client believed was live
+                // (clock skew, revoked session, key rotation). A toast would
+                // strand the admin on a dead button, so re-authenticate.
+                if (result.reauth === true) await signIn("descope");
+                else toast.error(result.message);
+            }
         } catch (e) {
             // Network-level failure (offline, DNS, CORS) — `fetch` rejects
             // before there is any response to read a problem out of.
@@ -71,7 +77,7 @@
             createObjectURL: URL.createObjectURL,
             revokeObjectURL: URL.revokeObjectURL,
             createAnchor: () => document.createElement("a"),
-            append: (anchor) => document.body.append(anchor as HTMLAnchorElement),
+            append: (anchor) => document.body.append(anchor),
             defer: (callback, delayMs) => setTimeout(callback, delayMs),
         });
     }

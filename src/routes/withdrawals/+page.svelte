@@ -27,7 +27,7 @@
     import {Button} from "$lib/components/ui/button";
     import CreateWithdrawal from "$lib/components/entities/Withdrawals/CreateWithdrawal.svelte";
     import ExportWithdrawals from "$lib/components/entities/Withdrawals/ExportWithdrawals.svelte";
-    import type {WithdrawalExportFilters} from "$lib/components/entities/Withdrawals/withdrawal-export";
+    import {withdrawalFiltersFromUrl} from "$lib/components/entities/Withdrawals/withdrawal-export";
     import {Badge} from "$lib/components/ui/badge";
     import ApproveWithdrawal from "$lib/components/entities/Withdrawals/ApproveWithdrawal.svelte";
     import CompleteWithdrawalManual from "$lib/components/entities/Withdrawals/CompleteWithdrawalManual.svelte";
@@ -205,17 +205,7 @@
     // `search` is deliberately absent: it is a client-only filter over rows
     // the load already returned, and the endpoint has no equivalent — the
     // export covers the server-side filtered set.
-    let exportFilters: WithdrawalExportFilters = {};
-    $: exportFilters = {
-        Id: $page.url.searchParams.get("id") ?? "",
-        UserId: $page.url.searchParams.get("userId") ?? "",
-        CompleterId: $page.url.searchParams.get("completerId") ?? "",
-        Min: $page.url.searchParams.get("min") ?? "",
-        Max: $page.url.searchParams.get("max") ?? "",
-        Status: $page.url.searchParams.get("status") ?? "",
-        Before: $page.url.searchParams.get("before") ?? "",
-        After: $page.url.searchParams.get("after") ?? "",
-    };
+    $: exportFilters = withdrawalFiltersFromUrl($page.url);
 
 </script>
 

@@ -33,19 +33,52 @@ export interface WithdrawalExportFilters {
 }
 
 /**
+ * The URL search param each zinc filter is read from. This is the single
+ * source of truth for the mapping: the list loader and the export both derive
+ * from it, so a filter can never reach one and not the other.
+ *
+ * Declaring it as a full `Record` over the filter keys makes the mapping
+ * exhaustive by construction — adding a field to `WithdrawalExportFilters`
+ * without adding it here is a type error rather than a silently dropped
+ * filter.
+ */
+const EXPORT_PARAM_SOURCES: Record<keyof WithdrawalExportFilters, string> = {
+  Id: 'id',
+  UserId: 'userId',
+  CompleterId: 'completerId',
+  Min: 'min',
+  Max: 'max',
+  Status: 'status',
+  Before: 'before',
+  After: 'after',
+};
+
+/**
  * Order the query params are emitted in, so the produced URL is stable and
  * assertable in tests.
  */
-const EXPORT_PARAM_ORDER: (keyof WithdrawalExportFilters)[] = [
-  'Id',
-  'UserId',
-  'CompleterId',
-  'Min',
-  'Max',
-  'Status',
-  'Before',
-  'After',
-];
+const EXPORT_PARAM_ORDER = Object.keys(EXPORT_PARAM_SOURCES) as (keyof WithdrawalExportFilters)[];
+
+/**
+ * Read the applied server-side filters off a URL.
+ *
+ * Both the list loader and the export use this, so the downloaded CSV always
+ * covers the same rows the page is showing. Reading the URL (rather than live
+ * input state) is deliberate: the text inputs are debounced, and the URL is
+ * the applied set.
+ */
+export function withdrawalFiltersFromUrl(url: URL): Required<WithdrawalExportFilters> {
+  const filters = {} as Required<WithdrawalExportFilters>;
+  for (const [key, param] of Object.entries(EXPORT_PARAM_SOURCES) as [keyof WithdrawalExportFilters, string][]) {
+    // Trim HERE, at the one place both consumers read from. zinc does not
+    // trim server-side, so a stray space is a real filter to it: `?userId=+`
+    // would make the table match nothing while an export that trimmed
+    // separately downloaded the entire ledger — the two disagreeing, in the
+    // dangerous direction, on a document someone files taxes from.
+    filters[key] = (url.searchParams.get(param) ?? '').trim();
+  }
+  return filters;
+}
 
 /**
  * Build the export query string from the filters currently applied on the page.
@@ -60,12 +93,14 @@ export function buildExportQuery(filters: WithdrawalExportFilters): string {
     if (value == null) continue;
     const trimmed = value.trim();
     if (trimmed.length === 0) continue;
-    // The list loader parses these before passing them to the generated API
-    // client. Keep valid URL values semantically identical for the export.
+    // Mirror the list loader's `parseFloat` exactly, INCLUDING an unparseable
+    // value becoming `NaN`. Dropping it instead would be worse than useless
+    // here: the table would 400 on `?min=abc` while the export quietly
+    // succeeded with the bound removed, handing someone a wider ledger than
+    // the screen they exported it from. Sending it through means both fail
+    // the same way, and the reader gets zinc's validation message.
     if (key === 'Min' || key === 'Max') {
-      const parsed = parseFloat(trimmed);
-      if (!Number.isFinite(parsed)) continue;
-      params.set(key, String(parsed));
+      params.set(key, String(parseFloat(trimmed)));
       continue;
     }
     params.set(key, trimmed);
@@ -102,15 +137,22 @@ function sanitizeFilename(name: string): string {
 /**
  * Pull the download filename out of a `Content-Disposition` header.
  *
- * Prefers the RFC 5987 `filename*=UTF-8''…` form (zinc emits it when the name
- * carries non-ASCII), falling back to the plain quoted or bare `filename=`.
+ * Prefers the RFC 5987 `filename*=charset'lang'value` form, falling back to
+ * the plain quoted or bare `filename=`. zinc only ever emits the plain quoted
+ * form today (it reduces the name to `[A-Za-z0-9_-]`), so the extended branch
+ * is defensive rather than exercised in production.
+ *
  * Returns `null` when the header is absent or carries no usable name — the
  * caller then uses {@link fallbackExportFilename}.
  */
 export function filenameFromContentDisposition(header: string | null | undefined): string | null {
   if (header == null) return null;
 
-  const extended = /filename\*\s*=\s*(?:UTF-8)''([^;]+)/i.exec(header);
+  // RFC 5987 is `charset'language'value`, and BOTH the charset and the
+  // language tag are free-form — `filename*=UTF-8'en'x.csv` is conformant.
+  // Matching only the empty-language UTF-8 form would drop an otherwise
+  // valid server-chosen name on the floor.
+  const extended = /filename\*\s*=\s*[^';]*'[^';]*'([^;]+)/i.exec(header);
   if (extended?.[1] != null) {
     let decoded = extended[1].trim();
     try {
@@ -152,7 +194,13 @@ export function fallbackExportFilename(after?: string, before?: string): string 
   const from = (after ?? '').trim();
   const to = (before ?? '').trim();
   if (from === '' && to === '') return 'withdrawals-all.csv';
-  return `withdrawals-${from === '' ? 'all' : from}_${to === '' ? 'all' : to}.csv`;
+  // These bounds come straight off the URL, so they get the same sanitising
+  // as a server-supplied name — this is the branch that actually runs, since
+  // the API is cross-origin and Content-Disposition is only readable when
+  // zinc exposes it.
+  const name = `withdrawals-${from === '' ? 'all' : from}_${to === '' ? 'all' : to}.csv`;
+  const safe = sanitizeFilename(name);
+  return safe === '' ? 'withdrawals-all.csv' : safe;
 }
 
 export interface WithdrawalExportMessages {
@@ -161,7 +209,16 @@ export interface WithdrawalExportMessages {
   failed: string;
 }
 
-export type WithdrawalExportResult = { ok: true } | { ok: false; message: string };
+/**
+ * `reauth` asks the caller to restart sign-in rather than show a message: the
+ * server rejected the bearer even though it looked live client-side (clock
+ * skew, a revoked session, key rotation), so a toast would leave the admin
+ * with a dead button and no way back in.
+ */
+export type WithdrawalExportResult =
+  | { ok: true }
+  | { ok: false; reauth: true }
+  | { ok: false; reauth?: false; message: string };
 
 export interface WithdrawalExportRequest {
   baseUrl: string;
@@ -204,9 +261,17 @@ export async function requestWithdrawalExport({
     method: 'GET',
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      Accept: 'text/csv',
+      // The problem media types are not optional padding: zinc's problem
+      // details writer only emits a body when the Accept list admits JSON.
+      // Asking for `text/csv` alone would make every error an empty body and
+      // reduce a precise "Status must be one of: ..." to a generic failure.
+      Accept: 'text/csv, application/problem+json, application/json',
     },
   });
+
+  // 401 means the bearer was rejected server-side despite passing the
+  // client's own expiry check — recoverable only by signing in again.
+  if (res.status === 401) return { ok: false, reauth: true };
 
   if (!res.ok) return { ok: false, message: await exportErrorMessage(res, messages) };
 
@@ -228,16 +293,27 @@ export interface DownloadAnchor {
   remove: () => void;
 }
 
-export interface BrowserDownload {
+/**
+ * Generic over the anchor so a real `HTMLAnchorElement` satisfies it directly:
+ * the caller passes `document.createElement("a")` and `document.body.append`
+ * without casting, while a test can pass a plain object instead. The seam
+ * exists so the cleanup guarantees below (anchor always removed, object URL
+ * always revoked, even when the DOM calls throw) are actually testable.
+ */
+export interface BrowserDownload<A extends DownloadAnchor = DownloadAnchor> {
   createObjectURL: (blob: Blob) => string;
   revokeObjectURL: (url: string) => void;
-  createAnchor: () => DownloadAnchor;
-  append: (anchor: DownloadAnchor) => void;
+  createAnchor: () => A;
+  append: (anchor: A) => void;
   defer: (callback: () => void, delayMs: number) => void;
 }
 
 /** Save a blob through a synthetic anchor and revoke its object URL later. */
-export function triggerBlobDownload(blob: Blob, name: string, browser: BrowserDownload): void {
+export function triggerBlobDownload<A extends DownloadAnchor>(
+  blob: Blob,
+  name: string,
+  browser: BrowserDownload<A>,
+): void {
   const url = browser.createObjectURL(blob);
   try {
     const anchor = browser.createAnchor();
