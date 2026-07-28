@@ -1540,7 +1540,7 @@
     "export": {
       "trigger": "Eksport CSV",
       "exporting": "Sedang mengeksport...",
-      "forbidden": "Hanya pentadbir boleh mengeksport lejar pengeluaran.",
+      "forbidden": "Hanya pemilik boleh mengeksport lejar pengeluaran.",
       "unavailable": "Eksport pengeluaran belum tersedia dalam persekitaran ini.",
       "failed": "Gagal mengeksport pengeluaran",
       "searchHint": "Eksport menggunakan penapis pada pelayan dan tidak merangkumi carian teks."
