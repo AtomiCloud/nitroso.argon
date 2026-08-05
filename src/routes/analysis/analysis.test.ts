@@ -9,6 +9,7 @@ import type {
 import { toTerminalPnlRow } from '$lib/pnl/terminal';
 import {
   PROFIT_QUARTERS,
+  boostSkipParam,
   boostView,
   cellCostIncomplete,
   cellNet,
@@ -286,6 +287,45 @@ describe('URL param helpers', () => {
     expect(urlDayParam('29-02-2026')).toBe('');
     expect(urlDayParam('00-07-2026')).toBe('');
     expect(urlDayParam('garbage')).toBe('');
+  });
+
+  it('boostSkipParam converts a 1-indexed page to a 0-based Skip', () => {
+    expect(boostSkipParam('1', 50)).toBe(0);
+    expect(boostSkipParam('2', 50)).toBe(50);
+    expect(boostSkipParam('4', 50)).toBe(150);
+    expect(boostSkipParam('3', 20)).toBe(40);
+  });
+
+  it('boostSkipParam falls back to the first page for absent or junk values', () => {
+    expect(boostSkipParam(null, 50)).toBe(0);
+    expect(boostSkipParam(undefined, 50)).toBe(0);
+    expect(boostSkipParam('', 50)).toBe(0);
+    expect(boostSkipParam('garbage', 50)).toBe(0);
+    expect(boostSkipParam('2abc', 50)).toBe(0);
+  });
+
+  it('boostSkipParam never yields a negative or fractional Skip', () => {
+    // zinc rejects both; a hand-edited URL must degrade to page 1.
+    expect(boostSkipParam('0', 50)).toBe(0);
+    expect(boostSkipParam('-2', 50)).toBe(0);
+    expect(boostSkipParam('1.5', 50)).toBe(0);
+    expect(boostSkipParam('Infinity', 50)).toBe(0);
+    expect(boostSkipParam('NaN', 50)).toBe(0);
+  });
+
+  it('boostSkipParam tolerates a nonsensical limit rather than propagating it', () => {
+    expect(boostSkipParam('3', 0)).toBe(0);
+    expect(boostSkipParam('3', -50)).toBe(0);
+    expect(boostSkipParam('3', 1.5)).toBe(0);
+  });
+
+  it('boostSkipParam round-trips the serializer, so Back restores the same page', () => {
+    const limit = 50;
+    for (const skip of [0, 50, 100, 500]) {
+      // what serializeUrl writes: 1-indexed page, omitted when 0
+      const param = skip === 0 ? null : `${skip / limit + 1}`;
+      expect(boostSkipParam(param, limit)).toBe(skip);
+    }
   });
 });
 

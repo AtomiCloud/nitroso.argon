@@ -71,6 +71,31 @@ export function withdrawalMatchesSearch(row: WithdrawalPrincipalRes, search: str
 }
 
 /**
+ * Read the 1-indexed page number off a `?page=` query param.
+ *
+ * The URL is the single source of truth for which page the list shows, so
+ * this runs on every render and must never throw or produce a page the
+ * list cannot render. Anything that is not a positive integer — absent,
+ * blank, "abc", "0", "-2", "1.5" — reads as page 1: a hand-edited or
+ * truncated link should land somewhere useful rather than on an empty
+ * list.
+ *
+ * Deliberately stricter than `parseInt`, which would read "3abc" as 3.
+ * A page number is either a whole number or it is nonsense.
+ *
+ * Well-formed but out-of-RANGE pages are NOT handled here — the total is
+ * not known until the rows are filtered. The caller clamps (see `safePage`
+ * in the withdrawals list).
+ */
+export function pageFromParam(raw: string | null | undefined): number {
+  // Number("") and Number(null) are both 0, which fails the >= 1 test and
+  // falls through to 1 — the same answer the explicit checks would give.
+  const n = Number(raw);
+  if (!Number.isInteger(n) || n < 1) return 1;
+  return n;
+}
+
+/**
  * Slice a row array for the requested (1-indexed) page at `pageSize`.
  *
  * `page` must be a positive integer; out-of-range pages return an

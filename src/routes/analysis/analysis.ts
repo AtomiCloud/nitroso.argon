@@ -290,6 +290,27 @@ export function pickParam(v: string | null, allowed: string[]): string {
   return v != null && allowed.includes(v) ? v : '';
 }
 
+/**
+ * `?boost=N` (1-indexed page) → the internal 0-based `Skip` offset.
+ *
+ * The URL carries a page NUMBER because that is what reads sensibly in a
+ * shared link; the boosts endpoint wants an offset, so the conversion lives
+ * here next to the other URL parsers. Page 1 (skip 0) is the default and is
+ * omitted from the URL entirely.
+ *
+ * Anything that is not a whole number ≥ 1 — absent, blank, "abc", "0", "-3",
+ * "2.5" — reads as page 1 rather than producing a negative or fractional
+ * Skip that zinc would reject. An out-of-RANGE page cannot be rejected here
+ * (the total is only known after a fetch); it comes back as an empty ledger
+ * page, the same as it did before the URL was involved.
+ */
+export function boostSkipParam(raw: string | null | undefined, limit: number): number {
+  if (!Number.isInteger(limit) || limit < 1) return 0;
+  const n = Number(raw);
+  if (!Number.isInteger(n) || n < 1) return 0;
+  return (n - 1) * limit;
+}
+
 /** dd-MM-yyyy from the URL, "" unless it round-trips through a real calendar day. */
 export function urlDayParam(s: string | null): string {
   const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(s ?? '');

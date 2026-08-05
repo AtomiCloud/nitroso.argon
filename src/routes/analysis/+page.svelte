@@ -46,6 +46,7 @@
     import {
         ANALYSIS_TABS,
         PROFIT_QUARTERS,
+        boostSkipParam,
         boostView,
         cellCostIncomplete,
         cellNet,
@@ -84,11 +85,11 @@
     //   Boosts    the paginated boost ledger (admin grants highlighted)
     //   Payments  the captured-payments evidence list (moved from the old
     //             single-page layout)
-    // The active tab and every global filter are mirrored into the URL query
-    // string (tab/from/to/dir/day, defaults omitted; tab switches PUSH
-    // history, filter changes replace) so back / refresh / share reproduce
-    // the exact view. Mobile: everything wraps — no horizontal scrolling
-    // outside tables.
+    // The active tab, every global filter and the boost ledger's page are
+    // mirrored into the URL query string (tab/from/to/dir/day/boost, defaults
+    // omitted; tab switches and boost paging PUSH history, filter changes
+    // replace) so back / refresh / share reproduce the exact view. Mobile:
+    // everything wraps — no horizontal scrolling outside tables.
 
     // zinc's standard API date format, dd-MM-yyyy — CalendarDate.toString()
     // is ISO and gets rejected with a 400
@@ -271,10 +272,20 @@
         if (myToken === boostToken) boostsLoading = false;
     }
 
+    // Paging fetches the new page AND mirrors it into the URL as `boost`, so
+    // Back returns to the page you came from rather than the start (#F102).
+    // The flag makes the sync below PUSH a history entry — the same treatment
+    // the tab switcher gets; every other filter change still replaces.
+    //
+    // The fetch is issued here rather than left to onUrlChange: after the
+    // sync, the URL and the local state agree, so onUrlChange correctly
+    // no-ops. It only fetches on the Back/Forward + deep-link path, where
+    // they disagree.
     function boostPage(delta: number) {
         const next = boostSkip + delta * BOOST_LIMIT;
         if (next < 0 || next >= boostTotal) return;
         boostSkip = next;
+        pushBoostPage = true;
         loadBoosts();
     }
 
@@ -475,6 +486,7 @@
         before = urlDate(q.get("to")) ?? fromApiDate(defBeforeStr) ?? undefined;
         selDirection = selOf(pickParam(q.get("dir"), DIRECTIONS));
         day = urlDayParam(q.get("day"));
+        boostSkip = boostSkipParam(q.get("boost"), BOOST_LIMIT);
     }
 
     function serializeUrl(): string {
@@ -486,15 +498,24 @@
         if (b && b !== defBeforeStr) q.set("to", b);
         if (selDirection?.value) q.set("dir", selDirection.value);
         if (day !== "") q.set("day", day);
+        // 1-indexed in the URL: `boost=2` reads better in a shared link than
+        // the internal `boostSkip=50`. Page 1 is the default and stays out.
+        if (boostSkip > 0) q.set("boost", `${boostSkip / BOOST_LIMIT + 1}`);
         return q.toString();
     }
 
-    $: if (urlReady) syncUrl(tab, after, before, selDirection, day);
+    // Set by boostPage() so the next sync PUSHES instead of replacing —
+    // paging is a navigation the user expects Back to undo, like a tab
+    // switch. Every other filter change still replaces.
+    let pushBoostPage = false;
+
+    $: if (urlReady) syncUrl(tab, after, before, selDirection, day, boostSkip);
 
     function syncUrl(..._deps: unknown[]) {
         const search = serializeUrl();
-        const push = tab !== lastTab;
+        const push = tab !== lastTab || pushBoostPage;
         lastTab = tab;
+        pushBoostPage = false;
         if (search === $page.url.searchParams.toString()) return;
         goto(`${$page.url.pathname}${search ? `?${search}` : ""}`,
             {replaceState: !push, keepFocus: true, noScroll: true});
@@ -506,10 +527,22 @@
         if (u.searchParams.toString() === serializeUrl()) return;
         const prevA = after == null ? "" : toApiDate(after);
         const prevB = before == null ? "" : toApiDate(before);
+        const prevSkip = boostSkip;
         applyUrl(u.searchParams);
         const nextA = after == null ? "" : toApiDate(after);
         const nextB = before == null ? "" : toApiDate(before);
-        if (nextA !== prevA || nextB !== prevB) load();
+        if (nextA !== prevA || nextB !== prevB) {
+            // A new range restarts boost pagination (load() resets the skip
+            // and refetches), so do not also fire loadBoosts for the skip
+            // change it is about to make itself.
+            load();
+            return;
+        }
+        // Back/Forward across a boost page, or a deep link — the ledger is
+        // server-paged, so a new skip needs its own fetch. This is also the
+        // path a boostPage() click takes: it moves boostSkip, the sync writes
+        // the URL, and the fetch happens here.
+        if (boostSkip !== prevSkip) loadBoosts();
     }
 
     onMount(async () => {
