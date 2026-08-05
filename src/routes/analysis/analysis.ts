@@ -311,6 +311,34 @@ export function boostSkipParam(raw: string | null | undefined, limit: number): n
   return (n - 1) * limit;
 }
 
+/**
+ * Clamp a boost `Skip` offset to the last page that actually has rows.
+ *
+ * `boostSkipParam` can only validate syntax — it cannot know the total, which
+ * arrives with the first response. So `?boost=999` is well-formed but past
+ * the end, and the ledger comes back empty. That state is a dead end in the
+ * UI: the empty-ledger branch hides the pager, so there is no control left to
+ * navigate back into range. Clamping to the last real page keeps a
+ * hand-edited or stale shared link usable.
+ *
+ * A total of 0 (or a nonsensical one) clamps to 0 — page 1, the genuinely
+ * empty ledger, which is a legitimate state rather than a dead end.
+ *
+ * The result is always a page BOUNDARY (a multiple of `limit`). Today every
+ * caller already passes one, but an off-grid offset would desync the pager,
+ * whose prev/next guards are written in whole pages — so snap rather than
+ * pass it through and let the drift surface as a stuck button.
+ */
+export function clampBoostSkip(skip: number, total: number, limit: number): number {
+  if (!Number.isInteger(limit) || limit < 1) return 0;
+  if (!Number.isInteger(skip) || skip < 1) return 0;
+  if (!Number.isFinite(total) || total < 1) return 0;
+  // the offset of the final page: the largest multiple of `limit` under total
+  const last = Math.floor((total - 1) / limit) * limit;
+  if (skip >= total) return last;
+  return Math.min(Math.floor(skip / limit) * limit, last);
+}
+
 /** dd-MM-yyyy from the URL, "" unless it round-trips through a real calendar day. */
 export function urlDayParam(s: string | null): string {
   const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(s ?? '');

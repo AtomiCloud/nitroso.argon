@@ -51,6 +51,7 @@
         cellCostIncomplete,
         cellNet,
         cellProfit,
+        clampBoostSkip,
         daysPresent,
         dayProfitNet,
         groupByDay,
@@ -267,6 +268,18 @@
                 if (myToken !== boostToken) return;
                 boosts = r.items;
                 boostTotal = r.total;
+                // `?boost=N` is validated for SHAPE on the way in, but the
+                // total is only known now — so an out-of-range deep link
+                // (or a link shared before rows aged out of the range) lands
+                // on an empty page. That is a dead end: the empty-ledger
+                // branch hides the pager, leaving no control to get back in
+                // range. Clamp to the last real page and refetch; the URL
+                // sync then replaces the bad `boost` value.
+                const clamped = clampBoostSkip(boostSkip, r.total, BOOST_LIMIT);
+                if (clamped !== boostSkip) {
+                    boostSkip = clamped;
+                    loadBoosts();
+                }
             },
             err: (e) => {
                 if (myToken !== boostToken) return;

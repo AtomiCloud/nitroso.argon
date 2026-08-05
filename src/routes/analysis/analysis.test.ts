@@ -11,6 +11,7 @@ import {
   PROFIT_QUARTERS,
   boostSkipParam,
   boostView,
+  clampBoostSkip,
   cellCostIncomplete,
   cellNet,
   cellProfit,
@@ -317,6 +318,61 @@ describe('URL param helpers', () => {
     expect(boostSkipParam('3', 0)).toBe(0);
     expect(boostSkipParam('3', -50)).toBe(0);
     expect(boostSkipParam('3', 1.5)).toBe(0);
+  });
+
+  it('clampBoostSkip pulls an out-of-range deep link back to the last real page', () => {
+    // 380 rows at 50/page → the last page starts at 350
+    expect(clampBoostSkip(9950, 380, 50)).toBe(350); // ?boost=200
+    expect(clampBoostSkip(400, 380, 50)).toBe(350);
+    expect(clampBoostSkip(380, 380, 50)).toBe(350); // skip == total is already past the end
+  });
+
+  it('clampBoostSkip leaves an in-range page boundary alone', () => {
+    expect(clampBoostSkip(0, 380, 50)).toBe(0);
+    expect(clampBoostSkip(50, 380, 50)).toBe(50);
+    expect(clampBoostSkip(350, 380, 50)).toBe(350);
+    expect(clampBoostSkip(300, 380, 50)).toBe(300);
+  });
+
+  it('clampBoostSkip snaps an off-grid offset down to its page boundary', () => {
+    // the pager's prev/next guards count in whole pages, so an offset that is
+    // not a multiple of the limit would leave them out of step
+    expect(clampBoostSkip(125, 380, 50)).toBe(100);
+    expect(clampBoostSkip(49, 380, 50)).toBe(0);
+    expect(clampBoostSkip(375, 380, 50)).toBe(350);
+  });
+
+  it('clampBoostSkip lands on the final page for an exact multiple', () => {
+    // 400 rows at 50/page → 8 full pages, the last starting at 350
+    expect(clampBoostSkip(400, 400, 50)).toBe(350);
+    expect(clampBoostSkip(350, 400, 50)).toBe(350);
+  });
+
+  it('clampBoostSkip treats an empty ledger as page 1, not a dead end', () => {
+    expect(clampBoostSkip(100, 0, 50)).toBe(0);
+    expect(clampBoostSkip(0, 0, 50)).toBe(0);
+  });
+
+  it('clampBoostSkip tolerates nonsensical totals and limits', () => {
+    expect(clampBoostSkip(100, -5, 50)).toBe(0);
+    expect(clampBoostSkip(100, Number.NaN, 50)).toBe(0);
+    expect(clampBoostSkip(100, 380, 0)).toBe(0);
+    expect(clampBoostSkip(-100, 380, 50)).toBe(0);
+  });
+
+  it('clampBoostSkip output always parses back to a reachable page', () => {
+    // whatever it returns must be a clean multiple of the limit and in range
+    for (const [skip, total] of [
+      [9950, 380],
+      [400, 380],
+      [125, 380],
+      [1000, 40],
+    ]) {
+      const c = clampBoostSkip(skip, total, 50);
+      expect(c % 50).toBe(0);
+      expect(c).toBeGreaterThanOrEqual(0);
+      expect(c < total || c === 0).toBe(true);
+    }
   });
 
   it('boostSkipParam round-trips the serializer, so Back restores the same page', () => {
