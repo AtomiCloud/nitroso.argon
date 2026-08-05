@@ -136,7 +136,11 @@
     // slower response repaints the page under the newer pickers
     let loadToken = 0;
 
-    async function load() {
+    // `keepBoostPage` is set by the initial mount, where the URL has just
+    // seeded a `?boost=N` deep link that the reset below would otherwise
+    // throw away before the first render. Every other caller is a RANGE
+    // change, which genuinely does restart the ledger at page 1.
+    async function load({keepBoostPage = false}: {keepBoostPage?: boolean} = {}) {
         const myToken = ++loadToken;
         loading = true;
         const range = rangeQuery();
@@ -166,8 +170,9 @@
         failed = a == null;
         loading = false;
         // the boost ledger follows the same range; a new range restarts its
-        // pagination from the first page
-        boostSkip = 0;
+        // pagination from the first page — except on the initial mount, where
+        // the URL may carry a deep-linked page that must survive
+        if (!keepBoostPage) boostSkip = 0;
         loadBoosts();
         // the profit-by-travel-day grid fetches independently — it groups
         // by travel date (NOT completion date), so it tolerates its own
@@ -548,7 +553,9 @@
     onMount(async () => {
         applyUrl($page.url.searchParams);
         urlReady = true;
-        await load();
+        // applyUrl just seeded boostSkip from `?boost=N`; keep it rather than
+        // letting the range-change reset drop a shared link back to page 1.
+        await load({keepBoostPage: true});
     });
 </script>
 
@@ -558,7 +565,9 @@
             <div class="text-3xl lg:text-4xl">
                 {$_('analysis.title', { locale: $lang })}
             </div>
-            <Button variant="outline" disabled={loading} on:click={load}>
+            <!-- wrapped, not passed by reference: load() takes an options
+                 object and a click handler would hand it a MouseEvent -->
+            <Button variant="outline" disabled={loading} on:click={() => load()}>
                 {#if loading}
                     <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                 {:else}
@@ -660,7 +669,7 @@
         {#if failed}
             <div class="flex flex-col items-center gap-4 py-12">
                 <p class="text-muted-foreground">{$_('analysis.loadError', { locale: $lang })}</p>
-                <Button variant="outline" disabled={loading} on:click={load}>
+                <Button variant="outline" disabled={loading} on:click={() => load()}>
                     <RotateCw class="mr-2 h-4 w-4"/>
                     {$_('analysis.reload', { locale: $lang })}
                 </Button>
