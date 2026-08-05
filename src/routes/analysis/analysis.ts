@@ -300,9 +300,9 @@ export function pickParam(v: string | null, allowed: string[]): string {
  *
  * Anything that is not a whole number ≥ 1 — absent, blank, "abc", "0", "-3",
  * "2.5" — reads as page 1 rather than producing a negative or fractional
- * Skip that zinc would reject. An out-of-RANGE page cannot be rejected here
- * (the total is only known after a fetch); it comes back as an empty ledger
- * page, the same as it did before the URL was involved.
+ * Skip that zinc would reject. An out-of-RANGE page cannot be caught here,
+ * because the total is only known after a fetch; {@link clampBoostSkip}
+ * handles it once the response lands.
  */
 export function boostSkipParam(raw: string | null | undefined, limit: number): number {
   if (!Number.isInteger(limit) || limit < 1) return 0;
