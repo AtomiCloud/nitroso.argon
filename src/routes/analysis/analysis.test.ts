@@ -36,7 +36,7 @@ function terminal(over: Partial<BookingTerminalPnlRowRes>): BookingTerminalPnlRo
     deposits: 0,
     paymentFees: 0,
     gwRate: 0,
-    completed: { count: 0, collected: 0, ktmbCost: 0 },
+    completed: { count: 0, collected: 0, ktmbCost: 0, withActual: 0 },
     terminated: { count: 0, kept: 0, ktmbCostNet: 0, withExactRefund: 0 },
     withdrawals: { count: 0, gross: 0, feeIncome: 0, payoutFees: 0 },
     ...over,

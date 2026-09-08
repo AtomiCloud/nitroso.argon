@@ -60,6 +60,8 @@ export type TerminalPnlRow = {
   completedCount: number;
   collected: number;
   ktmbCost: number;
+  /** completed bookings carrying a captured actual KTMB cost; the rest contribute 0 to ktmbCost */
+  withActual: number;
   terminatedCount: number;
   kept: number;
   ktmbCostNet: number;
@@ -80,6 +82,7 @@ export function toTerminalPnlRow(r: BookingTerminalPnlRowRes): TerminalPnlRow {
     completedCount: r.completed.count,
     collected: r.completed.collected,
     ktmbCost: r.completed.ktmbCost,
+    withActual: r.completed.withActual,
     terminatedCount: r.terminated.count,
     kept: r.terminated.kept,
     ktmbCostNet: r.terminated.ktmbCostNet,
@@ -100,6 +103,7 @@ function zeroTerminalPnlRow(month: string): TerminalPnlRow {
     completedCount: 0,
     collected: 0,
     ktmbCost: 0,
+    withActual: 0,
     terminatedCount: 0,
     kept: 0,
     ktmbCostNet: 0,
@@ -285,6 +289,7 @@ export function terminalTotals(rows: TerminalPnlRow[]): TerminalPnlTotals {
       completedCount: s.completedCount + r.completedCount,
       collected: s.collected + r.collected,
       ktmbCost: s.ktmbCost + r.ktmbCost,
+      withActual: s.withActual + r.withActual,
       terminatedCount: s.terminatedCount + r.terminatedCount,
       kept: s.kept + r.kept,
       ktmbCostNet: s.ktmbCostNet + r.ktmbCostNet,

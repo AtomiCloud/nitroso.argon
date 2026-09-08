@@ -39,6 +39,8 @@
         completedProfit,
         ebitda,
         estimatedRecoveryCount,
+        uncostedCompletedCount,
+        costCoverage,
         netAfterInfra,
         netAfterInfraTotals,
         pickParam,
@@ -217,6 +219,21 @@
             values: {
                 n: formatNumber(estimatedRecoveryCount(r), $lang),
                 m: formatNumber(r.terminatedCount, $lang),
+            },
+        });
+    }
+
+    // Completed bookings with no captured KTMB cost count as ZERO cost, not as
+    // an estimate — so any gap here inflates the month's profit outright. Same
+    // amber-asterisk affordance as the terminated-leg estimate marker, but on
+    // the completed column.
+    function uncostedTitle(r: Pick<TerminalPnlRow, 'completedCount' | 'withActual'>): string {
+        return $_('pnl.earned.uncostedNote', {
+            locale: $lang,
+            values: {
+                n: formatNumber(uncostedCompletedCount(r), $lang),
+                m: formatNumber(r.completedCount, $lang),
+                pct: `${(costCoverage(r) * 100).toFixed(1)}%`,
             },
         });
     }
@@ -467,8 +484,12 @@
                                                     </span>
                                                 </Table.Cell>
                                                 <Table.Cell class="px-2 py-1.5 text-right">
-                                                    <div class="flex flex-col items-end tabular-nums leading-tight">
-                                                        <span class="font-medium {deltaClass(completedProfit(r))}">{formatMoney(completedProfit(r), $lang)}</span>
+                                                    <div class="flex flex-col items-end tabular-nums leading-tight"
+                                                         title={uncostedCompletedCount(r) > 0 ? uncostedTitle(r) : ''}>
+                                                        <span class="font-medium {deltaClass(completedProfit(r))}">
+                                                            {formatMoney(completedProfit(r), $lang)}
+                                                            {#if uncostedCompletedCount(r) > 0}<span class="text-amber-600 dark:text-amber-400">*</span>{/if}
+                                                        </span>
                                                         <span class="text-xs text-muted-foreground">
                                                             {$_('pnl.detail', { locale: $lang, values: {
                                                                 count: formatNumber(r.completedCount, $lang),
@@ -585,8 +606,12 @@
                                                 </span>
                                             </Table.Cell>
                                             <Table.Cell class="px-2 py-1.5 text-right">
-                                                <div class="flex flex-col items-end tabular-nums leading-tight">
-                                                    <span class="font-semibold {deltaClass(terminalTotal.completedProfit)}">{formatMoney(terminalTotal.completedProfit, $lang)}</span>
+                                                <div class="flex flex-col items-end tabular-nums leading-tight"
+                                                     title={uncostedCompletedCount(terminalTotal) > 0 ? uncostedTitle(terminalTotal) : ''}>
+                                                    <span class="font-semibold {deltaClass(terminalTotal.completedProfit)}">
+                                                        {formatMoney(terminalTotal.completedProfit, $lang)}
+                                                        {#if uncostedCompletedCount(terminalTotal) > 0}<span class="text-amber-600 dark:text-amber-400">*</span>{/if}
+                                                    </span>
                                                     <span class="text-xs text-muted-foreground">
                                                         {$_('pnl.detail', { locale: $lang, values: {
                                                             count: formatNumber(terminalTotal.completedCount, $lang),
