@@ -4,6 +4,7 @@ import type { WithdrawalPrincipalRes } from '$lib/api/core/data-contracts';
 import {
   WITHDRAWAL_FETCH_LIMIT,
   WITHDRAWAL_PAGE_SIZE,
+  pageFromParam,
   paginateWithdrawals,
   totalPages,
   withdrawalMatchesSearch,
@@ -35,6 +36,48 @@ describe('WITHDRAWAL_PAGE_SIZE', () => {
   it('WITHDRAWAL_FETCH_LIMIT is a positive integer larger than PAGE_SIZE', () => {
     expect(WITHDRAWAL_FETCH_LIMIT).toBeGreaterThan(WITHDRAWAL_PAGE_SIZE);
     expect(Number.isInteger(WITHDRAWAL_FETCH_LIMIT)).toBe(true);
+  });
+});
+
+describe('pageFromParam', () => {
+  it('reads a well-formed page number', () => {
+    expect(pageFromParam('1')).toBe(1);
+    expect(pageFromParam('2')).toBe(2);
+    expect(pageFromParam('137')).toBe(137);
+  });
+
+  it('defaults to page 1 when the param is absent or blank', () => {
+    expect(pageFromParam(null)).toBe(1);
+    expect(pageFromParam(undefined)).toBe(1);
+    expect(pageFromParam('')).toBe(1);
+    expect(pageFromParam('   ')).toBe(1);
+  });
+
+  it('defaults to page 1 for non-positive and non-integer values', () => {
+    expect(pageFromParam('0')).toBe(1);
+    expect(pageFromParam('-3')).toBe(1);
+    expect(pageFromParam('1.5')).toBe(1);
+    expect(pageFromParam('Infinity')).toBe(1);
+    expect(pageFromParam('NaN')).toBe(1);
+  });
+
+  it('rejects partially-numeric junk rather than reading a prefix', () => {
+    // parseInt would have read "3abc" as 3; a page number is a whole
+    // number or it is nonsense.
+    expect(pageFromParam('3abc')).toBe(1);
+    expect(pageFromParam('abc')).toBe(1);
+    expect(pageFromParam('1e3')).toBe(1000); // Number() accepts exponent form
+  });
+
+  it('round-trips the page a deep link would carry', () => {
+    const url = new URL('https://x/withdrawals?status=Pending&page=4');
+    expect(pageFromParam(url.searchParams.get('page'))).toBe(4);
+  });
+
+  it('feeds paginateWithdrawals directly — a junk param shows page 1, not an empty list', () => {
+    const rows = Array.from({ length: 45 }, (_, i) => i);
+    const page = pageFromParam('garbage');
+    expect(paginateWithdrawals(rows, page, WITHDRAWAL_PAGE_SIZE)).toEqual(rows.slice(0, 20));
   });
 });
 
