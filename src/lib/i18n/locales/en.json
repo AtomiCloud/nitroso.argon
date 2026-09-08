@@ -2076,7 +2076,8 @@
       "infraNote": "Flat S$500 / month operating-cost estimate subtracted from EBITDA to reach Net. The totals row subtracts S$500 per month in the picked range, including zero-activity months.",
       "profitPctDash": "—",
       "profitPctHint": "Net profit margin: (EBITDA − monthly infra) ÷ gross recognized revenue (collected + kept + fee income). Em-dash when there was no recognized revenue that month.",
-      "estimateNote": "terminated KTMB recovery estimated at 50% for {n} of {m} bookings"
+      "estimateNote": "terminated KTMB recovery estimated at 50% for {n} of {m} bookings",
+      "uncostedNote": "no KTMB cost recorded for {n} of {m} completed bookings ({pct} covered) — those count as zero cost, so this month's cost is understated and its profit overstated"
     },
     "cash": {
       "title": "Cash view",

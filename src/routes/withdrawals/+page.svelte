@@ -37,6 +37,7 @@
     import {isCardRefund, cardRefundTitleI18nKey} from "$lib/components/entities/Withdrawals/withdrawal";
     import {
         WITHDRAWAL_PAGE_SIZE,
+        pageFromParam,
         paginateWithdrawals,
         totalPages as computeTotalPages,
         withdrawalMatchesSearch,
@@ -81,24 +82,35 @@
     let max = $page.url.searchParams.get("max");
 
     // Client-side search + pagination state. Search is applied to rows
-    // returned by the (server-side-filtered) load; pagination is purely
-    // client-side at WITHDRAWAL_PAGE_SIZE per page.
+    // returned by the (server-side-filtered) load; the rows are then sliced
+    // client-side at WITHDRAWAL_PAGE_SIZE per page. Which page is shown
+    // lives in the URL (?page=N) — see gotoPage below.
     let searchTerm = $page.url.searchParams.get("search") ?? "";
-    const rawPage = parseInt($page.url.searchParams.get("page") ?? "1", 10);
-    let currentPage: number = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+    let currentPage: number = pageFromParam($page.url.searchParams.get("page"));
 
     let status = $page.url.searchParams.get("status") ?? "";
 
     let withdrawStatus: Selected<string> | undefined = WITHDRAWAL_STATUS[status];
 
-    // Browser back/forward re-runs the load (the list refreshes) but the
-    // component is NOT remounted, so the init-time filter state above goes
-    // stale: the inputs/select/date-range keep showing the previous entry's
-    // values over the new entry's rows. Re-seed them from the URL. Guarded
-    // by comparing against our own triggerSearch() serialization so
-    // self-inflicted navigations no-op (same treatment as /partners, #300).
+    // Browser back/forward navigates but never remounts this component, so
+    // the init-time state above goes stale: the inputs/select/date-range
+    // (and the page number) keep showing the previous entry's values over
+    // the new entry's URL. Re-seed them from the URL. This is what makes
+    // Back walk the page trail — a page-only entry does not re-run the load
+    // at all (see gotoPage), so this hook is the ONLY thing that moves
+    // `currentPage` back. Guarded by comparing against our own
+    // triggerSearch() serialization so self-inflicted navigations no-op
+    // (same treatment as /partners, #300).
     afterNavigate(() => {
         const q = $page.url.searchParams;
+        // A pending debounce means the user is mid-keystroke and the URL is
+        // knowingly BEHIND the text inputs — re-seeding them from it would
+        // silently retype the old value under the cursor. Now that a page
+        // click is a real navigation, that window is reachable: type, then
+        // click Next inside 400ms. Leave the text alone and let the debounce
+        // land it (which resets to page 1, as any filter change does); the
+        // non-text state below is unaffected and still syncs.
+        const typing = searchDebounce !== undefined;
         const urlUserId = q.get("userId") ?? "";
         const urlCompleterId = q.get("completerId") ?? "";
         const urlWithdrawalId = q.get("id") ?? "";
@@ -108,14 +120,15 @@
         const urlStatus = q.get("status") ?? "";
         const urlAfter = q.get("after") || "";
         const urlBefore = q.get("before") || "";
-        if (urlUserId !== userId) userId = urlUserId;
-        if (urlCompleterId !== completerId) completerId = urlCompleterId;
-        if (urlWithdrawalId !== withdrawalId) withdrawalId = urlWithdrawalId;
-        if ((urlMin ?? "") !== (min ?? "")) min = urlMin;
-        if ((urlMax ?? "") !== (max ?? "")) max = urlMax;
-        if (urlSearch !== searchTerm) searchTerm = urlSearch;
-        const urlPageRaw = parseInt(q.get("page") ?? "1", 10);
-        const urlPage = Number.isFinite(urlPageRaw) && urlPageRaw > 0 ? urlPageRaw : 1;
+        if (!typing) {
+            if (urlUserId !== userId) userId = urlUserId;
+            if (urlCompleterId !== completerId) completerId = urlCompleterId;
+            if (urlWithdrawalId !== withdrawalId) withdrawalId = urlWithdrawalId;
+            if ((urlMin ?? "") !== (min ?? "")) min = urlMin;
+            if ((urlMax ?? "") !== (max ?? "")) max = urlMax;
+            if (urlSearch !== searchTerm) searchTerm = urlSearch;
+        }
+        const urlPage = pageFromParam(q.get("page"));
         if (urlPage !== currentPage) currentPage = urlPage;
         if (urlStatus !== (withdrawStatus?.value ?? "")) withdrawStatus = WITHDRAWAL_STATUS[urlStatus];
         const curAfter = toZincDate(dateFilter.start);
@@ -150,19 +163,31 @@
     }
 
 
-    // SERVER-side filter changes only: navigating re-runs the chunked load
-    // (the whole history re-downloads), so free-text search and pagination
-    // must never come through here — they are pure client state below.
-    // Text-input filters funnel through the debounced wrapper so a keystroke
-    // burst costs one reload, not one per key.
+    // Every filter funnels through here, so the URL is the single source of
+    // truth for the whole view and Back restores a coherent one.
+    //
+    // Only a change to one of the eight SERVER-side filter params re-runs the
+    // chunked load (re-downloading the history) — SvelteKit re-runs `load`
+    // only for the params it actually read, and `+page.ts` reads exactly
+    // those eight through `withdrawalFiltersFromUrl`. Changing `search` or
+    // `page` alone therefore navigates without refetching a single row.
+    // Text-input filters still funnel through the debounced wrapper so a
+    // keystroke burst costs one navigation, not one per key.
     let searchDebounce: ReturnType<typeof setTimeout> | undefined;
     function debouncedTriggerSearch() {
         clearTimeout(searchDebounce);
-        searchDebounce = setTimeout(triggerSearch, 400);
+        // The handle doubles as the "user is mid-keystroke" flag afterNavigate
+        // reads, so it must be cleared once it fires, not just on the next
+        // keystroke — a stale handle would freeze URL→input syncing for good.
+        searchDebounce = setTimeout(() => {
+            searchDebounce = undefined;
+            triggerSearch();
+        }, 400);
     }
 
     function triggerSearch() {
         clearTimeout(searchDebounce);
+        searchDebounce = undefined;
         currentPage = 1;
         // Filter/sort changes reset to page 1 — the page param is only
         // meaningful when the result set is otherwise unchanged.
@@ -187,12 +212,30 @@
             });
     }
 
-    // Pagination is pure client state: navigating would re-run the chunked
-    // load (re-downloading the whole history) AND this component would keep
-    // its stale init-time page. Deep links (?page=N) still seed the initial
-    // value above; the URL simply no longer tracks subsequent clicks.
+    // Page clicks navigate, so the page lands in the URL and Back returns to
+    // the page you came from instead of jumping to the start (#F102).
+    //
+    // This does NOT re-download the history, even though the load is the
+    // expensive chunked one. `+page.ts` reads the URL only through
+    // `withdrawalFiltersFromUrl(url)`, which touches exactly the eight
+    // server-side filter params via `searchParams.get()`. SvelteKit tracks
+    // `load`'s param reads individually and re-runs it only when a param it
+    // actually read has changed, so a navigation that moves `page` alone
+    // reuses the loaded rows and re-runs nothing. That fine-grained tracking
+    // is the whole reason this can be a real navigation — keep the loader
+    // off `page` (and off bare `url.href`/`url.search`, which would opt it
+    // back into tracking the entire URL).
+    //
+    // Copy the existing params rather than rebuilding them, so filters and
+    // search survive paging.
     function gotoPage(p: number) {
-        currentPage = Number.isFinite(p) && p > 0 ? Math.floor(p) : 1;
+        const params = new URLSearchParams($page.url.searchParams);
+        params.set("page", `${Number.isFinite(p) && p > 0 ? Math.floor(p) : 1}`);
+        // Default goto() PUSHES a history entry — that is what Back walks.
+        goto(`?${params.toString()}`, {
+            keepFocus: true,
+            noScroll: true,
+        });
     }
 
     const session: any = $page.data.session;
@@ -236,7 +279,7 @@
              number, or the row's amount as a string. Username / email
              are not searchable here because the list endpoint does not
              surface them on the row. -->
-        <Input placeholder={$_('withdrawals.list.searchPlaceholder', { locale: $lang })} bind:value={searchTerm} on:input={() => (currentPage = 1)}/>
+        <Input placeholder={$_('withdrawals.list.searchPlaceholder', { locale: $lang })} bind:value={searchTerm} on:input={debouncedTriggerSearch}/>
         {#if session?.roles?.includes("admin")}
             <Input placeholder={$_('withdrawals.list.filterById', { locale: $lang })} bind:value={withdrawalId} on:input={debouncedTriggerSearch}/>
             <Input placeholder={$_('withdrawals.list.filterByUserId', { locale: $lang })} bind:value={userId} on:input={debouncedTriggerSearch}/>
