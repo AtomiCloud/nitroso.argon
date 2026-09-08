@@ -54,6 +54,27 @@ export function estimatedRecoveryCount(r: Pick<TerminalPnlRow, 'terminatedCount'
 }
 
 /**
+ * Completed bookings with NO captured actual KTMB cost. These contribute
+ * ZERO to ktmbCost — zinc does not estimate them — so a month with any
+ * uncosted booking has an understated cost and an OVERSTATED profit.
+ *
+ * This is a harder warning than estimatedRecoveryCount: that one flags a
+ * figure computed from a 50% fallback, this one flags a figure computed
+ * from nothing at all. Sept 2026: August reported ~SGD 0.0009 of cost per
+ * ticket against a true fare of SGD 1.60-5.60, which would have overpaid
+ * each profit-share partner by about SGD 5,460.
+ */
+export function uncostedCompletedCount(r: Pick<TerminalPnlRow, 'completedCount' | 'withActual'>): number {
+  return Math.max(0, r.completedCount - r.withActual);
+}
+
+/** Fraction of completed bookings carrying a real KTMB cost, 0..1. */
+export function costCoverage(r: Pick<TerminalPnlRow, 'completedCount' | 'withActual'>): number {
+  if (r.completedCount <= 0) return 1;
+  return Math.min(1, Math.max(0, r.withActual / r.completedCount));
+}
+
+/**
  * Flat monthly infrastructure cost (SGD) subtracted from EBITDA to reach
  * the bottom-line Net. Manually-set estimate — when the real monthly infra
  * spend changes, bump this constant and re-deploy. Always burns, even in

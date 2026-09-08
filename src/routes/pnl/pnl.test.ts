@@ -4,8 +4,10 @@ import {
   INFRA_COST_MONTHLY,
   PNL_TABS,
   completedProfit,
+  costCoverage,
   ebitda,
   estimatedRecoveryCount,
+  uncostedCompletedCount,
   grossRevenue,
   monthSortKey,
   netAfterInfra,
@@ -30,7 +32,7 @@ function terminal(over: Partial<BookingTerminalPnlRowRes>): BookingTerminalPnlRo
     deposits: 0,
     paymentFees: 0,
     gwRate: 0,
-    completed: { count: 0, collected: 0, ktmbCost: 0 },
+    completed: { count: 0, collected: 0, ktmbCost: 0, withActual: 0 },
     terminated: { count: 0, kept: 0, ktmbCostNet: 0, withExactRefund: 0 },
     withdrawals: { count: 0, gross: 0, feeIncome: 0, payoutFees: 0 },
     ...over,
@@ -150,7 +152,7 @@ describe('ebitda', () => {
     const r = toTerminalPnlRow(
       terminal({
         gwRate: 0.03,
-        completed: { count: 10, collected: 1000, ktmbCost: 300 },
+        completed: { count: 10, collected: 1000, ktmbCost: 300, withActual: 10 },
         terminated: { count: 2, kept: 200, ktmbCostNet: 50, withExactRefund: 2 },
         withdrawals: { count: 5, gross: 340, feeIncome: 40, payoutFees: 8 },
       }),
@@ -168,6 +170,35 @@ describe('estimatedRecoveryCount', () => {
 
   it('never goes negative on a defective payload', () => {
     expect(estimatedRecoveryCount({ terminatedCount: 2, withExactRefund: 4 })).toBe(0);
+  });
+});
+
+describe('uncostedCompletedCount', () => {
+  it('counts completed bookings with no captured KTMB cost', () => {
+    expect(uncostedCompletedCount({ completedCount: 5265, withActual: 3 })).toBe(5262);
+    expect(uncostedCompletedCount({ completedCount: 10, withActual: 10 })).toBe(0);
+  });
+
+  it('never goes negative on a defective payload', () => {
+    expect(uncostedCompletedCount({ completedCount: 2, withActual: 4 })).toBe(0);
+  });
+});
+
+describe('costCoverage', () => {
+  it('reports the fraction of completed bookings carrying a real cost', () => {
+    expect(costCoverage({ completedCount: 200, withActual: 50 })).toBe(0.25);
+    expect(costCoverage({ completedCount: 10, withActual: 10 })).toBe(1);
+  });
+
+  it('treats a month with no completed bookings as fully covered', () => {
+    // Nothing to cost means nothing understated — the marker must stay off
+    // rather than divide by zero and render NaN%.
+    expect(costCoverage({ completedCount: 0, withActual: 0 })).toBe(1);
+  });
+
+  it('clamps a defective payload into 0..1', () => {
+    expect(costCoverage({ completedCount: 2, withActual: 4 })).toBe(1);
+    expect(costCoverage({ completedCount: 2, withActual: -1 })).toBe(0);
   });
 });
 
@@ -190,7 +221,7 @@ describe('terminalZeroFill', () => {
           deposits: 500,
           paymentFees: 15,
           gwRate: 0.03,
-          completed: { count: 4, collected: 400, ktmbCost: 100 },
+          completed: { count: 4, collected: 400, ktmbCost: 100, withActual: 4 },
           terminated: { count: 3, kept: 60, ktmbCostNet: 10, withExactRefund: 1 },
           withdrawals: { count: 2, gross: 80, feeIncome: 6, payoutFees: 2 },
         }),
@@ -207,6 +238,7 @@ describe('terminalZeroFill', () => {
         completedCount: 4,
         collected: 400,
         ktmbCost: 100,
+        withActual: 4,
         terminatedCount: 3,
         kept: 60,
         ktmbCostNet: 10,
@@ -244,7 +276,7 @@ describe('terminalTotals', () => {
         deposits: 1000,
         paymentFees: 30,
         gwRate: 0.03,
-        completed: { count: 10, collected: 800, ktmbCost: 200 },
+        completed: { count: 10, collected: 800, ktmbCost: 200, withActual: 10 },
         terminated: { count: 2, kept: 100, ktmbCostNet: 20, withExactRefund: 1 },
         withdrawals: { count: 3, gross: 300, feeIncome: 30, payoutFees: 6 },
       }),
@@ -253,7 +285,7 @@ describe('terminalTotals', () => {
         deposits: 500,
         paymentFees: 25,
         gwRate: 0.05,
-        completed: { count: 5, collected: 450, ktmbCost: 100 },
+        completed: { count: 5, collected: 450, ktmbCost: 100, withActual: 5 },
         terminated: { count: 1, kept: 50, ktmbCostNet: 10, withExactRefund: 1 },
         withdrawals: { count: 1, gross: 100, feeIncome: 10, payoutFees: 2 },
       }),
@@ -269,6 +301,7 @@ describe('terminalTotals', () => {
     expect(t.completedCount).toBe(15);
     expect(t.collected).toBe(1250);
     expect(t.ktmbCost).toBe(300);
+    expect(t.withActual).toBe(15);
     expect(t.terminatedCount).toBe(3);
     expect(t.kept).toBe(150);
     expect(t.ktmbCostNet).toBe(30);
@@ -471,7 +504,7 @@ describe('netAfterInfra', () => {
     const r = toTerminalPnlRow(
       terminal({
         gwRate: 0.03,
-        completed: { count: 10, collected: 1000, ktmbCost: 300 },
+        completed: { count: 10, collected: 1000, ktmbCost: 300, withActual: 10 },
         terminated: { count: 2, kept: 200, ktmbCostNet: 50, withExactRefund: 2 },
         withdrawals: { count: 5, gross: 340, feeIncome: 40, payoutFees: 8 },
       }),
@@ -483,7 +516,7 @@ describe('netAfterInfra', () => {
     const r = toTerminalPnlRow(
       terminal({
         gwRate: 0,
-        completed: { count: 1, collected: 100, ktmbCost: 50 },
+        completed: { count: 1, collected: 100, ktmbCost: 50, withActual: 1 },
       }),
     );
     // EBITDA = 100 − 50 − 0 = 50; net = 50 − 500 = −450
@@ -525,7 +558,7 @@ describe('netAfterInfraTotals', () => {
         deposits: 1000,
         paymentFees: 30,
         gwRate: 0.03,
-        completed: { count: 10, collected: 800, ktmbCost: 200 },
+        completed: { count: 10, collected: 800, ktmbCost: 200, withActual: 10 },
         terminated: { count: 2, kept: 100, ktmbCostNet: 20, withExactRefund: 1 },
         withdrawals: { count: 3, gross: 300, feeIncome: 30, payoutFees: 6 },
       }),
@@ -534,7 +567,7 @@ describe('netAfterInfraTotals', () => {
         deposits: 500,
         paymentFees: 25,
         gwRate: 0.05,
-        completed: { count: 5, collected: 450, ktmbCost: 100 },
+        completed: { count: 5, collected: 450, ktmbCost: 100, withActual: 5 },
         terminated: { count: 1, kept: 50, ktmbCostNet: 10, withExactRefund: 1 },
         withdrawals: { count: 1, gross: 100, feeIncome: 10, payoutFees: 2 },
       }),
@@ -576,7 +609,7 @@ describe('profitPctTotals', () => {
           deposits: 1000,
           paymentFees: 30,
           gwRate: 0.03,
-          completed: { count: 10, collected: 800, ktmbCost: 200 },
+          completed: { count: 10, collected: 800, ktmbCost: 200, withActual: 10 },
           terminated: { count: 2, kept: 100, ktmbCostNet: 20, withExactRefund: 1 },
           withdrawals: { count: 3, gross: 300, feeIncome: 30, payoutFees: 6 },
         }),
