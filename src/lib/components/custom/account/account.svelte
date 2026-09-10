@@ -104,6 +104,11 @@
                         {$_('account.partners', { locale: $lang })}
                     </DropdownMenu.Item>
                 </a>
+                <a href="/partners/invoices">
+                    <DropdownMenu.Item>
+                        {$_('account.invoices', { locale: $lang })}
+                    </DropdownMenu.Item>
+                </a>
             {/if}
             {/if}
             <DropdownMenu.Separator/>

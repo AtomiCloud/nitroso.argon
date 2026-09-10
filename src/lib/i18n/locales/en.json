@@ -26,6 +26,7 @@
     "stats": "Statistics",
     "analysis": "Analysis",
     "partners": "Partners",
+    "invoices": "Invoices",
     "pnl": "P&L"
   },
   "theme": {
@@ -1356,6 +1357,129 @@
       "withdrawalsGross": "Gross withdrawals",
       "withdrawalFeeIncome": "Withdrawal fee kept",
       "total": "Total"
+    }
+  },
+  "invoices": {
+    "title": "Partner invoices",
+    "reload": "Reload",
+    "month": "Month",
+    "monthHint": "Invoices are for a month that has closed.",
+    "blockedTitle": "This month cannot be invoiced yet",
+    "saveDraft": "Save draft",
+    "issue": "Issue",
+    "void": "Void",
+    "cancel": "Cancel",
+    "saved": "Draft saved",
+    "issued": "Invoice issued",
+    "voided": "Invoice voided",
+    "routes": {
+      "jbw": "JB → Woodlands",
+      "wjb": "Woodlands → JB"
+    },
+    "status": {
+      "draft": "Draft",
+      "issued": "Issued",
+      "void": "Void"
+    },
+    "blocked": {
+      "noInputs": "No figures were gathered for this month.",
+      "noTopups": "No KTMB card top-up posted this month, so there is no measured exchange rate to convert ticket fares at.",
+      "noTerms": "No commercial terms are in force. Set the profit share and infrastructure cost first.",
+      "noPartners": "No partners are on the agreement, so there is nobody to split the pool between.",
+      "noFare": "A route has tickets but no KTMB fare, which would report its whole ticket cost as profit.",
+      "noTickets": "No tickets were issued this month."
+    },
+    "errors": {
+      "inputs": "Could not load this month’s figures.",
+      "settings": "Could not load the commercial terms.",
+      "fares": "Could not load the current KTMB fares.",
+      "preview": "Could not compute this invoice.",
+      "save": "Could not save the draft.",
+      "issue": "Could not issue the invoice.",
+      "void": "Could not void the invoice.",
+      "list": "Could not load the stored invoices.",
+      "document": "Could not open the document."
+    },
+    "gathered": {
+      "title": "Gathered automatically",
+      "description": "Everything the system already knows about this month. Read-only.",
+      "none": "Nothing gathered for this month yet.",
+      "tickets": "Tickets",
+      "revenue": "Ticket revenue",
+      "deposits": "Gross deposits",
+      "fees": "Payment fees",
+      "topups": "KTMB top-ups",
+      "topupsHint": "What was loaded onto the KTMB card this month, and what it cost in SGD. The ratio is the rate every ticket fare is converted at.",
+      "fxRate": "Measured rate",
+      "withdrawals": "Withdrawals",
+      "infrastructure": "Infrastructure",
+      "colRoute": "Route",
+      "colTickets": "Tickets",
+      "colRevenue": "Revenue",
+      "colFare": "KTMB fare",
+      "fareHint": "The fare currently in force per direction, in ringgit. A missing fare blocks the invoice.",
+      "colTerminated": "Terminated",
+      "colBoosts": "Boosts (free)"
+    },
+    "manual": {
+      "title": "What only you know",
+      "description": "The handful of figures that live outside the system’s records. Leave them at zero if none apply.",
+      "seq": "Invoice number",
+      "issueDate": "Issue date (dd-mm-yyyy)",
+      "dueDate": "Due date (dd-mm-yyyy)",
+      "priorityKept": "Boost fees kept",
+      "priorityKeptHint": "Boost fees on bookings that were terminated rather than cancelled — the fee was kept rather than returned.",
+      "priorityKeptCount": "Boost fees kept (count)",
+      "netTransfers": "Net transfers",
+      "netTransfersHint": "Wallet movements made by hand this month. Negative when more went out than came in.",
+      "promotionalCount": "Promotional credits (count)",
+      "promotional": "Promotional credits",
+      "promotionalHint": "Marketing credits issued from the admin console.",
+      "duplicates": "Duplicate charges refunded",
+      "duplicatesHint": "Double-charges spotted and refunded outside the normal flow.",
+      "recovery": "Charge the partners for out-of-system sales",
+      "recoveryHint": "What the partners sold outside the system. Charged as an advance against their share, so their payable drops.",
+      "recoveryBoosts": "Free boosts sold ({rate} each)",
+      "recoveryTickets": "Tickets sold ({rate} each)"
+    },
+    "computed": {
+      "title": "What it comes to",
+      "description": "Computed by the server. Nothing is saved until you say so.",
+      "none": "Press Compute to see what this month comes to.",
+      "stale": "These figures were computed from different inputs. Compute again before saving or issuing.",
+      "preview": "Compute",
+      "tickets": "Tickets",
+      "revenue": "Revenue",
+      "netProfit": "Net profit",
+      "payable": "Total payable",
+      "payableHint": "The sum of what every partner is actually transferred, after any advance is deducted.",
+      "colPartner": "Partner",
+      "colEarned": "Earned",
+      "colAdvance": "Advance",
+      "advanceHint": "Deducted from their share — money they already took outside the system.",
+      "colAmount": "Payable",
+      "colDocument": "Document"
+    },
+    "stored": {
+      "title": "Issued and saved",
+      "description": "The record. An issued invoice never recomputes — it shows what was actually paid.",
+      "none": "No invoices stored yet.",
+      "colMonth": "Month",
+      "colStatus": "Status",
+      "colNetProfit": "Net profit",
+      "colPool": "Pool",
+      "colActions": "Documents",
+      "transcribed": "Transcribed",
+      "transcribedHint": "Recorded from a document issued before this system existed. The figures are the document’s, not this engine’s."
+    },
+    "issueConfirm": {
+      "title": "Issue this invoice?",
+      "body": "Issuing {month} freezes it at {amount}. The figures never recompute after this, so re-opening the month always shows what was actually paid. Withdrawing it later is a void with a reason, not a delete."
+    },
+    "voidConfirm": {
+      "title": "Void this invoice?",
+      "body": "The invoice stays on the record as void. A reason is required so nobody has to guess later why it was withdrawn.",
+      "reason": "Why is this being voided?"
     }
   },
   "withdrawals": {

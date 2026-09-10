@@ -26,6 +26,7 @@
     "stats": "Statistik",
     "analysis": "Analisis",
     "partners": "Rakan kongsi",
+    "invoices": "Invois",
     "pnl": "Untung Rugi"
   },
   "theme": {
@@ -1356,6 +1357,129 @@
       "withdrawalsGross": "Pengeluaran kasar",
       "withdrawalFeeIncome": "Yuran pengeluaran disimpan",
       "total": "Jumlah"
+    }
+  },
+  "invoices": {
+    "title": "Invois rakan kongsi",
+    "reload": "Muat semula",
+    "month": "Bulan",
+    "monthHint": "Invois hanya untuk bulan yang telah tamat.",
+    "blockedTitle": "Bulan ini belum boleh diinvois",
+    "saveDraft": "Simpan draf",
+    "issue": "Keluarkan",
+    "void": "Batalkan",
+    "cancel": "Batal",
+    "saved": "Draf disimpan",
+    "issued": "Invois dikeluarkan",
+    "voided": "Invois dibatalkan",
+    "routes": {
+      "jbw": "JB → Woodlands",
+      "wjb": "Woodlands → JB"
+    },
+    "status": {
+      "draft": "Draf",
+      "issued": "Dikeluarkan",
+      "void": "Dibatalkan"
+    },
+    "blocked": {
+      "noInputs": "Tiada angka dikumpulkan untuk bulan ini.",
+      "noTopups": "Tiada tambah nilai kad KTMB bulan ini, jadi tiada kadar tukaran sebenar untuk menukar tambang tiket.",
+      "noTerms": "Tiada terma komersial berkuat kuasa. Tetapkan pembahagian untung dan kos infrastruktur dahulu.",
+      "noPartners": "Tiada rakan kongsi dalam perjanjian, jadi tiada sesiapa untuk membahagikan untung.",
+      "noFare": "Satu laluan ada tiket tetapi tiada tambang KTMB, yang akan melaporkan seluruh kos tiket sebagai untung.",
+      "noTickets": "Tiada tiket dikeluarkan bulan ini."
+    },
+    "errors": {
+      "inputs": "Tidak dapat memuatkan angka bulan ini.",
+      "settings": "Tidak dapat memuatkan terma komersial.",
+      "fares": "Tidak dapat memuatkan tambang KTMB semasa.",
+      "preview": "Tidak dapat mengira invois ini.",
+      "save": "Tidak dapat menyimpan draf.",
+      "issue": "Tidak dapat mengeluarkan invois.",
+      "void": "Tidak dapat membatalkan invois.",
+      "list": "Tidak dapat memuatkan invois tersimpan.",
+      "document": "Tidak dapat membuka dokumen."
+    },
+    "gathered": {
+      "title": "Dikumpulkan secara automatik",
+      "description": "Segala yang sistem sudah tahu tentang bulan ini. Baca sahaja.",
+      "none": "Belum ada apa-apa dikumpulkan untuk bulan ini.",
+      "tickets": "Tiket",
+      "revenue": "Hasil tiket",
+      "deposits": "Jumlah deposit",
+      "fees": "Yuran pembayaran",
+      "topups": "Tambah nilai KTMB",
+      "topupsHint": "Jumlah yang dimuatkan ke kad KTMB bulan ini dan kosnya dalam SGD. Nisbahnya ialah kadar untuk menukar setiap tambang tiket.",
+      "fxRate": "Kadar sebenar",
+      "withdrawals": "Pengeluaran",
+      "infrastructure": "Infrastruktur",
+      "colRoute": "Laluan",
+      "colTickets": "Tiket",
+      "colRevenue": "Hasil",
+      "colFare": "Tambang KTMB",
+      "fareHint": "Tambang semasa bagi setiap arah, dalam ringgit. Tambang yang hilang menyekat invois.",
+      "colTerminated": "Ditamatkan",
+      "colBoosts": "Boost (percuma)"
+    },
+    "manual": {
+      "title": "Apa yang hanya anda tahu",
+      "description": "Beberapa angka yang berada di luar rekod sistem. Biarkan sifar jika tidak berkenaan.",
+      "seq": "Nombor invois",
+      "issueDate": "Tarikh dikeluarkan (hh-bb-tttt)",
+      "dueDate": "Tarikh akhir (hh-bb-tttt)",
+      "priorityKept": "Yuran boost dikekalkan",
+      "priorityKeptHint": "Yuran boost pada tempahan yang ditamatkan dan bukan dibatalkan — yurannya dikekalkan, bukan dipulangkan.",
+      "priorityKeptCount": "Yuran boost dikekalkan (bilangan)",
+      "netTransfers": "Pemindahan bersih",
+      "netTransfersHint": "Pergerakan dompet yang dibuat secara manual bulan ini. Negatif apabila keluar lebih daripada masuk.",
+      "promotionalCount": "Kredit promosi (bilangan)",
+      "promotional": "Kredit promosi",
+      "promotionalHint": "Kredit pemasaran yang dikeluarkan dari konsol admin.",
+      "duplicates": "Caj berganda dipulangkan",
+      "duplicatesHint": "Caj berganda yang dikesan dan dipulangkan di luar aliran biasa.",
+      "recovery": "Caj rakan kongsi bagi jualan di luar sistem",
+      "recoveryHint": "Apa yang rakan kongsi jual di luar sistem. Dicaj sebagai pendahuluan terhadap bahagian mereka, jadi jumlah kena bayar berkurang.",
+      "recoveryBoosts": "Boost percuma dijual ({rate} setiap satu)",
+      "recoveryTickets": "Tiket dijual ({rate} setiap satu)"
+    },
+    "computed": {
+      "title": "Jumlah akhirnya",
+      "description": "Dikira oleh pelayan. Tiada apa disimpan sehingga anda sahkan.",
+      "none": "Tekan Kira untuk melihat jumlah bulan ini.",
+      "stale": "Angka ini dikira daripada input yang berbeza. Kira semula sebelum menyimpan atau mengeluarkan.",
+      "preview": "Kira",
+      "tickets": "Tiket",
+      "revenue": "Hasil",
+      "netProfit": "Untung bersih",
+      "payable": "Jumlah kena bayar",
+      "payableHint": "Jumlah yang benar-benar dipindahkan kepada setiap rakan kongsi, selepas apa-apa pendahuluan ditolak.",
+      "colPartner": "Rakan kongsi",
+      "colEarned": "Diperoleh",
+      "colAdvance": "Pendahuluan",
+      "advanceHint": "Ditolak daripada bahagian mereka — wang yang sudah diambil di luar sistem.",
+      "colAmount": "Kena bayar",
+      "colDocument": "Dokumen"
+    },
+    "stored": {
+      "title": "Dikeluarkan dan disimpan",
+      "description": "Rekod rasmi. Invois yang dikeluarkan tidak dikira semula — ia menunjukkan apa yang benar-benar dibayar.",
+      "none": "Tiada invois tersimpan lagi.",
+      "colMonth": "Bulan",
+      "colStatus": "Status",
+      "colNetProfit": "Untung bersih",
+      "colPool": "Kumpulan untung",
+      "colActions": "Dokumen",
+      "transcribed": "Disalin",
+      "transcribedHint": "Direkodkan daripada dokumen yang dikeluarkan sebelum sistem ini wujud. Angkanya milik dokumen itu, bukan enjin ini."
+    },
+    "issueConfirm": {
+      "title": "Keluarkan invois ini?",
+      "body": "Mengeluarkan {month} membekukannya pada {amount}. Angkanya tidak akan dikira semula selepas ini, jadi membuka semula bulan itu sentiasa menunjukkan apa yang benar-benar dibayar. Menariknya balik kemudian ialah pembatalan berserta sebab, bukan pemadaman."
+    },
+    "voidConfirm": {
+      "title": "Batalkan invois ini?",
+      "body": "Invois kekal dalam rekod sebagai dibatalkan. Sebab diperlukan supaya tiada sesiapa perlu meneka nanti mengapa ia ditarik balik.",
+      "reason": "Mengapa ia dibatalkan?"
     }
   },
   "withdrawals": {
