@@ -310,7 +310,13 @@
     // here and handed over as an object URL.
     function present(blob: Blob) {
         const url = URL.createObjectURL(blob);
-        const opened = window.open(url, "_blank", "noopener");
+        // No "noopener" here, deliberately: for a _blank target it makes
+        // window.open return null even when the tab opened fine, so the null
+        // below would stop meaning "pop-up blocked" and every document would
+        // also start a download and revoke the URL out from under the new tab.
+        // The URL is a same-origin blob, so there is nothing for an opener
+        // reference to reach.
+        const opened = window.open(url, "_blank");
         if (opened == null) {
             // Pop-up blocked. Falling back to a download is better than
             // silently doing nothing, and reuses the tested helper.
@@ -444,9 +450,12 @@
         }
     }
 
-    onMount(() => {
-        load();
-        loadList();
+    // Serialised rather than run together: both paths call signIn() when the
+    // bearer is missing, and nothing dedupes concurrent sign-ins, so firing
+    // them in parallel races two redirects against each other on a cold load.
+    onMount(async () => {
+        await load();
+        if (ctx() != null) await loadList();
     });
 </script>
 

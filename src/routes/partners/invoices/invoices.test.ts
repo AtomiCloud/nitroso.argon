@@ -312,6 +312,62 @@ describe('assemblePreviewRequest', () => {
     });
     expect(noFare.routes.every(r => r.fareRm === 0)).toBe(true);
   });
+
+  it('coerces manual figures typed as text into numbers', () => {
+    // The shadcn Input forwards type="number" through $$restProps, so Svelte
+    // never applies its numeric coercion and every manual binding arrives
+    // here as a string. Left alone these reach the server as "1200", and a
+    // string in a money field is either a validation error or a wrong figure.
+    const typed = assemblePreviewRequest({
+      month: AUGUST,
+      inputs: AUGUST_INPUTS,
+      terms: TERMS,
+      fares: AUGUST_FARES,
+      manual: {
+        ...emptyManualInputs(AUGUST_INPUTS),
+        priorityKept: { amount: '470' as unknown as number, count: '47' as unknown as number },
+        netTransfers: '-55' as unknown as number,
+        promotional: { count: '3' as unknown as number, amount: '30.5' as unknown as number },
+        duplicates: { count: '2' as unknown as number, refunded: '20' as unknown as number },
+        recovery: { freeBoosts: '4' as unknown as number, tickets: '139' as unknown as number },
+      },
+      issueDate: '02-09-2026',
+      dueDate: '16-09-2026',
+      seq: '0801',
+    });
+
+    expect(typed.priority.keptOnCancelled).toBe(470);
+    expect(typed.priority.keptOnCancelledCount).toBe(47);
+    expect(typed.netTransfers).toBe(-55);
+    expect(typed.promotional).toEqual({ count: 3, amount: 30.5 });
+    expect(typed.duplicates).toEqual({ count: 2, refunded: 20 });
+    expect(typed.partnerRecovery?.freeBoosts).toBe(4);
+    expect(typed.partnerRecovery?.tickets).toBe(139);
+  });
+
+  it('reads an emptied box as zero rather than NaN', () => {
+    // Clearing a field leaves "" behind. Number("") is 0, but Number("-") --
+    // which exists for as long as it takes to type a negative -- is NaN, and
+    // NaN serialises to JSON null. The operator would get a validation error
+    // naming a field they cannot see.
+    const blanked = assemblePreviewRequest({
+      month: AUGUST,
+      inputs: AUGUST_INPUTS,
+      terms: TERMS,
+      fares: AUGUST_FARES,
+      manual: {
+        ...emptyManualInputs(AUGUST_INPUTS),
+        netTransfers: '' as unknown as number,
+        promotional: { count: '-' as unknown as number, amount: 'abc' as unknown as number },
+      },
+      issueDate: '02-09-2026',
+      dueDate: '16-09-2026',
+      seq: '0801',
+    });
+
+    expect(blanked.netTransfers).toBe(0);
+    expect(blanked.promotional).toEqual({ count: 0, amount: 0 });
+  });
 });
 
 describe('blockingReasons', () => {

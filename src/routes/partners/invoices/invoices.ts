@@ -402,6 +402,17 @@ export interface ManualInputs {
   recovery: { freeBoosts: number; tickets: number } | null;
 }
 
+/**
+ * A manual field as a number. Blank, "-" mid-typing and any other non-numeric
+ * text all become 0 rather than NaN: a NaN serialises to JSON `null`, which
+ * the server would reject with a validation error naming a field the operator
+ * cannot see, instead of simply treating an empty box as nothing entered.
+ */
+function num(v: unknown): number {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
 /** Nothing entered: every manual figure zero, coverage matching the tickets. */
 export function emptyManualInputs(inputs?: InvoiceInputRowRes | null): ManualInputs {
   const tickets = (inputs?.routes ?? []).reduce((a, r) => a + r.tickets, 0);
@@ -437,6 +448,13 @@ export interface AssembleArgs {
  * The one derived figure is halfFareSgd, which is an INPUT to the engine
  * (the engine is not told the FX rate directly, it is told the top-ups) and
  * has to be expressed in SGD before it crosses the wire.
+ *
+ * Manual figures are coerced through num() on the way out. The shadcn Input
+ * passes `type="number"` down via $$restProps, so Svelte cannot see it at
+ * compile time and never applies its own numeric coercion — the bindings
+ * arrive here as strings. Untouched, "1200" would reach a numeric field and
+ * the server would reject the request, or worse, a "+" concatenation
+ * somewhere downstream would silently produce a wrong figure.
  */
 export function assemblePreviewRequest(a: AssembleArgs): PreviewInvoiceReq {
   const rate = fxRate(a.inputs.topups);
@@ -488,11 +506,14 @@ export function assemblePreviewRequest(a: AssembleArgs): PreviewInvoiceReq {
       perRoute: Object.fromEntries(
         a.inputs.routes.map(r => [r.key, { paid: r.priority.paid, fee: r.priority.fee, free: r.priority.free }]),
       ),
-      keptOnCancelled: a.manual.priorityKept.amount,
-      keptOnCancelledCount: a.manual.priorityKept.count,
+      keptOnCancelled: num(a.manual.priorityKept.amount),
+      keptOnCancelledCount: num(a.manual.priorityKept.count),
     },
     surcharge: {
-      coverage: a.manual.surchargeCoverage,
+      coverage: {
+        withBreakdown: num(a.manual.surchargeCoverage.withBreakdown),
+        total: num(a.manual.surchargeCoverage.total),
+      },
       perRoute: a.manual.surchargeLines,
     },
     withdrawalFee: {
@@ -500,15 +521,21 @@ export function assemblePreviewRequest(a: AssembleArgs): PreviewInvoiceReq {
       withFee: a.inputs.withdrawals.withFee,
       count: a.inputs.withdrawals.count,
     },
-    promotional: a.manual.promotional,
-    netTransfers: a.manual.netTransfers,
-    duplicates: a.manual.duplicates,
+    promotional: {
+      count: num(a.manual.promotional.count),
+      amount: num(a.manual.promotional.amount),
+    },
+    netTransfers: num(a.manual.netTransfers),
+    duplicates: {
+      count: num(a.manual.duplicates.count),
+      refunded: num(a.manual.duplicates.refunded),
+    },
     partnerRecovery:
       a.manual.recovery == null
         ? null
         : {
-            freeBoosts: a.manual.recovery.freeBoosts,
-            tickets: a.manual.recovery.tickets,
+            freeBoosts: num(a.manual.recovery.freeBoosts),
+            tickets: num(a.manual.recovery.tickets),
             perBoost: a.terms.recoveryPerBoost,
             perTicket: a.terms.recoveryPerTicket,
           },
