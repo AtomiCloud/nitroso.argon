@@ -155,7 +155,15 @@ export interface InvoiceComputedRes {
     infrastructure: number;
   };
   ancillary: {
-    priority: { gross: number; feeCost: number; net: number; paid: number; free: number; kept: number; keptCount: number };
+    priority: {
+      gross: number;
+      feeCost: number;
+      net: number;
+      paid: number;
+      free: number;
+      kept: number;
+      keptCount: number;
+    };
     surcharge: {
       gross: number;
       discounts: number;

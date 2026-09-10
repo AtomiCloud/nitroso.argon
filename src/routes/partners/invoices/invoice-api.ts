@@ -157,7 +157,11 @@ export interface SaveDraftReq {
 }
 
 /** Save (replacing) the draft for a month. Nothing is issued by this. */
-export function saveDraft(ctx: ApiContext, req: SaveDraftReq, fallback: string): Promise<ApiResult<InvoiceDocumentRes>> {
+export function saveDraft(
+  ctx: ApiContext,
+  req: SaveDraftReq,
+  fallback: string,
+): Promise<ApiResult<InvoiceDocumentRes>> {
   return call(ctx, '/drafts', fallback, { method: 'POST', body: JSON.stringify(req) });
 }
 

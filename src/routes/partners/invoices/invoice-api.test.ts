@@ -119,7 +119,10 @@ describe('failures', () => {
 
   it('surfaces the servers reason on a rejected request', async () => {
     const { ctx: c } = ctx(
-      json({ type: 't', title: 'Conflict', status: 409, detail: 'tickets attested 5625 but computes to 5265' }, { status: 409 }),
+      json(
+        { type: 't', title: 'Conflict', status: 409, detail: 'tickets attested 5625 but computes to 5265' },
+        { status: 409 },
+      ),
     );
     const r = await preview(c, {} as PreviewInvoiceReq, 'failed');
     expect(r).toEqual({ ok: false, message: 'tickets attested 5625 but computes to 5265' });
@@ -156,7 +159,9 @@ describe('openStoredDocument', () => {
   // partnership that month. It must reach the operator, not open a blank tab.
   it('does not present anything when the document is missing', async () => {
     const present = vi.fn();
-    const { ctx: c } = ctx(json({ type: 't', title: 'Not Found', status: 404, detail: "no partner with suffix 'X'" }, { status: 404 }));
+    const { ctx: c } = ctx(
+      json({ type: 't', title: 'Not Found', status: 404, detail: "no partner with suffix 'X'" }, { status: 404 }),
+    );
 
     const r = await openStoredDocument(c, 'inv-1', 'X', 'failed', present);
 

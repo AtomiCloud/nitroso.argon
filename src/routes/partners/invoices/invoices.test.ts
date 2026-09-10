@@ -333,10 +333,7 @@ describe('blockingReasons', () => {
   it('ignores a missing fare on a route that sold nothing', () => {
     const quiet: InvoiceInputRowRes = {
       ...AUGUST_INPUTS,
-      routes: [
-        AUGUST_INPUTS.routes[0],
-        { ...AUGUST_INPUTS.routes[1], tickets: 0, revenue: 0 },
-      ],
+      routes: [AUGUST_INPUTS.routes[0], { ...AUGUST_INPUTS.routes[1], tickets: 0, revenue: 0 }],
     };
     expect(blockingReasons(quiet, TERMS, { jbw: 5 })).toEqual([]);
   });
@@ -375,8 +372,24 @@ describe('payableTotal', () => {
     const computed = {
       result: {
         shares: [
-          { name: 'CLEON', suffix: 'C', roundingPreference: 'down', pct: 25, earned: 9367.88, advance: 208.5, amount: 9159.38 },
-          { name: 'ZOEY', suffix: 'Z', roundingPreference: 'up', pct: 25, earned: 9367.88, advance: 208.5, amount: 9159.38 },
+          {
+            name: 'CLEON',
+            suffix: 'C',
+            roundingPreference: 'down',
+            pct: 25,
+            earned: 9367.88,
+            advance: 208.5,
+            amount: 9159.38,
+          },
+          {
+            name: 'ZOEY',
+            suffix: 'Z',
+            roundingPreference: 'up',
+            pct: 25,
+            earned: 9367.88,
+            advance: 208.5,
+            amount: 9159.38,
+          },
         ],
       },
     } as InvoiceComputedRes;
