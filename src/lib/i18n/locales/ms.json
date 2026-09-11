@@ -2076,7 +2076,8 @@
       "infraNote": "Anggaran kos operasi tetap S$500 / bulan ditolak daripada EBITDA untuk mencapai Bersih. Baris jumlah menolak S$500 setiap bulan dalam julat dipilih, termasuk bulan tanpa aktiviti.",
       "profitPctDash": "—",
       "profitPctHint": "Margin untung bersih: (EBITDA − infrastruktur bulanan) ÷ hasil kasar yang diiktiraf (dikutip + disimpan + hasil fi). Tanda empuk apabila tiada hasil yang diiktiraf pada bulan itu.",
-      "estimateNote": "pemulihan KTMB tempahan ditamatkan dianggarkan pada 50% untuk {n} daripada {m} tempahan"
+      "estimateNote": "pemulihan KTMB tempahan ditamatkan dianggarkan pada 50% untuk {n} daripada {m} tempahan",
+      "uncostedNote": "tiada kos KTMB direkodkan bagi {n} daripada {m} tempahan selesai (liputan {pct}) — kos itu dikira sifar, jadi kos bulan ini terkurang nyata dan untungnya terlebih nyata"
     },
     "cash": {
       "title": "Pandangan tunai",

@@ -46,10 +46,12 @@
     import {
         ANALYSIS_TABS,
         PROFIT_QUARTERS,
+        boostSkipParam,
         boostView,
         cellCostIncomplete,
         cellNet,
         cellProfit,
+        clampBoostSkip,
         daysPresent,
         dayProfitNet,
         groupByDay,
@@ -84,11 +86,11 @@
     //   Boosts    the paginated boost ledger (admin grants highlighted)
     //   Payments  the captured-payments evidence list (moved from the old
     //             single-page layout)
-    // The active tab and every global filter are mirrored into the URL query
-    // string (tab/from/to/dir/day, defaults omitted; tab switches PUSH
-    // history, filter changes replace) so back / refresh / share reproduce
-    // the exact view. Mobile: everything wraps — no horizontal scrolling
-    // outside tables.
+    // The active tab, every global filter and the boost ledger's page are
+    // mirrored into the URL query string (tab/from/to/dir/day/boost, defaults
+    // omitted; tab switches and boost paging PUSH history, filter changes
+    // replace) so back / refresh / share reproduce the exact view. Mobile:
+    // everything wraps — no horizontal scrolling outside tables.
 
     // zinc's standard API date format, dd-MM-yyyy — CalendarDate.toString()
     // is ISO and gets rejected with a 400
@@ -135,7 +137,11 @@
     // slower response repaints the page under the newer pickers
     let loadToken = 0;
 
-    async function load() {
+    // `keepBoostPage` is set by the initial mount, where the URL has just
+    // seeded a `?boost=N` deep link that the reset below would otherwise
+    // throw away before the first render. Every other caller is a RANGE
+    // change, which genuinely does restart the ledger at page 1.
+    async function load({keepBoostPage = false}: {keepBoostPage?: boolean} = {}) {
         const myToken = ++loadToken;
         loading = true;
         const range = rangeQuery();
@@ -165,8 +171,9 @@
         failed = a == null;
         loading = false;
         // the boost ledger follows the same range; a new range restarts its
-        // pagination from the first page
-        boostSkip = 0;
+        // pagination from the first page — except on the initial mount, where
+        // the URL may carry a deep-linked page that must survive
+        if (!keepBoostPage) boostSkip = 0;
         loadBoosts();
         // the profit-by-travel-day grid fetches independently — it groups
         // by travel date (NOT completion date), so it tolerates its own
@@ -261,6 +268,18 @@
                 if (myToken !== boostToken) return;
                 boosts = r.items;
                 boostTotal = r.total;
+                // `?boost=N` is validated for SHAPE on the way in, but the
+                // total is only known now — so an out-of-range deep link
+                // (or a link shared before rows aged out of the range) lands
+                // on an empty page. That is a dead end: the empty-ledger
+                // branch hides the pager, leaving no control to get back in
+                // range. Clamp to the last real page and refetch; the URL
+                // sync then replaces the bad `boost` value.
+                const clamped = clampBoostSkip(boostSkip, r.total, BOOST_LIMIT);
+                if (clamped !== boostSkip) {
+                    boostSkip = clamped;
+                    loadBoosts();
+                }
             },
             err: (e) => {
                 if (myToken !== boostToken) return;
@@ -271,10 +290,20 @@
         if (myToken === boostToken) boostsLoading = false;
     }
 
+    // Paging fetches the new page AND mirrors it into the URL as `boost`, so
+    // Back returns to the page you came from rather than the start (#F102).
+    // The flag makes the sync below PUSH a history entry — the same treatment
+    // the tab switcher gets; every other filter change still replaces.
+    //
+    // The fetch is issued here rather than left to onUrlChange: after the
+    // sync, the URL and the local state agree, so onUrlChange correctly
+    // no-ops. It only fetches on the Back/Forward + deep-link path, where
+    // they disagree.
     function boostPage(delta: number) {
         const next = boostSkip + delta * BOOST_LIMIT;
         if (next < 0 || next >= boostTotal) return;
         boostSkip = next;
+        pushBoostPage = true;
         loadBoosts();
     }
 
@@ -475,6 +504,7 @@
         before = urlDate(q.get("to")) ?? fromApiDate(defBeforeStr) ?? undefined;
         selDirection = selOf(pickParam(q.get("dir"), DIRECTIONS));
         day = urlDayParam(q.get("day"));
+        boostSkip = boostSkipParam(q.get("boost"), BOOST_LIMIT);
     }
 
     function serializeUrl(): string {
@@ -486,15 +516,24 @@
         if (b && b !== defBeforeStr) q.set("to", b);
         if (selDirection?.value) q.set("dir", selDirection.value);
         if (day !== "") q.set("day", day);
+        // 1-indexed in the URL: `boost=2` reads better in a shared link than
+        // the internal `boostSkip=50`. Page 1 is the default and stays out.
+        if (boostSkip > 0) q.set("boost", `${boostSkip / BOOST_LIMIT + 1}`);
         return q.toString();
     }
 
-    $: if (urlReady) syncUrl(tab, after, before, selDirection, day);
+    // Set by boostPage() so the next sync PUSHES instead of replacing —
+    // paging is a navigation the user expects Back to undo, like a tab
+    // switch. Every other filter change still replaces.
+    let pushBoostPage = false;
+
+    $: if (urlReady) syncUrl(tab, after, before, selDirection, day, boostSkip);
 
     function syncUrl(..._deps: unknown[]) {
         const search = serializeUrl();
-        const push = tab !== lastTab;
+        const push = tab !== lastTab || pushBoostPage;
         lastTab = tab;
+        pushBoostPage = false;
         if (search === $page.url.searchParams.toString()) return;
         goto(`${$page.url.pathname}${search ? `?${search}` : ""}`,
             {replaceState: !push, keepFocus: true, noScroll: true});
@@ -506,16 +545,30 @@
         if (u.searchParams.toString() === serializeUrl()) return;
         const prevA = after == null ? "" : toApiDate(after);
         const prevB = before == null ? "" : toApiDate(before);
+        const prevSkip = boostSkip;
         applyUrl(u.searchParams);
         const nextA = after == null ? "" : toApiDate(after);
         const nextB = before == null ? "" : toApiDate(before);
-        if (nextA !== prevA || nextB !== prevB) load();
+        if (nextA !== prevA || nextB !== prevB) {
+            // A new range restarts boost pagination (load() resets the skip
+            // and refetches), so do not also fire loadBoosts for the skip
+            // change it is about to make itself.
+            load();
+            return;
+        }
+        // Back/Forward across a boost page, or a deep link — the ledger is
+        // server-paged, so a new skip needs its own fetch. This is also the
+        // path a boostPage() click takes: it moves boostSkip, the sync writes
+        // the URL, and the fetch happens here.
+        if (boostSkip !== prevSkip) loadBoosts();
     }
 
     onMount(async () => {
         applyUrl($page.url.searchParams);
         urlReady = true;
-        await load();
+        // applyUrl just seeded boostSkip from `?boost=N`; keep it rather than
+        // letting the range-change reset drop a shared link back to page 1.
+        await load({keepBoostPage: true});
     });
 </script>
 
@@ -525,7 +578,9 @@
             <div class="text-3xl lg:text-4xl">
                 {$_('analysis.title', { locale: $lang })}
             </div>
-            <Button variant="outline" disabled={loading} on:click={load}>
+            <!-- wrapped, not passed by reference: load() takes an options
+                 object and a click handler would hand it a MouseEvent -->
+            <Button variant="outline" disabled={loading} on:click={() => load()}>
                 {#if loading}
                     <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                 {:else}
@@ -627,7 +682,7 @@
         {#if failed}
             <div class="flex flex-col items-center gap-4 py-12">
                 <p class="text-muted-foreground">{$_('analysis.loadError', { locale: $lang })}</p>
-                <Button variant="outline" disabled={loading} on:click={load}>
+                <Button variant="outline" disabled={loading} on:click={() => load()}>
                     <RotateCw class="mr-2 h-4 w-4"/>
                     {$_('analysis.reload', { locale: $lang })}
                 </Button>

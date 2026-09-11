@@ -617,6 +617,10 @@ export interface BookingAnalysisPnlRowRes {
  * the completed-bookings leg of one terminal P&L month: bookings whose
  * money reached the "completed" terminal state, the SGD collected for them
  * and the KTMB cost of delivering them.
+ * withActual counts bookings carrying a captured actual KTMB cost. Bookings
+ * without one contribute ZERO to ktmbCost — they are not estimated — so a
+ * month where withActual < count has an UNDERSTATED cost and an overstated
+ * profit. Mirrors withExactRefund on the terminated leg.
  */
 export interface BookingTerminalPnlCompletedRes {
   /** @format int32 */
@@ -625,6 +629,8 @@ export interface BookingTerminalPnlCompletedRes {
   collected: number;
   /** @format double */
   ktmbCost: number;
+  /** @format int32 */
+  withActual: number;
 }
 
 /**
