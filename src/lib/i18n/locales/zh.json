@@ -26,6 +26,7 @@
     "stats": "统计",
     "analysis": "销售分析",
     "partners": "合作伙伴",
+    "invoices": "账单",
     "pnl": "损益"
   },
   "theme": {
@@ -1356,6 +1357,129 @@
       "withdrawalsGross": "提款毛额",
       "withdrawalFeeIncome": "保留的提款手续费",
       "total": "合计"
+    }
+  },
+  "invoices": {
+    "title": "合作伙伴账单",
+    "reload": "重新加载",
+    "month": "月份",
+    "monthHint": "账单只针对已结束的月份。",
+    "blockedTitle": "本月暂时无法开具账单",
+    "saveDraft": "保存草稿",
+    "issue": "开具",
+    "void": "作废",
+    "cancel": "取消",
+    "saved": "草稿已保存",
+    "issued": "账单已开具",
+    "voided": "账单已作废",
+    "routes": {
+      "jbw": "新山 → 兀兰",
+      "wjb": "兀兰 → 新山"
+    },
+    "status": {
+      "draft": "草稿",
+      "issued": "已开具",
+      "void": "已作废"
+    },
+    "blocked": {
+      "noInputs": "本月没有采集到任何数据。",
+      "noTopups": "本月没有 KTMB 卡充值记录，因此没有可用于换算车票成本的实际汇率。",
+      "noTerms": "尚未设定商业条款。请先设定利润分成与基础设施成本。",
+      "noPartners": "协议中没有合作伙伴，无法分配利润。",
+      "noFare": "某条线路有车票但没有 KTMB 票价，这会把整笔车票成本算成利润。",
+      "noTickets": "本月没有出票。"
+    },
+    "errors": {
+      "inputs": "无法加载本月数据。",
+      "settings": "无法加载商业条款。",
+      "fares": "无法加载当前的 KTMB 票价。",
+      "preview": "无法计算此账单。",
+      "save": "无法保存草稿。",
+      "issue": "无法开具账单。",
+      "void": "无法作废账单。",
+      "list": "无法加载已存账单。",
+      "document": "无法打开文件。"
+    },
+    "gathered": {
+      "title": "系统自动采集",
+      "description": "系统已掌握的本月全部数据，只读。",
+      "none": "本月尚未采集到数据。",
+      "tickets": "车票数",
+      "revenue": "车票收入",
+      "deposits": "总充值",
+      "fees": "支付手续费",
+      "topups": "KTMB 充值",
+      "topupsHint": "本月充入 KTMB 卡的金额及其新币成本。两者之比即为换算全部票价所用的汇率。",
+      "fxRate": "实际汇率",
+      "withdrawals": "提现",
+      "infrastructure": "基础设施",
+      "colRoute": "线路",
+      "colTickets": "车票数",
+      "colRevenue": "收入",
+      "colFare": "KTMB 票价",
+      "fareHint": "当前各方向生效的票价，以令吉计。缺少票价将无法开具账单。",
+      "colTerminated": "已终止",
+      "colBoosts": "加速（免费）"
+    },
+    "manual": {
+      "title": "只有你知道的部分",
+      "description": "少数存在于系统记录之外的数据。若不适用，保持为零即可。",
+      "seq": "账单编号",
+      "issueDate": "开具日期（日-月-年）",
+      "dueDate": "到期日期（日-月-年）",
+      "priorityKept": "已留存的加速费",
+      "priorityKeptHint": "被终止（而非取消）的订单上的加速费——该费用已留存而未退还。",
+      "priorityKeptCount": "已留存的加速费（笔数）",
+      "netTransfers": "净转账",
+      "netTransfersHint": "本月手动进行的钱包资金变动。流出多于流入时为负数。",
+      "promotionalCount": "推广额度（笔数）",
+      "promotional": "推广额度",
+      "promotionalHint": "通过管理后台发放的营销额度。",
+      "duplicates": "重复扣款退款",
+      "duplicatesHint": "在常规流程之外发现并退还的重复扣款。",
+      "recovery": "就系统外销售向合作伙伴收费",
+      "recoveryHint": "合作伙伴在系统外售出的部分。作为其分成的预支扣除，因此应付金额会下降。",
+      "recoveryBoosts": "售出的免费加速（每笔 {rate}）",
+      "recoveryTickets": "售出的车票（每张 {rate}）"
+    },
+    "computed": {
+      "title": "计算结果",
+      "description": "由服务器计算。在你确认之前不会保存任何内容。",
+      "none": "点击「计算」查看本月结果。",
+      "stale": "这些数字是根据不同的输入计算的。请重新计算后再保存或开具。",
+      "preview": "计算",
+      "tickets": "车票数",
+      "revenue": "收入",
+      "netProfit": "净利润",
+      "payable": "应付总额",
+      "payableHint": "扣除预支后，实际转给每位合作伙伴的金额总和。",
+      "colPartner": "合作伙伴",
+      "colEarned": "应得",
+      "colAdvance": "预支",
+      "advanceHint": "从其分成中扣除——已在系统外取走的金额。",
+      "colAmount": "应付",
+      "colDocument": "文件"
+    },
+    "stored": {
+      "title": "已开具与已保存",
+      "description": "正式记录。已开具的账单不会重新计算，显示的就是实际支付的金额。",
+      "none": "尚无已存账单。",
+      "colMonth": "月份",
+      "colStatus": "状态",
+      "colNetProfit": "净利润",
+      "colPool": "利润池",
+      "colActions": "文件",
+      "transcribed": "誊录",
+      "transcribedHint": "根据本系统建立之前开具的文件录入。数字来自该文件，而非本系统的计算。"
+    },
+    "issueConfirm": {
+      "title": "确认开具此账单？",
+      "body": "开具 {month} 将把金额锁定为 {amount}。此后数字不再重新计算，因此再次查看该月份时始终显示实际支付的金额。之后要撤回只能作废并注明原因，无法删除。"
+    },
+    "voidConfirm": {
+      "title": "确认作废此账单？",
+      "body": "该账单将以作废状态保留在记录中。必须填写原因，以免日后无从得知为何撤回。",
+      "reason": "作废原因是什么？"
     }
   },
   "withdrawals": {
