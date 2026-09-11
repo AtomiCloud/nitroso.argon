@@ -728,7 +728,7 @@
                         {$_('landing.faq.bb.q8.question', { locale: $lang })}
                     </Accordion.Trigger>
                     <Accordion.Content>
-                        {$_('landing.faq.bb.q8.answerBefore', { locale: $lang })} <b class="font-semibold">100%</b>{$_('landing.faq.bb.q8.answerAfter', { locale: $lang })}
+                        {$_('landing.faq.bb.q8.answerBefore', { locale: $lang })} <b class="font-semibold">99%</b>{$_('landing.faq.bb.q8.answerAfter', { locale: $lang })}
                     </Accordion.Content>
                 </Accordion.Item>
 
