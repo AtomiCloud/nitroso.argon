@@ -1571,6 +1571,7 @@
       "refundId": "Bayaran balik",
       "settledAt": "Diselesaikan {at}",
       "copied": "Disalin ke papan keratan",
+      "lastError": "Penciptaan bayaran balik gagal untuk bahagian ini: {message}",
       "status": {
         "Created": "Menunggu",
         "Settled": "Diselesaikan",
@@ -1698,6 +1699,7 @@
       "description": "Pembayaran automatik tidak dapat disahkan selepas semakan berulang ({attempts} percubaan penyesuaian). Sila sahkan pemindahan di papan pemuka Airwallex sebelum mengambil sebarang tindakan.",
       "confirmationLine": "No. pengesahan Airwallex:",
       "noConfirmation": "Tiada nombor pengesahan direkodkan — pembayaran berkemungkinan besar tidak pernah keluar dari Airwallex.",
+      "sliceErrors": "Penciptaan bayaran balik gagal untuk {count} bahagian bayaran balik — lihat sebab pada setiap bahagian di atas dalam Bukti bayaran balik.",
       "chooseAction": "Jika wang telah keluar dari Airwallex, selesaikan secara paksa. Jika tiada pemindahan wujud, tolak & pulangkan wang kepada pengguna, atau beratur semula untuk mencuba semula pembayaran automatik.",
       "reject": "Tolak & pulangkan wang",
       "forceComplete": {

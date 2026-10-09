@@ -9,9 +9,12 @@ import {
   methodAvailability,
   REFUND_STATUS_BADGE,
   shortenId,
+  sliceError,
+  sliceErrors,
   toCreateWithdrawalReq,
   type WithdrawalMethod,
 } from './withdrawal';
+import type { WithdrawalRefundRes } from '$lib/api/core/data-contracts';
 
 // Importing the schema factory pulls in `$lib/i18n`, which registers the
 // en/zh/ms catalogs and runs svelte-i18n `init` at module load. Warm all three
@@ -241,5 +244,58 @@ describe('cardRefundTitleI18nKey', () => {
     expect(cardRefundTitleI18nKey('SomethingNew')).toBe('withdrawals.card.amountToCardPending');
     expect(cardRefundTitleI18nKey(null)).toBe('withdrawals.card.amountToCardPending');
     expect(cardRefundTitleI18nKey(undefined)).toBe('withdrawals.card.amountToCardPending');
+  });
+});
+
+describe('sliceError', () => {
+  it('returns the trimmed message when one is recorded', () => {
+    expect(sliceError({ lastError: '  card_expired: The card has expired  ' })).toBe(
+      'card_expired: The card has expired',
+    );
+  });
+
+  it('returns null for null / undefined / blank messages', () => {
+    expect(sliceError({ lastError: null })).toBeNull();
+    expect(sliceError({ lastError: undefined })).toBeNull();
+    expect(sliceError({})).toBeNull();
+    expect(sliceError({ lastError: '   ' })).toBeNull();
+  });
+});
+
+describe('sliceErrors', () => {
+  const slice = (paymentIntentId: string, lastError?: string | null): WithdrawalRefundRes => ({
+    paymentIntentId,
+    amount: 10,
+    status: 'Failed',
+    createdAt: '2026-10-01T00:00:00Z',
+    lastError,
+  });
+  const card = { record: { method: 'CardRefund' } };
+
+  it('lists only the slices with a rejection message, in fragment order', () => {
+    expect(
+      sliceErrors({
+        principal: card,
+        refunds: [slice('int_a', 'insufficient balance'), slice('int_b', null), slice('int_c', 'card_expired')],
+      }),
+    ).toEqual([
+      { paymentIntentId: 'int_a', message: 'insufficient balance' },
+      { paymentIntentId: 'int_c', message: 'card_expired' },
+    ]);
+  });
+
+  it('is empty when no slice carries a message', () => {
+    expect(sliceErrors({ principal: card, refunds: [slice('int_a'), slice('int_b', '  ')] })).toEqual([]);
+  });
+
+  it('is empty for missing refunds (pre-#36 responses)', () => {
+    expect(sliceErrors({ principal: card, refunds: undefined })).toEqual([]);
+    expect(sliceErrors({ principal: card, refunds: null })).toEqual([]);
+  });
+
+  it('is always empty for PayNow withdrawals, even with stray slice errors', () => {
+    expect(sliceErrors({ principal: { record: { method: 'PayNow' } }, refunds: [slice('int_a', 'rejected')] })).toEqual(
+      [],
+    );
   });
 });
