@@ -19,7 +19,7 @@
     import RequeueWithdrawal from "$lib/components/entities/Withdrawals/RequeueWithdrawal.svelte";
     import WithdrawalPayoutDetails from "$lib/components/entities/Withdrawals/WithdrawalPayoutDetails.svelte";
     import WithdrawalRefunds from "$lib/components/entities/Withdrawals/WithdrawalRefunds.svelte";
-    import {cardRefundTitleI18nKey, isCardRefund, sliceErrors} from "$lib/components/entities/Withdrawals/withdrawal";
+    import {cardRefundTitleI18nKey, isCardRefund, rmiActions, sliceErrors} from "$lib/components/entities/Withdrawals/withdrawal";
     import {toResult} from "$lib/utility";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
@@ -35,6 +35,10 @@
 
     // card-refund slices Airwallex refused to create, surfaced in the RMI alert
     $: rejectedSlices = sliceErrors(withdrawal);
+
+    // card refunds have no confirmation number: their alert swaps the PayNow
+    // force complete for the manual (receipt upload) completion
+    $: rmi = rmiActions(withdrawal.principal);
 
     // Admin escape hatch on "Processing": ask the backend to re-check the
     // payout against Airwallex right now instead of waiting for the next
@@ -176,21 +180,28 @@
                 <p class="text-justify">
                     {$_('withdrawals.rmi.description', { locale: $lang, values: { attempts: withdrawal.principal.payout?.reconcileAttempts ?? 0 } })}
                 </p>
-                {#if withdrawal.principal.payout?.confirmationNumber}
-                    <p>
-                        {$_('withdrawals.rmi.confirmationLine', { locale: $lang })}
-                        <span class="font-mono font-semibold">{withdrawal.principal.payout.confirmationNumber}</span>
-                    </p>
-                {:else}
-                    <p>{$_('withdrawals.rmi.noConfirmation', { locale: $lang })}</p>
+                {#if rmi.confirmationLines}
+                    {#if withdrawal.principal.payout?.confirmationNumber}
+                        <p>
+                            {$_('withdrawals.rmi.confirmationLine', { locale: $lang })}
+                            <span class="font-mono font-semibold">{withdrawal.principal.payout.confirmationNumber}</span>
+                        </p>
+                    {:else}
+                        <p>{$_('withdrawals.rmi.noConfirmation', { locale: $lang })}</p>
+                    {/if}
                 {/if}
                 {#if rejectedSlices.length > 0}
                     <p>{$_('withdrawals.rmi.sliceErrors', { locale: $lang, values: { count: rejectedSlices.length } })}</p>
                 {/if}
                 {#if admin}
-                    <p class="text-justify">{$_('withdrawals.rmi.chooseAction', { locale: $lang })}</p>
+                    <p class="text-justify">{$_(rmi.chooseActionKey, { locale: $lang })}</p>
                     <div class="flex flex-wrap gap-4">
-                        <ForceCompleteWithdrawal withdrawal={withdrawal.principal}/>
+                        {#if rmi.forceComplete}
+                            <ForceCompleteWithdrawal withdrawal={withdrawal.principal}/>
+                        {/if}
+                        {#if rmi.completeManual}
+                            <CompleteWithdrawalManual withdrawal={withdrawal.principal}/>
+                        {/if}
                         <RejectWithdrawal withdrawal={withdrawal.principal} triggerLabel={$_('withdrawals.rmi.reject', { locale: $lang })}/>
                         <RequeueWithdrawal withdrawal={withdrawal.principal}/>
                     </div>

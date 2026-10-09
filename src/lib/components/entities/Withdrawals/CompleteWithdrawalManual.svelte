@@ -4,13 +4,13 @@
     //@ts-ignore
     import * as Dialog from "$lib/components/ui/dialog";
     import {toResult} from "$lib/utility";
-    import {calcFee, loadFee, roundToEvenCents} from "$lib/api/fee";
+    import {calcFee, loadFee} from "$lib/api/fee";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
     import {invalidateAll} from "$app/navigation";
     import type {FeeRes, WithdrawalPrincipalRes} from "$lib/api/core/data-contracts";
     import {LucideLoader} from "lucide-svelte";
-    import {isCardRefund} from "./withdrawal";
+    import {completeManualI18nPrefix, isCardRefund, isParkedCardRefund, withdrawalNet} from "./withdrawal";
     import {_} from "svelte-i18n";
     import {lang, formatMoney} from "$lib/i18n";
 
@@ -51,7 +51,12 @@
     // cent-for-cent — a half-up fee could differ by one cent and overpay the user
     $: amount = withdrawal.record.amount;
     $: fee = snapshotFee ?? (feeInfo != null ? calcFee(feeInfo, amount) : null);
-    $: net = fee != null ? roundToEvenCents(amount - fee) : null;
+    $: net = withdrawalNet(amount, fee);
+
+    // A parked card refund was already paid by hand: the dialog asks the
+    // admin to confirm the net reached the user, not to send a transfer now
+    $: handPaid = isParkedCardRefund(withdrawal);
+    $: copy = completeManualI18nPrefix(withdrawal);
 
     // Manual fallback when Airwallex payouts are unavailable: the admin
     // transfers via PayNow themselves and uploads the receipt screenshot.
@@ -74,15 +79,15 @@
 </script>
 <Dialog.Root bind:open={dialogOpen}>
     <Dialog.Trigger class="w-full lg:max-w-72  {buttonVariants({ variant: 'outline' })}">
-        {$_('withdrawals.completeManual.trigger', { locale: $lang })}
+        {$_(`${copy}.trigger`, { locale: $lang })}
     </Dialog.Trigger>
     <Dialog.Content>
         <Dialog.Header>
-            <Dialog.Title>{$_('withdrawals.completeManual.title', { locale: $lang })}</Dialog.Title>
+            <Dialog.Title>{$_(`${copy}.title`, { locale: $lang })}</Dialog.Title>
             <Dialog.Description>
                 <div class="flex flex-col gap-4">
                     <p class="text-justify py-2">
-                        {$_('withdrawals.completeManual.instructions', { locale: $lang })}
+                        {$_(`${copy}.instructions`, { locale: $lang })}
                     </p>
                     <div class="flex flex-col gap-1 text-sm">
                         <div>{$_('withdrawals.completeManual.amountLine', { locale: $lang, values: { amount: formatMoney(amount, $lang) } })}</div>
@@ -95,7 +100,9 @@
                                 <div>{$_('withdrawals.completeManual.feeLine', { locale: $lang, values: { fee: formatMoney(fee, $lang) } })}</div>
                             {/if}
                             <div class="font-bold">
-                                {#if isCardRefund(withdrawal.record)}
+                                {#if handPaid}
+                                    {$_('withdrawals.completeManual.handPaid.netLine', { locale: $lang, values: { net: formatMoney(net, $lang) } })}
+                                {:else if isCardRefund(withdrawal.record)}
                                     {$_('withdrawals.completeManual.transferExactlyCard', { locale: $lang, values: { net: formatMoney(net, $lang) } })}
                                 {:else}
                                     {$_('withdrawals.completeManual.transferExactly', { locale: $lang, values: { net: formatMoney(net, $lang), payNowNumber: withdrawal.record.payNowNumber } })}
@@ -120,7 +127,7 @@
                         {#if submitting}
                             <LucideLoader class="mr-2 h-4 w-4 animate-spin" />
                         {/if}
-                        {$_('withdrawals.completeManual.complete', { locale: $lang })}
+                        {$_(`${copy}.complete`, { locale: $lang })}
                     </Button>
                 </div>
             </Dialog.Description>

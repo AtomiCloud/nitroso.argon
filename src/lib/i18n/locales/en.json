@@ -1687,7 +1687,14 @@
       "feeLoadFailed": "Failed to load withdrawal fee rate",
       "complete": "Complete",
       "success": "Successfully completed the withdrawal {amount}.",
-      "failed": "Failed to complete withdrawal"
+      "failed": "Failed to complete withdrawal",
+      "handPaid": {
+        "trigger": "Complete manually (paid by hand)",
+        "title": "Complete parked card refund by hand",
+        "instructions": "Use this only when the FULL net amount below has already reached the user by hand — for example a refund on the Airwallex dashboard plus a PayNow transfer for the rest. Nothing is sent from here. Upload a receipt or screenshot of every hand payment as evidence. Unsent refund slices are cancelled; if a slice is still live at Airwallex, completion is refused.",
+        "netLine": "Confirm the user received exactly: {net}",
+        "complete": "Confirm paid & complete"
+      }
     },
     "reconcile": {
       "trigger": "Reconcile now",
@@ -1717,7 +1724,8 @@
         "confirm": "Requeue payout",
         "success": "Withdrawal of {amount} requeued for automated payout.",
         "failed": "Failed to requeue withdrawal"
-      }
+      },
+      "chooseActionCard": "Card refunds have no confirmation number, so they cannot be force completed. If the full net amount already reached the user by hand (e.g. a refund on the Airwallex dashboard plus PayNow for the rest), complete manually with the receipt. If no money left, reject & refund the user, or requeue to retry the automated refund."
     },
     "export": {
       "trigger": "Export CSV",

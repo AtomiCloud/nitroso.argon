@@ -1,8 +1,10 @@
 import { z } from 'zod';
 import { formatStandalone, type SupportedLocale } from '$lib/i18n';
+import { roundToEvenCents } from '$lib/api/rounding';
 import type {
   CreateWithdrawalReq,
   WithdrawalRecordRes,
+  WithdrawalPrincipalRes,
   WithdrawalRefundRes,
   WithdrawalRes,
   WithdrawalSettingsRes,
@@ -235,4 +237,59 @@ export function sliceErrors(withdrawal: {
     const message = sliceError(r);
     return message ? [{ paymentIntentId: r.paymentIntentId, message }] : [];
   });
+}
+
+type ParkableWithdrawal = {
+  status: Pick<WithdrawalPrincipalRes['status'], 'status'>;
+  record: Pick<WithdrawalRecordRes, 'method'>;
+};
+
+/**
+ * A card-refund withdrawal parked in RequireManualIntervention. Its automated
+ * refunds are dead or unresolvable, so the admin finishes it by hand (e.g. a
+ * refund on the Airwallex dashboard plus a PayNow transfer for the rest) and
+ * closes it through the manual-completion (receipt upload) flow.
+ */
+export function isParkedCardRefund(w: ParkableWithdrawal): boolean {
+  return w.status.status === 'RequireManualIntervention' && isCardRefund(w.record);
+}
+
+/**
+ * What the "Manual intervention required" alert offers. PayNow keeps its
+ * original set (Force complete via the confirmation number). Card refunds
+ * never carry a confirmation number, so the PayNow-specific Force complete
+ * and its confirmation-number lines are replaced by the manual completion
+ * with a receipt. Reject & refund and Requeue stay for both.
+ */
+export function rmiActions(w: ParkableWithdrawal): {
+  forceComplete: boolean;
+  completeManual: boolean;
+  confirmationLines: boolean;
+  chooseActionKey: string;
+} {
+  const card = isCardRefund(w.record);
+  return {
+    forceComplete: !card,
+    completeManual: card,
+    confirmationLines: !card,
+    chooseActionKey: card ? 'withdrawals.rmi.chooseActionCard' : 'withdrawals.rmi.chooseAction',
+  };
+}
+
+/**
+ * The i18n prefix for the manual-completion dialog copy. A parked card refund
+ * gets "hand-paid" wording: the admin confirms the full net already reached
+ * the user by hand and uploads the evidence, rather than being told to send a
+ * PayNow transfer now.
+ */
+export function completeManualI18nPrefix(w: ParkableWithdrawal): string {
+  return isParkedCardRefund(w) ? 'withdrawals.completeManual.handPaid' : 'withdrawals.completeManual';
+}
+
+/**
+ * The net the user receives: amount − fee, with banker's rounding to match
+ * zinc cent-for-cent. null when the fee is unknown (never guess on money).
+ */
+export function withdrawalNet(amount: number, fee: number | null | undefined): number | null {
+  return fee == null ? null : roundToEvenCents(amount - fee);
 }
