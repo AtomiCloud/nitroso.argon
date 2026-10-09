@@ -1691,7 +1691,7 @@
       "handPaid": {
         "trigger": "Selesaikan secara manual (dibayar sendiri)",
         "title": "Selesaikan bayaran balik kad yang tertangguh secara manual",
-        "instructions": "Gunakan hanya apabila jumlah bersih PENUH di bawah telah sampai kepada pengguna secara manual — contohnya bayaran balik di papan pemuka Airwallex serta pemindahan PayNow untuk bakinya. Tiada wang dihantar dari sini. Muat naik resit atau tangkapan skrin setiap bayaran manual sebagai bukti. Bahagian bayaran balik yang belum dihantar akan dibatalkan; jika sesuatu bahagian masih aktif di Airwallex, penyelesaian akan ditolak.",
+        "instructions": "Gunakan hanya apabila jumlah bersih PENUH di bawah telah sampai kepada pengguna secara manual — contohnya bayaran balik di papan pemuka Airwallex serta pemindahan PayNow untuk bakinya. Tiada wang dihantar dari sini. Hanya satu fail boleh dimuat naik, jadi gabungkan resit atau tangkapan skrin setiap bayaran manual ke dalam satu imej sebagai bukti. Bahagian bayaran balik yang belum dihantar akan dibatalkan; jika sesuatu bahagian masih aktif di Airwallex, penyelesaian akan ditolak.",
         "netLine": "Sahkan pengguna menerima tepat: {net}",
         "complete": "Sahkan dibayar & selesaikan"
       }

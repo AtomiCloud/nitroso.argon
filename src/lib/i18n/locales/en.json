@@ -1691,7 +1691,7 @@
       "handPaid": {
         "trigger": "Complete manually (paid by hand)",
         "title": "Complete parked card refund by hand",
-        "instructions": "Use this only when the FULL net amount below has already reached the user by hand — for example a refund on the Airwallex dashboard plus a PayNow transfer for the rest. Nothing is sent from here. Upload a receipt or screenshot of every hand payment as evidence. Unsent refund slices are cancelled; if a slice is still live at Airwallex, completion is refused.",
+        "instructions": "Use this only when the FULL net amount below has already reached the user by hand — for example a refund on the Airwallex dashboard plus a PayNow transfer for the rest. Nothing is sent from here. Only one file can be uploaded, so combine the receipts or screenshots of every hand payment into a single image as evidence. Unsent refund slices are cancelled; if a slice is still live at Airwallex, completion is refused.",
         "netLine": "Confirm the user received exactly: {net}",
         "complete": "Confirm paid & complete"
       }
