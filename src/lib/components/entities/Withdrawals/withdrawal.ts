@@ -1,6 +1,12 @@
 import { z } from 'zod';
 import { formatStandalone, type SupportedLocale } from '$lib/i18n';
-import type { CreateWithdrawalReq, WithdrawalRecordRes, WithdrawalSettingsRes } from '$lib/api/core/data-contracts';
+import type {
+  CreateWithdrawalReq,
+  WithdrawalRecordRes,
+  WithdrawalRefundRes,
+  WithdrawalRes,
+  WithdrawalSettingsRes,
+} from '$lib/api/core/data-contracts';
 
 /**
  * The two withdrawal rails zinc supports (zinc PR #36): "CardRefund" refunds
@@ -204,4 +210,29 @@ export function cardRefundTitleI18nKey(status: string | null | undefined): strin
     default:
       return 'withdrawals.card.amountToCardPending';
   }
+}
+
+/**
+ * The trimmed Airwallex rejection message for one refund slice, or null when
+ * none is recorded (zinc clears `lastError` once a refund id is stored).
+ */
+export function sliceError(refund: Pick<WithdrawalRefundRes, 'lastError'>): string | null {
+  const msg = refund.lastError?.trim();
+  return msg ? msg : null;
+}
+
+/**
+ * Every refund slice of a withdrawal that carries an Airwallex rejection
+ * message, in fragment order. Only card refunds have slices, so PayNow (and
+ * pre-#36 responses without `refunds`) always yield an empty list.
+ */
+export function sliceErrors(withdrawal: {
+  principal: { record: Pick<WithdrawalRecordRes, 'method'> };
+  refunds?: WithdrawalRes['refunds'] | null;
+}): { paymentIntentId: string; message: string }[] {
+  if (!isCardRefund(withdrawal.principal.record)) return [];
+  return (withdrawal.refunds ?? []).flatMap(r => {
+    const message = sliceError(r);
+    return message ? [{ paymentIntentId: r.paymentIntentId, message }] : [];
+  });
 }

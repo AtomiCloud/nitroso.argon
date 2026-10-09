@@ -19,7 +19,7 @@
     import RequeueWithdrawal from "$lib/components/entities/Withdrawals/RequeueWithdrawal.svelte";
     import WithdrawalPayoutDetails from "$lib/components/entities/Withdrawals/WithdrawalPayoutDetails.svelte";
     import WithdrawalRefunds from "$lib/components/entities/Withdrawals/WithdrawalRefunds.svelte";
-    import {cardRefundTitleI18nKey, isCardRefund} from "$lib/components/entities/Withdrawals/withdrawal";
+    import {cardRefundTitleI18nKey, isCardRefund, sliceErrors} from "$lib/components/entities/Withdrawals/withdrawal";
     import {toResult} from "$lib/utility";
     import {api} from "../../../../store";
     import {toast} from "svelte-sonner";
@@ -32,6 +32,9 @@
     export let admin: boolean;
 
     let reconciling = false;
+
+    // card-refund slices Airwallex refused to create, surfaced in the RMI alert
+    $: rejectedSlices = sliceErrors(withdrawal);
 
     // Admin escape hatch on "Processing": ask the backend to re-check the
     // payout against Airwallex right now instead of waiting for the next
@@ -180,6 +183,9 @@
                     </p>
                 {:else}
                     <p>{$_('withdrawals.rmi.noConfirmation', { locale: $lang })}</p>
+                {/if}
+                {#if rejectedSlices.length > 0}
+                    <p>{$_('withdrawals.rmi.sliceErrors', { locale: $lang, values: { count: rejectedSlices.length } })}</p>
                 {/if}
                 {#if admin}
                     <p class="text-justify">{$_('withdrawals.rmi.chooseAction', { locale: $lang })}</p>

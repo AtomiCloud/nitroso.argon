@@ -1571,6 +1571,7 @@
       "refundId": "Refund",
       "settledAt": "Settled {at}",
       "copied": "Copied to clipboard",
+      "lastError": "Airwallex rejected this slice: {message}",
       "status": {
         "Created": "Pending",
         "Settled": "Settled",
@@ -1698,6 +1699,7 @@
       "description": "The automated payout could not be confirmed after repeated checks ({attempts} reconcile attempts). Verify the transfer in the Airwallex dashboard before taking any action.",
       "confirmationLine": "Airwallex confirmation no.:",
       "noConfirmation": "No confirmation number was recorded — the payout most likely never left Airwallex.",
+      "sliceErrors": "Airwallex rejected {count, plural, one {# refund slice} other {# refund slices}} — see the reason on each slice under Refund evidence below.",
       "chooseAction": "If the money left Airwallex, force complete. If no transfer exists, reject & refund the user, or requeue to retry the automated payout.",
       "reject": "Reject & refund",
       "forceComplete": {
