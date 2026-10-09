@@ -1298,6 +1298,12 @@ export interface WithdrawalRefundRes {
   createdAt: string;
   /** @format date-time */
   settledAt?: string | null;
+  /**
+   * HAND-ADDED (zinc PR #67): why Airwallex last refused or failed to create
+   * this slice's refund (<= 1024 chars); null when no create failure is
+   * recorded, cleared once a refund id is stored.
+   */
+  lastError?: string | null;
 }
 
 /**
