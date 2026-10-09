@@ -1571,6 +1571,7 @@
       "refundId": "退款",
       "settledAt": "已到账 {at}",
       "copied": "已复制到剪贴板",
+      "lastError": "此分段的退款创建失败：{message}",
       "status": {
         "Created": "待处理",
         "Settled": "已到账",
@@ -1698,6 +1699,7 @@
       "description": "自动付款经过多次检查（{attempts} 次对账）仍无法确认。请先在 Airwallex 控制台核实转账，再执行任何操作。",
       "confirmationLine": "Airwallex 确认编号：",
       "noConfirmation": "未记录确认编号——付款很可能从未离开 Airwallex。",
+      "sliceErrors": "{count} 笔退款分段的退款创建失败——请在上方“退款凭证”中查看每个分段的原因。",
       "chooseAction": "如果款项已从 Airwallex 转出，请强制完成；如果不存在转账，请拒绝并退款给用户，或重新排队以重试自动付款。",
       "reject": "拒绝并退款",
       "forceComplete": {
