@@ -29,12 +29,14 @@
     import InfoTip from "$lib/components/core/InfoTip.svelte";
     import {toast} from "svelte-sonner";
     import {_} from "svelte-i18n";
-    import {lang, formatMoney, formatNumber} from "$lib/i18n";
+    import {lang, formatDateTime, formatMoney, formatNumber} from "$lib/i18n";
     import {singaporeToday} from "$lib/time/singapore";
     import {expired, toResult} from "$lib/utility";
     import {triggerBlobDownload} from "$lib/components/entities/Withdrawals/withdrawal-export";
     import {
+        assemblePartnerRequest,
         assemblePreviewRequest,
+        assembleSettingsRequest,
         blockingReasons,
         byMonthDescending,
         defaultDueDate,
@@ -46,17 +48,26 @@
         fxRate,
         monthName,
         monthParam,
+        partnerErrors,
+        partnerExists,
+        partnerFormFrom,
         payableTotal,
         periodMonthParam,
         recentMonths,
+        ROUNDING_PREFERENCES,
+        settingsErrors,
+        settingsFormFrom,
         statusVariant,
         type InvoiceComputedRes,
         type InvoiceDocumentRes,
         type InvoiceInputRowRes,
+        type InvoiceSettingsRes,
         type InvoiceSummaryRes,
         type InvoiceTermsRes,
         type ManualInputs,
+        type PartnerForm,
         type PreviewInvoiceReq,
+        type SettingsForm,
     } from "./invoices";
     import {
         getInputs,
@@ -67,6 +78,8 @@
         openStoredDocument,
         preview as previewInvoice,
         saveDraft,
+        setPartner,
+        setSettings,
         voidInvoice,
         type ApiContext,
         type ApiResult,
@@ -204,7 +217,7 @@
         // sign-in redirects from one reload is worse than one.
         if (s.ok === false) {
             if (s.reauth !== true) toast.error(s.message);
-        } else terms = s.value.current;
+        } else applySettings(s.value);
 
         fares = faresFromKtmbCost(f);
         loading = false;
@@ -450,6 +463,87 @@
         }
     }
 
+    // ---- agreed terms ----------------------------------------------------
+    //
+    // The form that fills the two settings tables. Empty on a fresh
+    // environment, which is the noTerms block above — so the fix sits on the
+    // page that is blocked. INSERT-ONLY: each submit queues a new row from its
+    // effective date (blank = now); nothing is ever edited. See the settings
+    // section of ./invoices.ts.
+    let settings: InvoiceSettingsRes | null = null;
+    let settingsForm: SettingsForm = settingsFormFrom(null).form;
+    let settingsSuggested = false;
+    let partnerForm: PartnerForm = partnerFormFrom(null).form;
+    let partnerSuggested = false;
+    let settingsSeeded = false;
+
+    // Re-seed the forms only when told to (first load, or after a submit
+    // succeeded). Reloading the month also re-reads the settings, and that
+    // must not wipe terms the owner is halfway through typing.
+    function applySettings(s: InvoiceSettingsRes, reseed = false) {
+        settings = s;
+        terms = s.current;
+        if (settingsSeeded && !reseed) return;
+        settingsSeeded = true;
+        ({form: settingsForm, suggested: settingsSuggested} = settingsFormFrom(s.current));
+        ({form: partnerForm, suggested: partnerSuggested} = partnerFormFrom(s.current));
+    }
+
+    $: settingsProblems = settingsErrors(settingsForm, today);
+    $: partnerProblems = partnerErrors(partnerForm, today);
+    $: partnerIsUpdate = partnerExists(terms, partnerForm.suffix);
+
+    let savingSettings = false;
+    let savingPartner = false;
+
+    async function refreshSettings() {
+        const r = await callApi(c => getSettings(c, failed("invoices.errors.settings")));
+        if (r != null) applySettings(r, true);
+    }
+
+    async function submitSettings() {
+        if (savingSettings || settingsProblems.length > 0) return;
+        savingSettings = true;
+        try {
+            const r = await callApi(c => setSettings(c, assembleSettingsRequest(settingsForm),
+                failed("invoices.settings.errors.saveTerms")));
+            if (r != null) {
+                toast.success($_("invoices.settings.savedTerms", {locale: $lang}));
+                await refreshSettings();
+            }
+        } finally {
+            savingSettings = false;
+        }
+    }
+
+    async function submitPartner() {
+        if (savingPartner || partnerProblems.length > 0) return;
+        savingPartner = true;
+        try {
+            const r = await callApi(c => setPartner(c, assemblePartnerRequest(partnerForm),
+                failed("invoices.settings.errors.savePartner")));
+            if (r != null) {
+                toast.success($_("invoices.settings.savedPartner", {locale: $lang}));
+                await refreshSettings();
+            }
+        } finally {
+            savingPartner = false;
+        }
+    }
+
+    // Load a current partner into the form to amend or retire it.
+    function editPartner(p: { suffix: string; name: string; roundingPreference: string }, position: number) {
+        partnerForm = {
+            suffix: p.suffix,
+            name: p.name,
+            roundingPreference: p.roundingPreference,
+            active: true,
+            position,
+            effectiveDate: "",
+        };
+        partnerSuggested = false;
+    }
+
     // Serialised rather than run together: both paths call signIn() when the
     // bearer is missing, and nothing dedupes concurrent sign-ins, so firing
     // them in parallel races two redirects against each other on a cold load.
@@ -508,6 +602,9 @@
                             <li>{$_(reason, { locale: $lang })}</li>
                         {/each}
                     </ul>
+                    {#if terms == null}
+                        <a href="#invoice-settings" class="underline text-sm">{$_('invoices.settings.goToSettings', { locale: $lang })}</a>
+                    {/if}
                 </Alert.Description>
             </Alert.Root>
         {/if}
@@ -900,6 +997,230 @@
                         </Table.Root>
                     </div>
                 {/if}
+            </Card.Content>
+        </Card.Root>
+
+        <!-- 5. THE AGREEMENT. The terms every invoice above is computed under.
+             Insert-only: a submit queues a new row from its effective date and
+             never edits the one in force, so an issued month stays explicable
+             under the terms it was actually computed with. -->
+        <Card.Root id="invoice-settings">
+            <Card.Header class="p-4 sm:p-6">
+                <Card.Title>{$_('invoices.settings.title', { locale: $lang })}</Card.Title>
+                <Card.Description>{$_('invoices.settings.description', { locale: $lang })}</Card.Description>
+            </Card.Header>
+            <Card.Content class="px-4 sm:px-6 flex flex-col gap-6">
+                <!-- in force now -->
+                <div class="flex flex-col gap-2">
+                    <div class="text-sm font-medium">{$_('invoices.settings.current', { locale: $lang })}</div>
+                    {#if terms == null}
+                        <p class="text-sm text-destructive">{$_('invoices.settings.notConfigured', { locale: $lang })}</p>
+                    {:else}
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div>
+                                <div class="text-xs text-muted-foreground">{$_('invoices.settings.share', { locale: $lang })}</div>
+                                <div class="text-lg font-medium">{formatNumber(terms.marketingSharePct, $lang)}%</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-muted-foreground">{$_('invoices.settings.infrastructure', { locale: $lang })}</div>
+                                <div class="text-lg font-medium">{formatMoney(terms.infrastructure, $lang)}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-muted-foreground">{$_('invoices.settings.recoveryPerBoost', { locale: $lang })}</div>
+                                <div class="text-lg font-medium">{formatMoney(terms.recoveryPerBoost, $lang)}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-muted-foreground">{$_('invoices.settings.recoveryPerTicket', { locale: $lang })}</div>
+                                <div class="text-lg font-medium">{formatMoney(terms.recoveryPerTicket, $lang)}</div>
+                            </div>
+                        </div>
+                    {/if}
+
+                    {#if (terms?.partners ?? []).length > 0}
+                        <div class="overflow-x-auto">
+                            <Table.Root>
+                                <Table.Header>
+                                    <Table.Row>
+                                        <Table.Head class="h-8 px-2 whitespace-nowrap">{$_('invoices.settings.suffix', { locale: $lang })}</Table.Head>
+                                        <Table.Head class="h-8 px-2 whitespace-nowrap">{$_('invoices.settings.name', { locale: $lang })}</Table.Head>
+                                        <Table.Head class="h-8 px-2 whitespace-nowrap">{$_('invoices.settings.rounding', { locale: $lang })}</Table.Head>
+                                        <Table.Head class="h-8 px-2 text-right whitespace-nowrap"></Table.Head>
+                                    </Table.Row>
+                                </Table.Header>
+                                <Table.Body>
+                                    {#each (terms?.partners ?? []) as p, i (p.suffix)}
+                                        <Table.Row>
+                                            <Table.Cell class="px-2 py-1.5 font-medium">{p.suffix}</Table.Cell>
+                                            <Table.Cell class="px-2 py-1.5">{p.name}</Table.Cell>
+                                            <Table.Cell class="px-2 py-1.5">{$_(`invoices.settings.roundingOptions.${p.roundingPreference}`, { locale: $lang })}</Table.Cell>
+                                            <Table.Cell class="px-2 py-1.5 text-right">
+                                                <Button variant="ghost" size="sm" class="h-7" on:click={() => editPartner(p, i)}>
+                                                    {$_('invoices.settings.editPartner', { locale: $lang })}
+                                                </Button>
+                                            </Table.Cell>
+                                        </Table.Row>
+                                    {/each}
+                                </Table.Body>
+                            </Table.Root>
+                        </div>
+                    {/if}
+                </div>
+
+                <!-- queued -->
+                {#if settings != null && (settings.upcoming.length > 0 || settings.upcomingPartners.length > 0)}
+                    <div class="flex flex-col gap-1 border-t pt-4">
+                        <div class="text-sm font-medium">{$_('invoices.settings.upcoming', { locale: $lang })}</div>
+                        <ul class="text-sm list-disc pl-4">
+                            {#each settings.upcoming as u (u.id)}
+                                <li>
+                                    {$_('invoices.settings.upcomingTerms', {
+                                        locale: $lang,
+                                        values: {
+                                            at: formatDateTime(u.effectiveAt, $lang),
+                                            share: formatNumber(u.marketingSharePct, $lang),
+                                            infrastructure: formatMoney(u.infrastructure, $lang),
+                                        },
+                                    })}
+                                </li>
+                            {/each}
+                            {#each settings.upcomingPartners as u (u.id)}
+                                <li>
+                                    {$_(u.active ? 'invoices.settings.upcomingPartner' : 'invoices.settings.upcomingRetire', {
+                                        locale: $lang,
+                                        values: {at: formatDateTime(u.effectiveAt, $lang), suffix: u.suffix, name: u.name},
+                                    })}
+                                </li>
+                            {/each}
+                        </ul>
+                    </div>
+                {/if}
+
+                <!-- new terms -->
+                <form class="flex flex-col gap-3 border-t pt-4" on:submit|preventDefault={submitSettings}>
+                    <div class="text-sm font-medium">{$_('invoices.settings.newTerms', { locale: $lang })}</div>
+                    {#if settingsSuggested}
+                        <p class="text-xs text-muted-foreground">{$_('invoices.settings.suggestedTerms', { locale: $lang })}</p>
+                    {/if}
+                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-4">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-sm" for="set-share">{$_('invoices.settings.share', { locale: $lang })}</label>
+                            <Input id="set-share" type="number" step="0.01" min="0" max="100" bind:value={settingsForm.marketingSharePct}/>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-sm" for="set-infra">{$_('invoices.settings.infrastructure', { locale: $lang })}</label>
+                            <Input id="set-infra" type="number" step="0.01" min="0" bind:value={settingsForm.infrastructure}/>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-sm" for="set-boost">{$_('invoices.settings.recoveryPerBoost', { locale: $lang })}</label>
+                            <Input id="set-boost" type="number" step="0.01" min="0" bind:value={settingsForm.recoveryPerBoost}/>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-sm" for="set-ticket">{$_('invoices.settings.recoveryPerTicket', { locale: $lang })}</label>
+                            <Input id="set-ticket" type="number" step="0.01" min="0" bind:value={settingsForm.recoveryPerTicket}/>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-sm inline-flex items-center gap-1" for="set-effective">
+                                {$_('invoices.settings.effective', { locale: $lang })}
+                                <InfoTip label={$_('invoices.settings.effective', { locale: $lang })}>
+                                    {$_('invoices.settings.effectiveHint', { locale: $lang })}
+                                </InfoTip>
+                            </label>
+                            <Input id="set-effective" placeholder={$_('invoices.settings.effectiveNow', { locale: $lang })}
+                                   bind:value={settingsForm.effectiveDate}/>
+                        </div>
+                    </div>
+                    {#if settingsProblems.length > 0}
+                        <ul class="text-xs text-destructive list-disc pl-4">
+                            {#each settingsProblems as p (p)}
+                                <li>{$_(p, { locale: $lang })}</li>
+                            {/each}
+                        </ul>
+                    {/if}
+                    <div>
+                        <Button type="submit" disabled={savingSettings || settingsProblems.length > 0}>
+                            {#if savingSettings}
+                                <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
+                            {/if}
+                            {$_('invoices.settings.submitTerms', { locale: $lang })}
+                        </Button>
+                    </div>
+                </form>
+
+                <!-- add / amend / retire a partner -->
+                <form class="flex flex-col gap-3 border-t pt-4" on:submit|preventDefault={submitPartner}>
+                    <div class="text-sm font-medium">
+                        {$_(partnerIsUpdate ? 'invoices.settings.updatePartner' : 'invoices.settings.addPartner', { locale: $lang })}
+                    </div>
+                    {#if partnerSuggested}
+                        <p class="text-xs text-muted-foreground">{$_('invoices.settings.suggestedPartner', { locale: $lang })}</p>
+                    {/if}
+                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-4">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-sm inline-flex items-center gap-1" for="par-suffix">
+                                {$_('invoices.settings.suffix', { locale: $lang })}
+                                <InfoTip label={$_('invoices.settings.suffix', { locale: $lang })}>
+                                    {$_('invoices.settings.suffixHint', { locale: $lang })}
+                                </InfoTip>
+                            </label>
+                            <Input id="par-suffix" maxlength={8} bind:value={partnerForm.suffix}/>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-sm" for="par-name">{$_('invoices.settings.name', { locale: $lang })}</label>
+                            <Input id="par-name" maxlength={128} bind:value={partnerForm.name}/>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-sm inline-flex items-center gap-1" for="par-rounding">
+                                {$_('invoices.settings.rounding', { locale: $lang })}
+                                <InfoTip label={$_('invoices.settings.rounding', { locale: $lang })}>
+                                    {$_('invoices.settings.roundingHint', { locale: $lang })}
+                                </InfoTip>
+                            </label>
+                            <select id="par-rounding" bind:value={partnerForm.roundingPreference}
+                                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                                {#each ROUNDING_PREFERENCES as r (r)}
+                                    <option value={r}>{$_(`invoices.settings.roundingOptions.${r}`, { locale: $lang })}</option>
+                                {/each}
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-sm inline-flex items-center gap-1" for="par-position">
+                                {$_('invoices.settings.position', { locale: $lang })}
+                                <InfoTip label={$_('invoices.settings.position', { locale: $lang })}>
+                                    {$_('invoices.settings.positionHint', { locale: $lang })}
+                                </InfoTip>
+                            </label>
+                            <Input id="par-position" type="number" step="1" min="0" bind:value={partnerForm.position}/>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-sm" for="par-effective">{$_('invoices.settings.effective', { locale: $lang })}</label>
+                            <Input id="par-effective" placeholder={$_('invoices.settings.effectiveNow', { locale: $lang })}
+                                   bind:value={partnerForm.effectiveDate}/>
+                        </div>
+                    </div>
+                    <label class="flex items-center gap-2 text-sm">
+                        <input type="checkbox" bind:checked={partnerForm.active} class="h-4 w-4"/>
+                        {$_('invoices.settings.active', { locale: $lang })}
+                        <InfoTip label={$_('invoices.settings.active', { locale: $lang })}>
+                            {$_('invoices.settings.activeHint', { locale: $lang })}
+                        </InfoTip>
+                    </label>
+                    {#if partnerProblems.length > 0}
+                        <ul class="text-xs text-destructive list-disc pl-4">
+                            {#each partnerProblems as p (p)}
+                                <li>{$_(p, { locale: $lang })}</li>
+                            {/each}
+                        </ul>
+                    {/if}
+                    <div>
+                        <Button type="submit" variant={partnerForm.active ? 'default' : 'destructive'}
+                                disabled={savingPartner || partnerProblems.length > 0}>
+                            {#if savingPartner}
+                                <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
+                            {/if}
+                            {$_(partnerForm.active ? 'invoices.settings.submitPartner' : 'invoices.settings.submitRetire', { locale: $lang })}
+                        </Button>
+                    </div>
+                </form>
             </Card.Content>
         </Card.Root>
     </div>

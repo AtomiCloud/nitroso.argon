@@ -19,9 +19,13 @@ import type {
   InvoiceComputedRes,
   InvoiceDocumentRes,
   InvoiceInputRowRes,
+  InvoicePartnerChangeRes,
+  InvoiceSettingsChangeRes,
   InvoiceSettingsRes,
   InvoiceSummaryRes,
   PreviewInvoiceReq,
+  SetInvoicePartnerReq,
+  SetInvoiceSettingsReq,
 } from './invoices';
 
 export type Fetch = typeof fetch;
@@ -127,6 +131,31 @@ export function getInputs(ctx: ApiContext, month: string, fallback: string): Pro
 /** The agreed commercial terms in force right now, plus anything queued. */
 export function getSettings(ctx: ApiContext, fallback: string): Promise<ApiResult<InvoiceSettingsRes>> {
   return call(ctx, '/settings', fallback, { method: 'GET' });
+}
+
+/**
+ * Queue a new row of agreed terms. Insert-only: the live row is never
+ * edited, so an invoice already issued under the old terms stays explicable.
+ * `effectiveAt` null means immediately.
+ */
+export function setSettings(
+  ctx: ApiContext,
+  req: SetInvoiceSettingsReq,
+  fallback: string,
+): Promise<ApiResult<InvoiceSettingsChangeRes>> {
+  return call(ctx, '/settings', fallback, { method: 'POST', body: JSON.stringify(req) });
+}
+
+/**
+ * Queue a change to one partner, keyed by suffix — adding, amending and
+ * retiring (`active: false`) are all the same insert.
+ */
+export function setPartner(
+  ctx: ApiContext,
+  req: SetInvoicePartnerReq,
+  fallback: string,
+): Promise<ApiResult<InvoicePartnerChangeRes>> {
+  return call(ctx, '/settings/partners', fallback, { method: 'POST', body: JSON.stringify(req) });
 }
 
 /** Compute a month without persisting anything. */
