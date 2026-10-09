@@ -4,14 +4,18 @@ import { ZodError } from 'zod';
 import {
   DEFAULT_WITHDRAWAL_SETTINGS,
   cardRefundTitleI18nKey,
+  completeManualI18nPrefix,
   isCardRefund,
+  isParkedCardRefund,
   makeCreateWithdrawalSchema,
   methodAvailability,
+  rmiActions,
   REFUND_STATUS_BADGE,
   shortenId,
   sliceError,
   sliceErrors,
   toCreateWithdrawalReq,
+  withdrawalNet,
   type WithdrawalMethod,
 } from './withdrawal';
 import type { WithdrawalRefundRes } from '$lib/api/core/data-contracts';
@@ -297,5 +301,78 @@ describe('sliceErrors', () => {
     expect(sliceErrors({ principal: { record: { method: 'PayNow' } }, refunds: [slice('int_a', 'rejected')] })).toEqual(
       [],
     );
+  });
+});
+
+const parked = (method: WithdrawalMethod, status = 'RequireManualIntervention') =>
+  ({ status: { status }, record: { method } }) as Parameters<typeof rmiActions>[0];
+
+describe('isParkedCardRefund', () => {
+  it('is true only for a card refund in RequireManualIntervention', () => {
+    expect(isParkedCardRefund(parked('CardRefund'))).toBe(true);
+    expect(isParkedCardRefund(parked('PayNow'))).toBe(false);
+    expect(isParkedCardRefund(parked('CardRefund', 'Pending'))).toBe(false);
+    expect(isParkedCardRefund(parked('CardRefund', 'Processing'))).toBe(false);
+  });
+});
+
+describe('rmiActions', () => {
+  it('keeps the PayNow alert exactly as before', () => {
+    expect(rmiActions(parked('PayNow'))).toEqual({
+      forceComplete: true,
+      completeManual: false,
+      confirmationLines: true,
+      chooseActionKey: 'withdrawals.rmi.chooseAction',
+    });
+  });
+
+  it('swaps force complete for the manual completion on card refunds', () => {
+    expect(rmiActions(parked('CardRefund'))).toEqual({
+      forceComplete: false,
+      completeManual: true,
+      confirmationLines: false,
+      chooseActionKey: 'withdrawals.rmi.chooseActionCard',
+    });
+  });
+
+  it('treats a record without a method (pre-#36) as PayNow', () => {
+    const legacy = { status: { status: 'RequireManualIntervention' }, record: {} } as Parameters<typeof rmiActions>[0];
+    expect(rmiActions(legacy).forceComplete).toBe(true);
+  });
+});
+
+describe('completeManualI18nPrefix', () => {
+  it('uses the hand-paid copy only for a parked card refund', () => {
+    expect(completeManualI18nPrefix(parked('CardRefund'))).toBe('withdrawals.completeManual.handPaid');
+    expect(completeManualI18nPrefix(parked('CardRefund', 'Pending'))).toBe('withdrawals.completeManual');
+    expect(completeManualI18nPrefix(parked('PayNow'))).toBe('withdrawals.completeManual');
+  });
+
+  it('every hand-paid key the dialog reads exists in all locales', async () => {
+    const { formatStandalone } = await import('$lib/i18n');
+    for (const locale of ['en', 'zh', 'ms'] as const)
+      for (const key of ['trigger', 'title', 'instructions', 'netLine', 'complete']) {
+        const id = `withdrawals.completeManual.handPaid.${key}`;
+        expect(formatStandalone(id, { locale, values: { net: 'x' } })).not.toBe(id);
+      }
+  });
+});
+
+describe('withdrawalNet', () => {
+  it('is amount minus the recorded fee (withdrawal 0ded0290)', () => {
+    expect(withdrawalNet(40, 1.6)).toBe(38.4);
+  });
+
+  it('matches zinc for a whole-cent fee', () => {
+    expect(withdrawalNet(100, 4)).toBe(96);
+  });
+
+  it('is null while the fee is unknown', () => {
+    expect(withdrawalNet(40, null)).toBeNull();
+    expect(withdrawalNet(40, undefined)).toBeNull();
+  });
+
+  it('a disabled fee pays the full amount', () => {
+    expect(withdrawalNet(40, 0)).toBe(40);
   });
 });
