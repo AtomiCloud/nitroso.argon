@@ -59,10 +59,50 @@ export interface InvoiceTermsRes {
   partners: InvoicePartnerRes[];
 }
 
+export interface InvoiceSettingsChangeRes {
+  id: string;
+  marketingSharePct: number;
+  infrastructure: number;
+  recoveryPerBoost: number;
+  recoveryPerTicket: number;
+  effectiveAt: string;
+  createdAt: string;
+}
+
+export interface InvoicePartnerChangeRes {
+  id: string;
+  suffix: string;
+  name: string;
+  roundingPreference: string;
+  active: boolean;
+  position: number;
+  effectiveAt: string;
+  createdAt: string;
+}
+
 export interface InvoiceSettingsRes {
   current: InvoiceTermsRes | null;
-  upcoming: unknown[];
-  upcomingPartners: unknown[];
+  upcoming: InvoiceSettingsChangeRes[];
+  upcomingPartners: InvoicePartnerChangeRes[];
+}
+
+/** POST Invoice/settings. Insert-only; effectiveAt null = immediate. */
+export interface SetInvoiceSettingsReq {
+  marketingSharePct: number;
+  infrastructure: number;
+  recoveryPerBoost: number;
+  recoveryPerTicket: number;
+  effectiveAt: string | null;
+}
+
+/** POST Invoice/settings/partners. Keyed by suffix; active = false retires. */
+export interface SetInvoicePartnerReq {
+  suffix: string;
+  name: string;
+  roundingPreference: string;
+  active: boolean;
+  position: number;
+  effectiveAt: string | null;
 }
 
 export interface PreviewPriceLineReq {
@@ -632,4 +672,222 @@ export function byMonthDescending(a: InvoiceSummaryRes, b: InvoiceSummaryRes): n
   const kb = pb == null ? 0 : pb.year * 100 + pb.month;
   if (ka !== kb) return kb - ka;
   return b.seq.localeCompare(a.seq);
+}
+
+// ---- settings ------------------------------------------------------------
+//
+// The agreed terms the invoice is computed under. Both tables are empty on a
+// fresh environment, and until they are filled blockingReasons() reports
+// noTerms and the page cannot compute anything — so the form that fills them
+// lives on the same page as the thing it unblocks.
+//
+// INSERT-ONLY. zinc never edits a terms row: every submit queues a new one,
+// effective from EffectiveAt (blank = immediately). An invoice issued under
+// the old terms stays explicable because the row it was computed under still
+// exists. The form therefore never "edits" — it proposes the next row.
+
+/**
+ * The terms the issued June–August 2026 invoices were actually computed
+ * under, read from invoices/data/2026-08.json (marketingSharePct,
+ * infrastructure, partnerRecovery.perBoost/perTicket, partners[]). Offered
+ * as the starting values on an environment that has none, so the owner
+ * confirms the real agreement rather than retyping it from a PDF. Never
+ * submitted on its own.
+ */
+export const SUGGESTED_TERMS = {
+  marketingSharePct: 50,
+  infrastructure: 500,
+  recoveryPerBoost: 10,
+  recoveryPerTicket: 3,
+  partners: [
+    { suffix: 'C', name: 'CLEON', roundingPreference: 'down', position: 0 },
+    { suffix: 'Z', name: 'ZOEY', roundingPreference: 'up', position: 1 },
+  ],
+} as const;
+
+export const ROUNDING_PREFERENCES = ['down', 'up'] as const;
+
+/**
+ * The settings form as the inputs bind it. Every numeric field is `unknown`
+ * because the shadcn Input hands back strings (see assemblePreviewRequest).
+ * effectiveDate is an SGT calendar day, dd-mm-yyyy, or blank for "now".
+ */
+export interface SettingsForm {
+  marketingSharePct: unknown;
+  infrastructure: unknown;
+  recoveryPerBoost: unknown;
+  recoveryPerTicket: unknown;
+  effectiveDate: string;
+}
+
+export interface PartnerForm {
+  suffix: string;
+  name: string;
+  roundingPreference: string;
+  active: boolean;
+  position: unknown;
+  effectiveDate: string;
+}
+
+/**
+ * Where the settings form starts: the terms in force when there are any (the
+ * next row is usually a small change to them), otherwise SUGGESTED_TERMS.
+ * `suggested` tells the page to say where the numbers came from.
+ */
+export function settingsFormFrom(current: InvoiceTermsRes | null): { form: SettingsForm; suggested: boolean } {
+  const src = current ?? SUGGESTED_TERMS;
+  return {
+    form: {
+      marketingSharePct: src.marketingSharePct,
+      infrastructure: src.infrastructure,
+      recoveryPerBoost: src.recoveryPerBoost,
+      recoveryPerTicket: src.recoveryPerTicket,
+      effectiveDate: '',
+    },
+    suggested: current == null,
+  };
+}
+
+/**
+ * Where the partner form starts: the first suggested partner not yet in
+ * force, so an empty environment is two confirm-clicks from the real
+ * agreement. Once both are in, a blank row positioned after the last one.
+ */
+export function partnerFormFrom(current: InvoiceTermsRes | null): { form: PartnerForm; suggested: boolean } {
+  const have = new Set((current?.partners ?? []).map(p => p.suffix.toUpperCase()));
+  const next = SUGGESTED_TERMS.partners.find(p => !have.has(p.suffix));
+  if (next != null) {
+    return {
+      form: {
+        suffix: next.suffix,
+        name: next.name,
+        roundingPreference: next.roundingPreference,
+        active: true,
+        position: next.position,
+        effectiveDate: '',
+      },
+      suggested: true,
+    };
+  }
+  return {
+    form: {
+      suffix: '',
+      name: '',
+      roundingPreference: 'down',
+      active: true,
+      position: current?.partners.length ?? 0,
+      effectiveDate: '',
+    },
+    suggested: false,
+  };
+}
+
+/** True when submitting this suffix changes an existing partner rather than adding one. */
+export function partnerExists(current: InvoiceTermsRes | null, suffix: string): boolean {
+  const s = suffix.trim().toUpperCase();
+  return s !== '' && (current?.partners ?? []).some(p => p.suffix.toUpperCase() === s);
+}
+
+/** Present and numeric. Blank must not pass as zero here: a blank share would pay nobody. */
+function isNumeric(v: unknown): boolean {
+  return v != null && String(v).trim() !== '' && Number.isFinite(Number(v));
+}
+
+const SGT_OFFSET_MS = 8 * 60 * 60 * 1000;
+
+/**
+ * An SGT calendar day as the UTC instant zinc stores EffectiveAt in: that
+ * day's midnight in Singapore. Sent as ISO-8601 with a Z — zinc's EffectiveAt
+ * is a DateTime, not one of the dd-MM-yyyy DateOnly strings, and a value
+ * without a zone would bind as Unspecified and be read as UTC, i.e. 08:00 SGT.
+ * Singapore has had no DST since 1982, so a fixed offset is exact.
+ */
+export function effectiveAtParam(date: string): string | null {
+  const d = parseApiDate(date.trim());
+  if (d == null) return null;
+  return new Date(Date.UTC(d.year, d.month - 1, d.day) - SGT_OFFSET_MS).toISOString();
+}
+
+/**
+ * Validate the effective date: blank (now) or a future SGT day.
+ *
+ * Backdating is refused. zinc would accept it, but a backdated row silently
+ * rewrites which terms were "in force" for a period that has already been
+ * drafted under the old ones — exactly the history insert-only exists to
+ * keep. Today is refused for the same reason (its midnight has passed);
+ * blank is the way to say "from now".
+ */
+function effectiveDateErrors(date: string, today: { year: number; month: number; day: number }): string[] {
+  const s = date.trim();
+  if (s === '') return [];
+  const d = parseApiDate(s);
+  if (d == null || effectiveAtParam(s) == null) return ['invoices.settings.errors.effectiveDate'];
+  const back = new Date(Date.UTC(d.year, d.month - 1, d.day));
+  if (back.getUTCFullYear() !== d.year || back.getUTCMonth() + 1 !== d.month || back.getUTCDate() !== d.day)
+    return ['invoices.settings.errors.effectiveDate'];
+  const key = (x: { year: number; month: number; day: number }) => x.year * 10000 + x.month * 100 + x.day;
+  if (key(d) <= key(today)) return ['invoices.settings.errors.effectivePast'];
+  return [];
+}
+
+/**
+ * Everything wrong with the settings form, as i18n keys — all at once, like
+ * blockingReasons. Mirrors zinc's SetInvoiceSettingsReqValidator so the owner
+ * sees the reason before the round trip, plus the blank-is-not-zero rule zinc
+ * cannot apply (it never sees the blank).
+ */
+export function settingsErrors(f: SettingsForm, today: { year: number; month: number; day: number }): string[] {
+  const errors: string[] = [];
+  if (!isNumeric(f.marketingSharePct) || num(f.marketingSharePct) < 0 || num(f.marketingSharePct) > 100)
+    errors.push('invoices.settings.errors.share');
+  if (!isNumeric(f.infrastructure) || num(f.infrastructure) < 0) errors.push('invoices.settings.errors.infrastructure');
+  if (!isNumeric(f.recoveryPerBoost) || num(f.recoveryPerBoost) < 0)
+    errors.push('invoices.settings.errors.recoveryPerBoost');
+  if (!isNumeric(f.recoveryPerTicket) || num(f.recoveryPerTicket) < 0)
+    errors.push('invoices.settings.errors.recoveryPerTicket');
+  errors.push(...effectiveDateErrors(f.effectiveDate, today));
+  return errors;
+}
+
+/** Mirrors SetInvoicePartnerReqValidator, plus a whole-number position (zinc's is an int). */
+export function partnerErrors(f: PartnerForm, today: { year: number; month: number; day: number }): string[] {
+  const errors: string[] = [];
+  const suffix = f.suffix.trim();
+  if (suffix === '' || suffix.length > 8) errors.push('invoices.settings.errors.suffix');
+  const name = f.name.trim();
+  if (name === '' || name.length > 128) errors.push('invoices.settings.errors.name');
+  if (!(ROUNDING_PREFERENCES as readonly string[]).includes(f.roundingPreference))
+    errors.push('invoices.settings.errors.rounding');
+  if (!isNumeric(f.position) || !Number.isInteger(num(f.position)) || num(f.position) < 0)
+    errors.push('invoices.settings.errors.position');
+  errors.push(...effectiveDateErrors(f.effectiveDate, today));
+  return errors;
+}
+
+/** The exact body POST Invoice/settings takes. Validate first — this does not. */
+export function assembleSettingsRequest(f: SettingsForm): SetInvoiceSettingsReq {
+  return {
+    marketingSharePct: num(f.marketingSharePct),
+    infrastructure: num(f.infrastructure),
+    recoveryPerBoost: num(f.recoveryPerBoost),
+    recoveryPerTicket: num(f.recoveryPerTicket),
+    effectiveAt: f.effectiveDate.trim() === '' ? null : effectiveAtParam(f.effectiveDate),
+  };
+}
+
+/**
+ * The exact body POST Invoice/settings/partners takes. The suffix is
+ * upper-cased: it is the letter on the invoice reference (BB-2026-0801-C),
+ * and zinc keys partners case-insensitively, so "c" would silently be the
+ * same partner printed differently.
+ */
+export function assemblePartnerRequest(f: PartnerForm): SetInvoicePartnerReq {
+  return {
+    suffix: f.suffix.trim().toUpperCase(),
+    name: f.name.trim(),
+    roundingPreference: f.roundingPreference,
+    active: f.active,
+    position: num(f.position),
+    effectiveAt: f.effectiveDate.trim() === '' ? null : effectiveAtParam(f.effectiveDate),
+  };
 }

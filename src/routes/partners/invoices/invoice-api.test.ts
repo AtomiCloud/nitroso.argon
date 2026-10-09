@@ -7,9 +7,11 @@ import {
   openStoredDocument,
   preview,
   saveDraft,
+  setPartner,
+  setSettings,
   type ApiContext,
 } from './invoice-api';
-import type { PreviewInvoiceReq } from './invoices';
+import type { PreviewInvoiceReq, SetInvoicePartnerReq, SetInvoiceSettingsReq } from './invoices';
 
 function ctx(res: Response | Error, fetchSpy = vi.fn()): { ctx: ApiContext; fetch: ReturnType<typeof vi.fn> } {
   const f = fetchSpy.mockImplementation(() => (res instanceof Error ? Promise.reject(res) : Promise.resolve(res)));
@@ -97,6 +99,37 @@ describe('requests', () => {
     };
     await saveDraft(c, req, 'failed');
     expect(fetch.mock.calls[0][0]).toBe('https://api.example.com/api/v1.0/Invoice/drafts');
+    expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual(req);
+  });
+
+  it('posts new terms to the settings route', async () => {
+    const { ctx: c, fetch } = ctx(json({ id: 'x' }));
+    const req: SetInvoiceSettingsReq = {
+      marketingSharePct: 50,
+      infrastructure: 500,
+      recoveryPerBoost: 10,
+      recoveryPerTicket: 3,
+      effectiveAt: null,
+    };
+    await setSettings(c, req, 'failed');
+    expect(fetch.mock.calls[0][0]).toBe('https://api.example.com/api/v1.0/Invoice/settings');
+    expect(fetch.mock.calls[0][1].method).toBe('POST');
+    expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual(req);
+  });
+
+  it('posts a partner change to the partners route', async () => {
+    const { ctx: c, fetch } = ctx(json({ id: 'x' }));
+    const req: SetInvoicePartnerReq = {
+      suffix: 'C',
+      name: 'CLEON',
+      roundingPreference: 'down',
+      active: true,
+      position: 0,
+      effectiveAt: '2026-10-31T16:00:00.000Z',
+    };
+    await setPartner(c, req, 'failed');
+    expect(fetch.mock.calls[0][0]).toBe('https://api.example.com/api/v1.0/Invoice/settings/partners');
+    expect(fetch.mock.calls[0][1].method).toBe('POST');
     expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual(req);
   });
 

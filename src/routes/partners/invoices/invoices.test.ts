@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  assemblePartnerRequest,
   assemblePreviewRequest,
+  assembleSettingsRequest,
+  effectiveAtParam,
   blockingReasons,
   byMonthDescending,
   daysInMonth,
@@ -14,11 +17,16 @@ import {
   halfFareSgd,
   monthName,
   monthParam,
+  partnerErrors,
+  partnerExists,
+  partnerFormFrom,
   payableTotal,
   parseApiDate,
   periodLabel,
   periodMonthParam,
   recentMonths,
+  settingsErrors,
+  settingsFormFrom,
   statusVariant,
   toApiDate,
   topupsMissing,
@@ -26,6 +34,8 @@ import {
   type InvoiceInputRowRes,
   type InvoiceSummaryRes,
   type InvoiceTermsRes,
+  type PartnerForm,
+  type SettingsForm,
 } from './invoices';
 
 // August 2026 as zinc actually gathers it. Every figure below is production —
@@ -542,5 +552,171 @@ describe('statusVariant', () => {
   // decides whether a month is settled.
   it('does not present an unrecognised status as issued', () => {
     expect(statusVariant('something_new')).toBe('secondary');
+  });
+});
+
+describe('settings form', () => {
+  const today = { year: 2026, month: 10, day: 8 };
+  const live: InvoiceTermsRes = {
+    marketingSharePct: 40,
+    infrastructure: 600,
+    recoveryPerBoost: 12,
+    recoveryPerTicket: 4,
+    partners: [{ suffix: 'C', name: 'CLEON', roundingPreference: 'down' }],
+  };
+
+  const validTerms = (over: Partial<SettingsForm> = {}): SettingsForm => ({
+    marketingSharePct: '50',
+    infrastructure: '500',
+    recoveryPerBoost: '10',
+    recoveryPerTicket: '3',
+    effectiveDate: '',
+    ...over,
+  });
+
+  const validPartner = (over: Partial<PartnerForm> = {}): PartnerForm => ({
+    suffix: 'Z',
+    name: 'ZOEY',
+    roundingPreference: 'up',
+    active: true,
+    position: '1',
+    effectiveDate: '',
+    ...over,
+  });
+
+  // The terms the issued June–August invoices used (invoices/data/2026-08.json).
+  it('suggests the issued invoices terms when none are in force', () => {
+    const { form, suggested } = settingsFormFrom(null);
+    expect(suggested).toBe(true);
+    expect(form).toEqual({
+      marketingSharePct: 50,
+      infrastructure: 500,
+      recoveryPerBoost: 10,
+      recoveryPerTicket: 3,
+      effectiveDate: '',
+    });
+  });
+
+  it('starts from the terms in force once there are some', () => {
+    const { form, suggested } = settingsFormFrom(live);
+    expect(suggested).toBe(false);
+    expect(form.marketingSharePct).toBe(40);
+    expect(form.infrastructure).toBe(600);
+  });
+
+  it('suggests each issued-invoice partner in turn, then a blank row', () => {
+    expect(partnerFormFrom(null).form).toMatchObject({
+      suffix: 'C',
+      name: 'CLEON',
+      roundingPreference: 'down',
+      position: 0,
+    });
+    expect(partnerFormFrom(live).form).toMatchObject({
+      suffix: 'Z',
+      name: 'ZOEY',
+      roundingPreference: 'up',
+      position: 1,
+    });
+    const both = { ...live, partners: [...live.partners, { suffix: 'Z', name: 'ZOEY', roundingPreference: 'up' }] };
+    const { form, suggested } = partnerFormFrom(both);
+    expect(suggested).toBe(false);
+    expect(form).toMatchObject({ suffix: '', name: '', position: 2, active: true });
+  });
+
+  it('knows an existing suffix is an update, case-insensitively', () => {
+    expect(partnerExists(live, ' c ')).toBe(true);
+    expect(partnerExists(live, 'Z')).toBe(false);
+    expect(partnerExists(null, 'C')).toBe(false);
+    expect(partnerExists(live, '')).toBe(false);
+  });
+
+  // String bindings from the shadcn Input must reach the wire as numbers.
+  it('coerces string inputs to numbers and sends a blank date as immediate', () => {
+    expect(assembleSettingsRequest(validTerms())).toEqual({
+      marketingSharePct: 50,
+      infrastructure: 500,
+      recoveryPerBoost: 10,
+      recoveryPerTicket: 3,
+      effectiveAt: null,
+    });
+  });
+
+  it('sends an effective date as midnight Singapore time in UTC', () => {
+    expect(effectiveAtParam('01-11-2026')).toBe('2026-10-31T16:00:00.000Z');
+    expect(assembleSettingsRequest(validTerms({ effectiveDate: '01-11-2026' })).effectiveAt).toBe(
+      '2026-10-31T16:00:00.000Z',
+    );
+    expect(effectiveAtParam('2026-11-01')).toBeNull();
+  });
+
+  it('upper-cases and trims the partner suffix and name', () => {
+    expect(assemblePartnerRequest(validPartner({ suffix: ' z ', name: ' ZOEY ', position: '3' }))).toEqual({
+      suffix: 'Z',
+      name: 'ZOEY',
+      roundingPreference: 'up',
+      active: true,
+      position: 3,
+      effectiveAt: null,
+    });
+  });
+
+  it('accepts valid terms and partners', () => {
+    expect(settingsErrors(validTerms(), today)).toEqual([]);
+    expect(settingsErrors(validTerms({ effectiveDate: '09-10-2026' }), today)).toEqual([]);
+    expect(partnerErrors(validPartner(), today)).toEqual([]);
+  });
+
+  // Blank must not pass as zero: a blank share would pay nobody.
+  it('rejects blank and out-of-range terms, every reason at once', () => {
+    expect(
+      settingsErrors(
+        {
+          marketingSharePct: '',
+          infrastructure: '-1',
+          recoveryPerBoost: 'abc',
+          recoveryPerTicket: '',
+          effectiveDate: '',
+        },
+        today,
+      ),
+    ).toEqual([
+      'invoices.settings.errors.share',
+      'invoices.settings.errors.infrastructure',
+      'invoices.settings.errors.recoveryPerBoost',
+      'invoices.settings.errors.recoveryPerTicket',
+    ]);
+    expect(settingsErrors(validTerms({ marketingSharePct: '100.5' }), today)).toEqual([
+      'invoices.settings.errors.share',
+    ]);
+    expect(settingsErrors(validTerms({ marketingSharePct: 100 }), today)).toEqual([]);
+  });
+
+  it('refuses a malformed, impossible or non-future effective date', () => {
+    expect(settingsErrors(validTerms({ effectiveDate: '2026-11-01' }), today)).toEqual([
+      'invoices.settings.errors.effectiveDate',
+    ]);
+    expect(settingsErrors(validTerms({ effectiveDate: '31-02-2027' }), today)).toEqual([
+      'invoices.settings.errors.effectiveDate',
+    ]);
+    expect(settingsErrors(validTerms({ effectiveDate: '08-10-2026' }), today)).toEqual([
+      'invoices.settings.errors.effectivePast',
+    ]);
+    expect(settingsErrors(validTerms({ effectiveDate: '01-01-2026' }), today)).toEqual([
+      'invoices.settings.errors.effectivePast',
+    ]);
+  });
+
+  it('mirrors zincs partner validator', () => {
+    expect(
+      partnerErrors(validPartner({ suffix: '', name: '', roundingPreference: 'sideways', position: '-1' }), today),
+    ).toEqual([
+      'invoices.settings.errors.suffix',
+      'invoices.settings.errors.name',
+      'invoices.settings.errors.rounding',
+      'invoices.settings.errors.position',
+    ]);
+    expect(partnerErrors(validPartner({ suffix: 'TOOLONGXX' }), today)).toEqual(['invoices.settings.errors.suffix']);
+    expect(partnerErrors(validPartner({ position: '1.5' }), today)).toEqual(['invoices.settings.errors.position']);
+    expect(partnerErrors(validPartner({ position: '' }), today)).toEqual(['invoices.settings.errors.position']);
   });
 });
