@@ -1417,7 +1417,7 @@
       "colTickets": "Tickets",
       "colRevenue": "Revenue",
       "colFare": "KTMB fare",
-      "fareHint": "The fare currently in force per direction, in ringgit. A missing fare blocks the invoice.",
+      "fareHint": "The fare in force for this month per direction, in ringgit (set it under KTMB fare below). A missing fare blocks the invoice.",
       "colTerminated": "Terminated",
       "colBoosts": "Boosts (free)"
     },
@@ -1536,6 +1536,43 @@
         "saveTerms": "Could not save the new terms.",
         "savePartner": "Could not save the partner."
       }
+    },
+    "fare": {
+      "title": "KTMB fare",
+      "description": "What KTMB charges per ticket, in ringgit. Each invoice uses the fare in force for its own month.",
+      "history": "Fare history",
+      "historyEmpty": "No fare has been entered yet, so every month with tickets is blocked.",
+      "colDirection": "Direction",
+      "colFare": "Fare",
+      "colEffective": "Effective from",
+      "colEntered": "Entered",
+      "colStatus": "Status",
+      "status": {
+        "current": "In force",
+        "upcoming": "Queued",
+        "superseded": "Replaced"
+      },
+      "supersededHint": "A replaced fare still priced the months before the change that replaced it.",
+      "newFare": "Set the fare",
+      "direction": "Direction",
+      "directions": {
+        "both": "Both directions",
+        "JToW": "JB → Woodlands",
+        "WToJ": "Woodlands → JB"
+      },
+      "cost": "Fare per ticket (RM)",
+      "effective": "Effective from (dd-mm-yyyy)",
+      "effectiveHint": "Leave blank to apply now. A date applies from midnight Singapore time, and it can be in the past.",
+      "backdateNote": "A past date re-prices invoice drafts and the P&L for the months it covers. Issued invoices never change. To fix a mistake, enter the right fare with the same date — the newest entry wins.",
+      "submit": "Save fare",
+      "saved": "KTMB fare saved.",
+      "errors": {
+        "direction": "Choose a direction.",
+        "cost": "Fare must be a number from 0 to 10,000.",
+        "save": "Could not save the KTMB fare.",
+        "history": "Could not load the KTMB fare history."
+      },
+      "goTo": "Set the KTMB fare"
     }
   },
   "withdrawals": {

@@ -1417,7 +1417,7 @@
       "colTickets": "Tiket",
       "colRevenue": "Hasil",
       "colFare": "Tambang KTMB",
-      "fareHint": "Tambang semasa bagi setiap arah, dalam ringgit. Tambang yang hilang menyekat invois.",
+      "fareHint": "Tambang yang berkuat kuasa untuk bulan ini bagi setiap arah, dalam ringgit (tetapkan di bawah Tambang KTMB). Tambang yang hilang menyekat invois.",
       "colTerminated": "Ditamatkan",
       "colBoosts": "Boost (percuma)"
     },
@@ -1536,6 +1536,43 @@
         "saveTerms": "Tidak dapat menyimpan terma baharu.",
         "savePartner": "Tidak dapat menyimpan rakan kongsi."
       }
+    },
+    "fare": {
+      "title": "Tambang KTMB",
+      "description": "Caj KTMB bagi setiap tiket, dalam ringgit. Setiap invois menggunakan tambang yang berkuat kuasa untuk bulannya sendiri.",
+      "history": "Sejarah tambang",
+      "historyEmpty": "Tiada tambang dimasukkan lagi, jadi setiap bulan yang mempunyai tiket disekat.",
+      "colDirection": "Arah",
+      "colFare": "Tambang",
+      "colEffective": "Berkuat kuasa dari",
+      "colEntered": "Dimasukkan",
+      "colStatus": "Status",
+      "status": {
+        "current": "Berkuat kuasa",
+        "upcoming": "Dalam giliran",
+        "superseded": "Diganti"
+      },
+      "supersededHint": "Tambang yang diganti masih digunakan untuk bulan-bulan sebelum perubahan yang menggantikannya.",
+      "newFare": "Tetapkan tambang",
+      "direction": "Arah",
+      "directions": {
+        "both": "Kedua-dua arah",
+        "JToW": "JB → Woodlands",
+        "WToJ": "Woodlands → JB"
+      },
+      "cost": "Tambang setiap tiket (RM)",
+      "effective": "Berkuat kuasa dari (dd-mm-yyyy)",
+      "effectiveHint": "Biarkan kosong untuk berkuat kuasa sekarang. Tarikh berkuat kuasa dari tengah malam waktu Singapura, dan boleh pada masa lalu.",
+      "backdateNote": "Tarikh lampau mengira semula draf invois dan P&L bagi bulan yang diliputinya. Invois yang telah dikeluarkan tidak akan berubah. Untuk membetulkan kesilapan, masukkan tambang yang betul dengan tarikh yang sama — entri terbaru diguna pakai.",
+      "submit": "Simpan tambang",
+      "saved": "Tambang KTMB disimpan.",
+      "errors": {
+        "direction": "Pilih arah.",
+        "cost": "Tambang mesti nombor dari 0 hingga 10,000.",
+        "save": "Tidak dapat menyimpan tambang KTMB.",
+        "history": "Tidak dapat memuatkan sejarah tambang KTMB."
+      },
+      "goTo": "Tetapkan tambang KTMB"
     }
   },
   "withdrawals": {

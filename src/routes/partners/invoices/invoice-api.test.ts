@@ -2,16 +2,18 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   errorMessage,
   getInputs,
+  getKtmbFareHistory,
   invoiceUrl,
   issue,
   openStoredDocument,
   preview,
   saveDraft,
+  setKtmbFare,
   setPartner,
   setSettings,
   type ApiContext,
 } from './invoice-api';
-import type { PreviewInvoiceReq, SetInvoicePartnerReq, SetInvoiceSettingsReq } from './invoices';
+import type { PreviewInvoiceReq, SetInvoicePartnerReq, SetInvoiceSettingsReq, SetKtmbCostReq } from './invoices';
 
 function ctx(res: Response | Error, fetchSpy = vi.fn()): { ctx: ApiContext; fetch: ReturnType<typeof vi.fn> } {
   const f = fetchSpy.mockImplementation(() => (res instanceof Error ? Promise.reject(res) : Promise.resolve(res)));
@@ -200,5 +202,37 @@ describe('openStoredDocument', () => {
 
     expect(r).toEqual({ ok: false, message: "no partner with suffix 'X'" });
     expect(present).not.toHaveBeenCalled();
+  });
+});
+
+describe('KTMB fare', () => {
+  // The fare is a Booking endpoint, not an Invoice one — the wrong prefix
+  // would 404 and leave September blocked with no visible reason.
+  it('reads the history from the Booking controller', async () => {
+    const { ctx: c, fetch } = ctx(json([]));
+    const r = await getKtmbFareHistory(c, 'failed');
+    expect(r).toEqual({ ok: true, value: [] });
+    expect(fetch.mock.calls[0][0]).toBe('https://api.example.com/api/v1.0/Booking/ktmb-cost/history');
+    expect(fetch.mock.calls[0][1].method).toBe('GET');
+    expect(fetch.mock.calls[0][1].headers.Authorization).toBe('Bearer tok');
+  });
+
+  it('posts one fare row with the body unchanged', async () => {
+    const req: SetKtmbCostReq = { direction: 'WToJ', cost: 16.15, effectiveAt: '2026-08-31T16:00:00.000Z' };
+    const { ctx: c, fetch } = ctx(json({ id: 'x', ...req, createdAt: '2026-10-09T00:00:00Z' }));
+    await setKtmbFare(c, req, 'failed');
+    expect(fetch.mock.calls[0][0]).toBe('https://api.example.com/api/v1.0/Booking/ktmb-cost');
+    expect(fetch.mock.calls[0][1].method).toBe('POST');
+    expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual(req);
+  });
+
+  it('surfaces zinc’s reason when the fare is rejected', async () => {
+    const { ctx: c } = ctx(
+      json({ type: 't', title: 'Bad', status: 400, detail: 'Cost must be between 0 and 10000' }, { status: 400 }),
+    );
+    expect(await setKtmbFare(c, { direction: 'JToW', cost: 1, effectiveAt: null }, 'failed')).toEqual({
+      ok: false,
+      message: 'Cost must be between 0 and 10000',
+    });
   });
 });
