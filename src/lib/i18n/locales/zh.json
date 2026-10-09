@@ -1417,7 +1417,7 @@
       "colTickets": "车票数",
       "colRevenue": "收入",
       "colFare": "KTMB 票价",
-      "fareHint": "当前各方向生效的票价，以令吉计。缺少票价将无法开具账单。",
+      "fareHint": "本月各方向生效的票价，以令吉计（在下方 KTMB 票价中设置）。缺少票价将无法开具账单。",
       "colTerminated": "已终止",
       "colBoosts": "加速（免费）"
     },
@@ -1536,6 +1536,43 @@
         "saveTerms": "无法保存新条款。",
         "savePartner": "无法保存合作伙伴。"
       }
+    },
+    "fare": {
+      "title": "KTMB 票价",
+      "description": "KTMB 每张票的收费，以令吉计。每张账单都使用其所属月份生效的票价。",
+      "history": "票价记录",
+      "historyEmpty": "尚未输入任何票价，因此所有有票的月份都被阻止。",
+      "colDirection": "方向",
+      "colFare": "票价",
+      "colEffective": "生效日期",
+      "colEntered": "输入时间",
+      "colStatus": "状态",
+      "status": {
+        "current": "生效中",
+        "upcoming": "待生效",
+        "superseded": "已替换"
+      },
+      "supersededHint": "已替换的票价仍适用于替换生效之前的月份。",
+      "newFare": "设置票价",
+      "direction": "方向",
+      "directions": {
+        "both": "两个方向",
+        "JToW": "新山 → 兀兰",
+        "WToJ": "兀兰 → 新山"
+      },
+      "cost": "每张票价（令吉）",
+      "effective": "生效日期（dd-mm-yyyy）",
+      "effectiveHint": "留空则立即生效。日期从新加坡时间午夜起生效，可以是过去的日期。",
+      "backdateNote": "过去的日期会改变所涵盖月份的票价：损益表会立即更新，而该月账单会在你下次预览并保存草稿时采用新票价。已开具的账单永远不会改变。如需更正，请用相同日期输入正确票价——最新的输入为准。",
+      "submit": "保存票价",
+      "saved": "KTMB 票价已保存。",
+      "errors": {
+        "direction": "请选择方向。",
+        "cost": "票价必须是 0 到 10,000 之间的数字。",
+        "save": "无法保存 KTMB 票价。",
+        "history": "无法加载 KTMB 票价记录。"
+      },
+      "goTo": "设置 KTMB 票价"
     }
   },
   "withdrawals": {
