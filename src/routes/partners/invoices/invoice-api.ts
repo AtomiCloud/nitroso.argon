@@ -176,7 +176,7 @@ export function getKtmbFareHistory(ctx: ApiContext, fallback: string): Promise<A
 
 /**
  * Add one KTMB fare row for one direction. Insert-only and effective-dated;
- * a past effectiveAt is allowed and re-prices drafts for the months it covers.
+ * a past effectiveAt is allowed and re-prices those months (a saved draft once saved again).
  */
 export function setKtmbFare(
   ctx: ApiContext,

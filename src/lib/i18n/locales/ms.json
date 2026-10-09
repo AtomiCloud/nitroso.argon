@@ -1563,7 +1563,7 @@
       "cost": "Tambang setiap tiket (RM)",
       "effective": "Berkuat kuasa dari (dd-mm-yyyy)",
       "effectiveHint": "Biarkan kosong untuk berkuat kuasa sekarang. Tarikh berkuat kuasa dari tengah malam waktu Singapura, dan boleh pada masa lalu.",
-      "backdateNote": "Tarikh lampau mengira semula draf invois dan P&L bagi bulan yang diliputinya. Invois yang telah dikeluarkan tidak akan berubah. Untuk membetulkan kesilapan, masukkan tambang yang betul dengan tarikh yang sama — entri terbaru diguna pakai.",
+      "backdateNote": "Tarikh lampau mengubah tambang bagi bulan yang diliputinya: P&L dikemas kini serta-merta, dan invois bulan itu menggunakannya apabila anda pratonton dan simpan drafnya semula. Invois yang telah dikeluarkan tidak akan berubah. Untuk membetulkan kesilapan, masukkan tambang yang betul dengan tarikh yang sama — entri terbaru diguna pakai.",
       "submit": "Simpan tambang",
       "saved": "Tambang KTMB disimpan.",
       "errors": {

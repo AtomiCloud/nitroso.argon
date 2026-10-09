@@ -1563,7 +1563,7 @@
       "cost": "Fare per ticket (RM)",
       "effective": "Effective from (dd-mm-yyyy)",
       "effectiveHint": "Leave blank to apply now. A date applies from midnight Singapore time, and it can be in the past.",
-      "backdateNote": "A past date re-prices invoice drafts and the P&L for the months it covers. Issued invoices never change. To fix a mistake, enter the right fare with the same date — the newest entry wins.",
+      "backdateNote": "A past date changes the fare for the months it covers: the P&L updates straight away, and a month's invoice picks it up the next time you preview and save its draft. Issued invoices never change. To fix a mistake, enter the right fare with the same date — the newest entry wins.",
       "submit": "Save fare",
       "saved": "KTMB fare saved.",
       "errors": {

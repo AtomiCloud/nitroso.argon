@@ -858,6 +858,19 @@ describe('ktmbFareHistory', () => {
     ]);
   });
 
+  it('marks a queued row corrected at the same future instant as replaced', () => {
+    const rows = [
+      row('old', 'JToW', 1.8, '2026-12-31T16:00:00Z', '2026-10-01T00:00:00Z'),
+      row('new', 'JToW', 18, '2026-12-31T16:00:00Z', '2026-10-02T00:00:00Z'),
+      row('other', 'WToJ', 17, '2026-12-31T16:00:00Z', '2026-10-01T00:00:00Z'),
+    ];
+    expect(ktmbFareHistory(rows, now).map(r => [r.id, r.status])).toEqual([
+      ['new', 'upcoming'],
+      ['other', 'upcoming'],
+      ['old', 'superseded'],
+    ]);
+  });
+
   it('is empty when nothing was ever entered', () => {
     expect(ktmbFareHistory([], now)).toEqual([]);
   });

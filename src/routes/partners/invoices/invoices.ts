@@ -915,8 +915,9 @@ export function assemblePartnerRequest(f: PartnerForm): SetInvoicePartnerReq {
 //
 // UNLIKE THE AGREED TERMS, BACKDATING IS ALLOWED. The fare is a fact about
 // what KTMB charged, and it is entered after the month it applied to — the
-// owner learns it from the month's tickets. A backdated row re-prices invoice
-// DRAFTS and the P&L for the months it covers; issued invoices froze their
+// owner learns it from the month's tickets. A backdated row re-prices the P&L
+// for the months it covers at once, and a draft once it is previewed and saved
+// again (saved drafts hold their figures); issued invoices froze their
 // inputs and never move. Insert-only like everything else: a correction is a
 // new row at the same effective date, and the newest entry wins.
 
@@ -1016,8 +1017,16 @@ export function ktmbFareHistory(rows: KtmbCostChangeRes[], now: Date): KtmbFareH
       (a.id < b.id ? 1 : a.id > b.id ? -1 : 0),
   );
   const seen = new Set<string>();
+  // a queued row re-entered at the same instant (a correction) replaces the
+  // earlier one before either takes effect
+  const queued = new Set<string>();
   return sorted.map(r => {
-    if (at(r.effectiveAt) > now.getTime()) return { ...r, status: 'upcoming' };
+    if (at(r.effectiveAt) > now.getTime()) {
+      const key = `${r.direction}|${at(r.effectiveAt)}`;
+      if (queued.has(key)) return { ...r, status: 'superseded' };
+      queued.add(key);
+      return { ...r, status: 'upcoming' };
+    }
     if (seen.has(r.direction)) return { ...r, status: 'superseded' };
     seen.add(r.direction);
     return { ...r, status: 'current' };

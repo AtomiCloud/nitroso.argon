@@ -182,9 +182,15 @@
     $: fares = faresFromInputs(inputs);
     let loading = false;
     let loadToken = 0;
+    // which month the manual figures on screen were typed against
+    let manualFor: string | null = null;
 
-    async function load() {
+    // keepManual: re-gather the SAME month without wiping what the operator
+    // typed (a fare save re-prices the month; it must not cost them their
+    // manual figures). A different month always starts empty.
+    async function load(keepManual = false) {
         const myToken = ++loadToken;
+        const forMonth = monthParam(month);
         loading = true;
         // Clearing first is the point: a stale card next to a new month's
         // heading is how somebody invoices August's figures as September.
@@ -210,7 +216,8 @@
             else toast.error(i.message);
         } else {
             inputs = i.value;
-            manual = emptyManualInputs(i.value);
+            if (!(keepManual && manualFor === forMonth)) manual = emptyManualInputs(i.value);
+            manualFor = forMonth;
         }
 
         // A settings failure does not re-authenticate on its own — the inputs
@@ -582,7 +589,7 @@
                 fareForm = emptyKtmbFareForm();
             }
             // the gathered month carries its fare, so re-gather to re-price
-            await load();
+            await load(true);
         } finally {
             savingFare = false;
         }
