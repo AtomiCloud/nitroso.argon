@@ -1687,7 +1687,14 @@
       "feeLoadFailed": "Gagal memuatkan kadar yuran pengeluaran",
       "complete": "Selesai",
       "success": "Berjaya menyelesaikan pengeluaran {amount}.",
-      "failed": "Gagal menyelesaikan pengeluaran"
+      "failed": "Gagal menyelesaikan pengeluaran",
+      "handPaid": {
+        "trigger": "Selesaikan secara manual (dibayar sendiri)",
+        "title": "Selesaikan bayaran balik kad yang tertangguh secara manual",
+        "instructions": "Gunakan hanya apabila jumlah bersih PENUH di bawah telah sampai kepada pengguna secara manual — contohnya bayaran balik di papan pemuka Airwallex serta pemindahan PayNow untuk bakinya. Tiada wang dihantar dari sini. Hanya satu fail boleh dimuat naik, jadi gabungkan resit atau tangkapan skrin setiap bayaran manual ke dalam satu imej sebagai bukti. Bahagian bayaran balik yang belum dihantar akan dibatalkan; jika sesuatu bahagian masih aktif di Airwallex, penyelesaian akan ditolak.",
+        "netLine": "Sahkan pengguna menerima tepat: {net}",
+        "complete": "Sahkan dibayar & selesaikan"
+      }
     },
     "reconcile": {
       "trigger": "Sesuaikan sekarang",
@@ -1717,7 +1724,8 @@
         "confirm": "Beratur semula pembayaran",
         "success": "Pengeluaran {amount} telah diatur semula untuk pembayaran automatik.",
         "failed": "Gagal mengatur semula pengeluaran"
-      }
+      },
+      "chooseActionCard": "Bayaran balik kad tiada nombor pengesahan, jadi ia tidak boleh diselesaikan secara paksa. Jika jumlah bersih penuh telah sampai kepada pengguna secara manual (cth. bayaran balik di papan pemuka Airwallex serta PayNow untuk bakinya), selesaikan secara manual dengan resit. Jika tiada wang keluar, tolak & pulangkan wang kepada pengguna, atau beratur semula untuk mencuba semula bayaran balik automatik."
     },
     "export": {
       "trigger": "Eksport CSV",
