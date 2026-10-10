@@ -1385,9 +1385,10 @@
       "noInputs": "本月没有采集到任何数据。",
       "noTopups": "本月没有 KTMB 卡充值记录，因此没有可用于换算车票成本的实际汇率。",
       "noTerms": "尚未设定商业条款。请先设定利润分成与基础设施成本。",
-      "noPartners": "协议中没有合作伙伴，无法分配利润。",
-      "noFare": "某条线路有车票但没有 KTMB 票价，这会把整笔车票成本算成利润。",
-      "noTickets": "本月没有出票。"
+      "noPartners": "协议中还没有合作方，因此无人分配利润池。请在下方添加每位合作方。",
+      "noFare": "有路线有票但没有可用的 KTMB 票价。已结束的月份在至少 99% 的票有记录金额时，使用按票测得的票价；否则请在下方设置覆盖票价。",
+      "noTickets": "本月没有出票。",
+      "noFareOpen": "本月尚未结束。月份结束后会按票测得 KTMB 票价（或在下方设置覆盖票价）。"
     },
     "errors": {
       "inputs": "无法加载本月数据。",
@@ -1417,9 +1418,16 @@
       "colTickets": "车票数",
       "colRevenue": "收入",
       "colFare": "KTMB 票价",
-      "fareHint": "本月各方向生效的票价，以令吉计（在下方 KTMB 票价中设置）。缺少票价将无法开具账单。",
+      "fareHint": "本月车票在 KTMB 的成本，以令吉计。已结束的月份使用每张票实际支付的平均值；你在下方设置的覆盖票价优先。缺少票价将无法开具账单。",
       "colTerminated": "已终止",
-      "colBoosts": "加速（免费）"
+      "colBoosts": "加速（免费）",
+      "fareMeasured": "按 {count} 张票测得",
+      "fareOverride": "手动设置",
+      "fareOpenMonth": "月份尚未结束",
+      "fareLowCoverage": "有记录金额的票太少",
+      "fareNone": "没有票价记录",
+      "fareCoverage": "{pct}% 有记录（{priced}/{tickets}）",
+      "fareMeasuredWas": "测得 {fare}"
     },
     "manual": {
       "title": "只有你知道的部分",
@@ -1535,13 +1543,14 @@
         "position": "顺序必须是大于或等于 0 的整数。",
         "saveTerms": "无法保存新条款。",
         "savePartner": "无法保存合作伙伴。"
-      }
+      },
+      "noPartnerYet": "上方条款已保存，但还没有生效的合作方。请在下方添加每位合作方——账单至少需要一位。"
     },
     "fare": {
-      "title": "KTMB 票价",
-      "description": "KTMB 每张票的收费，以令吉计。每张账单都使用其所属月份生效的票价。",
+      "title": "KTMB 票价覆盖（可选）",
+      "description": "通常不需要此项：已结束的月份按 KTMB 每张票的实际收费计价。仅当需要替换某月的票价时才在此设置——覆盖票价在其涵盖的月份始终优先。",
       "history": "票价记录",
-      "historyEmpty": "尚未输入任何票价，因此所有有票的月份都被阻止。",
+      "historyEmpty": "尚未输入覆盖票价。已结束的月份使用测得的票价。",
       "colDirection": "方向",
       "colFare": "票价",
       "colEffective": "生效日期",
@@ -1553,7 +1562,7 @@
         "superseded": "已替换"
       },
       "supersededHint": "已替换的票价仍适用于替换生效之前的月份。",
-      "newFare": "设置票价",
+      "newFare": "添加覆盖票价",
       "direction": "方向",
       "directions": {
         "both": "两个方向",
@@ -1564,15 +1573,15 @@
       "effective": "生效日期（dd-mm-yyyy）",
       "effectiveHint": "留空则立即生效。日期从新加坡时间午夜起生效，可以是过去的日期。",
       "backdateNote": "过去的日期会改变所涵盖月份的票价：损益表会立即更新，而该月账单会在你下次预览并保存草稿时采用新票价。已开具的账单永远不会改变。如需更正，请用相同日期输入正确票价——最新的输入为准。",
-      "submit": "保存票价",
-      "saved": "KTMB 票价已保存。",
+      "submit": "保存覆盖票价",
+      "saved": "KTMB 覆盖票价已保存。",
       "errors": {
         "direction": "请选择方向。",
         "cost": "票价必须是 0 到 10,000 之间的数字。",
         "save": "无法保存 KTMB 票价。",
         "history": "无法加载 KTMB 票价记录。"
       },
-      "goTo": "设置 KTMB 票价"
+      "goTo": "添加 KTMB 覆盖票价"
     }
   },
   "withdrawals": {

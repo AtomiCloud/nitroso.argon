@@ -39,6 +39,8 @@
         assembleSettingsRequest,
         blockingReasons,
         byMonthDescending,
+        coveragePct,
+        fareNote,
         defaultDueDate,
         defaultIssueDate,
         defaultMonth,
@@ -51,6 +53,7 @@
         KTMB_FARE_MAX,
         ktmbFareErrors,
         ktmbFareHistory,
+        monthClosed,
         monthName,
         monthParam,
         partnerErrors,
@@ -63,6 +66,7 @@
         ROUNDING_PREFERENCES,
         settingsErrors,
         settingsFormFrom,
+        settingsHalves,
         statusVariant,
         type InvoiceComputedRes,
         type InvoiceDocumentRes,
@@ -262,7 +266,8 @@
         seq = defaultSeq(month);
     }
 
-    $: blocked = blockingReasons(inputs, terms, fares);
+    $: blocked = blockingReasons(inputs, terms, fares, settings);
+    $: closed = monthClosed(month);
     $: rate = inputs == null ? 0 : fxRate(inputs.topups);
     $: totalTickets = (inputs?.routes ?? []).reduce((a, r) => a + r.tickets, 0);
     $: totalRevenue = (inputs?.routes ?? []).reduce((a, r) => a + r.revenue, 0);
@@ -492,13 +497,16 @@
         terms = s.current;
         if (settingsSeeded && !reseed) return;
         settingsSeeded = true;
-        ({form: settingsForm, suggested: settingsSuggested} = settingsFormFrom(s.current));
-        ({form: partnerForm, suggested: partnerSuggested} = partnerFormFrom(s.current));
+        const halves = settingsHalves(s);
+        ({form: settingsForm, suggested: settingsSuggested} = settingsFormFrom(halves.terms));
+        ({form: partnerForm, suggested: partnerSuggested} = partnerFormFrom(halves.partners));
     }
 
     $: settingsProblems = settingsErrors(settingsForm, today);
     $: partnerProblems = partnerErrors(partnerForm, today);
-    $: partnerIsUpdate = partnerExists(terms, partnerForm.suffix);
+    $: partnerIsUpdate = partnerExists(settingsHalves(settings).partners, partnerForm.suffix);
+    $: currentSettings = settings?.current ?? settings?.currentSettings ?? null;
+    $: currentPartners = settings?.current?.partners ?? settings?.currentPartners ?? [];
 
     let savingSettings = false;
     let savingPartner = false;
@@ -653,10 +661,10 @@
                 <Alert.Description>
                     <ul class="list-disc pl-4">
                         {#each blocked as reason (reason)}
-                            <li>{$_(reason, { locale: $lang })}</li>
+                            <li>{$_(reason === 'invoices.blocked.noFare' && !closed ? 'invoices.blocked.noFareOpen' : reason, { locale: $lang })}</li>
                         {/each}
                     </ul>
-                    {#if terms == null}
+                    {#if blocked.includes('invoices.blocked.noTerms') || blocked.includes('invoices.blocked.noPartners')}
                         <a href="#invoice-settings" class="underline text-sm">{$_('invoices.settings.goToSettings', { locale: $lang })}</a>
                     {/if}
                     {#if blocked.includes('invoices.blocked.noFare')}
@@ -750,6 +758,24 @@
                                         <Table.Cell class="px-2 py-1.5 text-right">{formatMoney(r.revenue, $lang)}</Table.Cell>
                                         <Table.Cell class="px-2 py-1.5 text-right {(fares[r.key] ?? 0) <= 0 && r.tickets > 0 ? 'text-destructive font-medium' : ''}">
                                             {(fares[r.key] ?? 0) <= 0 ? '—' : formatMoney(fares[r.key], $lang, { currency: 'MYR' })}
+                                            {#if fareNote(r, closed)}
+                                                {@const note = fareNote(r, closed)}
+                                                <div class="text-xs font-normal {r.ktmbFareSource == null ? '' : 'text-muted-foreground'}">
+                                                    {$_(note.key, { locale: $lang, values: note.values })}
+                                                </div>
+                                            {/if}
+                                            {#if coveragePct(r) != null}
+                                                <div class="text-xs font-normal text-muted-foreground">
+                                                    {$_('invoices.gathered.fareCoverage', { locale: $lang, values: {
+                                                        pct: formatNumber(coveragePct(r), $lang),
+                                                        priced: formatNumber(r.pricedTickets ?? 0, $lang),
+                                                        tickets: formatNumber(r.tickets, $lang),
+                                                    } })}
+                                                    {#if r.ktmbFareSource === 'override' && r.measuredFare != null}
+                                                        · {$_('invoices.gathered.fareMeasuredWas', { locale: $lang, values: { fare: formatMoney(r.measuredFare, $lang, { currency: 'MYR' }) } })}
+                                                    {/if}
+                                                </div>
+                                            {/if}
                                         </Table.Cell>
                                         <Table.Cell class="px-2 py-1.5 text-right">{formatNumber(r.terminated.count, $lang)}</Table.Cell>
                                         <Table.Cell class="px-2 py-1.5 text-right">
@@ -1057,10 +1083,10 @@
             </Card.Content>
         </Card.Root>
 
-        <!-- KTMB FARE. What every month's tickets are costed at. Each invoice
-             reads the fare in force for its own month, so the history matters
-             as much as the latest row. Unlike the terms below, a past date is
-             allowed: the fare is entered after the month it applied to. -->
+        <!-- KTMB FARE OVERRIDE (optional). A closed month is priced at the fare
+             measured from its own tickets; a row here replaces that for the
+             months it covers. Unlike the terms below, a past date is allowed:
+             an override is usually entered after the month it applies to. -->
         <Card.Root id="ktmb-fare">
             <Card.Header class="p-4 sm:p-6">
                 <Card.Title>{$_('invoices.fare.title', { locale: $lang })}</Card.Title>
@@ -1170,30 +1196,33 @@
                 <!-- in force now -->
                 <div class="flex flex-col gap-2">
                     <div class="text-sm font-medium">{$_('invoices.settings.current', { locale: $lang })}</div>
-                    {#if terms == null}
+                    {#if currentSettings == null}
                         <p class="text-sm text-destructive">{$_('invoices.settings.notConfigured', { locale: $lang })}</p>
                     {:else}
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             <div>
                                 <div class="text-xs text-muted-foreground">{$_('invoices.settings.share', { locale: $lang })}</div>
-                                <div class="text-lg font-medium">{formatNumber(terms.marketingSharePct, $lang)}%</div>
+                                <div class="text-lg font-medium">{formatNumber(currentSettings.marketingSharePct, $lang)}%</div>
                             </div>
                             <div>
                                 <div class="text-xs text-muted-foreground">{$_('invoices.settings.infrastructure', { locale: $lang })}</div>
-                                <div class="text-lg font-medium">{formatMoney(terms.infrastructure, $lang)}</div>
+                                <div class="text-lg font-medium">{formatMoney(currentSettings.infrastructure, $lang)}</div>
                             </div>
                             <div>
                                 <div class="text-xs text-muted-foreground">{$_('invoices.settings.recoveryPerBoost', { locale: $lang })}</div>
-                                <div class="text-lg font-medium">{formatMoney(terms.recoveryPerBoost, $lang)}</div>
+                                <div class="text-lg font-medium">{formatMoney(currentSettings.recoveryPerBoost, $lang)}</div>
                             </div>
                             <div>
                                 <div class="text-xs text-muted-foreground">{$_('invoices.settings.recoveryPerTicket', { locale: $lang })}</div>
-                                <div class="text-lg font-medium">{formatMoney(terms.recoveryPerTicket, $lang)}</div>
+                                <div class="text-lg font-medium">{formatMoney(currentSettings.recoveryPerTicket, $lang)}</div>
                             </div>
                         </div>
+                        {#if currentPartners.length === 0}
+                            <p class="text-sm text-destructive">{$_('invoices.settings.noPartnerYet', { locale: $lang })}</p>
+                        {/if}
                     {/if}
 
-                    {#if (terms?.partners ?? []).length > 0}
+                    {#if currentPartners.length > 0}
                         <div class="overflow-x-auto">
                             <Table.Root>
                                 <Table.Header>
@@ -1205,7 +1234,7 @@
                                     </Table.Row>
                                 </Table.Header>
                                 <Table.Body>
-                                    {#each (terms?.partners ?? []) as p, i (p.suffix)}
+                                    {#each currentPartners as p, i (p.suffix)}
                                         <Table.Row>
                                             <Table.Cell class="px-2 py-1.5 font-medium">{p.suffix}</Table.Cell>
                                             <Table.Cell class="px-2 py-1.5">{p.name}</Table.Cell>
