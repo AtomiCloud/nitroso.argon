@@ -34,13 +34,22 @@ export interface InvoiceInputRouteRes {
   terminated: { count: number; keptRevenue: number };
   priority: { paid: number; fee: number; free: number };
   /**
-   * RM per ticket in force for THIS month (the fare effective at the month's
-   * last SGT instant), not today's. null = no fare had been entered by then.
-   * Optional so a zinc that predates the field reads as "missing", which
-   * blocks, rather than as a crash.
+   * RM per ticket the invoice prices this route at, for THIS month. null = no
+   * usable fare. Optional so a zinc that predates the field reads as
+   * "missing", which blocks, rather than as a crash.
    */
   ktmbFare?: number | null;
+  /** where ktmbFare came from: an owner override, the month's measured average, or none */
+  ktmbFareSource?: FareSource | null;
+  /** average recorded MYR per priced ticket this month, even when not used */
+  measuredFare?: number | null;
+  /** completed tickets with a recorded MYR KTMB amount */
+  pricedTickets?: number;
+  /** pricedTickets / tickets in [0, 1]; null when the route sold nothing */
+  pricedCoverage?: number | null;
 }
+
+export type FareSource = 'override' | 'measured';
 
 export interface InvoiceInputRowRes {
   month: string;
@@ -88,7 +97,12 @@ export interface InvoicePartnerChangeRes {
 }
 
 export interface InvoiceSettingsRes {
+  /** null unless BOTH the terms row and at least one partner are in force */
   current: InvoiceTermsRes | null;
+  /** the terms row in force, null when none saved (absent on an older zinc) */
+  currentSettings?: InvoiceSettingsChangeRes | null;
+  /** the partners in force, empty when none (absent on an older zinc) */
+  currentPartners?: InvoicePartnerRes[];
   upcoming: InvoiceSettingsChangeRes[];
   upcomingPartners: InvoicePartnerChangeRes[];
 }
@@ -610,13 +624,13 @@ export function blockingReasons(
   inputs: InvoiceInputRowRes | null,
   terms: InvoiceTermsRes | null,
   fares: Record<string, number>,
+  settings: InvoiceSettingsRes | null = null,
 ): string[] {
   const reasons: string[] = [];
   if (inputs == null) return ['invoices.blocked.noInputs'];
 
   if (topupsMissing(inputs.topups)) reasons.push('invoices.blocked.noTopups');
-  if (terms == null) reasons.push('invoices.blocked.noTerms');
-  else if (terms.partners.length === 0) reasons.push('invoices.blocked.noPartners');
+  reasons.push(...termsReasons(terms, settings));
 
   // A fare of zero converts the entire KTMB cost to nil and reports the
   // month's whole ticket spend as profit.
@@ -626,6 +640,62 @@ export function blockingReasons(
   if (inputs.routes.every(r => r.tickets === 0)) reasons.push('invoices.blocked.noTickets');
 
   return reasons;
+}
+
+/**
+ * Why the agreed terms are not usable, naming the half that is missing.
+ * zinc's `current` is null whenever EITHER the terms row or every partner is
+ * missing, so "no terms" alone told an owner who had saved terms (but no
+ * partner yet) to save the terms again — production on 10 Oct 2026 had four
+ * terms rows and no partner. An older zinc without the halves falls back to
+ * the single noTerms reason.
+ */
+export function termsReasons(terms: InvoiceTermsRes | null, settings: InvoiceSettingsRes | null): string[] {
+  if (terms != null) return terms.partners.length === 0 ? ['invoices.blocked.noPartners'] : [];
+  if (settings == null || settings.currentSettings === undefined) return ['invoices.blocked.noTerms'];
+  const out: string[] = [];
+  if (settings.currentSettings == null) out.push('invoices.blocked.noTerms');
+  if ((settings.currentPartners ?? []).length === 0) out.push('invoices.blocked.noPartners');
+  return out.length === 0 ? ['invoices.blocked.noTerms'] : out;
+}
+
+/**
+ * How the gathered table describes one route's fare, as an i18n key plus
+ * values. "measured" names the ticket count it was averaged over; a missing
+ * fare explains why (month still open vs too few priced tickets vs nothing
+ * recorded) so the owner knows whether to wait, override, or ask.
+ */
+export function fareNote(
+  r: InvoiceInputRouteRes,
+  monthClosed: boolean,
+): { key: string; values?: Record<string, string | number> } | null {
+  if (r.ktmbFareSource === 'override') return { key: 'invoices.gathered.fareOverride' };
+  if (r.ktmbFareSource === 'measured')
+    return { key: 'invoices.gathered.fareMeasured', values: { count: r.pricedTickets ?? 0 } };
+  if (r.tickets <= 0) return null;
+  if (!monthClosed) return { key: 'invoices.gathered.fareOpenMonth' };
+  if ((r.pricedTickets ?? 0) > 0) return { key: 'invoices.gathered.fareLowCoverage' };
+  return { key: 'invoices.gathered.fareNone' };
+}
+
+/** pricedCoverage as a whole-ish percentage for display; null when not applicable. */
+export function coveragePct(r: InvoiceInputRouteRes): number | null {
+  if (r.pricedCoverage == null) return null;
+  return Math.floor(r.pricedCoverage * 1000) / 10;
+}
+
+/** Singapore is UTC+8 with no DST since 1982, so a fixed offset is exact. */
+const SGT_OFFSET_MS = 8 * 60 * 60 * 1000;
+
+/**
+ * True when the SGT month is over. Mirrors zinc's IsClosed: an open month is
+ * never auto-priced from measured fares, so the page explains a missing fare
+ * as "month still open" rather than as a data gap.
+ */
+export function monthClosed(m: Month, now: Date = new Date()): boolean {
+  const nextFirstSgtUtc =
+    Date.UTC(m.month === 12 ? m.year + 1 : m.year, m.month === 12 ? 0 : m.month, 1) - SGT_OFFSET_MS;
+  return now.getTime() >= nextFirstSgtUtc;
 }
 
 /** Sum of what every partner is actually transferred. */
@@ -742,7 +812,12 @@ export interface PartnerForm {
  * next row is usually a small change to them), otherwise SUGGESTED_TERMS.
  * `suggested` tells the page to say where the numbers came from.
  */
-export function settingsFormFrom(current: InvoiceTermsRes | null): { form: SettingsForm; suggested: boolean } {
+export function settingsFormFrom(
+  current: Pick<
+    InvoiceTermsRes,
+    'marketingSharePct' | 'infrastructure' | 'recoveryPerBoost' | 'recoveryPerTicket'
+  > | null,
+): { form: SettingsForm; suggested: boolean } {
   const src = current ?? SUGGESTED_TERMS;
   return {
     form: {
@@ -761,7 +836,10 @@ export function settingsFormFrom(current: InvoiceTermsRes | null): { form: Setti
  * force, so an empty environment is two confirm-clicks from the real
  * agreement. Once both are in, a blank row positioned after the last one.
  */
-export function partnerFormFrom(current: InvoiceTermsRes | null): { form: PartnerForm; suggested: boolean } {
+export function partnerFormFrom(current: Pick<InvoiceTermsRes, 'partners'> | null): {
+  form: PartnerForm;
+  suggested: boolean;
+} {
   const have = new Set((current?.partners ?? []).map(p => p.suffix.toUpperCase()));
   const next = SUGGESTED_TERMS.partners.find(p => !have.has(p.suffix));
   if (next != null) {
@@ -790,8 +868,28 @@ export function partnerFormFrom(current: InvoiceTermsRes | null): { form: Partne
   };
 }
 
+/**
+ * The halves of the settings in force, for seeding the forms. zinc's
+ * `current` is null until BOTH halves exist, so seeding from it alone would
+ * offer the suggested terms again after the owner saved real ones, and
+ * suggest a partner that is already in force.
+ */
+export function settingsHalves(s: InvoiceSettingsRes | null): {
+  terms: Pick<
+    InvoiceTermsRes,
+    'marketingSharePct' | 'infrastructure' | 'recoveryPerBoost' | 'recoveryPerTicket'
+  > | null;
+  partners: Pick<InvoiceTermsRes, 'partners'> | null;
+} {
+  if (s == null) return { terms: null, partners: null };
+  if (s.current != null) return { terms: s.current, partners: s.current };
+  const cs = s.currentSettings ?? null;
+  const cp = s.currentPartners ?? [];
+  return { terms: cs, partners: cp.length === 0 ? null : { partners: cp } };
+}
+
 /** True when submitting this suffix changes an existing partner rather than adding one. */
-export function partnerExists(current: InvoiceTermsRes | null, suffix: string): boolean {
+export function partnerExists(current: Pick<InvoiceTermsRes, 'partners'> | null, suffix: string): boolean {
   const s = suffix.trim().toUpperCase();
   return s !== '' && (current?.partners ?? []).some(p => p.suffix.toUpperCase() === s);
 }
@@ -800,8 +898,6 @@ export function partnerExists(current: InvoiceTermsRes | null, suffix: string): 
 function isNumeric(v: unknown): boolean {
   return v != null && String(v).trim() !== '' && Number.isFinite(Number(v));
 }
-
-const SGT_OFFSET_MS = 8 * 60 * 60 * 1000;
 
 /**
  * An SGT calendar day as the UTC instant zinc stores EffectiveAt in: that

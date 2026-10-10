@@ -7,6 +7,8 @@ import {
   effectiveAtParam,
   blockingReasons,
   byMonthDescending,
+  coveragePct,
+  fareNote,
   daysInMonth,
   defaultDueDate,
   defaultIssueDate,
@@ -19,6 +21,7 @@ import {
   halfFareSgd,
   ktmbFareErrors,
   ktmbFareHistory,
+  monthClosed,
   monthName,
   monthParam,
   partnerErrors,
@@ -32,11 +35,15 @@ import {
   routeKeyOf,
   settingsErrors,
   settingsFormFrom,
+  settingsHalves,
+  termsReasons,
   statusVariant,
   toApiDate,
   topupsMissing,
   type InvoiceComputedRes,
+  type InvoiceInputRouteRes,
   type InvoiceInputRowRes,
+  type InvoiceSettingsRes,
   type InvoiceSummaryRes,
   type InvoiceTermsRes,
   type KtmbCostChangeRes,
@@ -873,5 +880,146 @@ describe('ktmbFareHistory', () => {
 
   it('is empty when nothing was ever entered', () => {
     expect(ktmbFareHistory([], now)).toEqual([]);
+  });
+});
+
+describe('measured fare display', () => {
+  const route = (over: Partial<InvoiceInputRouteRes> = {}): InvoiceInputRouteRes => ({
+    ...AUGUST_INPUTS.routes[1],
+    ...over,
+  });
+
+  it('names the ticket count a measured fare was averaged over', () => {
+    expect(fareNote(route({ ktmbFare: 16.22, ktmbFareSource: 'measured', pricedTickets: 2450 }), true)).toEqual({
+      key: 'invoices.gathered.fareMeasured',
+      values: { count: 2450 },
+    });
+  });
+
+  it('says an override was set manually', () => {
+    expect(fareNote(route({ ktmbFare: 16.5, ktmbFareSource: 'override' }), true)?.key).toBe(
+      'invoices.gathered.fareOverride',
+    );
+    // an override applies to an open month too
+    expect(fareNote(route({ ktmbFare: 16.5, ktmbFareSource: 'override' }), false)?.key).toBe(
+      'invoices.gathered.fareOverride',
+    );
+  });
+
+  it('explains why a fare is missing', () => {
+    // open month: wait for it to close
+    expect(fareNote(route({ ktmbFare: null, ktmbFareSource: null, pricedTickets: 876 }), false)?.key).toBe(
+      'invoices.gathered.fareOpenMonth',
+    );
+    // closed, some priced but below 99%
+    expect(fareNote(route({ ktmbFare: null, ktmbFareSource: null, pricedTickets: 100 }), true)?.key).toBe(
+      'invoices.gathered.fareLowCoverage',
+    );
+    // closed, nothing recorded
+    expect(fareNote(route({ ktmbFare: null, ktmbFareSource: null, pricedTickets: 0 }), true)?.key).toBe(
+      'invoices.gathered.fareNone',
+    );
+    // no tickets: nothing to say
+    expect(fareNote(route({ tickets: 0, ktmbFare: null }), true)).toBeNull();
+  });
+
+  it('shows coverage to one decimal, rounding down so 98.96% never reads as 99%', () => {
+    expect(coveragePct(route({ pricedCoverage: 1 }))).toBe(100);
+    expect(coveragePct(route({ pricedCoverage: 0.98983 }))).toBe(98.9);
+    expect(coveragePct(route({ pricedCoverage: null }))).toBeNull();
+    expect(coveragePct(route({}))).toBeNull();
+  });
+
+  it('a measured fare unblocks the month', () => {
+    const sep: InvoiceInputRowRes = {
+      ...AUGUST_INPUTS,
+      routes: [
+        { ...AUGUST_INPUTS.routes[0], ktmbFare: 5, ktmbFareSource: 'measured' },
+        { ...AUGUST_INPUTS.routes[1], ktmbFare: 16.22, ktmbFareSource: 'measured' },
+      ],
+    };
+    expect(blockingReasons(sep, TERMS, faresFromInputs(sep))).toEqual([]);
+  });
+});
+
+describe('monthClosed', () => {
+  const sep = { year: 2026, month: 9 };
+
+  it('closes at midnight Singapore time on the 1st of the next month', () => {
+    // 1 Oct 00:00 SGT = 30 Sep 16:00 UTC
+    expect(monthClosed(sep, new Date('2026-09-30T15:59:59Z'))).toBe(false);
+    expect(monthClosed(sep, new Date('2026-09-30T16:00:00Z'))).toBe(true);
+  });
+
+  it('handles December rolling into the next year', () => {
+    expect(monthClosed({ year: 2026, month: 12 }, new Date('2026-12-31T15:59:59Z'))).toBe(false);
+    expect(monthClosed({ year: 2026, month: 12 }, new Date('2026-12-31T16:00:00Z'))).toBe(true);
+  });
+});
+
+describe('terms halves', () => {
+  const termsRow = {
+    id: 't',
+    marketingSharePct: 50,
+    infrastructure: 500,
+    recoveryPerBoost: 10,
+    recoveryPerTicket: 3,
+    effectiveAt: '2026-10-09T23:01:43Z',
+    createdAt: '2026-10-09T23:01:43Z',
+  };
+  const settings = (over: Partial<InvoiceSettingsRes>): InvoiceSettingsRes => ({
+    current: null,
+    upcoming: [],
+    upcomingPartners: [],
+    ...over,
+  });
+
+  // production on 10 Oct 2026: four terms rows saved, no partner
+  it('names the missing partner rather than the saved terms', () => {
+    const s = settings({ currentSettings: termsRow, currentPartners: [] });
+    expect(termsReasons(null, s)).toEqual(['invoices.blocked.noPartners']);
+    expect(blockingReasons(AUGUST_INPUTS, null, AUGUST_FARES, s)).toEqual(['invoices.blocked.noPartners']);
+  });
+
+  it('names the missing terms when only partners exist', () => {
+    const s = settings({ currentSettings: null, currentPartners: TERMS.partners });
+    expect(termsReasons(null, s)).toEqual(['invoices.blocked.noTerms']);
+  });
+
+  it('names both when nothing is configured', () => {
+    expect(termsReasons(null, settings({ currentSettings: null, currentPartners: [] }))).toEqual([
+      'invoices.blocked.noTerms',
+      'invoices.blocked.noPartners',
+    ]);
+  });
+
+  it('falls back to noTerms against a zinc without the halves', () => {
+    expect(termsReasons(null, settings({}))).toEqual(['invoices.blocked.noTerms']);
+    expect(termsReasons(null, null)).toEqual(['invoices.blocked.noTerms']);
+  });
+
+  it('passes once both are in force', () => {
+    expect(termsReasons(TERMS, settings({ current: TERMS }))).toEqual([]);
+  });
+
+  it('seeds the forms from the saved half, not the suggestion', () => {
+    const halves = settingsHalves(
+      settings({ currentSettings: { ...termsRow, infrastructure: 650 }, currentPartners: [] }),
+    );
+    const { form, suggested } = settingsFormFrom(halves.terms);
+    expect(suggested).toBe(false);
+    expect(form.infrastructure).toBe(650);
+    // no partner yet: the partner form still suggests CLEON first
+    expect(partnerFormFrom(halves.partners).form.suffix).toBe('C');
+  });
+
+  it('suggests the next partner once one is in force', () => {
+    const halves = settingsHalves(
+      settings({
+        currentSettings: termsRow,
+        currentPartners: [{ suffix: 'C', name: 'CLEON', roundingPreference: 'down' }],
+      }),
+    );
+    expect(partnerFormFrom(halves.partners).form.suffix).toBe('Z');
   });
 });
