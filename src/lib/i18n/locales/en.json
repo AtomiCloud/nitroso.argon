@@ -1385,9 +1385,10 @@
       "noInputs": "No figures were gathered for this month.",
       "noTopups": "No KTMB card top-up posted this month, so there is no measured exchange rate to convert ticket fares at.",
       "noTerms": "No commercial terms are in force. Set the profit share and infrastructure cost first.",
-      "noPartners": "No partners are on the agreement, so there is nobody to split the pool between.",
-      "noFare": "A route has tickets but no KTMB fare, which would report its whole ticket cost as profit.",
-      "noTickets": "No tickets were issued this month."
+      "noPartners": "No partner is on the agreement yet, so there is nobody to split the pool between. Add each partner below.",
+      "noFare": "A route has tickets but no usable KTMB fare. A closed month uses the fare measured from its tickets once at least 99% of them have one recorded; otherwise set an override below.",
+      "noTickets": "No tickets were issued this month.",
+      "noFareOpen": "This month is not over yet. Its KTMB fare is measured from the tickets once the month closes (or set an override below)."
     },
     "errors": {
       "inputs": "Could not load this month’s figures.",
@@ -1417,9 +1418,16 @@
       "colTickets": "Tickets",
       "colRevenue": "Revenue",
       "colFare": "KTMB fare",
-      "fareHint": "The fare in force for this month per direction, in ringgit (set it under KTMB fare below). A missing fare blocks the invoice.",
+      "fareHint": "What this month's tickets cost at KTMB, in ringgit. A closed month uses the average actually paid per ticket; an override you set below takes precedence. A missing fare blocks the invoice.",
       "colTerminated": "Terminated",
-      "colBoosts": "Boosts (free)"
+      "colBoosts": "Boosts (free)",
+      "fareMeasured": "measured from {count} tickets",
+      "fareOverride": "set manually",
+      "fareOpenMonth": "month not over yet",
+      "fareLowCoverage": "too few tickets priced",
+      "fareNone": "no fare recorded",
+      "fareCoverage": "{pct}% priced ({priced}/{tickets})",
+      "fareMeasuredWas": "measured {fare}"
     },
     "manual": {
       "title": "What only you know",
@@ -1535,13 +1543,14 @@
         "position": "Order must be a whole number, 0 or more.",
         "saveTerms": "Could not save the new terms.",
         "savePartner": "Could not save the partner."
-      }
+      },
+      "noPartnerYet": "The terms above are saved, but no partner is in force yet. Add each partner below — the invoice needs at least one."
     },
     "fare": {
-      "title": "KTMB fare",
-      "description": "What KTMB charges per ticket, in ringgit. Each invoice uses the fare in force for its own month.",
+      "title": "KTMB fare override (optional)",
+      "description": "You normally do not need this: a closed month is priced at what KTMB actually charged per ticket. Set a fare here only to replace that for a month — an override always wins, for the months it covers.",
       "history": "Fare history",
-      "historyEmpty": "No fare has been entered yet, so every month with tickets is blocked.",
+      "historyEmpty": "No override has been entered. Closed months use their measured fare.",
       "colDirection": "Direction",
       "colFare": "Fare",
       "colEffective": "Effective from",
@@ -1553,7 +1562,7 @@
         "superseded": "Replaced"
       },
       "supersededHint": "A replaced fare still priced the months before the change that replaced it.",
-      "newFare": "Set the fare",
+      "newFare": "Add an override",
       "direction": "Direction",
       "directions": {
         "both": "Both directions",
@@ -1564,15 +1573,15 @@
       "effective": "Effective from (dd-mm-yyyy)",
       "effectiveHint": "Leave blank to apply now. A date applies from midnight Singapore time, and it can be in the past.",
       "backdateNote": "A past date changes the fare for the months it covers: the P&L updates straight away, and a month's invoice picks it up the next time you preview and save its draft. Issued invoices never change. To fix a mistake, enter the right fare with the same date — the newest entry wins.",
-      "submit": "Save fare",
-      "saved": "KTMB fare saved.",
+      "submit": "Save override",
+      "saved": "KTMB fare override saved.",
       "errors": {
         "direction": "Choose a direction.",
         "cost": "Fare must be a number from 0 to 10,000.",
         "save": "Could not save the KTMB fare.",
         "history": "Could not load the KTMB fare history."
       },
-      "goTo": "Set the KTMB fare"
+      "goTo": "Add a KTMB fare override"
     }
   },
   "withdrawals": {
