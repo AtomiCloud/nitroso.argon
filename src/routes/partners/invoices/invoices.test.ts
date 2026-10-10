@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  assembleKtmbFareRequests,
   assemblePartnerRequest,
   assemblePreviewRequest,
   assembleSettingsRequest,
@@ -11,10 +12,13 @@ import {
   defaultIssueDate,
   defaultMonth,
   defaultSeq,
+  emptyKtmbFareForm,
   emptyManualInputs,
-  faresFromKtmbCost,
+  faresFromInputs,
   fxRate,
   halfFareSgd,
+  ktmbFareErrors,
+  ktmbFareHistory,
   monthName,
   monthParam,
   partnerErrors,
@@ -25,6 +29,7 @@ import {
   periodLabel,
   periodMonthParam,
   recentMonths,
+  routeKeyOf,
   settingsErrors,
   settingsFormFrom,
   statusVariant,
@@ -34,6 +39,8 @@ import {
   type InvoiceInputRowRes,
   type InvoiceSummaryRes,
   type InvoiceTermsRes,
+  type KtmbCostChangeRes,
+  type KtmbFareForm,
   type PartnerForm,
   type SettingsForm,
 } from './invoices';
@@ -167,19 +174,39 @@ describe('the measured FX rate', () => {
   });
 });
 
-describe('faresFromKtmbCost', () => {
-  // The two vocabularies disagree: bookings say JToW/WToJ, the invoice says
-  // jbw/wjb. Swapping them would price 2,879 JB→Woodlands tickets at RM 16.15
-  // and still produce a complete-looking invoice.
-  it('maps the booking directions onto the invoice route keys', () => {
-    expect(faresFromKtmbCost({ JToW: 5, WToJ: 16.15 })).toEqual({ jbw: 5, wjb: 16.15 });
+describe('faresFromInputs', () => {
+  const withFares = (jbw: number | null | undefined, wjb: number | null | undefined): InvoiceInputRowRes => ({
+    ...AUGUST_INPUTS,
+    routes: [
+      { ...AUGUST_INPUTS.routes[0], ktmbFare: jbw },
+      { ...AUGUST_INPUTS.routes[1], ktmbFare: wjb },
+    ],
   });
 
-  it('reports an unconfigured direction as zero rather than guessing', () => {
-    // Zero is what blockingReasons refuses on. A default fare would be a
-    // wrong cost that looks right.
-    expect(faresFromKtmbCost({ JToW: 5 })).toEqual({ jbw: 5, wjb: 0 });
-    expect(faresFromKtmbCost(null)).toEqual({ jbw: 0, wjb: 0 });
+  // The month's own fare, keyed by the route it was gathered for — so the two
+  // directions cannot be swapped (2,879 JB→Woodlands tickets at RM 16.15
+  // would still look like a complete invoice).
+  it('reads each route’s fare for the invoiced month', () => {
+    expect(faresFromInputs(withFares(5, 16.15))).toEqual(AUGUST_FARES);
+  });
+
+  it('reports a month with no fare as zero rather than guessing', () => {
+    // Zero is what blockingReasons refuses on. Today's fare would be a wrong
+    // cost for a past month that looks right.
+    expect(faresFromInputs(withFares(5, null))).toEqual({ jbw: 5, wjb: 0 });
+    expect(faresFromInputs(withFares(undefined, undefined))).toEqual({ jbw: 0, wjb: 0 });
+    expect(faresFromInputs(null)).toEqual({ jbw: 0, wjb: 0 });
+  });
+
+  it('keeps a configured zero as zero, which still blocks', () => {
+    const inputs = withFares(0, 16.15);
+    expect(faresFromInputs(inputs)).toEqual({ jbw: 0, wjb: 16.15 });
+    expect(blockingReasons(inputs, TERMS, faresFromInputs(inputs))).toContain('invoices.blocked.noFare');
+  });
+
+  it('unblocks once the month has a fare on every route with tickets', () => {
+    const inputs = withFares(5, 16.15);
+    expect(blockingReasons(inputs, TERMS, faresFromInputs(inputs))).not.toContain('invoices.blocked.noFare');
   });
 });
 
@@ -718,5 +745,133 @@ describe('settings form', () => {
     expect(partnerErrors(validPartner({ suffix: 'TOOLONGXX' }), today)).toEqual(['invoices.settings.errors.suffix']);
     expect(partnerErrors(validPartner({ position: '1.5' }), today)).toEqual(['invoices.settings.errors.position']);
     expect(partnerErrors(validPartner({ position: '' }), today)).toEqual(['invoices.settings.errors.position']);
+  });
+});
+
+describe('KTMB fare form', () => {
+  const form = (over: Partial<KtmbFareForm> = {}): KtmbFareForm => ({
+    direction: 'both',
+    cost: '16.15',
+    effectiveDate: '',
+    ...over,
+  });
+
+  it('starts empty, for both directions, effective now', () => {
+    expect(emptyKtmbFareForm()).toEqual({ direction: 'both', cost: '', effectiveDate: '' });
+    // a blank fare must not be submittable as RM 0
+    expect(ktmbFareErrors(emptyKtmbFareForm())).toEqual(['invoices.fare.errors.cost']);
+  });
+
+  it('accepts a past date — the fare is entered after the month it applied to', () => {
+    expect(ktmbFareErrors(form({ effectiveDate: '01-09-2026' }))).toEqual([]);
+    expect(ktmbFareErrors(form({ effectiveDate: '01-06-2026' }))).toEqual([]);
+  });
+
+  it('accepts a future date and blank for now', () => {
+    expect(ktmbFareErrors(form({ effectiveDate: '01-01-2027' }))).toEqual([]);
+    expect(ktmbFareErrors(form({ effectiveDate: '  ' }))).toEqual([]);
+  });
+
+  it('rejects a date that is not a real dd-mm-yyyy day', () => {
+    expect(ktmbFareErrors(form({ effectiveDate: '2026-09-01' }))).toEqual(['invoices.settings.errors.effectiveDate']);
+    expect(ktmbFareErrors(form({ effectiveDate: '31-09-2026' }))).toEqual(['invoices.settings.errors.effectiveDate']);
+  });
+
+  it('mirrors zinc’s 0–10,000 range, and allows a deliberate zero', () => {
+    expect(ktmbFareErrors(form({ cost: '0' }))).toEqual([]);
+    expect(ktmbFareErrors(form({ cost: '10000' }))).toEqual([]);
+    expect(ktmbFareErrors(form({ cost: '-1' }))).toEqual(['invoices.fare.errors.cost']);
+    expect(ktmbFareErrors(form({ cost: '10000.01' }))).toEqual(['invoices.fare.errors.cost']);
+    expect(ktmbFareErrors(form({ cost: 'abc' }))).toEqual(['invoices.fare.errors.cost']);
+  });
+
+  it('rejects an unknown direction', () => {
+    expect(ktmbFareErrors(form({ direction: 'Sideways' as KtmbFareForm['direction'] }))).toEqual([
+      'invoices.fare.errors.direction',
+    ]);
+  });
+
+  it('posts two rows for both directions at the same fare and instant', () => {
+    // 01-09-2026 midnight SGT = 31 Aug 16:00 UTC
+    expect(assembleKtmbFareRequests(form({ effectiveDate: '01-09-2026' }))).toEqual([
+      { direction: 'JToW', cost: 16.15, effectiveAt: '2026-08-31T16:00:00.000Z' },
+      { direction: 'WToJ', cost: 16.15, effectiveAt: '2026-08-31T16:00:00.000Z' },
+    ]);
+  });
+
+  it('posts one row for a single direction, effective now when blank', () => {
+    // the string binding must leave as a number, not "5"
+    expect(assembleKtmbFareRequests(form({ direction: 'JToW', cost: '5' }))).toEqual([
+      { direction: 'JToW', cost: 5, effectiveAt: null },
+    ]);
+    expect(assembleKtmbFareRequests(form({ direction: 'WToJ' }))).toEqual([
+      { direction: 'WToJ', cost: 16.15, effectiveAt: null },
+    ]);
+  });
+
+  it('maps booking directions onto the invoice route keys', () => {
+    expect(routeKeyOf('JToW')).toBe('jbw');
+    expect(routeKeyOf('WToJ')).toBe('wjb');
+  });
+});
+
+describe('ktmbFareHistory', () => {
+  const now = new Date('2026-10-09T04:00:00Z');
+  const row = (
+    id: string,
+    direction: string,
+    cost: number,
+    effectiveAt: string,
+    createdAt = effectiveAt,
+  ): KtmbCostChangeRes => ({
+    id,
+    direction,
+    cost,
+    effectiveAt,
+    createdAt,
+  });
+
+  it('lists every change newest effective first, labelling where each stands', () => {
+    const rows = [
+      row('a', 'JToW', 17.5, '2026-05-31T16:00:00Z'),
+      row('b', 'JToW', 16.05, '2026-06-30T16:00:00Z'),
+      row('c', 'WToJ', 16.15, '2026-07-31T16:00:00Z'),
+      row('d', 'JToW', 18, '2026-12-31T16:00:00Z'),
+    ];
+    expect(ktmbFareHistory(rows, now).map(r => [r.id, r.status])).toEqual([
+      ['d', 'upcoming'],
+      ['c', 'current'],
+      ['b', 'current'],
+      ['a', 'superseded'],
+    ]);
+  });
+
+  it('treats a same-date correction as replacing the earlier entry', () => {
+    // same effective instant: the newest entry wins, matching zinc
+    const rows = [
+      row('typo', 'WToJ', 1.615, '2026-08-31T16:00:00Z', '2026-10-01T00:00:00Z'),
+      row('fix', 'WToJ', 16.15, '2026-08-31T16:00:00Z', '2026-10-02T00:00:00Z'),
+    ];
+    expect(ktmbFareHistory(rows, now).map(r => [r.id, r.status])).toEqual([
+      ['fix', 'current'],
+      ['typo', 'superseded'],
+    ]);
+  });
+
+  it('marks a queued row corrected at the same future instant as replaced', () => {
+    const rows = [
+      row('old', 'JToW', 1.8, '2026-12-31T16:00:00Z', '2026-10-01T00:00:00Z'),
+      row('new', 'JToW', 18, '2026-12-31T16:00:00Z', '2026-10-02T00:00:00Z'),
+      row('other', 'WToJ', 17, '2026-12-31T16:00:00Z', '2026-10-01T00:00:00Z'),
+    ];
+    expect(ktmbFareHistory(rows, now).map(r => [r.id, r.status])).toEqual([
+      ['new', 'upcoming'],
+      ['other', 'upcoming'],
+      ['old', 'superseded'],
+    ]);
+  });
+
+  it('is empty when nothing was ever entered', () => {
+    expect(ktmbFareHistory([], now)).toEqual([]);
   });
 });

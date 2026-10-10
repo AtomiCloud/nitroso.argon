@@ -33,6 +33,13 @@ export interface InvoiceInputRouteRes {
   revenue: number;
   terminated: { count: number; keptRevenue: number };
   priority: { paid: number; fee: number; free: number };
+  /**
+   * RM per ticket in force for THIS month (the fare effective at the month's
+   * last SGT instant), not today's. null = no fare had been entered by then.
+   * Optional so a zinc that predates the field reads as "missing", which
+   * blocks, rather than as a crash.
+   */
+  ktmbFare?: number | null;
 }
 
 export interface InvoiceInputRowRes {
@@ -363,21 +370,22 @@ const ROUTE_LABELS: Record<string, { label: string; short: string }> = {
 };
 
 /**
- * Translate GET Booking/ktmb-cost/current into the invoice's route keys.
+ * The month's KTMB fare per route, keyed the way the invoice prints routes.
  *
- * The two vocabularies disagree and always have: bookings speak
- * "JToW"/"WToJ", the invoice prints "jbw"/"wjb". Doing the mapping in one
- * named place is the difference between a missing fare (caught loudly by
- * blockingReasons) and the two routes' fares silently swapped — RM 5 against
- * RM 16.15, which would move the payable by thousands and still look like a
- * complete invoice.
+ * Read from the gathered month itself (each route's ktmbFare), NOT from
+ * GET Booking/ktmb-cost/current: that is the fare in force TODAY, and a
+ * draft for June priced at October's fare is a wrong payable that looks
+ * right. The issued invoices used RM 17.50 (Jun), 16.05 (Jul) and 16.15
+ * (Aug) — one "current" fare can only ever match one of them.
+ *
+ * Keyed by the route's own key, so the two directions cannot be swapped
+ * (RM 5 against RM 16.15 would move the payable by thousands). A route with
+ * no fare reads 0, which blockingReasons refuses on.
  */
-export function faresFromKtmbCost(current: Record<string, number> | null | undefined): Record<string, number> {
-  const c = current ?? {};
-  return {
-    jbw: c['JToW'] ?? 0,
-    wjb: c['WToJ'] ?? 0,
-  };
+export function faresFromInputs(inputs: InvoiceInputRowRes | null | undefined): Record<string, number> {
+  const out: Record<string, number> = { jbw: 0, wjb: 0 };
+  for (const r of inputs?.routes ?? []) out[r.key] = r.ktmbFare ?? 0;
+  return out;
 }
 
 /** Round to cents the way money is rounded everywhere on this page. */
@@ -808,6 +816,16 @@ export function effectiveAtParam(date: string): string | null {
   return new Date(Date.UTC(d.year, d.month - 1, d.day) - SGT_OFFSET_MS).toISOString();
 }
 
+/** A dd-mm-yyyy string that names a real calendar day (31-02-2026 does not). */
+function realApiDate(s: string): { year: number; month: number; day: number } | null {
+  const d = parseApiDate(s);
+  if (d == null || effectiveAtParam(s) == null) return null;
+  const back = new Date(Date.UTC(d.year, d.month - 1, d.day));
+  if (back.getUTCFullYear() !== d.year || back.getUTCMonth() + 1 !== d.month || back.getUTCDate() !== d.day)
+    return null;
+  return d;
+}
+
 /**
  * Validate the effective date: blank (now) or a future SGT day.
  *
@@ -820,11 +838,8 @@ export function effectiveAtParam(date: string): string | null {
 function effectiveDateErrors(date: string, today: { year: number; month: number; day: number }): string[] {
   const s = date.trim();
   if (s === '') return [];
-  const d = parseApiDate(s);
-  if (d == null || effectiveAtParam(s) == null) return ['invoices.settings.errors.effectiveDate'];
-  const back = new Date(Date.UTC(d.year, d.month - 1, d.day));
-  if (back.getUTCFullYear() !== d.year || back.getUTCMonth() + 1 !== d.month || back.getUTCDate() !== d.day)
-    return ['invoices.settings.errors.effectiveDate'];
+  const d = realApiDate(s);
+  if (d == null) return ['invoices.settings.errors.effectiveDate'];
   const key = (x: { year: number; month: number; day: number }) => x.year * 10000 + x.month * 100 + x.day;
   if (key(d) <= key(today)) return ['invoices.settings.errors.effectivePast'];
   return [];
@@ -890,4 +905,130 @@ export function assemblePartnerRequest(f: PartnerForm): SetInvoicePartnerReq {
     position: num(f.position),
     effectiveAt: f.effectiveDate.trim() === '' ? null : effectiveAtParam(f.effectiveDate),
   };
+}
+
+// ---- KTMB fare -------------------------------------------------------------
+//
+// What KTMB charges per ticket, per direction, in ringgit. Every invoice prices
+// its tickets at the fare in force for its month (faresFromInputs), so this
+// form is what unblocks "A route has tickets but no KTMB fare".
+//
+// UNLIKE THE AGREED TERMS, BACKDATING IS ALLOWED. The fare is a fact about
+// what KTMB charged, and it is entered after the month it applied to — the
+// owner learns it from the month's tickets. A backdated row re-prices the P&L
+// for the months it covers at once, and a draft once it is previewed and saved
+// again (saved drafts hold their figures); issued invoices froze their
+// inputs and never move. Insert-only like everything else: a correction is a
+// new row at the same effective date, and the newest entry wins.
+
+export type KtmbDirection = 'JToW' | 'WToJ';
+
+/** Which direction(s) one submit sets. 'both' posts two rows. */
+export const KTMB_FARE_DIRECTIONS = ['both', 'JToW', 'WToJ'] as const;
+export type KtmbFareDirection = (typeof KTMB_FARE_DIRECTIONS)[number];
+
+/** zinc caps the fare at RM 10,000 (SetKtmbCostReqValidator). */
+export const KTMB_FARE_MAX = 10_000;
+
+/** POST Booking/ktmb-cost. effectiveAt null = immediately. */
+export interface SetKtmbCostReq {
+  direction: KtmbDirection;
+  cost: number;
+  effectiveAt: string | null;
+}
+
+/** One row of GET Booking/ktmb-cost/history (zinc KtmbCostChangeRes). */
+export interface KtmbCostChangeRes {
+  id: string;
+  direction: string;
+  cost: number;
+  effectiveAt: string;
+  createdAt: string;
+}
+
+/**
+ * The fare form as the inputs bind it. cost is `unknown` because the shadcn
+ * Input hands back strings (see assemblePreviewRequest). effectiveDate is an
+ * SGT calendar day, dd-mm-yyyy, or blank for "now".
+ */
+export interface KtmbFareForm {
+  direction: KtmbFareDirection;
+  cost: unknown;
+  effectiveDate: string;
+}
+
+export function emptyKtmbFareForm(): KtmbFareForm {
+  return { direction: 'both', cost: '', effectiveDate: '' };
+}
+
+/**
+ * Everything wrong with the fare form, as i18n keys. Mirrors zinc's
+ * SetKtmbCostReqValidator (0 to 10,000), plus blank-is-not-zero: a blank fare
+ * submitted as RM 0 would price every ticket as free and report the month's
+ * whole ticket spend as profit. Past dates are fine — see above.
+ */
+export function ktmbFareErrors(f: KtmbFareForm): string[] {
+  const errors: string[] = [];
+  if (!(KTMB_FARE_DIRECTIONS as readonly string[]).includes(f.direction)) errors.push('invoices.fare.errors.direction');
+  if (!isNumeric(f.cost) || num(f.cost) < 0 || num(f.cost) > KTMB_FARE_MAX) errors.push('invoices.fare.errors.cost');
+  const date = f.effectiveDate.trim();
+  if (date !== '' && realApiDate(date) == null) errors.push('invoices.settings.errors.effectiveDate');
+  return errors;
+}
+
+/**
+ * The exact bodies POST Booking/ktmb-cost takes — one per direction, so
+ * "both" is two requests at the same fare and instant. Validate first.
+ */
+export function assembleKtmbFareRequests(f: KtmbFareForm): SetKtmbCostReq[] {
+  const directions: KtmbDirection[] = f.direction === 'both' ? ['JToW', 'WToJ'] : [f.direction];
+  const effectiveAt = f.effectiveDate.trim() === '' ? null : effectiveAtParam(f.effectiveDate);
+  return directions.map(direction => ({ direction, cost: num(f.cost), effectiveAt }));
+}
+
+/** The invoice route key a booking direction prints as. */
+export function routeKeyOf(direction: string): string {
+  return direction === 'JToW' ? 'jbw' : direction === 'WToJ' ? 'wjb' : direction;
+}
+
+export type KtmbFareStatus = 'current' | 'upcoming' | 'superseded';
+
+export interface KtmbFareHistoryRow extends KtmbCostChangeRes {
+  /**
+   * current = the fare in force right now for its direction; upcoming = not
+   * effective yet; superseded = a later row (or a newer correction at the
+   * same instant) has replaced it. A superseded row still priced the months
+   * before its replacement.
+   */
+  status: KtmbFareStatus;
+}
+
+/**
+ * The fare history for display, newest effective first, each row labelled
+ * with where it stands now. Same winner rule as zinc's KtmbCostSchedule:
+ * newest EffectiveAt, then newest CreatedAt, then Id.
+ */
+export function ktmbFareHistory(rows: KtmbCostChangeRes[], now: Date): KtmbFareHistoryRow[] {
+  const at = (s: string) => new Date(s).getTime();
+  const sorted = [...rows].sort(
+    (a, b) =>
+      at(b.effectiveAt) - at(a.effectiveAt) ||
+      at(b.createdAt) - at(a.createdAt) ||
+      (a.id < b.id ? 1 : a.id > b.id ? -1 : 0),
+  );
+  const seen = new Set<string>();
+  // a queued row re-entered at the same instant (a correction) replaces the
+  // earlier one before either takes effect
+  const queued = new Set<string>();
+  return sorted.map(r => {
+    if (at(r.effectiveAt) > now.getTime()) {
+      const key = `${r.direction}|${at(r.effectiveAt)}`;
+      if (queued.has(key)) return { ...r, status: 'superseded' };
+      queued.add(key);
+      return { ...r, status: 'upcoming' };
+    }
+    if (seen.has(r.direction)) return { ...r, status: 'superseded' };
+    seen.add(r.direction);
+    return { ...r, status: 'current' };
+  });
 }

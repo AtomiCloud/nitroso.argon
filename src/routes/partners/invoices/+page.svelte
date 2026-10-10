@@ -1,7 +1,6 @@
 <script lang="ts">
     import {onMount} from "svelte";
     import {page} from "$app/stores";
-    import {api} from "../../../store";
     import {config} from "../../../config/shared";
     import {signIn} from "@auth/sveltekit/client";
 
@@ -31,9 +30,10 @@
     import {_} from "svelte-i18n";
     import {lang, formatDateTime, formatMoney, formatNumber} from "$lib/i18n";
     import {singaporeToday} from "$lib/time/singapore";
-    import {expired, toResult} from "$lib/utility";
+    import {expired} from "$lib/utility";
     import {triggerBlobDownload} from "$lib/components/entities/Withdrawals/withdrawal-export";
     import {
+        assembleKtmbFareRequests,
         assemblePartnerRequest,
         assemblePreviewRequest,
         assembleSettingsRequest,
@@ -43,9 +43,14 @@
         defaultIssueDate,
         defaultMonth,
         defaultSeq,
+        emptyKtmbFareForm,
         emptyManualInputs,
-        faresFromKtmbCost,
+        faresFromInputs,
         fxRate,
+        KTMB_FARE_DIRECTIONS,
+        KTMB_FARE_MAX,
+        ktmbFareErrors,
+        ktmbFareHistory,
         monthName,
         monthParam,
         partnerErrors,
@@ -54,6 +59,7 @@
         payableTotal,
         periodMonthParam,
         recentMonths,
+        routeKeyOf,
         ROUNDING_PREFERENCES,
         settingsErrors,
         settingsFormFrom,
@@ -64,6 +70,8 @@
         type InvoiceSettingsRes,
         type InvoiceSummaryRes,
         type InvoiceTermsRes,
+        type KtmbCostChangeRes,
+        type KtmbFareForm,
         type ManualInputs,
         type PartnerForm,
         type PreviewInvoiceReq,
@@ -71,6 +79,7 @@
     } from "./invoices";
     import {
         getInputs,
+        getKtmbFareHistory,
         getSettings,
         issue as issueInvoice,
         list as listInvoices,
@@ -78,6 +87,7 @@
         openStoredDocument,
         preview as previewInvoice,
         saveDraft,
+        setKtmbFare,
         setPartner,
         setSettings,
         voidInvoice,
@@ -161,18 +171,26 @@
 
     // ---- gathered state --------------------------------------------------
     //
-    // Three independent fetches, each tolerating its own failure so one
+    // Two independent fetches, each tolerating its own failure so one
     // outage does not blank the page. Race-guarded with a token counter (same
     // convention as /pnl): switching months quickly would otherwise let a
     // slow response for August overwrite September's.
     let inputs: InvoiceInputRowRes | null = null;
     let terms: InvoiceTermsRes | null = null;
-    let fares: Record<string, number> = {};
+    // The month's own fare per route, carried on the gathered inputs — never
+    // today's fare, which would price a past month's draft wrong.
+    $: fares = faresFromInputs(inputs);
     let loading = false;
     let loadToken = 0;
+    // which month the manual figures on screen were typed against
+    let manualFor: string | null = null;
 
-    async function load() {
+    // keepManual: re-gather the SAME month without wiping what the operator
+    // typed (a fare save re-prices the month; it must not cost them their
+    // manual figures). A different month always starts empty.
+    async function load(keepManual = false) {
         const myToken = ++loadToken;
+        const forMonth = monthParam(month);
         loading = true;
         // Clearing first is the point: a stale card next to a new month's
         // heading is how somebody invoices August's figures as September.
@@ -191,17 +209,6 @@
             getInputs(c, monthParam(month), failed("invoices.errors.inputs")),
             getSettings(c, failed("invoices.errors.settings")),
         ]);
-        // The fares come from the bookings API, which the generated SDK does
-        // cover, so it is used rather than hand-rolled.
-        const f = await toResult(() => $api.vBookingKtmbCostCurrentDetail("1"),
-            failed("invoices.errors.fares")).match({
-            ok: (r) => r.current as Record<string, number>,
-            err: (e) => {
-                console.error(e);
-                return null;
-            },
-        });
-
         if (myToken !== loadToken) return;
 
         if (i.ok === false) {
@@ -209,7 +216,8 @@
             else toast.error(i.message);
         } else {
             inputs = i.value;
-            manual = emptyManualInputs(i.value);
+            if (!(keepManual && manualFor === forMonth)) manual = emptyManualInputs(i.value);
+            manualFor = forMonth;
         }
 
         // A settings failure does not re-authenticate on its own — the inputs
@@ -219,7 +227,6 @@
             if (s.reauth !== true) toast.error(s.message);
         } else applySettings(s.value);
 
-        fares = faresFromKtmbCost(f);
         loading = false;
     }
 
@@ -544,12 +551,59 @@
         partnerSuggested = false;
     }
 
+    // ---- KTMB fare ---------------------------------------------------------
+    //
+    // What KTMB charges per ticket. Each month's invoice reads the fare in
+    // force for THAT month from GET Invoice/inputs, so saving a fare here
+    // reloads the month to re-price it. Past dates are allowed on purpose —
+    // see the KTMB fare section of ./invoices.ts.
+    let fareRows: KtmbCostChangeRes[] = [];
+    let fareForm: KtmbFareForm = emptyKtmbFareForm();
+    let savingFare = false;
+
+    $: fareProblems = ktmbFareErrors(fareForm);
+    $: fareHistory = ktmbFareHistory(fareRows, new Date());
+
+    async function loadFares() {
+        const r = await callApi(c => getKtmbFareHistory(c, failed("invoices.fare.errors.history")));
+        if (r != null) fareRows = r;
+    }
+
+    async function submitFare() {
+        if (savingFare || fareProblems.length > 0) return;
+        savingFare = true;
+        try {
+            // "Both" is two inserts. Sequential, and stop at the first
+            // failure, so a half-saved pair is reported rather than hidden.
+            let ok = true;
+            for (const req of assembleKtmbFareRequests(fareForm)) {
+                const r = await callApi(c => setKtmbFare(c, req, failed("invoices.fare.errors.save")));
+                if (r == null) {
+                    ok = false;
+                    break;
+                }
+            }
+            await loadFares();
+            if (ok) {
+                toast.success($_("invoices.fare.saved", {locale: $lang}));
+                fareForm = emptyKtmbFareForm();
+            }
+            // the gathered month carries its fare, so re-gather to re-price
+            await load(true);
+        } finally {
+            savingFare = false;
+        }
+    }
+
     // Serialised rather than run together: both paths call signIn() when the
     // bearer is missing, and nothing dedupes concurrent sign-ins, so firing
     // them in parallel races two redirects against each other on a cold load.
     onMount(async () => {
         await load();
-        if (ctx() != null) await loadList();
+        if (ctx() != null) {
+            await loadList();
+            await loadFares();
+        }
     });
 </script>
 
@@ -559,7 +613,7 @@
             <div class="text-3xl lg:text-4xl">
                 {$_('invoices.title', { locale: $lang })}
             </div>
-            <Button variant="outline" disabled={loading} on:click={() => { load(); loadList(); }}>
+            <Button variant="outline" disabled={loading} on:click={() => { load(); loadList(); loadFares(); }}>
                 {#if loading}
                     <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
                 {:else}
@@ -604,6 +658,9 @@
                     </ul>
                     {#if terms == null}
                         <a href="#invoice-settings" class="underline text-sm">{$_('invoices.settings.goToSettings', { locale: $lang })}</a>
+                    {/if}
+                    {#if blocked.includes('invoices.blocked.noFare')}
+                        <a href="#ktmb-fare" class="underline text-sm block">{$_('invoices.fare.goTo', { locale: $lang })}</a>
                     {/if}
                 </Alert.Description>
             </Alert.Root>
@@ -997,6 +1054,106 @@
                         </Table.Root>
                     </div>
                 {/if}
+            </Card.Content>
+        </Card.Root>
+
+        <!-- KTMB FARE. What every month's tickets are costed at. Each invoice
+             reads the fare in force for its own month, so the history matters
+             as much as the latest row. Unlike the terms below, a past date is
+             allowed: the fare is entered after the month it applied to. -->
+        <Card.Root id="ktmb-fare">
+            <Card.Header class="p-4 sm:p-6">
+                <Card.Title>{$_('invoices.fare.title', { locale: $lang })}</Card.Title>
+                <Card.Description>{$_('invoices.fare.description', { locale: $lang })}</Card.Description>
+            </Card.Header>
+            <Card.Content class="px-4 sm:px-6 flex flex-col gap-6">
+                <div class="flex flex-col gap-2">
+                    <div class="text-sm font-medium inline-flex items-center gap-1">
+                        {$_('invoices.fare.history', { locale: $lang })}
+                        <InfoTip label={$_('invoices.fare.history', { locale: $lang })}>
+                            {$_('invoices.fare.supersededHint', { locale: $lang })}
+                        </InfoTip>
+                    </div>
+                    {#if fareHistory.length === 0}
+                        <p class="text-sm text-destructive">{$_('invoices.fare.historyEmpty', { locale: $lang })}</p>
+                    {:else}
+                        <div class="overflow-x-auto">
+                            <Table.Root>
+                                <Table.Header>
+                                    <Table.Row>
+                                        <Table.Head class="h-8 px-2 whitespace-nowrap">{$_('invoices.fare.colDirection', { locale: $lang })}</Table.Head>
+                                        <Table.Head class="h-8 px-2 text-right whitespace-nowrap">{$_('invoices.fare.colFare', { locale: $lang })}</Table.Head>
+                                        <Table.Head class="h-8 px-2 whitespace-nowrap">{$_('invoices.fare.colEffective', { locale: $lang })}</Table.Head>
+                                        <Table.Head class="h-8 px-2 whitespace-nowrap">{$_('invoices.fare.colEntered', { locale: $lang })}</Table.Head>
+                                        <Table.Head class="h-8 px-2 whitespace-nowrap">{$_('invoices.fare.colStatus', { locale: $lang })}</Table.Head>
+                                    </Table.Row>
+                                </Table.Header>
+                                <Table.Body>
+                                    {#each fareHistory as h (h.id)}
+                                        <Table.Row class={h.status === 'superseded' ? 'text-muted-foreground' : ''}>
+                                            <Table.Cell class="px-2 py-1.5 whitespace-nowrap">
+                                                {$_(`invoices.routes.${routeKeyOf(h.direction)}`, { locale: $lang })}
+                                            </Table.Cell>
+                                            <Table.Cell class="px-2 py-1.5 text-right">{formatMoney(h.cost, $lang, { currency: 'MYR' })}</Table.Cell>
+                                            <Table.Cell class="px-2 py-1.5 whitespace-nowrap">{formatDateTime(h.effectiveAt, $lang)}</Table.Cell>
+                                            <Table.Cell class="px-2 py-1.5 whitespace-nowrap">{formatDateTime(h.createdAt, $lang)}</Table.Cell>
+                                            <Table.Cell class="px-2 py-1.5">
+                                                <Badge variant={h.status === 'current' ? 'default' : h.status === 'upcoming' ? 'outline' : 'secondary'}>
+                                                    {$_(`invoices.fare.status.${h.status}`, { locale: $lang })}
+                                                </Badge>
+                                            </Table.Cell>
+                                        </Table.Row>
+                                    {/each}
+                                </Table.Body>
+                            </Table.Root>
+                        </div>
+                    {/if}
+                </div>
+
+                <form class="flex flex-col gap-3 border-t pt-4" on:submit|preventDefault={submitFare}>
+                    <div class="text-sm font-medium">{$_('invoices.fare.newFare', { locale: $lang })}</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-sm" for="fare-direction">{$_('invoices.fare.direction', { locale: $lang })}</label>
+                            <select id="fare-direction" bind:value={fareForm.direction}
+                                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                                {#each KTMB_FARE_DIRECTIONS as d (d)}
+                                    <option value={d}>{$_(`invoices.fare.directions.${d}`, { locale: $lang })}</option>
+                                {/each}
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-sm" for="fare-cost">{$_('invoices.fare.cost', { locale: $lang })}</label>
+                            <Input id="fare-cost" type="number" step="0.01" min="0" max={KTMB_FARE_MAX} bind:value={fareForm.cost}/>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-sm inline-flex items-center gap-1" for="fare-effective">
+                                {$_('invoices.fare.effective', { locale: $lang })}
+                                <InfoTip label={$_('invoices.fare.effective', { locale: $lang })}>
+                                    {$_('invoices.fare.effectiveHint', { locale: $lang })}
+                                </InfoTip>
+                            </label>
+                            <Input id="fare-effective" placeholder={$_('invoices.settings.effectiveNow', { locale: $lang })}
+                                   bind:value={fareForm.effectiveDate}/>
+                        </div>
+                    </div>
+                    <p class="text-xs text-muted-foreground">{$_('invoices.fare.backdateNote', { locale: $lang })}</p>
+                    {#if fareProblems.length > 0 && String(fareForm.cost ?? '').trim() !== ''}
+                        <ul class="text-xs text-destructive list-disc pl-4">
+                            {#each fareProblems as p (p)}
+                                <li>{$_(p, { locale: $lang })}</li>
+                            {/each}
+                        </ul>
+                    {/if}
+                    <div>
+                        <Button type="submit" disabled={savingFare || fareProblems.length > 0}>
+                            {#if savingFare}
+                                <LucideLoader class="mr-2 h-4 w-4 animate-spin"/>
+                            {/if}
+                            {$_('invoices.fare.submit', { locale: $lang })}
+                        </Button>
+                    </div>
+                </form>
             </Card.Content>
         </Card.Root>
 

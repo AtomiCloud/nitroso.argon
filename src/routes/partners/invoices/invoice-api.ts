@@ -23,7 +23,9 @@ import type {
   InvoiceSettingsChangeRes,
   InvoiceSettingsRes,
   InvoiceSummaryRes,
+  KtmbCostChangeRes,
   PreviewInvoiceReq,
+  SetKtmbCostReq,
   SetInvoicePartnerReq,
   SetInvoiceSettingsReq,
 } from './invoices';
@@ -73,8 +75,17 @@ export async function errorMessage(res: Response, fallback: string): Promise<str
 
 const API_PREFIX = '/api/v1.0/Invoice';
 
-export function invoiceUrl(baseUrl: string, path: string, query?: Record<string, string>): string {
-  const base = `${baseUrl.replace(/\/+$/, '')}${API_PREFIX}${path}`;
+// The KTMB fare lives on the Booking controller, but its history endpoint is
+// as new as the invoice ones, so it goes through the same hand-rolled path.
+export const BOOKING_PREFIX = '/api/v1.0/Booking';
+
+export function invoiceUrl(
+  baseUrl: string,
+  path: string,
+  query?: Record<string, string>,
+  prefix: string = API_PREFIX,
+): string {
+  const base = `${baseUrl.replace(/\/+$/, '')}${prefix}${path}`;
   if (query == null) return base;
   const params = new URLSearchParams();
   for (const [k, v] of Object.entries(query)) {
@@ -89,12 +100,12 @@ async function call<T>(
   ctx: ApiContext,
   path: string,
   fallback: string,
-  init: RequestInit & { query?: Record<string, string> } = {},
+  init: RequestInit & { query?: Record<string, string>; prefix?: string } = {},
 ): Promise<ApiResult<T>> {
-  const { query, ...rest } = init;
+  const { query, prefix, ...rest } = init;
   let res: Response;
   try {
-    res = await ctx.fetch(invoiceUrl(ctx.baseUrl, path, query), {
+    res = await ctx.fetch(invoiceUrl(ctx.baseUrl, path, query, prefix), {
       ...rest,
       headers: {
         Authorization: `Bearer ${ctx.accessToken}`,
@@ -156,6 +167,23 @@ export function setPartner(
   fallback: string,
 ): Promise<ApiResult<InvoicePartnerChangeRes>> {
   return call(ctx, '/settings/partners', fallback, { method: 'POST', body: JSON.stringify(req) });
+}
+
+/** Every KTMB fare change ever entered, newest effective first. */
+export function getKtmbFareHistory(ctx: ApiContext, fallback: string): Promise<ApiResult<KtmbCostChangeRes[]>> {
+  return call(ctx, '/ktmb-cost/history', fallback, { method: 'GET', prefix: BOOKING_PREFIX });
+}
+
+/**
+ * Add one KTMB fare row for one direction. Insert-only and effective-dated;
+ * a past effectiveAt is allowed and re-prices those months (a saved draft once saved again).
+ */
+export function setKtmbFare(
+  ctx: ApiContext,
+  req: SetKtmbCostReq,
+  fallback: string,
+): Promise<ApiResult<KtmbCostChangeRes>> {
+  return call(ctx, '/ktmb-cost', fallback, { method: 'POST', body: JSON.stringify(req), prefix: BOOKING_PREFIX });
 }
 
 /** Compute a month without persisting anything. */
