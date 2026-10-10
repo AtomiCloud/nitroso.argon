@@ -1385,9 +1385,10 @@
       "noInputs": "Tiada angka dikumpulkan untuk bulan ini.",
       "noTopups": "Tiada tambah nilai kad KTMB bulan ini, jadi tiada kadar tukaran sebenar untuk menukar tambang tiket.",
       "noTerms": "Tiada terma komersial berkuat kuasa. Tetapkan pembahagian untung dan kos infrastruktur dahulu.",
-      "noPartners": "Tiada rakan kongsi dalam perjanjian, jadi tiada sesiapa untuk membahagikan untung.",
-      "noFare": "Satu laluan ada tiket tetapi tiada tambang KTMB, yang akan melaporkan seluruh kos tiket sebagai untung.",
-      "noTickets": "Tiada tiket dikeluarkan bulan ini."
+      "noPartners": "Belum ada rakan kongsi dalam perjanjian, jadi tiada siapa untuk berkongsi kumpulan keuntungan. Tambah setiap rakan kongsi di bawah.",
+      "noFare": "Satu laluan mempunyai tiket tetapi tiada tambang KTMB yang boleh digunakan. Bulan yang telah tamat menggunakan tambang yang diukur daripada tiketnya apabila sekurang-kurangnya 99% mempunyai amaun direkodkan; jika tidak, tetapkan tambang ganti di bawah.",
+      "noTickets": "Tiada tiket dikeluarkan bulan ini.",
+      "noFareOpen": "Bulan ini belum tamat. Tambang KTMB diukur daripada tiket apabila bulan tamat (atau tetapkan tambang ganti di bawah)."
     },
     "errors": {
       "inputs": "Tidak dapat memuatkan angka bulan ini.",
@@ -1417,9 +1418,16 @@
       "colTickets": "Tiket",
       "colRevenue": "Hasil",
       "colFare": "Tambang KTMB",
-      "fareHint": "Tambang yang berkuat kuasa untuk bulan ini bagi setiap arah, dalam ringgit (tetapkan di bawah Tambang KTMB). Tambang yang hilang menyekat invois.",
+      "fareHint": "Kos tiket bulan ini di KTMB, dalam ringgit. Bulan yang telah tamat menggunakan purata sebenar yang dibayar setiap tiket; tambang ganti yang anda tetapkan di bawah diutamakan. Tambang yang hilang menyekat invois.",
       "colTerminated": "Ditamatkan",
-      "colBoosts": "Boost (percuma)"
+      "colBoosts": "Boost (percuma)",
+      "fareMeasured": "diukur daripada {count} tiket",
+      "fareOverride": "ditetapkan secara manual",
+      "fareOpenMonth": "bulan belum tamat",
+      "fareLowCoverage": "terlalu sedikit tiket berharga",
+      "fareNone": "tiada tambang direkodkan",
+      "fareCoverage": "{pct}% berharga ({priced}/{tickets})",
+      "fareMeasuredWas": "diukur {fare}"
     },
     "manual": {
       "title": "Apa yang hanya anda tahu",
@@ -1535,13 +1543,14 @@
         "position": "Susunan mesti nombor bulat, 0 atau lebih.",
         "saveTerms": "Tidak dapat menyimpan terma baharu.",
         "savePartner": "Tidak dapat menyimpan rakan kongsi."
-      }
+      },
+      "noPartnerYet": "Terma di atas telah disimpan, tetapi belum ada rakan kongsi yang berkuat kuasa. Tambah setiap rakan kongsi di bawah — invois memerlukan sekurang-kurangnya seorang."
     },
     "fare": {
-      "title": "Tambang KTMB",
-      "description": "Caj KTMB bagi setiap tiket, dalam ringgit. Setiap invois menggunakan tambang yang berkuat kuasa untuk bulannya sendiri.",
+      "title": "Tambang ganti KTMB (pilihan)",
+      "description": "Biasanya anda tidak memerlukan ini: bulan yang telah tamat dikira pada caj sebenar KTMB setiap tiket. Tetapkan tambang di sini hanya untuk menggantikannya bagi sesuatu bulan — tambang ganti sentiasa diutamakan bagi bulan yang diliputinya.",
       "history": "Sejarah tambang",
-      "historyEmpty": "Tiada tambang dimasukkan lagi, jadi setiap bulan yang mempunyai tiket disekat.",
+      "historyEmpty": "Tiada tambang ganti dimasukkan. Bulan yang telah tamat menggunakan tambang yang diukur.",
       "colDirection": "Arah",
       "colFare": "Tambang",
       "colEffective": "Berkuat kuasa dari",
@@ -1553,7 +1562,7 @@
         "superseded": "Diganti"
       },
       "supersededHint": "Tambang yang diganti masih digunakan untuk bulan-bulan sebelum perubahan yang menggantikannya.",
-      "newFare": "Tetapkan tambang",
+      "newFare": "Tambah tambang ganti",
       "direction": "Arah",
       "directions": {
         "both": "Kedua-dua arah",
@@ -1564,15 +1573,15 @@
       "effective": "Berkuat kuasa dari (dd-mm-yyyy)",
       "effectiveHint": "Biarkan kosong untuk berkuat kuasa sekarang. Tarikh berkuat kuasa dari tengah malam waktu Singapura, dan boleh pada masa lalu.",
       "backdateNote": "Tarikh lampau mengubah tambang bagi bulan yang diliputinya: P&L dikemas kini serta-merta, dan invois bulan itu menggunakannya apabila anda pratonton dan simpan drafnya semula. Invois yang telah dikeluarkan tidak akan berubah. Untuk membetulkan kesilapan, masukkan tambang yang betul dengan tarikh yang sama — entri terbaru diguna pakai.",
-      "submit": "Simpan tambang",
-      "saved": "Tambang KTMB disimpan.",
+      "submit": "Simpan tambang ganti",
+      "saved": "Tambang ganti KTMB disimpan.",
       "errors": {
         "direction": "Pilih arah.",
         "cost": "Tambang mesti nombor dari 0 hingga 10,000.",
         "save": "Tidak dapat menyimpan tambang KTMB.",
         "history": "Tidak dapat memuatkan sejarah tambang KTMB."
       },
-      "goTo": "Tetapkan tambang KTMB"
+      "goTo": "Tambah tambang ganti KTMB"
     }
   },
   "withdrawals": {
