@@ -668,6 +668,25 @@ export interface BookingTerminalPnlWithdrawalsRes {
 }
 
 /**
+ * HAND-ADDED (zinc terminal P&L, EBITDA after infrastructure) pending swagger
+ * regeneration — the flat monthly operating cost (InvoiceSettings.Infrastructure)
+ * for the SGT days of the month the range covers. Day-weighted: a partial
+ * range edge is prorated (days of daysInMonth) and a mid-month change charges
+ * each rate for its own days. source: "settings" | "assumed" (a day before the
+ * first settings row, charged at the earliest row) | "none" (never configured,
+ * charged 0).
+ */
+export interface BookingTerminalPnlInfrastructureRes {
+  /** @format double */
+  amount: number;
+  /** @format int32 */
+  days: number;
+  /** @format int32 */
+  daysInMonth: number;
+  source: string;
+}
+
+/**
  * HAND-ADDED (zinc terminal P&L, 1.62.x) pending swagger regeneration — one
  * month of the terminal-event P&L returned by GET Booking/pnl/terminal.
  * Profit is recognized when money reaches a terminal state (booking
@@ -689,6 +708,8 @@ export interface BookingTerminalPnlRowRes {
   completed: BookingTerminalPnlCompletedRes;
   terminated: BookingTerminalPnlTerminatedRes;
   withdrawals: BookingTerminalPnlWithdrawalsRes;
+  /** absent from a zinc older than the EBITDA-after-infrastructure change */
+  infrastructure?: BookingTerminalPnlInfrastructureRes;
 }
 
 /**
