@@ -2284,7 +2284,7 @@
     "detail": "{count} · {amount}",
     "earned": {
       "title": "Diperoleh (EBITDA)",
-      "description": "Untung Rugi acara terminal setiap bulan kalendar SGT — keuntungan diiktiraf apabila wang mencapai keadaan terminal (tempahan selesai, tempahan ditamatkan, atau pengeluaran dibayar keluar), dan setiap dolar yang didepositkan membawa bahagian fi gerbangnya ke acara terminalnya pada kadar campuran bulan itu.",
+      "description": "U&R peristiwa terminal bagi setiap bulan kalendar SGT — untung diiktiraf apabila wang mencapai keadaan terminal (tempahan selesai, tempahan ditamatkan atau pengeluaran dibayar), dan setiap dolar deposit membawa bahagian fi gerbangnya ke peristiwa terminal pada kadar campuran bulan itu. EBITDA ialah SELEPAS kos infrastruktur bulanan tetap.",
       "loadError": "Gagal memuatkan Untung Rugi acara terminal",
       "colCompleted": "Selesai",
       "colTerminated": "Ditamatkan",
@@ -2305,15 +2305,24 @@
       "detailGwRate": "Kadar campuran: fi pembayaran ÷ deposit = {rate}",
       "gwRateHint": "Kadar fi gerbang campuran bulan itu mencampurkan fi kad peratusan dan fi tetap setiap transaksi / akaun Airwallex: fi pembayaran ÷ deposit.",
       "colInfra": "Infrastruktur",
-      "colNet": "Bersih",
-      "colProfitPct": "Untung %",
-      "infraLine": "− infrastruktur S${amount}",
-      "infraTotal": "− infrastruktur S${amount} ({months} bulan)",
-      "infraNote": "Anggaran kos operasi tetap S$500 / bulan ditolak daripada EBITDA untuk mencapai Bersih. Baris jumlah menolak S$500 setiap bulan dalam julat dipilih, termasuk bulan tanpa aktiviti.",
+      "colProfitPct": "EBITDA %",
+      "infraLine": "− {amount}",
+      "infraTotal": "− {amount} ({months} bulan)",
+      "infraNote": "Caj infrastruktur bulanan tetap daripada terma invois rakan kongsi (Rakan Kongsi → Invois → Terma dipersetujui), menggunakan amaun yang berkuat kuasa pada setiap hari. Bulan yang hanya sebahagiannya diliputi julat — termasuk bulan semasa, dicaj setakat hari ini — diprorata mengikut hari.",
       "profitPctDash": "—",
-      "profitPctHint": "Margin untung bersih: (EBITDA − infrastruktur bulanan) ÷ hasil kasar yang diiktiraf (dikutip + disimpan + hasil fi). Tanda empuk apabila tiada hasil yang diiktiraf pada bulan itu.",
+      "profitPctHint": "Margin EBITDA: EBITDA (selepas infrastruktur) ÷ hasil kasar yang diiktiraf (dikutip + disimpan + hasil fi). Tanda sempang apabila tiada hasil yang diiktiraf pada bulan itu.",
       "estimateNote": "pemulihan KTMB tempahan ditamatkan dianggarkan pada 50% untuk {n} daripada {m} tempahan",
-      "uncostedNote": "tiada kos KTMB direkodkan bagi {n} daripada {m} tempahan selesai (liputan {pct}) — kos itu dikira sifar, jadi kos bulan ini terkurang nyata dan untungnya terlebih nyata"
+      "uncostedNote": "tiada kos KTMB direkodkan bagi {n} daripada {m} tempahan selesai (liputan {pct}) — kos itu dikira sifar, jadi kos bulan ini terkurang nyata dan untungnya terlebih nyata",
+      "colContribution": "Sumbangan",
+      "contributionHint": "Untung selesai + ditamatkan + pengeluaran: apa yang diperoleh dagangan bulan itu SEBELUM kos operasi tetap. (Inilah angka yang dahulunya dipanggil EBITDA di halaman ini.)",
+      "ebitdaHint": "Sumbangan − infrastruktur. EBITDA ialah selepas kos operasi bulanan tetap.",
+      "infraProrated": "{days}/{of} hari",
+      "infraSource": {
+        "settings": "Daripada terma dipersetujui yang berkuat kuasa",
+        "assumed": "Sebahagian tempoh ini lebih awal daripada terma pertama yang disimpan; dicaj pada amaun terawal yang disimpan",
+        "none": "Tiada caj infrastruktur ditetapkan dalam terma dipersetujui — tiada potongan",
+        "fallback": "Pelayan tidak menghantar angka infrastruktur; dicaj nilai sandaran tetap {amount}/bulan"
+      }
     },
     "cash": {
       "title": "Pandangan tunai",

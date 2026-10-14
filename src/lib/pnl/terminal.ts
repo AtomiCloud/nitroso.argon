@@ -70,7 +70,35 @@ export type TerminalPnlRow = {
   withdrawalGross: number;
   feeIncome: number;
   payoutFees: number;
+  /** the fixed monthly operating cost charged to this month (SGD) — what
+   *  EBITDA subtracts from contribution */
+  infrastructure: number;
+  /** SGT days of the month the range covers, of infraDaysInMonth (fewer = a
+   *  prorated range edge or the month to date) */
+  infraDays: number;
+  infraDaysInMonth: number;
+  infraSource: InfraSource;
 };
+
+/**
+ * Where a month's infrastructure charge came from:
+ *   settings  the InvoiceSettings row(s) in force for every covered day
+ *   assumed   some days predate the first settings row and were charged at
+ *             the earliest row (production: the first row is 10 Oct 2026)
+ *   none      no settings row exists — nothing charged
+ *   fallback  zinc did not send the field (an older zinc) — charged at
+ *             INFRA_FALLBACK_MONTHLY so EBITDA is never silently pre-infra
+ */
+export type InfraSource = 'settings' | 'assumed' | 'none' | 'fallback';
+
+/** The flat S$500/month charge, used ONLY when zinc does not send the
+ *  per-month figure (an older zinc). zinc's InvoiceSettings is the source of
+ *  truth; change the charge there, not here. */
+export const INFRA_FALLBACK_MONTHLY = 500;
+
+function infraSource(s: string | undefined): InfraSource {
+  return s === 'settings' || s === 'assumed' || s === 'none' ? s : 'settings';
+}
 
 /** Shape zinc's nested terminal payload into the flat row the UI renders. */
 export function toTerminalPnlRow(r: BookingTerminalPnlRowRes): TerminalPnlRow {
@@ -91,10 +119,25 @@ export function toTerminalPnlRow(r: BookingTerminalPnlRowRes): TerminalPnlRow {
     withdrawalGross: r.withdrawals.gross,
     feeIncome: r.withdrawals.feeIncome,
     payoutFees: r.withdrawals.payoutFees,
+    infrastructure: r.infrastructure?.amount ?? INFRA_FALLBACK_MONTHLY,
+    infraDays: r.infrastructure?.days ?? daysInMonth(r.month),
+    infraDaysInMonth: r.infrastructure?.daysInMonth ?? daysInMonth(r.month),
+    infraSource: r.infrastructure == null ? 'fallback' : infraSource(r.infrastructure.source),
   };
 }
 
-function zeroTerminalPnlRow(month: string): TerminalPnlRow {
+/** Days in an MM-yyyy month (0 when malformed). */
+function daysInMonth(month: string): number {
+  const m = /^(\d{2})-(\d{4})$/.exec(month);
+  return m == null ? 0 : new Date(Number(m[2]), Number(m[1]), 0).getDate();
+}
+
+/** A month zinc did not return. A zinc that sends infrastructure emits every
+ *  month it charges, so a missing month genuinely costs nothing (no settings,
+ *  or still in the future); an older zinc never sends it, so the gap month is
+ *  charged the fallback. */
+function zeroTerminalPnlRow(month: string, infra: 'zinc' | 'fallback' = 'zinc'): TerminalPnlRow {
+  const days = daysInMonth(month);
   return {
     month,
     deposits: 0,
@@ -112,6 +155,10 @@ function zeroTerminalPnlRow(month: string): TerminalPnlRow {
     withdrawalGross: 0,
     feeIncome: 0,
     payoutFees: 0,
+    infrastructure: infra === 'fallback' ? INFRA_FALLBACK_MONTHLY : 0,
+    infraDays: days,
+    infraDaysInMonth: days,
+    infraSource: infra === 'fallback' ? 'fallback' : 'none',
   };
 }
 
@@ -145,9 +192,17 @@ export function withdrawalProfit(
   return r.feeIncome - r.gwRate * r.withdrawalGross - r.payoutFees;
 }
 
-/** EBITDA for the month = the three terminal-event profit lines summed. */
-export function ebitda(r: TerminalPnlRow): number {
+/** Contribution for the month = the three terminal-event profit lines summed:
+ *  what the month's trading earned BEFORE the fixed operating cost. (Until
+ *  Oct 2026 the page called this figure "EBITDA".) */
+export function contribution(r: TerminalPnlRow): number {
   return completedProfit(r) + terminatedProfit(r) + withdrawalProfit(r);
+}
+
+/** EBITDA for the month = contribution − the month's infrastructure charge.
+ *  EBITDA is AFTER fixed operating costs. */
+export function ebitda(r: TerminalPnlRow): number {
+  return contribution(r) - r.infrastructure;
 }
 
 /**
@@ -218,8 +273,11 @@ export function terminalZeroFill(rows: BookingTerminalPnlRowRes[], from: string,
   if (months.length === 0) {
     return [...rows].map(toTerminalPnlRow).sort((a, b) => monthSortKey(a.month).localeCompare(monthSortKey(b.month)));
   }
+  // an older zinc sends no infrastructure at all: charge its gap months the
+  // fallback too, so the range is not under-charged by its quiet months
+  const gap = rows.some(r => r.infrastructure == null) ? 'fallback' : 'zinc';
   const byMonth = new Map(rows.map(r => [r.month, toTerminalPnlRow(r)] as const));
-  return months.map(m => byMonth.get(m) ?? zeroTerminalPnlRow(m));
+  return months.map(m => byMonth.get(m) ?? zeroTerminalPnlRow(m, gap));
 }
 
 /**
@@ -276,8 +334,16 @@ export type TerminalPnlTotals = TerminalPnlRow & {
   completedProfit: number;
   terminatedProfit: number;
   withdrawalProfit: number;
+  contribution: number;
   ebitda: number;
 };
+
+/** The least certain of two infrastructure sources, so the totals row flags
+ *  the range when any month was assumed or fell back. */
+function worseInfraSource(a: InfraSource, b: InfraSource): InfraSource {
+  const rank: Record<InfraSource, number> = { none: 0, settings: 1, assumed: 2, fallback: 3 };
+  return rank[a] >= rank[b] ? a : b;
+}
 
 export function terminalTotals(rows: TerminalPnlRow[]): TerminalPnlTotals {
   const sum = rows.reduce(
@@ -298,6 +364,10 @@ export function terminalTotals(rows: TerminalPnlRow[]): TerminalPnlTotals {
       withdrawalGross: s.withdrawalGross + r.withdrawalGross,
       feeIncome: s.feeIncome + r.feeIncome,
       payoutFees: s.payoutFees + r.payoutFees,
+      infrastructure: s.infrastructure + r.infrastructure,
+      infraDays: s.infraDays + r.infraDays,
+      infraDaysInMonth: s.infraDaysInMonth + r.infraDaysInMonth,
+      infraSource: worseInfraSource(s.infraSource, r.infraSource),
     }),
     zeroTerminalPnlRow(''),
   );
@@ -307,6 +377,7 @@ export function terminalTotals(rows: TerminalPnlRow[]): TerminalPnlTotals {
     completedProfit: rows.reduce((s, r) => s + completedProfit(r), 0),
     terminatedProfit: rows.reduce((s, r) => s + terminatedProfit(r), 0),
     withdrawalProfit: rows.reduce((s, r) => s + withdrawalProfit(r), 0),
+    contribution: rows.reduce((s, r) => s + contribution(r), 0),
     ebitda: rows.reduce((s, r) => s + ebitda(r), 0),
   };
 }

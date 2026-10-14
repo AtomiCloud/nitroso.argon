@@ -34,15 +34,14 @@
     import {_} from "svelte-i18n";
     import {lang, formatCalendarDate, formatMoney, formatNumber} from "$lib/i18n";
     import {
-        INFRA_COST_MONTHLY,
         PNL_TABS,
         completedProfit,
+        INFRA_FALLBACK_MONTHLY,
+        contribution,
         ebitda,
         estimatedRecoveryCount,
         uncostedCompletedCount,
         costCoverage,
-        netAfterInfra,
-        netAfterInfraTotals,
         pickParam,
         pnlCashNet,
         pnlTotals,
@@ -54,6 +53,7 @@
         terminalZeroFill,
         terminatedProfit,
         withdrawalProfit,
+        type InfraSource,
         type PnlMonthRow,
         type TerminalPnlRow,
     } from "./pnl";
@@ -67,7 +67,9 @@
     //             a booking completes, a booking terminates, or a withdrawal
     //             pays out — and every deposited dollar carries its
     //             gateway-fee share to its terminal event at the month's
-    //             blended gwRate. The headline number is EBITDA.
+    //             blended gwRate. Contribution = the three profit lines;
+    //             EBITDA = contribution − the month's infrastructure (zinc,
+    //             from InvoiceSettings) and is the headline number.
     //   Cash      the cash rollup (GET Booking/analysis/pnl, re-homed from
     //             the retired /analysis P&L tab): deposits − net payouts −
     //             gateway fees, counting unspent wallet float as cash.
@@ -238,6 +240,19 @@
         });
     }
 
+    // A month's infrastructure that was not read straight off a settings row
+    // in force carries the same amber asterisk as the estimate markers.
+    function infraFlagged(s: InfraSource): boolean {
+        return s !== "settings";
+    }
+
+    function infraSourceTitle(s: InfraSource): string {
+        return $_(`pnl.earned.infraSource.${s}`, {
+            locale: $lang,
+            values: {amount: formatMoney(INFRA_FALLBACK_MONTHLY, $lang)},
+        });
+    }
+
     // ---- tabs over the shared state ----
     let tab = "earned";
 
@@ -385,7 +400,8 @@
                  completedProfit  = collected − ktmbCost − gwRate×collected
                  terminatedProfit = kept − ktmbCostNet − gwRate×kept
                  withdrawalProfit = feeIncome − gwRate×gross − payoutFees
-                 ebitda = the three summed. Months where some terminated
+                 contribution = the three summed; ebitda = contribution −
+                 the month's infrastructure (zinc, prorated at range edges). Months where some terminated
                  bookings lack an exact KTMB refund carry an asterisk (the
                  recovery is estimated at 50% for those). -->
             <Tabs.Content value="earned" class="flex flex-col gap-4">
@@ -434,7 +450,14 @@
                                                     </InfoTip>
                                                 </span>
                                             </Table.Head>
-                                            <Table.Head class="h-8 px-2 text-right whitespace-nowrap">{$_('pnl.earned.colEbitda', { locale: $lang })}</Table.Head>
+                                            <Table.Head class="h-8 px-2 text-right whitespace-nowrap">
+                                                <span class="inline-flex items-center gap-1">
+                                                    {$_('pnl.earned.colContribution', { locale: $lang })}
+                                                    <InfoTip label={$_('pnl.earned.colContribution', { locale: $lang })}>
+                                                        {$_('pnl.earned.contributionHint', { locale: $lang })}
+                                                    </InfoTip>
+                                                </span>
+                                            </Table.Head>
                                             <Table.Head class="h-8 px-2 text-right whitespace-nowrap">
                                                 <span class="inline-flex items-center gap-1">
                                                     {$_('pnl.earned.colInfra', { locale: $lang })}
@@ -445,9 +468,9 @@
                                             </Table.Head>
                                             <Table.Head class="h-8 px-2 text-right whitespace-nowrap">
                                                 <span class="inline-flex items-center gap-1">
-                                                    {$_('pnl.earned.colNet', { locale: $lang })}
-                                                    <InfoTip label={$_('pnl.earned.colNet', { locale: $lang })}>
-                                                        {$_('pnl.earned.infraNote', { locale: $lang })}
+                                                    {$_('pnl.earned.colEbitda', { locale: $lang })}
+                                                    <InfoTip label={$_('pnl.earned.colEbitda', { locale: $lang })}>
+                                                        {$_('pnl.earned.ebitdaHint', { locale: $lang })}
                                                     </InfoTip>
                                                 </span>
                                             </Table.Head>
@@ -524,11 +547,21 @@
                                                         </span>
                                                     </div>
                                                 </Table.Cell>
-                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(ebitda(r))}">{formatMoney(ebitda(r), $lang)}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold {deltaClass(contribution(r))}">{formatMoney(contribution(r), $lang)}</Table.Cell>
                                                 <Table.Cell class="px-2 py-1.5 text-right tabular-nums text-muted-foreground">
-                                                    {$_('pnl.earned.infraLine', { locale: $lang, values: { amount: formatNumber(INFRA_COST_MONTHLY, $lang) } })}
+                                                    <span class="inline-flex flex-col items-end">
+                                                        <span>
+                                                            {$_('pnl.earned.infraLine', { locale: $lang, values: { amount: formatMoney(r.infrastructure, $lang) } })}
+                                                            {#if infraFlagged(r.infraSource)}
+                                                                <span class="text-amber-600 dark:text-amber-400" title={infraSourceTitle(r.infraSource)}>*</span>
+                                                            {/if}
+                                                        </span>
+                                                        {#if r.infraDays !== r.infraDaysInMonth}
+                                                            <span class="text-xs">{$_('pnl.earned.infraProrated', { locale: $lang, values: { days: formatNumber(r.infraDays, $lang), of: formatNumber(r.infraDaysInMonth, $lang) } })}</span>
+                                                        {/if}
+                                                    </span>
                                                 </Table.Cell>
-                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(netAfterInfra(r))}">{formatMoney(netAfterInfra(r), $lang)}</Table.Cell>
+                                                <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(ebitda(r))}">{formatMoney(ebitda(r), $lang)}</Table.Cell>
                                                 <Table.Cell class="px-2 py-1.5 text-right tabular-nums {deltaClass(profitPct({ ...r, ebitda: ebitda(r) }) ?? 0)}">
                                                     {#if profitPct({ ...r, ebitda: ebitda(r) }) == null}
                                                         {$_('pnl.earned.profitPctDash', { locale: $lang })}
@@ -646,14 +679,17 @@
                                                     </span>
                                                 </div>
                                             </Table.Cell>
-                                            <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(terminalTotal.ebitda)}">{formatMoney(terminalTotal.ebitda, $lang)}</Table.Cell>
+                                            <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold {deltaClass(terminalTotal.contribution)}">{formatMoney(terminalTotal.contribution, $lang)}</Table.Cell>
                                             <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold text-muted-foreground">
                                                 {$_('pnl.earned.infraTotal', { locale: $lang, values: {
-                                                    amount: formatNumber(INFRA_COST_MONTHLY * terminalRows.length, $lang),
+                                                    amount: formatMoney(terminalTotal.infrastructure, $lang),
                                                     months: formatNumber(terminalRows.length, $lang),
                                                 } })}
+                                                {#if infraFlagged(terminalTotal.infraSource)}
+                                                    <span class="text-amber-600 dark:text-amber-400" title={infraSourceTitle(terminalTotal.infraSource)}>*</span>
+                                                {/if}
                                             </Table.Cell>
-                                            <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(netAfterInfraTotals(terminalRows))}">{formatMoney(netAfterInfraTotals(terminalRows), $lang)}</Table.Cell>
+                                            <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-bold {deltaClass(terminalTotal.ebitda)}">{formatMoney(terminalTotal.ebitda, $lang)}</Table.Cell>
                                             <Table.Cell class="px-2 py-1.5 text-right tabular-nums font-semibold {deltaClass(profitPctTotals(terminalRows) ?? 0)}">
                                                 {#if profitPctTotals(terminalRows) == null}
                                                     {$_('pnl.earned.profitPctDash', { locale: $lang })}

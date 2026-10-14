@@ -1,17 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import type { BookingAnalysisPnlRowRes, BookingTerminalPnlRowRes } from '$lib/api/core/data-contracts';
 import {
-  INFRA_COST_MONTHLY,
+  INFRA_FALLBACK_MONTHLY,
   PNL_TABS,
   completedProfit,
+  contribution,
   costCoverage,
   ebitda,
   estimatedRecoveryCount,
   uncostedCompletedCount,
   grossRevenue,
   monthSortKey,
-  netAfterInfra,
-  netAfterInfraTotals,
   pickParam,
   pnlCashNet,
   pnlTotals,
@@ -147,7 +146,7 @@ describe('pnlWithdrawalBreakdown', () => {
   });
 });
 
-describe('ebitda', () => {
+describe('contribution', () => {
   it('sums the three terminal-event profit lines', () => {
     const r = toTerminalPnlRow(
       terminal({
@@ -158,7 +157,7 @@ describe('ebitda', () => {
       }),
     );
     // 670 + 144 + 21.8
-    expect(ebitda(r)).toBeCloseTo(835.8);
+    expect(contribution(r)).toBeCloseTo(835.8);
   });
 });
 
@@ -247,6 +246,11 @@ describe('terminalZeroFill', () => {
         withdrawalGross: 80,
         feeIncome: 6,
         payoutFees: 2,
+        // an older zinc sends no infrastructure: the flat fallback, flagged
+        infrastructure: 500,
+        infraDays: 31,
+        infraDaysInMonth: 31,
+        infraSource: 'fallback',
       },
     ]);
   });
@@ -320,7 +324,9 @@ describe('terminalTotals', () => {
     expect(t.terminatedProfit).toBeCloseTo(114.5);
     // month 1: 30−0.03×300−6=15; month 2: 10−0.05×100−2=3
     expect(t.withdrawalProfit).toBeCloseTo(18);
-    expect(t.ebitda).toBeCloseTo(903.5 + 114.5 + 18);
+    expect(t.contribution).toBeCloseTo(903.5 + 114.5 + 18);
+    // no infrastructure from zinc here: each month falls back to S$500
+    expect(t.ebitda).toBeCloseTo(903.5 + 114.5 + 18 - 1000);
     // re-running the formula over the summed columns with the range-blended
     // rate recognizes the wrong fee share when monthly rates differ —
     // 1250 − 300 − (55/1500)×1250 ≈ 904.17 ≠ 903.5 — so assert the guard
@@ -482,9 +488,17 @@ describe('pickParam', () => {
   });
 });
 
-describe('INFRA_COST_MONTHLY', () => {
-  it('is the manually-set flat monthly infra cost in SGD', () => {
-    expect(INFRA_COST_MONTHLY).toBe(500);
+// zinc's per-month infrastructure block (EBITDA after infrastructure)
+const infra = (amount: number, days = 31, daysInMonth = 31, source = 'settings') => ({
+  amount,
+  days,
+  daysInMonth,
+  source,
+});
+
+describe('INFRA_FALLBACK_MONTHLY', () => {
+  it('is the flat S$500 used only when zinc sends no infrastructure figure', () => {
+    expect(INFRA_FALLBACK_MONTHLY).toBe(500);
   });
 });
 
@@ -498,110 +512,132 @@ describe('grossRevenue', () => {
   });
 });
 
-describe('netAfterInfra', () => {
-  it('subtracts the monthly infra cost from EBITDA', () => {
-    // ebitda = 835.8 (from the ebitda test above) − 500 = 335.8
-    const r = toTerminalPnlRow(
-      terminal({
-        gwRate: 0.03,
-        completed: { count: 10, collected: 1000, ktmbCost: 300, withActual: 10 },
-        terminated: { count: 2, kept: 200, ktmbCostNet: 50, withExactRefund: 2 },
-        withdrawals: { count: 5, gross: 340, feeIncome: 40, payoutFees: 8 },
-      }),
-    );
-    expect(netAfterInfra(r)).toBeCloseTo(ebitda(r) - 500);
+describe('contribution vs ebitda', () => {
+  const legs = {
+    gwRate: 0.03,
+    completed: { count: 10, collected: 1000, ktmbCost: 300, withActual: 10 },
+    terminated: { count: 2, kept: 200, ktmbCostNet: 50, withExactRefund: 2 },
+    withdrawals: { count: 5, gross: 340, feeIncome: 40, payoutFees: 8 },
+  };
+
+  it('contribution is the three profit lines; EBITDA is contribution minus zinc infrastructure', () => {
+    const r = toTerminalPnlRow(terminal({ ...legs, infrastructure: infra(500) }));
+    expect(contribution(r)).toBeCloseTo(835.8);
+    expect(r.infrastructure).toBe(500);
+    expect(ebitda(r)).toBeCloseTo(335.8);
   });
 
-  it('negative when EBITDA itself is below the monthly infra burn', () => {
+  it('uses whatever zinc charged — an effective-dated change, not a constant', () => {
+    const r = toTerminalPnlRow(terminal({ ...legs, infrastructure: infra(654.84) }));
+    expect(ebitda(r)).toBeCloseTo(835.8 - 654.84);
+  });
+
+  it('a prorated edge month subtracts only the prorated amount', () => {
+    const r = toTerminalPnlRow(terminal({ ...legs, month: '09-2026', infrastructure: infra(250, 15, 30) }));
+    expect(r.infraDays).toBe(15);
+    expect(r.infraDaysInMonth).toBe(30);
+    expect(ebitda(r)).toBeCloseTo(585.8);
+  });
+
+  it('no settings configured: zinc charges 0, EBITDA equals contribution, source says none', () => {
+    const r = toTerminalPnlRow(terminal({ ...legs, infrastructure: infra(0, 31, 31, 'none') }));
+    expect(ebitda(r)).toBeCloseTo(contribution(r));
+    expect(r.infraSource).toBe('none');
+  });
+
+  it('carries the assumed flag through', () => {
+    const r = toTerminalPnlRow(terminal({ ...legs, infrastructure: infra(500, 31, 31, 'assumed') }));
+    expect(r.infraSource).toBe('assumed');
+  });
+
+  it('an older zinc that sends no infrastructure falls back to S$500, flagged', () => {
+    const r = toTerminalPnlRow(terminal(legs));
+    expect(r.infrastructure).toBe(500);
+    expect(r.infraSource).toBe('fallback');
+    expect(r.infraDays).toBe(31);
+    expect(ebitda(r)).toBeCloseTo(335.8);
+  });
+
+  it('negative when the month earned less than its infrastructure', () => {
     const r = toTerminalPnlRow(
-      terminal({
-        gwRate: 0,
-        completed: { count: 1, collected: 100, ktmbCost: 50, withActual: 1 },
-      }),
+      terminal({ completed: { count: 1, collected: 100, ktmbCost: 50, withActual: 1 }, infrastructure: infra(500) }),
     );
-    // EBITDA = 100 − 50 − 0 = 50; net = 50 − 500 = −450
-    expect(netAfterInfra(r)).toBe(-450);
+    expect(ebitda(r)).toBe(-450);
   });
 });
 
 describe('profitPct', () => {
-  it('is (ebitda − infra) ÷ grossRevenue as a fraction', () => {
-    const r = {
-      collected: 1000,
-      kept: 200,
-      feeIncome: 40,
-      ebitda: 835.8,
-    };
-    // (835.8 − 500) / (1000 + 200 + 40) = 335.8 / 1240 ≈ 0.2708
-    expect(profitPct(r)).toBeCloseTo(335.8 / 1240);
+  it('is EBITDA (already after infra) ÷ grossRevenue', () => {
+    expect(profitPct({ collected: 1000, kept: 200, feeIncome: 40, ebitda: 335.8 })).toBeCloseTo(335.8 / 1240);
   });
 
   it('returns null when there is no recognized revenue (avoids NaN%)', () => {
     expect(profitPct({ collected: 0, kept: 0, feeIncome: 0, ebitda: 0 })).toBeNull();
-    // even when EBITDA itself is non-zero, with no revenue there's no margin
-    // to express (e.g. refunds-only month) — the UI shows an em-dash
+    // even when EBITDA itself is non-zero (infra on a quiet month), with no
+    // revenue there's no margin to express — the UI shows an em-dash
     expect(profitPct({ collected: 0, kept: 0, feeIncome: 0, ebitda: -500 })).toBeNull();
   });
 
-  it('negative when infra eats more than EBITDA produces', () => {
-    const r = { collected: 100, kept: 0, feeIncome: 0, ebitda: 50 };
-    // (50 − 500) / 100 = −4.5 (−450% — large negative, still a number)
-    expect(profitPct(r)).toBeCloseTo(-4.5);
+  it('negative when infra eats more than the month contributed', () => {
+    expect(profitPct({ collected: 100, kept: 0, feeIncome: 0, ebitda: -450 })).toBeCloseTo(-4.5);
   });
 });
 
-describe('netAfterInfraTotals', () => {
-  const rows = terminalZeroFill(
-    [
-      terminal({
-        month: '01-2026',
-        deposits: 1000,
-        paymentFees: 30,
-        gwRate: 0.03,
-        completed: { count: 10, collected: 800, ktmbCost: 200, withActual: 10 },
-        terminated: { count: 2, kept: 100, ktmbCostNet: 20, withExactRefund: 1 },
-        withdrawals: { count: 3, gross: 300, feeIncome: 30, payoutFees: 6 },
-      }),
-      terminal({
-        month: '02-2026',
-        deposits: 500,
-        paymentFees: 25,
-        gwRate: 0.05,
-        completed: { count: 5, collected: 450, ktmbCost: 100, withActual: 5 },
-        terminated: { count: 1, kept: 50, ktmbCostNet: 10, withExactRefund: 1 },
-        withdrawals: { count: 1, gross: 100, feeIncome: 10, payoutFees: 2 },
-      }),
-    ],
-    '01-2026',
-    '02-2026',
-  );
-
-  it('subtracts infra × row count from summed EBITDA', () => {
-    // month 01-2026: completed=576, terminated=77, withdrawal=15 → ebitda=668
-    //   (576 = 800−200−24, 77 = 100−20−3, 15 = 30−9−6)
-    // month 02-2026: completed=327.5, terminated=37.5, withdrawal=3 → ebitda=368
-    //   (327.5 = 450−100−22.5, 37.5 = 50−10−2.5, 3 = 10−5−2)
-    // Σ EBITDA = 668 + 368 = 1036
-    // net = 1036 − 500 × 2 = 36
-    const sumEbitda = rows.reduce((s, r) => s + ebitda(r), 0);
-    expect(sumEbitda).toBeCloseTo(1036);
-    expect(netAfterInfraTotals(rows)).toBeCloseTo(36);
+describe('terminalTotals infrastructure', () => {
+  const jan = terminal({
+    month: '01-2026',
+    deposits: 1000,
+    paymentFees: 30,
+    gwRate: 0.03,
+    completed: { count: 10, collected: 800, ktmbCost: 200, withActual: 10 },
+    terminated: { count: 2, kept: 100, ktmbCostNet: 20, withExactRefund: 1 },
+    withdrawals: { count: 3, gross: 300, feeIncome: 30, payoutFees: 6 },
+    infrastructure: infra(500),
+  });
+  const feb = terminal({
+    month: '02-2026',
+    deposits: 500,
+    paymentFees: 25,
+    gwRate: 0.05,
+    completed: { count: 5, collected: 450, ktmbCost: 100, withActual: 5 },
+    terminated: { count: 1, kept: 50, ktmbCostNet: 10, withExactRefund: 1 },
+    withdrawals: { count: 1, gross: 100, feeIncome: 10, payoutFees: 2 },
+    infrastructure: infra(800, 28, 28),
   });
 
-  it('includes zero-activity months in the infra burn (3 months, all zero)', () => {
-    // a quiet quarter still costs 500 × 3 in infra
-    const quiet = terminalZeroFill(
-      [terminal({ month: '02-2026' }), terminal({ month: '03-2026' })],
-      '01-2026',
-      '03-2026',
+  it('sums each month’s own charge and subtracts it from summed contribution', () => {
+    // contribution: Jan 668 (576 + 77 + 15), Feb 368 (327.5 + 37.5 + 3)
+    const t = terminalTotals(terminalZeroFill([jan, feb], '01-2026', '02-2026'));
+    expect(t.contribution).toBeCloseTo(1036);
+    expect(t.infrastructure).toBe(1300);
+    expect(t.ebitda).toBeCloseTo(1036 - 1300);
+    expect(t.infraSource).toBe('settings');
+  });
+
+  it('a gap month in a zinc-with-infra range is charged 0 (zinc emits every charged month)', () => {
+    const rows = terminalZeroFill([jan], '01-2026', '02-2026');
+    expect(rows[1].infrastructure).toBe(0);
+    expect(terminalTotals(rows).infrastructure).toBe(500);
+  });
+
+  it('a gap month from an older zinc is charged the fallback, so quiet months still burn', () => {
+    const old = terminalZeroFill([terminal({ month: '02-2026' })], '01-2026', '03-2026');
+    expect(old.map(r => r.infrastructure)).toEqual([500, 500, 500]);
+    const t = terminalTotals(old);
+    expect(t.ebitda).toBe(-1500);
+    expect(t.infraSource).toBe('fallback');
+  });
+
+  it('flags the totals when any month was assumed', () => {
+    const t = terminalTotals(
+      terminalZeroFill([jan, { ...feb, infrastructure: infra(800, 28, 28, 'assumed') }], '01-2026', '02-2026'),
     );
-    expect(quiet.length).toBe(3);
-    expect(netAfterInfraTotals(quiet)).toBe(-1500);
+    expect(t.infraSource).toBe('assumed');
   });
 });
 
 describe('profitPctTotals', () => {
-  it('is (Σ EBITDA − infra × months) ÷ Σ grossRevenue', () => {
+  it('is Σ EBITDA (each month after its own infra) ÷ Σ grossRevenue', () => {
     const rows = terminalZeroFill(
       [
         terminal({
@@ -612,16 +648,16 @@ describe('profitPctTotals', () => {
           completed: { count: 10, collected: 800, ktmbCost: 200, withActual: 10 },
           terminated: { count: 2, kept: 100, ktmbCostNet: 20, withExactRefund: 1 },
           withdrawals: { count: 3, gross: 300, feeIncome: 30, payoutFees: 6 },
+          infrastructure: infra(500),
         }),
+        terminal({ month: '02-2026', infrastructure: infra(500, 28, 28) }),
       ],
       '01-2026',
       '02-2026',
     );
-    // Σ EBITDA = 668 (zero month 02 contributes 0)
-    //   (completed=576, terminated=77, withdrawal=15)
-    // Σ revenue = 800 + 100 + 30 = 930 (zero month contributes 0)
-    // months = 2 (zero-filled range)
-    // (668 − 500 × 2) / 930 = −332 / 930 ≈ −0.357
+    // contribution 668 (completed=576, terminated=77, withdrawal=15);
+    // Σ EBITDA = 668 − 500 − 500 = −332 (the quiet February still burns)
+    // Σ revenue = 800 + 100 + 30 = 930
     expect(profitPctTotals(rows)).toBeCloseTo(-332 / 930);
   });
 

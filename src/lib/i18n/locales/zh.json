@@ -2284,7 +2284,7 @@
     "detail": "{count} · {amount}",
     "earned": {
       "title": "已赚取（EBITDA）",
-      "description": "每个新加坡日历月的终态事件损益——当资金到达终态（预订完成、预订终止或提现打款）时确认利润，每一元充值按当月混合费率把它的通道费份额带到其终态事件。",
+      "description": "按新加坡日历月计算的终态事件损益——资金到达终态时（订单完成、订单终止或提现支付）确认利润，每笔存款按当月综合费率将其网关手续费份额带到终态事件。EBITDA 已扣除每月固定基础设施成本。",
       "loadError": "加载终态事件损益失败",
       "colCompleted": "已完成",
       "colTerminated": "已终止",
@@ -2305,15 +2305,24 @@
       "detailGwRate": "混合费率：支付通道费 ÷ 充值 = {rate}",
       "gwRateHint": "当月混合通道费率混合了按比例的刷卡通道费与 Airwallex 固定的每笔交易 / 账户费用：支付通道费 ÷ 充值。",
       "colInfra": "基础设施",
-      "colNet": "净",
-      "colProfitPct": "利润率",
-      "infraLine": "− 基础设施 S${amount}",
-      "infraTotal": "− 基础设施 S${amount}（{months} 个月）",
-      "infraNote": "从 EBITDA 中扣减的每月固定运营成本估算 S$500，以得出净利润。合计行按所选区间内的每个月扣减 S$500，包括无活动的月份。",
+      "colProfitPct": "EBITDA %",
+      "infraLine": "− {amount}",
+      "infraTotal": "− {amount}（{months} 个月）",
+      "infraNote": "来自合作伙伴发票条款（合作伙伴 → 发票 → 约定条款）的每月固定基础设施费用，按每天生效的金额计算。区间只覆盖部分的月份（包括按至今计算的当月）按天数比例计算。",
       "profitPctDash": "—",
-      "profitPctHint": "净利润率：(EBITDA − 每月基础设施) ÷ 已确认的总收入（已收款 + 留存 + 手续费收入）。当月无已确认收入时显示破折号。",
+      "profitPctHint": "EBITDA 利润率：EBITDA（已扣除基础设施）÷ 已确认的总收入（已收款 + 留存 + 手续费收入）。当月无已确认收入时显示破折号。",
       "estimateNote": "{m} 笔已终止预订中有 {n} 笔的 KTMB 回收按 50% 估算",
-      "uncostedNote": "{m} 笔已完成预订中有 {n} 笔未记录 KTMB 成本（覆盖率 {pct}）——这些按零成本计算，因此本月成本被低估、利润被高估"
+      "uncostedNote": "{m} 笔已完成预订中有 {n} 笔未记录 KTMB 成本（覆盖率 {pct}）——这些按零成本计算，因此本月成本被低估、利润被高估",
+      "colContribution": "贡献",
+      "contributionHint": "已完成 + 已终止 + 提现利润：当月经营在扣除固定运营成本之前的收益。（本页以前将此数字称为 EBITDA。）",
+      "ebitdaHint": "贡献 − 基础设施。EBITDA 已扣除每月固定运营成本。",
+      "infraProrated": "{days}/{of} 天",
+      "infraSource": {
+        "settings": "来自生效中的约定条款",
+        "assumed": "此期间部分早于首次保存的条款；按最早保存的金额计算",
+        "none": "约定条款中尚未设置基础设施费用——未扣减",
+        "fallback": "服务器未返回基础设施数字；按每月 {amount} 的固定后备值扣减"
+      }
     },
     "cash": {
       "title": "现金视图",
