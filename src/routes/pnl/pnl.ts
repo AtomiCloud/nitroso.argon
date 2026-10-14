@@ -34,7 +34,6 @@ export {
   withdrawalProfit,
   contribution,
   ebitda,
-  INFRA_FALLBACK_MONTHLY,
   type InfraSource,
   pnlWithdrawalBreakdown,
   withdrawalLossAmount,

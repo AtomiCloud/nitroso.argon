@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { BookingAnalysisPnlRowRes, BookingTerminalPnlRowRes } from '$lib/api/core/data-contracts';
 import {
-  INFRA_FALLBACK_MONTHLY,
   PNL_TABS,
   completedProfit,
   contribution,
@@ -246,11 +245,11 @@ describe('terminalZeroFill', () => {
         withdrawalGross: 80,
         feeIncome: 6,
         payoutFees: 2,
-        // an older zinc sends no infrastructure: the flat fallback, flagged
-        infrastructure: 500,
+        // an older zinc sends no infrastructure: nothing deducted, flagged missing
+        infrastructure: 0,
         infraDays: 31,
         infraDaysInMonth: 31,
-        infraSource: 'fallback',
+        infraSource: 'missing',
       },
     ]);
   });
@@ -325,8 +324,9 @@ describe('terminalTotals', () => {
     // month 1: 30−0.03×300−6=15; month 2: 10−0.05×100−2=3
     expect(t.withdrawalProfit).toBeCloseTo(18);
     expect(t.contribution).toBeCloseTo(903.5 + 114.5 + 18);
-    // no infrastructure from zinc here: each month falls back to S$500
-    expect(t.ebitda).toBeCloseTo(903.5 + 114.5 + 18 - 1000);
+    // no infrastructure from zinc here: nothing deducted, flagged missing
+    expect(t.ebitda).toBeCloseTo(t.contribution);
+    expect(t.infraSource).toBe('missing');
     // re-running the formula over the summed columns with the range-blended
     // rate recognizes the wrong fee share when monthly rates differ —
     // 1250 − 300 − (55/1500)×1250 ≈ 904.17 ≠ 903.5 — so assert the guard
@@ -496,12 +496,6 @@ const infra = (amount: number, days = 31, daysInMonth = 31, source = 'settings')
   source,
 });
 
-describe('INFRA_FALLBACK_MONTHLY', () => {
-  it('is the flat S$500 used only when zinc sends no infrastructure figure', () => {
-    expect(INFRA_FALLBACK_MONTHLY).toBe(500);
-  });
-});
-
 describe('grossRevenue', () => {
   it('sums collected + kept + feeIncome', () => {
     expect(grossRevenue({ collected: 1000, kept: 200, feeIncome: 40 })).toBe(1240);
@@ -550,12 +544,11 @@ describe('contribution vs ebitda', () => {
     expect(r.infraSource).toBe('assumed');
   });
 
-  it('an older zinc that sends no infrastructure falls back to S$500, flagged', () => {
+  it('an older zinc that sends no infrastructure deducts nothing and is flagged missing (never a guessed amount)', () => {
     const r = toTerminalPnlRow(terminal(legs));
-    expect(r.infrastructure).toBe(500);
-    expect(r.infraSource).toBe('fallback');
-    expect(r.infraDays).toBe(31);
-    expect(ebitda(r)).toBeCloseTo(335.8);
+    expect(r.infrastructure).toBe(0);
+    expect(r.infraSource).toBe('missing');
+    expect(ebitda(r)).toBeCloseTo(contribution(r));
   });
 
   it('negative when the month earned less than its infrastructure', () => {
@@ -614,18 +607,16 @@ describe('terminalTotals infrastructure', () => {
     expect(t.infraSource).toBe('settings');
   });
 
-  it('a gap month in a zinc-with-infra range is charged 0 (zinc emits every charged month)', () => {
+  it('a month zinc omits is charged 0 (zinc emits an infra-only row for every charged month)', () => {
     const rows = terminalZeroFill([jan], '01-2026', '02-2026');
     expect(rows[1].infrastructure).toBe(0);
     expect(terminalTotals(rows).infrastructure).toBe(500);
   });
 
-  it('a gap month from an older zinc is charged the fallback, so quiet months still burn', () => {
+  it('an older zinc range is flagged missing in the totals', () => {
     const old = terminalZeroFill([terminal({ month: '02-2026' })], '01-2026', '03-2026');
-    expect(old.map(r => r.infrastructure)).toEqual([500, 500, 500]);
-    const t = terminalTotals(old);
-    expect(t.ebitda).toBe(-1500);
-    expect(t.infraSource).toBe('fallback');
+    expect(old.map(r => r.infrastructure)).toEqual([0, 0, 0]);
+    expect(terminalTotals(old).infraSource).toBe('missing');
   });
 
   it('flags the totals when any month was assumed', () => {

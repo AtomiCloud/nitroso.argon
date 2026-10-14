@@ -36,7 +36,6 @@
     import {
         PNL_TABS,
         completedProfit,
-        INFRA_FALLBACK_MONTHLY,
         contribution,
         ebitda,
         estimatedRecoveryCount,
@@ -247,10 +246,7 @@
     }
 
     function infraSourceTitle(s: InfraSource): string {
-        return $_(`pnl.earned.infraSource.${s}`, {
-            locale: $lang,
-            values: {amount: formatMoney(INFRA_FALLBACK_MONTHLY, $lang)},
-        });
+        return $_(`pnl.earned.infraSource.${s}`, {locale: $lang});
     }
 
     // ---- tabs over the shared state ----
@@ -421,6 +417,9 @@
                         {:else if terminalLoading && terminalRaw.length === 0}
                             <Loader/>
                         {:else}
+                            {#if terminalTotal.infraSource === "missing"}
+                                <p class="text-sm text-destructive px-2 mb-2">{$_('pnl.earned.infraSource.missing', { locale: $lang })}</p>
+                            {/if}
                             <div class="overflow-x-auto">
                                 <Table.Root>
                                     <Table.Header>

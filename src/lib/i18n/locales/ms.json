@@ -2321,7 +2321,7 @@
         "settings": "Daripada terma dipersetujui yang berkuat kuasa",
         "assumed": "Sebahagian tempoh ini lebih awal daripada terma pertama yang disimpan; dicaj pada amaun terawal yang disimpan",
         "none": "Tiada caj infrastruktur ditetapkan dalam terma dipersetujui — tiada potongan",
-        "fallback": "Pelayan tidak menghantar angka infrastruktur; dicaj nilai sandaran tetap {amount}/bulan"
+        "missing": "Pelayan tidak menghantar angka infrastruktur (versi lebih lama daripada perubahan ini), jadi tiada potongan — EBITDA ini ialah SEBELUM infrastruktur"
       }
     },
     "cash": {

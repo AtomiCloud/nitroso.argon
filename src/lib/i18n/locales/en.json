@@ -2321,7 +2321,7 @@
         "settings": "From the agreed terms in force",
         "assumed": "Part of this period predates the first saved terms; charged at the earliest saved amount",
         "none": "No infrastructure charge has been set up in the agreed terms — nothing deducted",
-        "fallback": "The server did not send an infrastructure figure; charged the flat {amount}/month fallback"
+        "missing": "The server sent no infrastructure figure (it predates this change), so nothing was deducted — this EBITDA is BEFORE infrastructure"
       }
     },
     "cash": {
