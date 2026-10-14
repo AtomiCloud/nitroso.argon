@@ -2284,7 +2284,7 @@
     "detail": "{count} · {amount}",
     "earned": {
       "title": "Earned (EBITDA)",
-      "description": "Terminal-event P&L per SGT calendar month — profit is recognized when money reaches a terminal state (a booking completes, a booking terminates, or a withdrawal pays out), and every deposited dollar carries its gateway-fee share to its terminal event at the month's blended rate.",
+      "description": "Terminal-event P&L per SGT calendar month — profit is recognized when money reaches a terminal state (a booking completes, a booking terminates, or a withdrawal pays out), and every deposited dollar carries its gateway-fee share to its terminal event at the month's blended rate. EBITDA is AFTER the fixed monthly infrastructure cost.",
       "loadError": "Failed to load the terminal-event P&L",
       "colCompleted": "Completed",
       "colTerminated": "Terminated",
@@ -2305,15 +2305,24 @@
       "detailGwRate": "Blended rate: payment fees ÷ deposits = {rate}",
       "gwRateHint": "The month's blended gateway-fee rate blends percentage card fees and Airwallex's flat per-transaction / account fees: payment fees ÷ deposits.",
       "colInfra": "Infra",
-      "colNet": "Net",
-      "colProfitPct": "Profit %",
-      "infraLine": "− infra S${amount}",
-      "infraTotal": "− infra S${amount} ({months} months)",
-      "infraNote": "Flat S$500 / month operating-cost estimate subtracted from EBITDA to reach Net. The totals row subtracts S$500 per month in the picked range, including zero-activity months.",
+      "colProfitPct": "EBITDA %",
+      "infraLine": "− {amount}",
+      "infraTotal": "− {amount} ({months} months)",
+      "infraNote": "The flat monthly infrastructure charge from the partner-invoice terms (Partners → Invoices → Agreed terms), using the amount in force on each day. A month the range only partly covers — including the current month, charged to date — is prorated by days.",
       "profitPctDash": "—",
-      "profitPctHint": "Net profit margin: (EBITDA − monthly infra) ÷ gross recognized revenue (collected + kept + fee income). Em-dash when there was no recognized revenue that month.",
+      "profitPctHint": "EBITDA margin: EBITDA (after infrastructure) ÷ gross recognized revenue (collected + kept + fee income). Em-dash when there was no recognized revenue that month.",
       "estimateNote": "terminated KTMB recovery estimated at 50% for {n} of {m} bookings",
-      "uncostedNote": "no KTMB cost recorded for {n} of {m} completed bookings ({pct} covered) — those count as zero cost, so this month's cost is understated and its profit overstated"
+      "uncostedNote": "no KTMB cost recorded for {n} of {m} completed bookings ({pct} covered) — those count as zero cost, so this month's cost is understated and its profit overstated",
+      "colContribution": "Contribution",
+      "contributionHint": "Completed + terminated + withdrawal profit: what the month's trading earned BEFORE fixed operating costs. (This is the figure the page used to call EBITDA.)",
+      "ebitdaHint": "Contribution − infrastructure. EBITDA is after the fixed monthly operating cost.",
+      "infraProrated": "{days}/{of} days",
+      "infraSource": {
+        "settings": "From the agreed terms in force",
+        "assumed": "Part of this period predates the first saved terms; charged at the earliest saved amount",
+        "none": "No infrastructure charge has been set up in the agreed terms — nothing deducted",
+        "missing": "The server sent no infrastructure figure (it predates this change), so nothing was deducted — this EBITDA is BEFORE infrastructure"
+      }
     },
     "cash": {
       "title": "Cash view",

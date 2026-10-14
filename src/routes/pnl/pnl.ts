@@ -1,7 +1,7 @@
 // Pure helpers for the /pnl page — BunnyBooker's single money view.
 //
 // The shared terminal-event pieces (TerminalPnlRow, completedProfit /
-// terminatedProfit / withdrawalProfit / ebitda, the withdrawal breakdown,
+// terminatedProfit / withdrawalProfit / contribution / ebitda, the withdrawal breakdown,
 // withdrawal loss + blended loss %, terminalZeroFill, terminalTotals) live
 // in src/lib/pnl/terminal.ts so /analysis can import them for its
 // Withdrawals tab without duplicating math.
@@ -32,7 +32,9 @@ export {
   completedProfit,
   terminatedProfit,
   withdrawalProfit,
+  contribution,
   ebitda,
+  type InfraSource,
   pnlWithdrawalBreakdown,
   withdrawalLossAmount,
   blendedLossPct,
@@ -74,15 +76,6 @@ export function costCoverage(r: Pick<TerminalPnlRow, 'completedCount' | 'withAct
   return Math.min(1, Math.max(0, r.withActual / r.completedCount));
 }
 
-/**
- * Flat monthly infrastructure cost (SGD) subtracted from EBITDA to reach
- * the bottom-line Net. Manually-set estimate — when the real monthly infra
- * spend changes, bump this constant and re-deploy. Always burns, even in
- * months with zero activity (the totals row subtracts it per month in the
- * displayed range).
- */
-export const INFRA_COST_MONTHLY = 500;
-
 /** Gross revenue: the money we recognized on terminal events this month,
  *  the denominator of profitPct. Sum of collected on completed bookings,
  *  the amount we kept on terminated bookings, and the fee share we kept
@@ -91,36 +84,24 @@ export function grossRevenue(r: Pick<TerminalPnlRow, 'collected' | 'kept' | 'fee
   return r.collected + r.kept + r.feeIncome;
 }
 
-/** Bottom-line Net = EBITDA − INFRA_COST_MONTHLY. Infra burns every month
- *  regardless of activity, so the per-month row never gets to skip it. */
-export function netAfterInfra(r: TerminalPnlRow): number {
-  return ebitdaCore(r) - INFRA_COST_MONTHLY;
-}
-
-/** Bottom-line Net on the range totals row: sum of monthly EBITDAs minus
- *  infra × the number of months displayed in the picked range (including
- *  zero-activity months — infra burns even when nothing else does). */
-export function netAfterInfraTotals(rows: TerminalPnlRow[]): number {
-  return rows.reduce((s, r) => s + ebitdaCore(r), 0) - INFRA_COST_MONTHLY * rows.length;
-}
-
-/** Profit margin as a fraction (e.g. 0.15 = 15%). null when there was no
- *  recognized revenue to divide against — the UI renders an em-dash rather
- *  than "NaN%". */
+/** EBITDA margin as a fraction (e.g. 0.15 = 15%): EBITDA — already AFTER the
+ *  month's infrastructure — ÷ gross recognized revenue. null when there was
+ *  no recognized revenue to divide against — the UI renders an em-dash
+ *  rather than "NaN%". */
 export function profitPct(
   r: Pick<TerminalPnlRow, 'collected' | 'kept' | 'feeIncome'> & { ebitda: number },
 ): number | null {
   const rev = grossRevenue(r);
   if (rev === 0) return null;
-  return (r.ebitda - INFRA_COST_MONTHLY) / rev;
+  return r.ebitda / rev;
 }
 
-/** Profit margin on the range totals row: (Σ EBITDA − infra × months) ÷ Σ revenue. */
+/** EBITDA margin on the range totals row: Σ EBITDA ÷ Σ revenue. */
 export function profitPctTotals(rows: TerminalPnlRow[]): number | null {
   const totalEbitda = rows.reduce((s, r) => s + ebitdaCore(r), 0);
   const totalRevenue = rows.reduce((s, r) => s + grossRevenue(r), 0);
   if (totalRevenue === 0) return null;
-  return (totalEbitda - INFRA_COST_MONTHLY * rows.length) / totalRevenue;
+  return totalEbitda / totalRevenue;
 }
 
 // ---- CASH view (re-homed from the retired /analysis P&L tab) ----
