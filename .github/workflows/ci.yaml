@@ -11,10 +11,10 @@ jobs:
       # Setup
       - uses: AtomiCloud/actions.setup-nix@v1.2.1
         with:
-          namespacelabs: "false"
+          namespacelabs: 'false'
       - uses: AtomiCloud/actions.cache-bun@v1.0.1
         with:
-          namespacelabs: "false"
+          namespacelabs: 'false'
       # Action
       - name: Run pre-commit
         run: nix develop .#ci -c ./scripts/ci/pre-commit.sh
