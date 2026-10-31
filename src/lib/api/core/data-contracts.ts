@@ -115,6 +115,27 @@ export interface BookingPrincipalRes {
   bookingNo?: string | null;
   status?: string | null;
   priority: boolean;
+  /** @format int32 */
+  recoveryRetries?: number | null;
+  /** @format date-time */
+  firstRecoveringAt?: string | null;
+}
+
+export interface BookingKtmbCheckRes {
+  /** @format uuid */
+  id: string;
+  bookingId: string;
+  status: string;
+  /** @format date-time */
+  requestedAt: string;
+  requestedBy?: string | null;
+  /** @format date-time */
+  checkedAt?: string | null;
+  ktmbBookingNo?: string | null;
+  ktmbTicketNo?: string | null;
+  claimedByBookingId?: string | null;
+  claimedBySelf: boolean;
+  error?: string | null;
 }
 
 export interface BookingQueueRes {
