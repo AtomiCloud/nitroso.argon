@@ -102,7 +102,10 @@
         } catch (e: any) {
             console.error(e);
             toast.error(e?.error?.detail ?? $_('bookingActions.ktmbCheck.requestFailed', {locale: $lang}));
-            schedulePoll();
+            // the click bumped generation, so an initial load still in flight
+            // was discarded — reload it rather than spin "Loading…" forever
+            if (!loaded) void load();
+            else schedulePoll();
         } finally {
             requesting = false;
         }
