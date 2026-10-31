@@ -25,5 +25,15 @@ eval "$auth_secret"
 # shellcheck disable=SC2153
 echo "🔑 Descope ID: ${DESCOPE_ID}"
 
+# Cloudflare's build image sets NODE_OPTIONS=--use-openssl-ca. Node rejects that
+# flag for worker threads ("is not allowed in NODE_OPTIONS"), and SvelteKit's
+# build forks a Worker, so every Pages build failed from 2026-10-14. Drop just
+# that flag and keep anything else Cloudflare sets.
+if [ -n "${NODE_OPTIONS:-}" ]; then
+  NODE_OPTIONS="$(echo "$NODE_OPTIONS" | sed -E 's/(^| )--use-openssl-ca( |$)/ /g; s/^ +| +$//g')"
+  export NODE_OPTIONS
+  echo "🧹 NODE_OPTIONS after removing --use-openssl-ca: '${NODE_OPTIONS}'"
+fi
+
 echo "🔨 Building for branch: ${branch}"
 bun run build
