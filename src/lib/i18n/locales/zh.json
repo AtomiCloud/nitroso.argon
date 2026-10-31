@@ -490,6 +490,48 @@
       "upgradeConfirmFree": "免费升级",
       "slotsLeft": "此班次尚余 {left} / {cap} 个优先名额",
       "queueFull": "此班次的优先队列已满——暂无可用的升级名额。"
+    },
+    "ktmbCheck": {
+      "title": "KTMB 账户检查",
+      "description": "只读：向 KTMB 查询我们的账户是否持有该乘客、该日期和该方向的车票。",
+      "button": "检查 KTMB 账户",
+      "loading": "正在加载最新检查结果…",
+      "loadFailed": "无法加载最新检查结果。",
+      "requestFailed": "发起 KTMB 账户检查失败",
+      "notChecked": "尚未检查",
+      "waiting": "正在等待 tin 回复…",
+      "timedOut": "tin 尚未回复（{ago}发起）——tin 可能繁忙或已停止运行，请稍后再试",
+      "found": "我们的 KTMB 账户持有这张车票",
+      "ktmbBookingNo": "KTMB 订单号：{value}",
+      "ktmbTicketNo": "KTMB 车票号：{value}",
+      "notFound": "我们的 KTMB 账户上没有匹配的车票",
+      "departed": "无法验证：车次已发车（KTMB 的待出行车票列表不再显示该票）",
+      "failed": "检查失败",
+      "checkedAt": "检查时间 {datetime}（{ago}）",
+      "requestedAt": "{ago}发起",
+      "requestedBy": "发起人：{user}",
+      "recoveryRetries": "恢复重试次数：{count}",
+      "firstRecoveringAt": "首次护照重复被拒：{datetime}",
+      "claim": {
+        "unclaimed": "未被任何已完成订单认领（我们账户上的未认领车票）",
+        "unknown": "无法查询哪个订单认领了此车票：{error}",
+        "self": "已被本订单认领",
+        "other": "已被其他订单认领："
+      },
+      "badge": {
+        "pending": "等待中",
+        "noAnswer": "无回复",
+        "found": "已找到",
+        "notFound": "未找到",
+        "departed": "已发车",
+        "error": "错误"
+      },
+      "ago": {
+        "justNow": "刚刚",
+        "minutes": "{count}分钟前",
+        "hours": "{count}小时前",
+        "days": "{count}天前"
+      }
     }
   },
   "bookings": {
