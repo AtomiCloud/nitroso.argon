@@ -19,6 +19,7 @@ import type {
   BookingAnalysisPnlRowRes,
   BookingBoostPageRes,
   BookingCountRes,
+  BookingKtmbCheckRes,
   BookingPrincipalRes,
   BookingQueueRes,
   BookingRes,
@@ -634,6 +635,38 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
       path: `/api/v${version}/Booking/${id}`,
       method: 'GET',
       query: query,
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
+   * @name VBookingKtmbCheckDetail
+   * @request GET:/api/v{version}/Booking/{id}/ktmb-check
+   * @secure
+   */
+  vBookingKtmbCheckDetail = (id: string, version: string, params: RequestParams = {}) =>
+    this.request<BookingKtmbCheckRes, any>({
+      path: `/api/v${version}/Booking/${id}/ktmb-check`,
+      method: 'GET',
+      secure: true,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags Booking
+   * @name VBookingKtmbCheckCreate
+   * @request POST:/api/v{version}/Booking/{id}/ktmb-check
+   * @secure
+   */
+  vBookingKtmbCheckCreate = (id: string, version: string, params: RequestParams = {}) =>
+    this.request<BookingKtmbCheckRes, any>({
+      path: `/api/v${version}/Booking/${id}/ktmb-check`,
+      method: 'POST',
       secure: true,
       format: 'json',
       ...params,
