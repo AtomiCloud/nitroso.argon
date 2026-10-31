@@ -514,6 +514,7 @@
       "firstRecoveringAt": "First duplicate-passport rejection: {datetime}",
       "claim": {
         "unclaimed": "Not claimed by any completed booking (unclaimed ticket on our account)",
+        "unknown": "Could not check which booking claims this ticket: {error}",
         "self": "Claimed by this booking",
         "other": "Claimed by another booking:"
       },

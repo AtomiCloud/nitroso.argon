@@ -514,6 +514,7 @@
       "firstRecoveringAt": "Penolakan pasport pendua pertama: {datetime}",
       "claim": {
         "unclaimed": "Tidak dituntut oleh mana-mana tempahan yang selesai (tiket tidak dituntut pada akaun kami)",
+        "unknown": "Tidak dapat menyemak tempahan mana yang menuntut tiket ini: {error}",
         "self": "Dituntut oleh tempahan ini",
         "other": "Dituntut oleh tempahan lain:"
       },

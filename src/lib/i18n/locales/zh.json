@@ -514,6 +514,7 @@
       "firstRecoveringAt": "首次护照重复被拒：{datetime}",
       "claim": {
         "unclaimed": "未被任何已完成订单认领（我们账户上的未认领车票）",
+        "unknown": "无法查询哪个订单认领了此车票：{error}",
         "self": "已被本订单认领",
         "other": "已被其他订单认领："
       },

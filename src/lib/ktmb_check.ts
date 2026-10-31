@@ -3,7 +3,12 @@ import type { BookingKtmbCheckRes } from '$lib/api/core/data-contracts';
 export const KTMB_CHECK_POLL_INTERVAL_MS = 2000;
 export const KTMB_CHECK_POLL_TIMEOUT_MS = 90_000;
 
-export type KtmbClaim = { kind: 'unclaimed' } | { kind: 'self' } | { kind: 'other'; bookingId: string };
+export type KtmbClaim =
+  | { kind: 'unclaimed' }
+  | { kind: 'self' }
+  | { kind: 'other'; bookingId: string }
+  // the ticket IS on our account but tin could not look up who claims it
+  | { kind: 'unknown'; error: string };
 
 export type KtmbCheckView =
   | { kind: 'none' }
@@ -30,6 +35,7 @@ export function shouldPoll(check: BookingKtmbCheckRes | null, now: number): bool
 }
 
 function claimOf(check: BookingKtmbCheckRes): KtmbClaim {
+  if (check.claimedByBookingId == null && check.error) return { kind: 'unknown', error: check.error };
   if (check.claimedByBookingId == null) return { kind: 'unclaimed' };
   if (check.claimedBySelf) return { kind: 'self' };
   return { kind: 'other', bookingId: check.claimedByBookingId };

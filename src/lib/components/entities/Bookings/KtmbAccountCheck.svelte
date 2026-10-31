@@ -162,7 +162,7 @@
                     </div>
                 {/if}
             {:else if view.kind === "found"}
-                <Badge class="{view.claim.kind === 'unclaimed' ? 'bg-amber-500' : view.claim.kind === 'self' ? 'bg-green-500' : 'bg-purple-500'} w-fit">
+                <Badge class="{view.claim.kind === 'unclaimed' || view.claim.kind === 'unknown' ? 'bg-amber-500' : view.claim.kind === 'self' ? 'bg-green-500' : 'bg-purple-500'} w-fit">
                     {$_('bookingActions.ktmbCheck.badge.found', {locale: $lang})}
                 </Badge>
                 <div class="font-medium">{$_('bookingActions.ktmbCheck.found', {locale: $lang})}</div>
@@ -173,6 +173,10 @@
                 <div class="text-sm">
                     {#if view.claim.kind === "unclaimed"}
                         {$_('bookingActions.ktmbCheck.claim.unclaimed', {locale: $lang})}
+                    {:else if view.claim.kind === "unknown"}
+                        <span class="text-destructive break-words">
+                            {$_('bookingActions.ktmbCheck.claim.unknown', {locale: $lang, values: {error: view.claim.error}})}
+                        </span>
                     {:else if view.claim.kind === "self"}
                         {$_('bookingActions.ktmbCheck.claim.self', {locale: $lang})}
                     {:else}

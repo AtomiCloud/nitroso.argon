@@ -41,6 +41,11 @@ describe('deriveKtmbCheckView', () => {
     expect(v).toEqual({ kind: 'found', ktmbBookingNo: 'KB1', ktmbTicketNo: 'T1', claim: { kind: 'unclaimed' } });
   });
 
+  it('Found with a failed claim lookup is unknown, never unclaimed', () => {
+    const v = deriveKtmbCheckView(check({ status: 'Found', ktmbBookingNo: 'KB1', error: 'search 502' }), NOW);
+    expect(v).toMatchObject({ kind: 'found', claim: { kind: 'unknown', error: 'search 502' } });
+  });
+
   it('Found claimed by this booking', () => {
     const v = deriveKtmbCheckView(check({ status: 'Found', claimedByBookingId: 'b1', claimedBySelf: true }), NOW);
     expect(v).toMatchObject({ kind: 'found', claim: { kind: 'self' } });
