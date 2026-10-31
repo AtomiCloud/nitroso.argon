@@ -490,6 +490,48 @@
       "upgradeConfirmFree": "Upgrade for free",
       "slotsLeft": "{left} of {cap} priority slots left for this timeslot",
       "queueFull": "This timeslot's priority queue is full — no more upgrades are available."
+    },
+    "ktmbCheck": {
+      "title": "KTMB account check",
+      "description": "Read-only: asks KTMB whether OUR account holds a ticket for this passenger, date and direction.",
+      "button": "Check KTMB account",
+      "loading": "Loading latest check…",
+      "loadFailed": "Could not load the latest check.",
+      "requestFailed": "Failed to request the KTMB account check",
+      "notChecked": "Not checked yet",
+      "waiting": "Waiting for tin to answer…",
+      "timedOut": "No answer from tin yet (requested {ago}) — tin may be busy or down; try again later",
+      "found": "Our KTMB account HOLDS this ticket",
+      "ktmbBookingNo": "KTMB booking no: {value}",
+      "ktmbTicketNo": "KTMB ticket no: {value}",
+      "notFound": "No matching ticket on our KTMB account",
+      "departed": "Can't verify: departure has passed (KTMB's upcoming-ticket list no longer shows it)",
+      "failed": "Check failed",
+      "checkedAt": "Checked {datetime} ({ago})",
+      "requestedAt": "Requested {ago}",
+      "requestedBy": "requested by {user}",
+      "recoveryRetries": "Recovery retries: {count}",
+      "firstRecoveringAt": "First duplicate-passport rejection: {datetime}",
+      "claim": {
+        "unclaimed": "Not claimed by any completed booking (unclaimed ticket on our account)",
+        "unknown": "Could not check which booking claims this ticket: {error}",
+        "self": "Claimed by this booking",
+        "other": "Claimed by another booking:"
+      },
+      "badge": {
+        "pending": "Pending",
+        "noAnswer": "No answer",
+        "found": "Found",
+        "notFound": "Not found",
+        "departed": "Departed",
+        "error": "Error"
+      },
+      "ago": {
+        "justNow": "just now",
+        "minutes": "{count, plural, one {# minute ago} other {# minutes ago}}",
+        "hours": "{count, plural, one {# hour ago} other {# hours ago}}",
+        "days": "{count, plural, one {# day ago} other {# days ago}}"
+      }
     }
   },
   "bookings": {

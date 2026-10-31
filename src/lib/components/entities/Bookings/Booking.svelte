@@ -12,6 +12,8 @@
     import QueuePosition from "$lib/components/entities/Bookings/QueuePosition.svelte";
     import PrioritizeBooking from "$lib/components/entities/Bookings/PrioritizeBooking.svelte";
     import PriorityBadge from "$lib/components/entities/Bookings/PriorityBadge.svelte";
+    import KtmbAccountCheck from "$lib/components/entities/Bookings/KtmbAccountCheck.svelte";
+    import {isKtmbCheckProminent} from "$lib/ktmb_check";
 
     import moment from "moment-timezone";
     import {page} from "$app/stores";
@@ -36,6 +38,9 @@
 
     // Only these statuses are still waiting in the purchase queue.
     const queued = ["Pending", "Buying", "Recovering"].includes(b.status ?? "");
+
+    const isAdmin = session?.roles?.includes("admin") === true;
+    const ktmbCheckProminent = isKtmbCheckProminent(b.status);
 </script>
 
 <div class="flex flex-wrap w-full gap-4">
@@ -97,6 +102,11 @@
         </Card.Root>
     {/if}
 </div>
+{#if isAdmin && ktmbCheckProminent}
+    <div class="flex flex-wrap w-full gap-4">
+        <KtmbAccountCheck booking={b}/>
+    </div>
+{/if}
 <div class="flex flex-wrap w-full gap-4">
     <Card.Root class="flex-1 min-w-fit">
         <Card.Header>
@@ -168,3 +178,8 @@
         </Card.Root>
     {/if}
 </div>
+{#if isAdmin && !ktmbCheckProminent}
+    <div class="flex flex-wrap w-full gap-4">
+        <KtmbAccountCheck booking={b}/>
+    </div>
+{/if}

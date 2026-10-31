@@ -490,6 +490,48 @@
       "upgradeConfirmFree": "Naik taraf secara percuma",
       "slotsLeft": "{left} daripada {cap} slot prioriti tinggal untuk slot masa ini",
       "queueFull": "Barisan prioriti slot masa ini sudah penuh — tiada naik taraf lagi tersedia."
+    },
+    "ktmbCheck": {
+      "title": "Semakan akaun KTMB",
+      "description": "Baca sahaja: bertanya kepada KTMB sama ada akaun KAMI memegang tiket untuk penumpang, tarikh dan arah ini.",
+      "button": "Semak akaun KTMB",
+      "loading": "Memuatkan semakan terkini…",
+      "loadFailed": "Tidak dapat memuatkan semakan terkini.",
+      "requestFailed": "Gagal meminta semakan akaun KTMB",
+      "notChecked": "Belum disemak",
+      "waiting": "Menunggu jawapan daripada tin…",
+      "timedOut": "Belum ada jawapan daripada tin (diminta {ago}) — tin mungkin sibuk atau tidak berfungsi; cuba lagi nanti",
+      "found": "Akaun KTMB kami MEMEGANG tiket ini",
+      "ktmbBookingNo": "No tempahan KTMB: {value}",
+      "ktmbTicketNo": "No tiket KTMB: {value}",
+      "notFound": "Tiada tiket yang sepadan pada akaun KTMB kami",
+      "departed": "Tidak dapat disahkan: perlepasan telah berlalu (senarai tiket akan datang KTMB tidak lagi memaparkannya)",
+      "failed": "Semakan gagal",
+      "checkedAt": "Disemak {datetime} ({ago})",
+      "requestedAt": "Diminta {ago}",
+      "requestedBy": "diminta oleh {user}",
+      "recoveryRetries": "Percubaan pemulihan: {count}",
+      "firstRecoveringAt": "Penolakan pasport pendua pertama: {datetime}",
+      "claim": {
+        "unclaimed": "Tidak dituntut oleh mana-mana tempahan yang selesai (tiket tidak dituntut pada akaun kami)",
+        "unknown": "Tidak dapat menyemak tempahan mana yang menuntut tiket ini: {error}",
+        "self": "Dituntut oleh tempahan ini",
+        "other": "Dituntut oleh tempahan lain:"
+      },
+      "badge": {
+        "pending": "Menunggu",
+        "noAnswer": "Tiada jawapan",
+        "found": "Ditemui",
+        "notFound": "Tidak ditemui",
+        "departed": "Telah bertolak",
+        "error": "Ralat"
+      },
+      "ago": {
+        "justNow": "baru sahaja",
+        "minutes": "{count} minit lalu",
+        "hours": "{count} jam lalu",
+        "days": "{count} hari lalu"
+      }
     }
   },
   "bookings": {
