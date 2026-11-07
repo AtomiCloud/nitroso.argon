@@ -75,6 +75,7 @@
     // (never one call per booking). Client-only via `mounted`; on failure no labels show.
     let schedule: ScheduleByDate | null = null;
     let scheduleSig = "";
+    let scheduleRequest = 0; // identity of the latest request, so older responses are dropped
 
     $: pendingDates = data.result[0] === "ok"
         ? data.result[1].filter(b => b.status === "Pending").map(b => b.date)
@@ -84,12 +85,13 @@
     $: if (mounted && spanSig !== scheduleSig) loadSchedule(spanSig);
 
     async function loadSchedule(sig: string) {
+        const request = ++scheduleRequest;
         scheduleSig = sig;
         schedule = null;
         if (span == null) return;
         try {
             const r = await $api.vScheduleRangeDetail(span.from, span.to, "1");
-            if (scheduleSig === sig) schedule = indexSchedule(r.data);
+            if (scheduleRequest === request) schedule = indexSchedule(r.data);
         } catch (e) {
             console.error(e);
         }
