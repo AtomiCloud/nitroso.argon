@@ -608,6 +608,11 @@
       "balance": "余额：{amount}",
       "purchaseAnother": "再购买一个预订",
       "viewBookings": "查看预订"
+    },
+    "release": {
+      "badge": "等待 KTMB 开放",
+      "noticeTitle": "KTMB 尚未开放此日期",
+      "noticeBody": "您仍然可以预订——KTMB 一开放，我们就会立即开始购票。"
     }
   },
   "discounts": {

@@ -34,6 +34,7 @@
     import {format, parse} from "date-fns";
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatCalendarDate, formatClockTime, formatNumber} from "$lib/i18n";
+    import {dateSpan, indexSchedule, type ScheduleByDate} from "$lib/release";
 
     export let data: PageData;
 
@@ -68,6 +69,33 @@
                 return null as never;
             }
         }) satisfies Promise<BookingPrincipalRes[]>)
+
+    // ---- "waiting for KTMB release" labels ----
+    // ONE schedule range call covering the min..max dates of the Pending bookings shown
+    // (never one call per booking). Client-only via `mounted`; on failure no labels show.
+    let schedule: ScheduleByDate | null = null;
+    let scheduleSig = "";
+    let scheduleRequest = 0; // identity of the latest request, so older responses are dropped
+
+    $: pendingDates = data.result[0] === "ok"
+        ? data.result[1].filter(b => b.status === "Pending").map(b => b.date)
+        : [];
+    $: span = dateSpan(pendingDates);
+    $: spanSig = span == null ? "" : `${span.from}|${span.to}`;
+    $: if (mounted && spanSig !== scheduleSig) loadSchedule(spanSig);
+
+    async function loadSchedule(sig: string) {
+        const request = ++scheduleRequest;
+        scheduleSig = sig;
+        schedule = null;
+        if (span == null) return;
+        try {
+            const r = await $api.vScheduleRangeDetail(span.from, span.to, "1");
+            if (scheduleRequest === request) schedule = indexSchedule(r.data);
+        } catch (e) {
+            console.error(e);
+        }
+    }
 
     let userId = $page.url.searchParams.get("userId") ?? "";
 
@@ -385,7 +413,7 @@
         {:then bs}
             <Page notFoundMessage={$_('bookings.list.empty', { locale: $lang })} empty={bs.length === 0}>
                 {#each bs as b}
-                    <BookingRow {b}/>
+                    <BookingRow {b} {schedule}/>
                 {/each}
             </Page>
             <div class="flex flex-col items-center gap-3 my-4">

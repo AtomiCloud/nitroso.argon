@@ -608,6 +608,11 @@
       "balance": "Balance: {amount}",
       "purchaseAnother": "Purchase Another Booking",
       "viewBookings": "View Bookings"
+    },
+    "release": {
+      "badge": "Waiting for KTMB release",
+      "noticeTitle": "KTMB hasn't released this date yet",
+      "noticeBody": "You can still book — we'll start buying the moment KTMB opens it."
     }
   },
   "discounts": {
