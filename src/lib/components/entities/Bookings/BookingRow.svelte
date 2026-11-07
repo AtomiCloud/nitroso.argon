@@ -12,6 +12,8 @@
     import ManualInterventionActions from "$lib/components/entities/Bookings/ManualInterventionActions.svelte";
     import QueuePosition from "$lib/components/entities/Bookings/QueuePosition.svelte";
     import PriorityBadge from "$lib/components/entities/Bookings/PriorityBadge.svelte";
+    import ReleaseBadge from "$lib/components/entities/Bookings/ReleaseBadge.svelte";
+    import {shouldLabelBooking, type ScheduleByDate} from "$lib/release";
     import moment from "moment-timezone";
     import {_} from "svelte-i18n";
     import {lang, formatCalendarDate, formatClockTime} from "$lib/i18n";
@@ -23,6 +25,9 @@
     import {page} from "$app/stores";
 
     export let b: BookingPrincipalRes;
+    // Open-dates schedule for the list (one range fetch); null until loaded or if it failed.
+    export let schedule: ScheduleByDate | null = null;
+    $: awaitingRelease = schedule != null && shouldLabelBooking(b, schedule);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     $: session = $page.data.session as any;
@@ -96,6 +101,9 @@
                     <PriorityBadge/>
                 {/if}
                 <Badge class="{BOOKING_STATUS[b.status].color}">{$_(`status.booking.${b.status}`, { locale: $lang })}</Badge>
+                {#if awaitingRelease}
+                    <ReleaseBadge/>
+                {/if}
             </div>
         </div>
     </Card.Header>

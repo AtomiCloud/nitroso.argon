@@ -14,6 +14,10 @@
     import PriorityBadge from "$lib/components/entities/Bookings/PriorityBadge.svelte";
     import KtmbAccountCheck from "$lib/components/entities/Bookings/KtmbAccountCheck.svelte";
     import {isKtmbCheckProminent} from "$lib/ktmb_check";
+    import ReleaseBadge from "$lib/components/entities/Bookings/ReleaseBadge.svelte";
+    import {indexSchedule, shouldLabelBooking, type ScheduleByDate} from "$lib/release";
+    import {api} from "../../../../store";
+    import {onMount} from "svelte";
 
     import moment from "moment-timezone";
     import {page} from "$app/stores";
@@ -41,6 +45,20 @@
 
     const isAdmin = session?.roles?.includes("admin") === true;
     const ktmbCheckProminent = isKtmbCheckProminent(b.status);
+
+    // Client-side only (onMount never runs during SSR). Only a Pending booking can be
+    // "waiting for KTMB release"; if the schedule call fails we stay quiet (no badge).
+    let schedule: ScheduleByDate | null = null;
+    onMount(async () => {
+        if (b.status !== "Pending") return;
+        try {
+            const r = await $api.vScheduleRangeDetail(b.date, b.date, "1");
+            schedule = indexSchedule(r.data);
+        } catch (e) {
+            console.error(e);
+        }
+    });
+    $: awaitingRelease = schedule != null && shouldLabelBooking(b, schedule);
 </script>
 
 <div class="flex flex-wrap w-full gap-4">
@@ -71,6 +89,9 @@
                 </div>
                 <div class="flex flex-col gap-1.5 text-center">
                     <Badge class="{BOOKING_STATUS[b.status].color} text-md">{$_(`status.booking.${b.status}`, { locale: $lang })}</Badge>
+                    {#if awaitingRelease}
+                        <ReleaseBadge/>
+                    {/if}
                     {#if b.priority}
                         <PriorityBadge/>
                     {/if}
