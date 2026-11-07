@@ -608,6 +608,11 @@
       "balance": "Baki: {amount}",
       "purchaseAnother": "Beli Tempahan Lain",
       "viewBookings": "Lihat Tempahan"
+    },
+    "release": {
+      "badge": "Menunggu pelepasan KTMB",
+      "noticeTitle": "KTMB belum membuka tarikh ini",
+      "noticeBody": "Anda masih boleh menempah — kami akan mula membeli sebaik sahaja KTMB membukanya."
     }
   },
   "discounts": {

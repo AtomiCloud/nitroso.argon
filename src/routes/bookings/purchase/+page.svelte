@@ -7,10 +7,10 @@
     import * as Popover from "$lib/components/ui/popover";
     //@ts-ignore
     import * as ToggleGroup from "$lib/components/ui/toggle-group";
-    import {problem} from "../../../store";
+    import {api, problem} from "../../../store";
     import type {CreateDiscountReq, PassengerPrincipalRes} from "$lib/api/core/data-contracts";
     import {type SafeParseError, z, type ZodIssue} from "zod";
-    import {tick} from "svelte";
+    import {onMount, tick} from "svelte";
     import {addMonths, format, parse} from "date-fns";
     import {Badge} from "$lib/components/ui/badge";
     import Validation from "$lib/components/core/Validation.svelte";
@@ -34,6 +34,8 @@
     import {_} from "svelte-i18n";
     import {lang, formatMoney, formatNumber, formatClockTime, formatCalendarDate} from "$lib/i18n";
     import LivePricingRefresh from "$lib/components/entities/Costs/LivePricingRefresh.svelte";
+    import {Hourglass} from "lucide-svelte";
+    import {indexSchedule, isAwaitingRelease} from "$lib/release";
 
     export let data: PageData;
 
@@ -178,6 +180,20 @@
 
     $: displayDate = formatCalendarDate(toNativeDate(date), $lang);
     $: displayTime = formatClockTime(time, $lang);
+    // ---- pre-order notice: KTMB has not released this date/time yet ----
+    // Informational only — purchase stays allowed. Client-side only (onMount never runs
+    // during SSR); if the schedule call fails we stay quiet and show nothing.
+    let awaitingRelease = false;
+    onMount(async () => {
+        if (!date || !time || !direction) return;
+        try {
+            const r = await $api.vScheduleRangeDetail(date, date, "1");
+            awaitingRelease = isAwaitingRelease(indexSchedule(r.data), date, time, direction);
+        } catch (e) {
+            console.error(e);
+        }
+    });
+
     $: displayDirection = direction === "JToW"
         ? $_('bookings.purchase.directionJToW', { locale: $lang })
         : $_('bookings.purchase.directionWToJ', { locale: $lang });
@@ -195,6 +211,16 @@
                 <Badge>  {displayDirection}</Badge>
             </div>
         </div>
+
+        {#if awaitingRelease}
+            <div role="status" class="flex items-start gap-3 rounded-md border border-sky-300 bg-sky-50 p-4 text-sky-900 dark:border-sky-700 dark:bg-sky-950 dark:text-sky-100">
+                <Hourglass class="h-5 w-5 mt-0.5 shrink-0"/>
+                <div class="flex flex-col gap-1">
+                    <div class="font-semibold">{$_('bookings.release.noticeTitle', { locale: $lang })}</div>
+                    <div class="text-sm">{$_('bookings.release.noticeBody', { locale: $lang })}</div>
+                </div>
+            </div>
+        {/if}
 
         {#if purchaseData != null}
             {@const [ps, cost] = purchaseData}
