@@ -27,6 +27,35 @@ export function indexSchedule(rows: SchedulePrincipalRes[] | null | undefined): 
   return out;
 }
 
+/**
+ * A row from the per-date detail endpoint (GET /Schedule/{Date}) as the
+ * ScheduleByDate a range call would give. zinc synthesizes {confirmed:false,
+ * excluded:[]} when no row exists — KTMB has not released the date — so an
+ * unconfirmed row is dropped and reads as "no row" to isAwaitingRelease.
+ */
+export function detailSchedule(row: SchedulePrincipalRes | null | undefined): ScheduleByDate {
+  if (row?.confirmed !== true) return {};
+  return indexSchedule([row]);
+}
+
+/**
+ * True when the whole date/direction is unreleased: no row for the date, or
+ * every standard timing excluded for the direction (how zinc stores KTMB's
+ * "no trains" for a not-yet-released month). `timings` is the direction's full
+ * standard timing list; with no timings there is nothing to exclude.
+ */
+export function isDirectionAwaitingRelease(
+  schedule: ScheduleByDate,
+  date: string,
+  direction: string | null | undefined,
+  timings: string[],
+): boolean {
+  const row = schedule[date];
+  if (row == null) return true;
+  const excluded = (direction === 'JToW' ? row.jToWExcluded : row.wToJExcluded) ?? [];
+  return timings.length > 0 && timings.every(t => excluded.includes(t));
+}
+
 /** True when `time` ('HH:mm:ss') on `date` ('dd-mm-yyyy') is not released for `direction`. */
 export function isAwaitingRelease(
   schedule: ScheduleByDate,
