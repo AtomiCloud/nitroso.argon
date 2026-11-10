@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { SchedulePrincipalRes } from '$lib/api/core/data-contracts';
-import { dateSpan, indexSchedule, isAwaitingRelease, shouldLabelBooking } from './release';
+import {
+  dateSpan,
+  detailSchedule,
+  indexSchedule,
+  isAwaitingRelease,
+  isDirectionAwaitingRelease,
+  shouldLabelBooking,
+} from './release';
 
 const row = (over: Partial<SchedulePrincipalRes> = {}): SchedulePrincipalRes => ({
   date: '10-12-2026',
@@ -46,6 +53,47 @@ describe('indexSchedule', () => {
     const s = indexSchedule([row(), row({ date: null }), row({ date: '11-12-2026' })]);
     expect(Object.keys(s).sort()).toEqual(['10-12-2026', '11-12-2026']);
     expect(indexSchedule(null)).toEqual({});
+  });
+});
+
+describe('detailSchedule', () => {
+  it('indexes a confirmed detail-endpoint row by its date', () => {
+    const s = detailSchedule(row());
+    expect(s).toEqual({ '10-12-2026': row() });
+  });
+
+  it("drops zinc's synthesized unconfirmed row for unreleased dates", () => {
+    // GET /Schedule/{Date} answers {confirmed:false, excluded:[]} when no row exists.
+    expect(detailSchedule(row({ confirmed: false, jToWExcluded: [], wToJExcluded: [] }))).toEqual({});
+    expect(detailSchedule(null)).toEqual({});
+  });
+
+  it('drops a row without a date', () => {
+    expect(detailSchedule(row({ date: null }))).toEqual({});
+  });
+});
+
+describe('isDirectionAwaitingRelease', () => {
+  const timings = ['07:00:00', '08:00:00'];
+
+  it('is awaiting when the date has no schedule row', () => {
+    expect(isDirectionAwaitingRelease({}, '10-12-2026', 'WToJ', timings)).toBe(true);
+  });
+
+  it('is released when any timing is still included for the direction', () => {
+    const s = indexSchedule([row({ wToJExcluded: ['07:00:00'] })]);
+    expect(isDirectionAwaitingRelease(s, '10-12-2026', 'WToJ', timings)).toBe(false);
+    expect(isDirectionAwaitingRelease(s, '10-12-2026', 'JToW', timings)).toBe(false);
+  });
+
+  it('is awaiting when every timing is excluded (not-yet-released month)', () => {
+    const s = indexSchedule([row({ wToJExcluded: timings })]);
+    expect(isDirectionAwaitingRelease(s, '10-12-2026', 'WToJ', timings)).toBe(true);
+    expect(isDirectionAwaitingRelease(s, '10-12-2026', 'JToW', timings)).toBe(false);
+  });
+
+  it('is not awaiting when there are no timings to exclude', () => {
+    expect(isDirectionAwaitingRelease(indexSchedule([row()]), '10-12-2026', 'WToJ', [])).toBe(false);
   });
 });
 
