@@ -13,6 +13,16 @@ export type SlotCount = {
 // time -> count
 export type Timings = Record<string, SlotCount>;
 
+// Which parts of the shown date/direction are still waiting for a KTMB release
+// (see $lib/release). Informational only — buying stays allowed, pre-orders
+// are the point.
+export type ReleaseInfo = {
+  // the whole date/direction is unreleased → notice above the list
+  directionAwaiting: boolean;
+  // visible times ('HH:mm:ss') that are individually unreleased → badge the card
+  awaitingTimes: string[];
+};
+
 /**
  * One BookingCountRes (or none — a slot zinc reported no queue for) →
  * SlotCount. The split only counts when BOTH fields arrived and they add up

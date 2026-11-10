@@ -10,7 +10,8 @@ import { toResult } from '$lib/utility';
 import { loadError } from '$lib/i18n';
 import type { PageLoad } from './$types';
 import { Res } from '$lib/core/result';
-import { toSlotCount, type Timings } from './typing';
+import { toSlotCount, type ReleaseInfo, type Timings } from './typing';
+import { detailSchedule, isAwaitingRelease, isDirectionAwaitingRelease } from '$lib/release';
 import { redirect } from '@sveltejs/kit';
 import { filterTimesAtOrAfterBookingCutoff, parseZincDate, singaporeToday, toZincDate } from '$lib/time/singapore';
 import { LIVE_PRICING_DEPENDENCY } from '$lib/api/cost';
@@ -42,6 +43,7 @@ export const load = (async ({
   result: ['err', ProblemDetails[]] | ['ok', Timings];
   slotSummaries: CostSlotSummaryRes[] | null;
   slotPricingFailed: boolean;
+  release: ReleaseInfo | null;
 }> => {
   depends(LIVE_PRICING_DEPENDENCY);
   const { session, locale } = await parent();
@@ -78,6 +80,24 @@ export const load = (async ({
     .map(([s, t, b]) => stitchTiming(getTiming(direction as 'JToW' | 'WToJ', t, s, date, now), b))
     .serial();
 
+  // Release labelling ("waiting for KTMB release"): the notice covers the whole
+  // date/direction, the badge the individual times still shown. Buying stays
+  // allowed — pre-orders are the point. Computed from the same schedule row
+  // getTiming filtered with; null when a load failed (the page then shows that
+  // error instead). The detail endpoint synthesizes an unconfirmed row for
+  // unreleased dates, which detailSchedule maps back to "no row".
+  let release: ReleaseInfo | null = null;
+  if (result[0] === 'ok') {
+    const [s, t] = await Promise.all([schedule.serial(), timing.serial()]);
+    if (s[0] === 'ok' && t[0] === 'ok') {
+      const byDate = detailSchedule(s[1]);
+      release = {
+        directionAwaiting: isDirectionAwaitingRelease(byDate, date, direction, t[1].principal.timings ?? []),
+        awaitingTimes: Object.keys(result[1]).filter(time => isAwaitingRelease(byDate, date, time, direction)),
+      };
+    }
+  }
+
   // Per-slot ACTUAL prices from the batch endpoint (priced for the caller,
   // per date/time/direction). Never silently fall back to Cost/self: that
   // endpoint has no slot and intentionally cannot apply lead-time/date/time
@@ -112,5 +132,5 @@ export const load = (async ({
     }
   }
 
-  return { result, slotSummaries, slotPricingFailed };
+  return { result, slotSummaries, slotPricingFailed, release };
 }) satisfies PageLoad;
