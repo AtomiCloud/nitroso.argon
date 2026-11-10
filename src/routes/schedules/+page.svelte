@@ -21,7 +21,7 @@
     import {page} from "$app/stores";
     import type {Timings} from "./typing";
     import {Badge} from "$lib/components/ui/badge";
-    import {CalendarIcon, LucideInfo} from "lucide-svelte";
+    import {CalendarIcon, Hourglass, LucideInfo} from "lucide-svelte";
     import {cn} from "$lib/utils";
     import {Calendar} from "$lib/components/ui/calendar";
     import {format, parse} from "date-fns";
@@ -33,6 +33,7 @@
     import {toResult} from "$lib/utility";
     import {DAYS, demandBucketOf, leadBucketOf} from "$lib/stats/buckets";
     import OddsStat from "./OddsStat.svelte";
+    import ReleaseBadge from "$lib/components/entities/Bookings/ReleaseBadge.svelte";
 
     export let data: PageData;
 
@@ -111,6 +112,12 @@
     // rather than showing Cost/self, which cannot apply slot targeting.
     $: slotMap = new Map<string, CostSlotSummaryRes>(
         (data.slotSummaries ?? []).map((s) => [s.time ?? "", s]));
+
+    // ---- "waiting for KTMB release" labels (see $lib/release) ----
+    // Informational only — buying stays allowed. From the load's release info;
+    // stays hidden when the schedule/timing loads failed (page shows that error).
+    $: directionAwaiting = data.release?.directionAwaiting ?? false;
+    $: awaitingTimes = data.release?.awaitingTimes ?? [];
 
     function signedDelta(delta: number): string {
         const sign = delta >= 0 ? "+" : "−";
@@ -251,6 +258,18 @@
                 </Button>
             </div>
         {/if}
+        {#if directionAwaiting}
+            <!-- pre-order notice: KTMB has not released this date/direction yet.
+                 Calm sky tone, not an error — buying stays allowed. -->
+            <div role="status"
+                 class="flex items-start gap-3 rounded-md border border-sky-300 bg-sky-50 p-4 text-sky-900 dark:border-sky-700 dark:bg-sky-950 dark:text-sky-100">
+                <Hourglass class="h-5 w-5 mt-0.5 shrink-0"/>
+                <div class="flex flex-col gap-1">
+                    <div class="font-semibold">{$_('bookings.release.noticeTitle', { locale: $lang })}</div>
+                    <div class="text-sm">{$_('bookings.release.noticeBody', { locale: $lang })}</div>
+                </div>
+            </div>
+        {/if}
         {#await schedules}
             <Loader/>
         {:then timings}
@@ -283,6 +302,9 @@
                                                         {/if}
                                                     </span>
                                                 </Badge>
+                                                {#if awaitingTimes.includes(time)}
+                                                    <ReleaseBadge/>
+                                                {/if}
                                                 {#if isAdmin && statRows != null && slotDay !== ""}
                                                     <!-- ADMIN-only live odds from the cached stats rows;
                                                          demand bucket comes from the LIVE queue count
