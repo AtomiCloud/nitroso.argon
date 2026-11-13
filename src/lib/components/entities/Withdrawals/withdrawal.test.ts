@@ -11,6 +11,8 @@ import {
   methodAvailability,
   rmiActions,
   REFUND_STATUS_BADGE,
+  REFUND_SLOW_DAYS,
+  refundProgress,
   shortenId,
   sliceError,
   sliceErrors,
@@ -374,5 +376,55 @@ describe('withdrawalNet', () => {
 
   it('a disabled fee pays the full amount', () => {
     expect(withdrawalNet(40, 0)).toBe(40);
+  });
+});
+
+describe('refundProgress', () => {
+  const now = new Date('2026-11-13T12:00:00Z');
+  const slice = (over: Record<string, unknown> = {}) =>
+    ({
+      paymentIntentId: 'int_x',
+      airwallexRefundId: 'rfd_x',
+      amount: 10,
+      status: 'Created',
+      createdAt: '2026-11-10T18:20:33Z',
+      settledAt: null,
+      ...over,
+    }) as Parameters<typeof refundProgress>[0];
+
+  it('is requested while Airwallex has not been seen to accept it', () => {
+    expect(refundProgress(slice(), now)).toEqual({ stage: 'requested', daysWaiting: 2, slow: false });
+  });
+
+  it('is accepted when Airwallex says ACCEPTED (any case)', () => {
+    expect(refundProgress(slice({ gatewayStatus: 'accepted' }), now).stage).toBe('accepted');
+  });
+
+  it('is accepted when an ARN exists even without a recorded status', () => {
+    expect(refundProgress(slice({ acquirerReferenceNumber: '74107626314182034471314' }), now).stage).toBe('accepted');
+  });
+
+  it('RECEIVED is still only requested', () => {
+    expect(refundProgress(slice({ gatewayStatus: 'RECEIVED' }), now).stage).toBe('requested');
+  });
+
+  it('flags slow only past the slowest refund we have seen', () => {
+    const at = (days: number) => new Date(Date.parse('2026-11-10T18:20:33Z') + days * 86400000 + 1000);
+    expect(refundProgress(slice(), at(REFUND_SLOW_DAYS)).slow).toBe(false);
+    expect(refundProgress(slice(), at(REFUND_SLOW_DAYS + 1)).slow).toBe(true);
+  });
+
+  it('settled and failed are terminal with no waiting', () => {
+    expect(refundProgress(slice({ status: 'Settled' }), now)).toEqual({
+      stage: 'settled',
+      daysWaiting: 0,
+      slow: false,
+    });
+    expect(refundProgress(slice({ status: 'Failed' }), now).stage).toBe('failed');
+  });
+
+  it('never goes negative or NaN on a bad/future timestamp', () => {
+    expect(refundProgress(slice({ createdAt: 'nope' }), now).daysWaiting).toBe(0);
+    expect(refundProgress(slice({ createdAt: '2027-01-01T00:00:00Z' }), now).daysWaiting).toBe(0);
   });
 });

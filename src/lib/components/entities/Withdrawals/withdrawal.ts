@@ -161,6 +161,51 @@ export function shortenId(id: string, head = 10, tail = 4): string {
 }
 
 /**
+ * Card refunds settle on the card network's clock, not ours. Across zinc's
+ * history (258 settled refunds) the median is ~5 days and the slowest ~15,
+ * so "pending for 3 days" is normal and only past ~15 days is it unusual.
+ */
+export const REFUND_TYPICAL_DAYS = 5;
+export const REFUND_SLOW_DAYS = 15;
+
+/**
+ * Where one refund slice is on its way to the card:
+ * requested (zinc asked Airwallex) → accepted (Airwallex handed it to the card
+ * network; an ARN exists) → settled. failed is terminal.
+ */
+export type RefundStage = 'requested' | 'accepted' | 'settled' | 'failed';
+
+export interface RefundProgress {
+  stage: RefundStage;
+  /** whole days since the refund was requested; 0 once settled/failed */
+  daysWaiting: number;
+  /** still pending longer than the slowest refund we have seen */
+  slow: boolean;
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Pure: the progress-indicator state for a refund slice. "accepted" is
+ * inferred from Airwallex's status OR an issued ARN (the ARN only exists once
+ * the card network has the refund), so it shows even when the status was
+ * never recorded (older rows, or before the first reconcile).
+ */
+export function refundProgress(r: WithdrawalRefundRes, now: Date = new Date()): RefundProgress {
+  if (r.status === 'Settled') return { stage: 'settled', daysWaiting: 0, slow: false };
+  if (r.status === 'Failed') return { stage: 'failed', daysWaiting: 0, slow: false };
+  const gateway = (r.gatewayStatus ?? '').toUpperCase();
+  const accepted = gateway === 'ACCEPTED' || gateway === 'SETTLED' || !!r.acquirerReferenceNumber;
+  const created = Date.parse(r.createdAt);
+  const daysWaiting = Number.isNaN(created) ? 0 : Math.max(0, Math.floor((now.getTime() - created) / DAY_MS));
+  return {
+    stage: accepted ? 'accepted' : 'requested',
+    daysWaiting,
+    slow: daysWaiting > REFUND_SLOW_DAYS,
+  };
+}
+
+/**
  * Badge colors for the refund-fragment statuses (zinc: Created → Settled |
  * Failed): amber while pending, green once Airwallex settles, red on failure.
  * Mirrors the WITHDRAWAL_STATUS_BADGE convention.
