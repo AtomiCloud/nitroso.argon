@@ -1669,6 +1669,17 @@
         "Created": "待处理",
         "Settled": "已到账",
         "Failed": "失败"
+      },
+      "progress": {
+        "stepRequested": "已申请",
+        "stepAccepted": "卡组织处理中",
+        "stepSettled": "已到账",
+        "waiting": "已等待第 {days} 天 · 银行卡退款通常约需 {typical} 天，最长约 {slow} 天",
+        "waitingSlow": "比平时更久（{days} 天）。请凭 ARN 向 Airwallex 或银行查询",
+        "waitingSlowNoArn": "比平时更久（{days} 天）。请凭上方的退款编号向 Airwallex 查询",
+        "arn": "银行参考号（ARN）",
+        "checkedAt": "上次向 Airwallex 查询：{at}",
+        "notChecked": "尚未向 Airwallex 查询"
       }
     },
     "card": {
