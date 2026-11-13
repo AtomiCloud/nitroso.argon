@@ -103,18 +103,18 @@
                                             <span class="relative inline-flex h-3 w-3 rounded-full
                                                 {i < at ? 'bg-green-500' : i === at ? 'bg-amber-500' : 'border border-muted-foreground/40 bg-background'}"></span>
                                         </span>
-                                        <span class="whitespace-nowrap {i <= at ? 'font-medium' : 'text-muted-foreground'}">
+                                        <span class="min-w-0 break-words leading-tight {i <= at ? 'font-medium' : 'text-muted-foreground'}">
                                             {$_(STEP_LABEL[step], { locale: $lang })}
                                         </span>
                                         {#if i < STEPS.length - 1}
-                                            <span class="mx-1 h-px min-w-3 flex-1 {i < at ? 'bg-green-500' : 'bg-muted-foreground/30'}"></span>
+                                            <span class="mx-1 h-px min-w-2 flex-1 {i < at ? 'bg-green-500' : 'bg-muted-foreground/30'}"></span>
                                         {/if}
                                     </li>
                                 {/each}
                             </ol>
                             <p class={progress.slow ? 'font-medium text-amber-600 dark:text-amber-400' : 'text-muted-foreground'}>
                                 {#if progress.slow}
-                                    {$_('withdrawals.refunds.progress.waitingSlow', { locale: $lang, values: { days: progress.daysWaiting } })}
+                                    {$_(r.acquirerReferenceNumber ? 'withdrawals.refunds.progress.waitingSlow' : 'withdrawals.refunds.progress.waitingSlowNoArn', { locale: $lang, values: { days: progress.daysWaiting } })}
                                 {:else}
                                     {$_('withdrawals.refunds.progress.waiting', { locale: $lang, values: { days: progress.daysWaiting + 1, typical: REFUND_TYPICAL_DAYS, slow: REFUND_SLOW_DAYS } })}
                                 {/if}
