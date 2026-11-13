@@ -1669,6 +1669,16 @@
         "Created": "Menunggu",
         "Settled": "Diselesaikan",
         "Failed": "Gagal"
+      },
+      "progress": {
+        "stepRequested": "Diminta",
+        "stepAccepted": "Di rangkaian kad",
+        "stepSettled": "Diselesaikan",
+        "waiting": "Hari ke-{days} menunggu · bayaran balik kad biasanya mengambil kira-kira {typical} hari, sehingga {slow}",
+        "waitingSlow": "Mengambil masa lebih lama daripada biasa ({days} hari). Tanya Airwallex atau bank menggunakan ARN",
+        "arn": "Rujukan bank (ARN)",
+        "checkedAt": "Kali terakhir disemak dengan Airwallex {at}",
+        "notChecked": "Belum disemak dengan Airwallex"
       }
     },
     "card": {

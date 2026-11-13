@@ -1669,6 +1669,16 @@
         "Created": "Pending",
         "Settled": "Settled",
         "Failed": "Failed"
+      },
+      "progress": {
+        "stepRequested": "Requested",
+        "stepAccepted": "With card network",
+        "stepSettled": "Settled",
+        "waiting": "Day {days} of waiting · card refunds usually take about {typical} days, up to {slow}",
+        "waitingSlow": "Taking longer than usual ({days} days). Ask Airwallex or the bank using the ARN",
+        "arn": "Bank reference (ARN)",
+        "checkedAt": "Last checked with Airwallex {at}",
+        "notChecked": "Not checked with Airwallex yet"
       }
     },
     "card": {

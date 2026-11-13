@@ -1346,6 +1346,19 @@ export interface WithdrawalRefundRes {
    * recorded, cleared once a refund id is stored.
    */
   lastError?: string | null;
+  /**
+   * HAND-ADDED (zinc PR #77): the card network's reference for the refund
+   * (ARN). Airwallex usually issues it once the refund is ACCEPTED, before it
+   * settles; null = not issued yet.
+   */
+  acquirerReferenceNumber?: string | null;
+  /**
+   * HAND-ADDED (zinc PR #77): Airwallex's last-seen word for the refund
+   * (RECEIVED / ACCEPTED / SETTLED / FAILED); null = never checked.
+   */
+  gatewayStatus?: string | null;
+  /** @format date-time — HAND-ADDED (zinc PR #77): when zinc last saw gatewayStatus */
+  gatewayCheckedAt?: string | null;
 }
 
 /**
