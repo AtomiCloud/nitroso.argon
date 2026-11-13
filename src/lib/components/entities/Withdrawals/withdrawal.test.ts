@@ -415,7 +415,11 @@ describe('refundProgress', () => {
   });
 
   it('settled and failed are terminal with no waiting', () => {
-    expect(refundProgress(slice({ status: 'Settled' }), now)).toEqual({ stage: 'settled', daysWaiting: 0, slow: false });
+    expect(refundProgress(slice({ status: 'Settled' }), now)).toEqual({
+      stage: 'settled',
+      daysWaiting: 0,
+      slow: false,
+    });
     expect(refundProgress(slice({ status: 'Failed' }), now).stage).toBe('failed');
   });
 
